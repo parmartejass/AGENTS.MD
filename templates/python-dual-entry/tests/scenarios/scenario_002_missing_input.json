@@ -1,0 +1,16 @@
+{
+  "id": "scenario_002_missing_input",
+  "description": "Failure path: missing input file",
+  "job": {
+    "workflow_id": "text_transform_v1",
+    "input_path": "../fixtures/does_not_exist.txt",
+    "output_path": "../output/scenario_002_output.txt",
+    "workflow": {
+      "steps": [{ "op": "strip" }]
+    }
+  },
+  "expected": {
+    "success": false
+  }
+}
+

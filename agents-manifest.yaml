@@ -1,0 +1,148 @@
+version: 1
+ssot_owner: AGENTS.md
+update_trigger: task profile signals or injected doc sets change
+description: >-
+  Deterministic context-injection manifest for agents/tools. This is the single source of truth
+  for mapping task signals to which supporting docs/playbooks should be loaded alongside AGENTS.md.
+
+default_inject:
+  - "AGENTS.md"
+
+injection_mode: union # union | first_match
+
+fallback_inject:
+  - "docs/agents/05-context-retrieval.md"
+  - "docs/agents/10-repo-discovery.md"
+  - "docs/agents/30-logging-errors.md"
+
+semantic_queries:
+  # Pre-defined queries agents can use for embedding-based search when a profile matches.
+  excel_automation:
+    - "How is Excel COM lifecycle managed in this repo?"
+    - "Where is the Excel quit/kill fallback implemented?"
+  gui_task:
+    - "How is GUI thread safety enforced?"
+    - "Where is the queue/drain pattern implemented?"
+  dual_entry_template:
+    - "How does the CLI vs GUI entry dispatcher work?"
+    - "Where are workflow scenarios registered?"
+  bugfix:
+    - "Where is the failing functionality implemented?"
+    - "What SSOT owns this behavior?"
+
+profiles:
+  excel_automation:
+    detect:
+      keywords:
+        - "excel"
+        - "workbook"
+        - ".xlsx"
+        - ".xlsm"
+        - ".xls"
+        - "win32com"
+        - "xlwings"
+        - "com"
+      code_patterns:
+        - "Excel.Application"
+        - "win32com"
+        - "Dispatch"
+        - "xlwings"
+      file_globs:
+        - "*.xlsx"
+        - "*.xlsm"
+        - "*.xls"
+    inject:
+      - "docs/agents/50-excel-com-lifecycle.md"
+      - "docs/agents/40-config-constants.md"
+      - "docs/agents/30-logging-errors.md"
+      - "docs/agents/70-io-data-integrity.md"
+      - "docs/agents/playbooks/excel-task-template.md"
+
+  gui_task:
+    detect:
+      keywords:
+        - "gui"
+        - "ui"
+        - "tkinter"
+        - "after("
+        - "queue"
+        - "threading"
+        - "cancel"
+        - "cancellation"
+        - "progress"
+      code_patterns:
+        - "tkinter"
+        - "after("
+        - "queue.Queue"
+        - "threading.Event"
+      file_globs: []
+    inject:
+      - "docs/agents/60-gui-threading.md"
+      - "docs/agents/30-logging-errors.md"
+      - "docs/agents/playbooks/gui-task-template.md"
+
+  dual_entry_template:
+    detect:
+      keywords:
+        - "dual-entry"
+        - "dual entry"
+        - "entry dispatcher"
+        - "__main__.py"
+        - "cli"
+        - "gui"
+        - "scenario"
+        - "scenarios"
+        - "pytest"
+        - "unittest"
+      code_patterns:
+        - "run_job("
+        - "python -m"
+      file_globs: []
+    inject:
+      - "docs/agents/85-dual-entry-template.md"
+      - "docs/agents/workflow-registry.md"
+      - "docs/agents/80-testing-real-files.md"
+      - "docs/agents/60-gui-threading.md"
+      - "docs/agents/30-logging-errors.md"
+      - "docs/agents/40-config-constants.md"
+
+  bugfix:
+    detect:
+      keywords:
+        - "bug"
+        - "bugfix"
+        - "fix"
+        - "regression"
+        - "failing"
+        - "error"
+        - "exception"
+        - "crash"
+      code_patterns: []
+      file_globs: []
+    inject:
+      - "docs/agents/10-repo-discovery.md"
+      - "docs/agents/30-logging-errors.md"
+      - "docs/agents/playbooks/bugfix-template.md"
+
+  ai_prompt_authoring:
+    detect:
+      keywords:
+        - "prompt"
+        - "prompting"
+        - "copilot"
+        - "claude"
+        - "cursor"
+        - "assistant"
+        - "template"
+      code_patterns: []
+      file_globs: []
+    inject:
+      - "docs/agents/playbooks/ai-coding-prompt-template.md"
+
+  stuck_loop_reset:
+    detect:
+      signals:
+        - "repeated_failure_same_root_cause_twice"
+        - "verification_contradicts_claim"
+    inject:
+      - "docs/agents/15-stuck-in-loop-generate-fresh-restart-prompt.md"
