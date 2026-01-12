@@ -1,0 +1,16 @@
+{
+  "id": "scenario_003_unknown_operation",
+  "description": "Failure path: unknown operation in workflow steps",
+  "job": {
+    "workflow_id": "text_transform_v1",
+    "input_path": "../fixtures/sample_input.txt",
+    "output_path": "../output/scenario_003_output.txt",
+    "workflow": {
+      "steps": [{ "op": "does_not_exist" }]
+    }
+  },
+  "expected": {
+    "success": false
+  }
+}
+

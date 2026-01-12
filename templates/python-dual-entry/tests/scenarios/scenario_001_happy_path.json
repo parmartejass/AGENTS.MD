@@ -1,0 +1,21 @@
+{
+  "id": "scenario_001_happy_path",
+  "description": "Happy path: strip + uppercase + prefix",
+  "job": {
+    "workflow_id": "text_transform_v1",
+    "input_path": "../fixtures/sample_input.txt",
+    "output_path": "../output/scenario_001_output.txt",
+    "workflow": {
+      "steps": [
+        { "op": "strip" },
+        { "op": "uppercase" },
+        { "op": "prefix", "value": "ITEM: " }
+      ]
+    }
+  },
+  "expected": {
+    "success": true,
+    "output_path": "../expected/scenario_001_expected.txt"
+  }
+}
+
