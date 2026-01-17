@@ -7,6 +7,10 @@ This repository maintains a reusable, repo-agnostic instruction pack for autonom
 - Canonical policy: `AGENTS.md`
 - Context injection manifest: `agents-manifest.yaml`
 
+## Changelog
+
+- See `CHANGELOG.md`
+
 ## Tool loader stubs
 
 - Cursor: `.cursorrules` (forces loading `AGENTS.md`)
