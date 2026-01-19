@@ -146,3 +146,64 @@ profiles:
         - "verification_contradicts_claim"
     inject:
       - "docs/agents/15-stuck-in-loop-generate-fresh-restart-prompt.md"
+
+  agentic_task:
+    detect:
+      keywords:
+        - "loop"
+        - "iterate"
+        - "iteration"
+        - "parallel"
+        - "subagent"
+        - "batch"
+        - "until"
+        - "each file"
+        - "for each"
+        - "go through"
+        - "in a loop"
+        - "fix until"
+        - "run until"
+      code_patterns: []
+      file_globs: []
+    inject:
+      - "docs/agents/97-agentic-loops.md"
+      - "docs/agents/95-hooks-automation.md"
+      - "docs/agents/15-stuck-in-loop-generate-fresh-restart-prompt.md"
+
+  automation_hooks:
+    detect:
+      keywords:
+        - "hook"
+        - "hooks"
+        - "PostToolUse"
+        - "PreToolUse"
+        - "automation"
+        - "formatter"
+        - "linter"
+        - "after edit"
+        - "before edit"
+        - "auto-format"
+        - "diagnostics"
+      code_patterns: []
+      file_globs: []
+    inject:
+      - "docs/agents/95-hooks-automation.md"
+
+  custom_commands:
+    detect:
+      keywords:
+        - "slash command"
+        - "custom command"
+        - "/release"
+        - "/review"
+        - "/debug"
+        - "workflow command"
+        - "command file"
+      code_patterns: []
+      file_globs:
+        - "**/commands/*.md"
+        - "**/.claude/commands/*"
+        - "**/.cursor/commands/*"
+    inject:
+      - "docs/agents/96-custom-commands.md"
+      - "docs/agents/workflow-registry.md"

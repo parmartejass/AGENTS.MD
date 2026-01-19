@@ -119,7 +119,111 @@ Completion protocol:
   - Output exactly: <promise>COMPLETE</promise>
 ```
 
+## Thinking Depth Control
+
+Use these phrases to control how deeply the model reasons before responding:
+
+| Phrase | Depth | Use When |
+|--------|-------|----------|
+| "think about it" | Light | Simple tasks, quick fixes |
+| "think step by step" | Medium | Multi-step tasks, debugging |
+| "think harder" | Deep | Complex logic, architectural decisions |
+| "ultrathink" / "think very carefully" | Maximum | Critical code, security-sensitive, subtle bugs |
+
+**Example:**
+```
+Think harder about the edge cases before implementing.
+Goal: Add rate limiting to the API endpoint...
+```
+
+## "Always Works" Verification Contract
+
+Before claiming any task is complete, apply this mental test:
+
+> **"Would you bet $100 that this works?"**
+
+If no, verification is incomplete. Common gaps:
+- Assumed a path/import exists (verify with `ls`, `rg`)
+- Assumed a function signature (verify by reading source)
+- Didn't run the actual command (always run, don't assume)
+- Didn't test edge cases (list them, test them)
+
+**Add to prompts:**
+```
+Verification contract:
+- Run all verification commands
+- Confirm: "I would bet $100 this works because [evidence]"
+- If not confident: list remaining uncertainties
+```
+
+## Iteration Loop Prompts
+
+For tasks requiring multiple passes through files/items:
+
+```
+Go through each <item type> in <scope> and <action>.
+For each item:
+1. <step 1>
+2. <step 2>
+3. Verify: <condition>
+
+On failure: <skip and log | halt and report>
+Max iterations: <N>
+
+Report format:
+- Item: <identifier>
+- Action taken: <description>
+- Verification: <pass/fail + evidence>
+```
+
+## Fix-Until-Pass Loop Prompts
+
+For iterative fixing until success:
+
+```
+Run <command> in a loop until it passes.
+On each iteration:
+1. Run the command
+2. If success: stop and report
+3. If failure: analyze error, apply fix
+4. Max iterations: <N>
+
+Stuck-loop detection:
+- If same error appears twice: STOP
+- Output restart prompt per docs/agents/15-stuck-in-loop-generate-fresh-restart-prompt.md
+```
+
+## Subagent / Parallel Prompts
+
+For parallel execution:
+
+```
+Use subagents to complete in parallel:
+- Subagent A: <task A, specific files>
+- Subagent B: <task B, specific files>
+
+Rules:
+- Subagents must not edit overlapping files
+- Each subagent follows AGENTS.md independently
+- Results merged after all complete
+```
+
+For specialized review:
+
+```
+Spawn a reviewer subagent with critical personality.
+Task: Review <scope> for:
+- SSOT violations
+- Logging issues
+- Resource safety
+
+Output: Issues list with severity and file:line location.
+Do not auto-fix; report only.
+```
+
 ## After-the-output review
 - Run the verification commands you listed.
+- Apply "Always Works" test: Would you bet $100?
 - Use `docs/agents/90-release-checklist.md` as a final pass.
 - If you hit a repetition loop, use `docs/agents/15-stuck-in-loop-generate-fresh-restart-prompt.md`.
+- For agentic loops, see `docs/agents/97-agentic-loops.md`.

@@ -18,6 +18,9 @@ Core docs:
 - Testing with real files: `docs/agents/80-testing-real-files.md`
 - Dual-entry template (GUI+CLI): `docs/agents/85-dual-entry-template.md`
 - Release checklist: `docs/agents/90-release-checklist.md`
+- Hooks + automation patterns: `docs/agents/95-hooks-automation.md`
+- Custom commands: `docs/agents/96-custom-commands.md`
+- Agentic loops + parallel execution: `docs/agents/97-agentic-loops.md`
 - Workflow registry standard: `docs/agents/workflow-registry.md`
 
 Playbooks (copy/paste templates):
