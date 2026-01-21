@@ -7,17 +7,20 @@ description: >-
 
 default_inject:
   - "AGENTS.md"
+  - "docs/agents/05-context-retrieval.md"
 
 injection_mode: union # union | first_match
 
 fallback_inject:
-  - "docs/agents/05-context-retrieval.md"
   - "docs/agents/10-repo-discovery.md"
   - "docs/agents/30-logging-errors.md"
 
 semantic_queries:
   # Pre-defined queries agents can use for embedding-based search when a profile matches.
   excel_automation:
+    - "Where is Excel file processing handled in this repo?"
+    - "Where are workbook/sheet constants and validation rules defined?"
+  excel_com:
     - "How is Excel COM lifecycle managed in this repo?"
     - "Where is the Excel quit/kill fallback implemented?"
   gui_task:
@@ -29,6 +32,12 @@ semantic_queries:
   bugfix:
     - "Where is the failing functionality implemented?"
     - "What SSOT owns this behavior?"
+  io_batch:
+    - "Where is high-volume file I/O handled in this repo?"
+    - "What SSOT owns batching/chunking/caching for file processing?"
+  perf_hotspots:
+    - "Where are known performance hotspots handled in this repo?"
+    - "What SSOT owns caching/batching for the slow path?"
 
 profiles:
   excel_automation:
@@ -39,47 +48,146 @@ profiles:
         - ".xlsx"
         - ".xlsm"
         - ".xls"
-        - "win32com"
+        - "openpyxl"
+        - "xlsxwriter"
+        - "read_excel"
+        - "to_excel"
         - "xlwings"
-        - "com"
       code_patterns:
         - "Excel.Application"
-        - "win32com"
-        - "Dispatch"
         - "xlwings"
+        - "openpyxl"
+        - "load_workbook"
+        - "read_excel"
+        - "to_excel"
+        - "ExcelWriter"
+        - "xlsxwriter"
       file_globs:
         - "*.xlsx"
         - "*.xlsm"
         - "*.xls"
     inject:
-      - "docs/agents/50-excel-com-lifecycle.md"
       - "docs/agents/40-config-constants.md"
       - "docs/agents/30-logging-errors.md"
       - "docs/agents/70-io-data-integrity.md"
       - "docs/agents/playbooks/excel-task-template.md"
 
+  excel_com:
+    detect:
+      keywords:
+        - "Excel.Application"
+        - "xlwings"
+        - "excel com"
+      code_patterns:
+        - "Excel.Application"
+        - "xlwings"
+      file_globs: []
+    inject:
+      - "docs/agents/50-excel-com-lifecycle.md"
+
   gui_task:
     detect:
       keywords:
         - "gui"
-        - "ui"
+        - "user interface"
+        - "ui thread"
         - "tkinter"
+        - "customtkinter"
+        - "ttk"
+        - "mainloop"
         - "after("
-        - "queue"
-        - "threading"
-        - "cancel"
-        - "cancellation"
-        - "progress"
       code_patterns:
         - "tkinter"
+        - "customtkinter"
+        - "ttk"
+        - "mainloop("
         - "after("
-        - "queue.Queue"
-        - "threading.Event"
       file_globs: []
     inject:
       - "docs/agents/60-gui-threading.md"
       - "docs/agents/30-logging-errors.md"
       - "docs/agents/playbooks/gui-task-template.md"
+
+  io_batch:
+    detect:
+      keywords:
+        - "csv"
+        - ".csv"
+        - "tsv"
+        - ".tsv"
+        - "json"
+        - ".json"
+        - "jsonl"
+        - "ndjson"
+        - "parquet"
+        - ".parquet"
+        - "feather"
+        - ".feather"
+        - "pyarrow"
+        - "polars"
+        - "etl"
+        - "ingest"
+        - "bulk"
+        - "chunk"
+        - "gzip"
+        - ".gz"
+        - ".zip"
+        - "archive"
+        - "extract"
+        - "glob("
+        - "os.walk"
+      code_patterns:
+        - "read_csv"
+        - "to_csv"
+        - "read_json"
+        - "to_json"
+        - "read_parquet"
+        - "to_parquet"
+        - "json.load"
+        - "json.dump"
+        - "csv.DictReader"
+        - "csv.writer"
+        - "Path.glob"
+        - "rglob("
+        - "os.walk"
+        - "gzip.open"
+        - "zipfile.ZipFile"
+        - "tarfile.open"
+      file_globs:
+        - "*.csv"
+        - "*.tsv"
+        - "*.json"
+        - "*.jsonl"
+        - "*.ndjson"
+        - "*.parquet"
+        - "*.feather"
+        - "*.gz"
+        - "*.zip"
+        - "*.tar"
+        - "*.tgz"
+    inject:
+      - "docs/agents/70-io-data-integrity.md"
+      - "docs/agents/80-testing-real-files.md"
+      - "docs/agents/30-logging-errors.md"
+      - "docs/agents/40-config-constants.md"
+      - "docs/agents/playbooks/io-batch-task-template.md"
+
+  perf_hotspots:
+    detect:
+      keywords:
+        - "iterrows"
+        - "itertuples"
+        - "cell-by-cell"
+        - "per-cell"
+        - "nested loop"
+      code_patterns:
+        - "iterrows("
+        - "itertuples("
+        - ".Cells("
+        - ".cell("
+      file_globs: []
+    inject:
+      - "docs/agents/playbooks/perf-hotspots-template.md"
 
   dual_entry_template:
     detect:
@@ -111,7 +219,6 @@ profiles:
       keywords:
         - "bug"
         - "bugfix"
-        - "fix"
         - "regression"
         - "failing"
         - "error"
@@ -138,6 +245,28 @@ profiles:
       file_globs: []
     inject:
       - "docs/agents/playbooks/ai-coding-prompt-template.md"
+
+  project_docs:
+    detect:
+      keywords:
+        - "docs"
+        - "documentation"
+        - "readme"
+        - "architecture"
+        - "goal"
+        - "rules"
+        - "runbook"
+        - "playbook"
+        - "adr"
+      code_patterns: []
+      file_globs:
+        - "README.md"
+        - "docs/project/*.md"
+        - "docs/project/**/*.md"
+    inject:
+      - "docs/agents/25-docs-ssot-policy.md"
+      - "docs/agents/20-sources-of-truth-map.md"
+      - "docs/agents/playbooks/project-docs-template.md"
 
   stuck_loop_reset:
     detect:

@@ -1,0 +1,39 @@
+# Python bytecode / caches
+__pycache__/
+*.py[cod]
+
+# Virtualenvs
+.venv/
+venv/
+
+# Test caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Template-generated outputs
+templates/python-dual-entry/tests/output/*
+!templates/python-dual-entry/tests/output/.gitkeep
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+
+# Excel temp/lock files
+~$*.xlsx
+~$*.xlsm
+~$*.xls
+~$*.xlsb
+
+# Environment files
+.env
+
+# IDE settings
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# App-specific outputs
+*_DRYRUN_*.xlsb
