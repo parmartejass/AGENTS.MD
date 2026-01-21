@@ -1,0 +1,65 @@
+$ErrorActionPreference = "Stop"
+
+# Validates that minimal project docs exist and are reachable from README.
+# Usage: powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_project_docs.ps1
+
+$repoRoot = Split-Path -Parent $PSScriptRoot
+
+$issues = New-Object System.Collections.Generic.List[string]
+
+function Add-Issue([System.Collections.Generic.List[string]]$list, [string]$message) {
+  $list.Add($message)
+}
+
+$requiredFiles = @(
+  "README.md",
+  "docs/project/index.md",
+  "docs/project/goal.md",
+  "docs/project/rules.md",
+  "docs/project/architecture.md",
+  "docs/project/learning.md"
+)
+
+foreach ($rel in $requiredFiles) {
+  $full = Join-Path $repoRoot $rel
+  if (-not (Test-Path $full -PathType Leaf)) {
+    Add-Issue $issues "Missing required file: $rel"
+  }
+}
+
+if ((Join-Path $repoRoot "README.md") | Test-Path) {
+  $readmeText = Get-Content -Raw -Path (Join-Path $repoRoot "README.md")
+  $requiredReadmeRefs = @(
+    "docs/project/index.md",
+    "AGENTS.md",
+    "scripts/check_docs_ssot.ps1",
+    "scripts/check_agents_manifest.ps1",
+    "scripts/check_project_docs.ps1",
+    "scripts/check_repo_hygiene.ps1",
+    "scripts/check_python_safety.py"
+  )
+
+  foreach ($ref in $requiredReadmeRefs) {
+    if ($readmeText -notlike "*$ref*") {
+      Add-Issue $issues "README.md must reference: $ref"
+    }
+  }
+}
+
+if ((Join-Path $repoRoot "docs/project/index.md") | Test-Path) {
+  $indexText = Get-Content -Raw -Path (Join-Path $repoRoot "docs/project/index.md")
+  foreach ($ref in @("docs/project/goal.md", "docs/project/rules.md", "docs/project/architecture.md", "docs/project/learning.md")) {
+    if ($indexText -notlike "*$ref*") {
+      Add-Issue $issues "docs/project/index.md must reference $ref"
+    }
+  }
+}
+
+if ($issues.Count -gt 0) {
+  foreach ($issue in $issues) {
+    Write-Host "ERROR: $issue"
+  }
+  throw "Project docs check failed: $($issues.Count) issue(s)."
+}
+
+Write-Host "Project docs checks passed."

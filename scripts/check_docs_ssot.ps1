@@ -12,17 +12,44 @@ if (-not (Test-Path $agentsDocsRoot -PathType Container)) {
   throw "docs/agents/ missing. This repo expects governance docs there."
 }
 
-$files = Get-ChildItem -Path $agentsDocsRoot -Recurse -Filter "*.md" -File
+$policyPath = Join-Path $agentsDocsRoot "25-docs-ssot-policy.md"
+if (-not (Test-Path $policyPath -PathType Leaf)) {
+  throw "docs/agents/25-docs-ssot-policy.md missing. Doc header enum SSOT is required."
+}
+
+$policyLines = Get-Content -Path $policyPath
+$docTypeEnumLine = $policyLines | Where-Object { $_ -match '^doc_type:\s*.+\|.+' } | Select-Object -First 1
+if (-not $docTypeEnumLine) {
+  throw "Doc header enum not found in docs/agents/25-docs-ssot-policy.md (expected 'doc_type: ...|...')."
+}
+
+$allowedDocTypes =
+  ($docTypeEnumLine -replace '^doc_type:\s*', '').Split('|') |
+  ForEach-Object { $_.Trim() } |
+  Where-Object { $_ -ne "" }
+
+$docsRootFull = (Resolve-Path $docsRoot).Path
+
+$files = Get-ChildItem -Path $docsRoot -Recurse -Filter "*.md" -File
 $issues = 0
 
 foreach ($file in $files) {
-  if ($file.Name -eq "index.md") { continue }
+  $relativePath = $file.FullName.Substring($docsRootFull.Length).TrimStart('\', '/')
+  $relativePath = $relativePath -replace '\\', '/'
+  if ($relativePath -eq "index.md" -or $relativePath -match '^[^/]+/index\.md$') { continue }
 
   $head = Get-Content -Path $file.FullName -TotalCount 25
 
-  if (-not ($head | Select-String -Pattern '^doc_type:' -Quiet)) {
+  $docTypeMatch = $head | Select-String -Pattern '^doc_type:' | Select-Object -First 1
+  if (-not $docTypeMatch) {
     Write-Host "ERROR: Missing doc header (doc_type) in: $($file.FullName)"
     $issues++
+  } else {
+    $docTypeValue = ($docTypeMatch.Line -replace '^doc_type:\s*', '').Trim()
+    if ($allowedDocTypes -notcontains $docTypeValue) {
+      Write-Host "ERROR: Invalid doc_type '$docTypeValue' in: $($file.FullName)"
+      $issues++
+    }
   }
   if (-not ($head | Select-String -Pattern '^ssot_owner:' -Quiet)) {
     Write-Host "ERROR: Missing doc header (ssot_owner) in: $($file.FullName)"

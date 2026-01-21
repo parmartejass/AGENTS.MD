@@ -7,6 +7,10 @@ This repository maintains a reusable, repo-agnostic instruction pack for autonom
 - Canonical policy: `AGENTS.md`
 - Context injection manifest: `agents-manifest.yaml`
 
+## Project docs (this repo)
+
+- Entry point: `docs/project/index.md` (goal/rules/architecture/learning)
+
 ## Tool loader stubs
 
 - Cursor: `.cursorrules` (forces loading `AGENTS.md`)
@@ -36,6 +40,12 @@ This repository maintains a reusable, repo-agnostic instruction pack for autonom
 ├─ .github/
 │  └─ copilot-instructions.md
 ├─ docs/
+│  ├─ project/
+│  │  ├─ index.md
+│  │  ├─ goal.md
+│  │  ├─ rules.md
+│  │  ├─ architecture.md
+│  │  └─ learning.md
 │  └─ agents/
 │     ├─ index.md
 │     ├─ 00-principles.md
@@ -55,10 +65,16 @@ This repository maintains a reusable, repo-agnostic instruction pack for autonom
 │        ├─ ai-coding-prompt-template.md
 │        ├─ bugfix-template.md
 │        ├─ excel-task-template.md
-│        └─ gui-task-template.md
+│        ├─ gui-task-template.md
+│        ├─ io-batch-task-template.md
+│        ├─ perf-hotspots-template.md
+│        └─ project-docs-template.md
 ├─ scripts/
 │  ├─ check_docs_ssot.ps1
-│  └─ check_agents_manifest.ps1
+│  ├─ check_agents_manifest.ps1
+│  ├─ check_project_docs.ps1
+│  ├─ check_repo_hygiene.ps1
+│  └─ check_python_safety.py
 └─ .editorconfig
 ```
 
@@ -69,6 +85,8 @@ Copy the governance pack into the root of another repo:
 
 ## Checks
 
-- Docs SSOT header checks: `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_docs_ssot.ps1`
+- Docs SSOT header checks (all `docs/` except index pages): `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_docs_ssot.ps1`
 - Agents manifest checks: `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_agents_manifest.ps1`
+- Project docs checks (required files + README linkage): `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_project_docs.ps1`
+- Repo hygiene checks (no generated artifacts tracked): `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_repo_hygiene.ps1`
 - Python safety baseline checks: `python scripts/check_python_safety.py` (add `--fail-on-warnings` to enforce warnings)

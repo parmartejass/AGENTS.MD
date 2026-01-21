@@ -1,4 +1,4 @@
-# AGENTS.md — Canonical Agent Constitution (SSOT / No Duplicates)
+# AGENTS.md - Canonical Agent Constitution (SSOT / No Duplicates)
 
 This file is the single source of truth (SSOT) for **how any autonomous coding agent must operate in this repository**.
 
@@ -11,7 +11,8 @@ Hard gate:
 
 Deliver changes that are:
 - **Correct**: verified against the repo and tools; no guessed APIs/paths.
-- **Deterministic**: same inputs → same outputs (no hidden side effects).
+- **Deterministic**: same inputs -> same outputs (no hidden side effects).
+- **Efficient**: prefers the fastest safe approach when speed/scale is part of the goal; avoids unnecessary I/O/tool calls.
 - **Maintainable**: each concept defined exactly once (SSOT / no duplicates).
 - **Auditable**: logs + clear run outcomes; failures are explicit.
 - **Safe**: no resource leaks; Excel COM + GUI threading rules are enforced.
@@ -30,12 +31,83 @@ Never invent:
 
 If verification is not possible, treat it as **Unknown** and ask.
 
+## First-Principles Protocol (Hard Gate)
+
+Before implementing, explicitly define:
+- **Model**: inputs, outputs, side effects, and system boundaries.
+- **SSOT map**: which owner(s) hold constants, config, rules, workflows, and any lifecycle utilities.
+- **Root-cause uplift** (authority-first): for any defect or error, trace from symptom to the earliest authority/contract/boundary that should have prevented it; prefer fixing there by adding or strengthening invariants/validation so the class of errors becomes structurally impossible; one authority fix prevents N errors. If a symptom-level patch is unavoidable, record why upstream prevention is infeasible.
+- **Proof obligations**: preconditions/postconditions + failure modes to cover.
+- **Verification**: exact commands or deterministic manual checks (include at least one failure-path check when feasible).
+- **Resource bounds**: timeouts, cancellation, and guaranteed cleanup in `finally` for external resources.
+- **Performance constraints**: expected data sizes and speed targets; choose algorithm/I/O strategy accordingly, without weakening correctness or safety.
+
+Supporting references:
+- First principles patterns: `docs/agents/00-principles.md`
+- Concept -> owner map: `docs/agents/20-sources-of-truth-map.md`
+
+## First-Principles + SSOT + Evidence Model (Hard Gate)
+
+Truth layers (use these terms):
+- Runtime truth (R): what actually happens at runtime (processes, files, memory, handles).
+- Semantic truth (S): what the system is meant to do (invariants, contracts, rules).
+- Recorded truth (D): what artifacts claim (configs, logs, reports, docs).
+
+Implications:
+- First principles defines S (invariants). SSOT governs authority in D (consistency, not correctness).
+- Instrumentation binds R to S and D. An invariant is invalid unless it has a measurable witness recorded in D.
+- SSOT does not guarantee correctness; it guarantees that one authority wins when records disagree.
+
+### Invariants + Witnesses (Required)
+- For every change, list the invariants it affects or relies on.
+- Use these categories when applicable: data, ordering, atomicity, idempotency, lifecycle, observability.
+- Each invariant must have a witness: what is measured, where it is recorded, and the pass criteria.
+- Witnesses must be deterministically verifiable via tools or explicit manual checks.
+
+### Authority Graph (Required for non-trivial systems)
+(Non-trivial: >1 workflow entrypoint, OR >1 SSOT owner, OR external resource dependencies such as COM/DB/network)
+- Maintain a single authoritative owner per decision-critical fact/state (see SSOT section).
+- Record the authority graph in `docs/project/architecture.md` or the workflow registry; no orphan docs.
+- All reads/writes must go through the authority; no shadow logic or one-off duplication.
+
+### Workflow State Machine + Two-Phase Commit (When writes occur)
+- Required phases: INIT, VALIDATED, COMMIT_READY, COMMITTING, CLEANING, DONE.
+- Failure phases: FAILED_VALIDATION, FAILED_COMMIT, FAILED_CLEANUP.
+- Validation must be side-effect free; no writes before VALIDATED.
+- If any failure after writes begin: record FAILED_COMMIT, log what was written, attempt bounded cleanup in `finally`.
+
+### Bias-Resistant Debugging (Hard Gate)
+Biases to guard against:
+- premature closure, confirmation bias, anchoring, novelty/recency bias
+
+Mandatory anti-bias artifacts for every fix:
+- minimal reproducible example (MRE)
+- regression fixture stored in repo
+- disconfirming tests (edge/adversarial cases)
+- invariant witness that fails pre-fix and passes post-fix
+- root-cause uplift record: symptom location, upstream authority fix point, prevention change made, class of errors prevented, or explicit justification if patching locally
+- SSOT consolidation evidence when divergence was a root cause
+
+Confidence rule:
+- confidence is evidence-weighted; "it worked once" is not evidence
+
+### Rewrite Risk Policy
+Large rewrites are risk amplification unless all are true:
+- pre-existing invariants are enumerated and preserved
+- old vs new outputs are comparable on frozen fixtures
+- staged rollout and rollback exist
+- performance/resource invariants are measured
+
+Default posture:
+- prefer targeted refactors that consolidate authority and add witnesses
+
 ## Mandatory Execution Loop (Follow For Every Task)
 
 1) **Restate goal + acceptance criteria** (1-5 bullets).
 2) **Discover** relevant files and existing SSOT owners (constants/config/rules/workflows/etc).
    - **MUST** consult `agents-manifest.yaml` and execute the Context Injection Procedure (see below).
    - Use `docs/agents/10-repo-discovery.md` for discovery search terms and SSOT adoption rules.
+   - MUST ensure project docs exist and are read (start with `README.md` and `docs/project/index.md`; create missing docs per "Documentation SSOT Policy").
 3) **Decompose** into atomic, independently verifiable subtasks.
 4) **Ambiguity gate**: if multiple interpretations would change code materially, STOP and ask 1-3 clarifying questions.
 5) **Implement minimally**: smallest diff that satisfies acceptance criteria; no bundled refactors.
@@ -59,7 +131,7 @@ Before reasoning or implementing, agents MUST:
 
 If any referenced file is not accessible, STOP and ask the user to paste it.
 
-## Non‑Negotiables (Hard Gates)
+## Non-Negotiables (Hard Gates)
 
 ### 1) Single Source of Truth (SSOT)
 For every concept, there must be exactly one authoritative definition:
@@ -89,13 +161,13 @@ New code must be reachable from:
 New docs must be reachable from:
 - a docs index (e.g., `docs/agents/index.md`) or the repo `README.md`
 
-Unreferenced helpers and “floating docs” are prohibited.
+Unreferenced helpers and "floating docs" are prohibited.
 
 ### 4) Logging + Explicit Failure
 - No `print()`.
 - Use module-level logging (`logger = logging.getLogger(__name__)`) where applicable.
 - Catch specific exceptions; log context; raise meaningful domain errors.
-- Never “silently skip”: if something is skipped, record **SKIPPED + reason** (log and/or run report).
+- Never "silently skip": if something is skipped, record **SKIPPED + reason** (log and/or run report).
 
 ### 5) Resource Safety
 - Prefer context managers.
@@ -128,6 +200,134 @@ GUI updates must occur on the main/UI thread only:
   STOP and present a filled restart prompt (copy/paste), then restart fresh.
 - Follow: `docs/agents/15-stuck-in-loop-generate-fresh-restart-prompt.md`
 
+### 10) Performance & Speed (When Relevant)
+- If speed/performance is an acceptance criterion or implied by scale, state a performance model and pick low-risk optimizations first (algorithmic wins, reduce I/O, avoid repeated scans).
+- Never trade away correctness, determinism, data integrity, edge-case safety, logging, or guaranteed cleanup for speed; keep concurrency bounded and cancellation-aware.
+- Verify claimed speedups with deterministic evidence (benchmark/timing) or complexity reasoning; avoid premature micro-optimizations.
+
+## Governance Templates (Required)
+
+### Change Contract (Required for any change record)
+Use in PR description or commit message.
+
+```md
+# Change Contract (Required)
+
+## A) Problem Statement (Observed vs Expected)
+- Observed:
+- Expected:
+- Scope: (rows/files/modules/users impacted)
+
+## B) Invariants (Semantic Truth: S)
+List invariants affected by this change. Use categories.
+
+### Data invariants
+- INV-D1:
+- INV-D2:
+
+### Ordering invariants
+- INV-O1:
+
+### Atomicity invariants (2PC / all-or-nothing)
+- INV-A1:
+
+### Idempotency invariants
+- INV-I1:
+
+### Lifecycle invariants (Excel/COM/resources)
+- INV-L1:
+
+### Observability invariants (outcome/log completeness)
+- INV-OBS1:
+
+## C) Witnesses (Runtime Evidence: R / Recorded Truth: D)
+For each invariant above, define a measurable witness.
+
+| Invariant ID | Witness signal (what is measured) | Where recorded (log field/report col) | Pass criteria |
+|---|---|---|---|
+| INV-L1 | Excel PID baseline before/after | log.excel_pid_before/after | after == before |
+| INV-A1 | No writes before validation complete | log.phase sequence | no write events before VALIDATED |
+
+## D) Authority Impact + Fix Placement (SSOT: D)
+Identify which authorities are touched and confirm no new competing authority exists.
+
+- Config authority impacted? (Y/N) If Y: where is canonical key defined?
+- Parser authority impacted? (Y/N)
+- Writer authority impacted? (Y/N)
+- Excel lifecycle authority impacted? (Y/N)
+- Logger/schema authority impacted? (Y/N)
+- Report ledger authority impacted? (Y/N)
+
+No-duplication proof (list any removed duplicated logic/files):
+- Removed:
+- Replaced by:
+
+### Authority-first fix analysis (if debugging)
+- Symptom location (where error manifested):
+- Authority fix point (where fix was applied):
+- Class of errors prevented by fixing at authority:
+- If patching at symptom, justify:
+
+## E) Minimal Repro + Regression Fixture
+- Minimal repro description:
+- Fixture location (path):
+- Before fix (expected failure signal):
+- After fix (expected pass signal):
+
+## F) Disconfirming Tests (Anti-Premature-Closure)
+List tests designed to break your hypothesis.
+
+- Test 1 (edge/adversarial):
+- Test 2 (randomized/property):
+- Test 3 (real-file replay):
+
+## G) Rollout and Safety
+- Feature flag / mode switch? (Y/N) If Y: name:
+- Rollback plan:
+- Data safety: (atomic writes? backups? temp + rename?)
+
+## H) Verification Checklist (Expected Outcomes)
+- [ ] All invariants have witnesses
+- [ ] 2PC enforced (no writes before VALIDATED)
+- [ ] Every row/file ends with terminal outcome + reason
+- [ ] Cleanup baseline restored (Excel/process/temp files)
+- [ ] Fixture added + tests pass
+```
+
+### Standard Log Schema (Required when logs are emitted)
+- Logging policy in "Logging + Explicit Failure" still applies (no print, module logger, explicit failures).
+- The log schema is SSOT: define one owner and extend it; do not fork schemas.
+
+Run-level record (run_start, run_end):
+- ts (ISO8601)
+- event (run_start | run_end)
+- run_id
+- app, version, mode
+- inputs, outputs (objects)
+- result (SUCCESS | PARTIAL_SUCCESS | FAILURE)
+- summary (object): by_outcome {executed, skipped, failed}; failed_by_phase {validation, commit, cleanup}
+- timings_ms (object)
+- errors (array of {type, message, where, fatal})
+- resources (optional, when applicable): pids_before/after, handles_closed, quit_called, kill_fallback_used
+
+Phase transition record:
+- ts, event (phase_transition), run_id, phase, phase_seq, notes (optional)
+
+Item-level record (row_event or file_event) - emitted once per item at terminal state:
+- ts, event, run_id, phase
+- item_id (row id or file path)
+- outcome (EXECUTED | SKIPPED | FAILED)
+- final_phase (VALIDATED | COMMITTED | FAILED_VALIDATION | FAILED_COMMIT | FAILED_CLEANUP)
+- reason_code, reason_detail
+- evidence (object)
+- write_effects (object)
+- duration_ms
+
+Reason codes:
+- Maintain a single enum owner (module or config). Extend there only.
+- Example codes: MISSING_REQUIRED_HEADER, DUPLICATE_HEADER, MISSING_INPUT_FILE, INVALID_IDENTIFIER_FORMAT,
+  DUPLICATE_KEY_IN_INPUT, COM_WRITE_FAILED, SAVE_FAILED, EXCEL_QUIT_FAILED, PID_VALIDATION_FAILED.
+
 ## Self‑Decision Procedure (Repo‑Agnostic)
 
 ### A) Discovery Pass (Required Before Writing)
@@ -151,15 +351,28 @@ and wire all new features through it.
 
 Docs can drift. Prevent docs from becoming a second SSOT.
 
-### Project-specific docs (recommended in downstream repos)
-When this governance pack is copied into a project repo, it is encouraged to add a **minimal** project docs set that becomes the project's SSOT for intent/runbooks (not for code facts):
-- `docs/index.md` (entrypoint; linked from README)
-- `docs/goal.md` (objective + acceptance criteria)
-- `docs/rules.md` (project do/don't rules)
-- `docs/architecture.md` (SSOT pointers: entrypoints/modules/workflows)
-- `docs/learning.md` (optional; operational learnings and pitfalls)
+### Project docs (Hard Gate)
+When this governance pack is present in a repo, the agent MUST ensure a **minimal** project docs set exists and is kept current.
 
-All such docs must follow the required doc header and must reference SSOT owners by identifier (code/config), rather than duplicating literals/rules.
+Hard gate:
+- If any required project doc is missing, CREATE it before making other changes.
+- The project `README.md` MUST link to `docs/project/index.md` (project docs entrypoint) and to `AGENTS.md` (governance).
+- The project `README.md` MUST include a short "Checks" section listing the deterministic verification commands for the repo.
+
+Project docs are the SSOT for intent/runbooks (not for code facts):
+- `docs/project/index.md` (entrypoint; linked from README)
+- `docs/project/goal.md` (objective + acceptance criteria)
+- `docs/project/rules.md` (project do/don't rules)
+- `docs/project/architecture.md` (SSOT pointers: entrypoints/modules/workflows)
+- `docs/project/learning.md` (operational learnings and pitfalls)
+
+Structure SSOT: `docs/agents/playbooks/project-docs-template.md`
+
+All project docs must:
+- Follow the required doc header (except index pages).
+- Reference SSOT owners by identifier (code/config/workflow entrypoints) rather than duplicating literals/rules.
+- Stay minimal and precise (prefer short bullet lists; avoid long prose).
+- Avoid duplicating governance rules: reference `AGENTS.md` instead of copying its requirements.
 
 ### Docs MAY contain
 - intent (“why”), invariants, and safety constraints
@@ -182,7 +395,7 @@ See `docs/agents/25-docs-ssot-policy.md`.
 
 ## Code Comment Policy (Hard Gate)
 
-Comments drift quickly; keep them “why-only”:
+Comments drift quickly; keep them "why-only":
 - explain invariants, rationale, and safety constraints
 - do not restate logic or duplicate constants/defaults
 - reference SSOT symbols/modules when needed

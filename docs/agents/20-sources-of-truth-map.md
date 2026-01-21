@@ -45,5 +45,5 @@ Owner: exactly one implementation.
 
 ## Run outcomes / reporting
 Owner: exactly one place.
-- per-item outcome: `EXECUTED` / `SKIPPED` + reason
+- per-item outcome: `EXECUTED` / `SKIPPED` / `FAILED` + reason
 - output location policy centralized
