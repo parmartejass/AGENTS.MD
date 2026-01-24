@@ -25,6 +25,7 @@ Playbooks (copy/paste templates):
 - Excel tasks: `docs/agents/playbooks/excel-task-template.md`
 - GUI tasks: `docs/agents/playbooks/gui-task-template.md`
 - Bugfixes: `docs/agents/playbooks/bugfix-template.md`
+- Project docs: `docs/agents/playbooks/project-docs-template.md`
 
 Checks:
 - Docs SSOT headers: `scripts/check_docs_ssot.ps1`
