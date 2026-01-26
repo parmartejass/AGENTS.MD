@@ -7,6 +7,9 @@ function Resolve-PathOrFull {
   )
 
   $resolved = Resolve-Path -Path $Path -ErrorAction SilentlyContinue
+  if ($resolved -is [System.Array]) {
+    throw "Path resolved to multiple entries: $Path. Provide a single, literal path."
+  }
   if ($resolved) {
     return $resolved.Path
   }
