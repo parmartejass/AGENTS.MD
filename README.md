@@ -82,6 +82,14 @@ This repository maintains a reusable, repo-agnostic instruction pack for autonom
 
 ## Use in other repos (submodule)
 
+> **IMPORTANT**: Git does NOT auto-pull submodules by default!
+> 
+> When cloning a repo that uses this pack, you MUST use `--recurse-submodules`:
+> ```powershell
+> git clone --recurse-submodules <repo-url>
+> ```
+> Otherwise `.governance/` will be empty. See "Cloning a repo that uses this pack" below.
+
 ### Step 1: Add the governance pack as a submodule
 
 ```powershell
@@ -127,11 +135,22 @@ git commit -m "Update governance pack"
 
 ### Cloning a repo that uses this pack
 
+**Option A: Clone with submodules (recommended)**
 ```powershell
 git clone --recurse-submodules <repo-url>
-# OR if already cloned:
-git submodule update --init --remote
 ```
+
+**Option B: Already cloned without submodules? Initialize manually:**
+```powershell
+git submodule update --init
+```
+
+**Option C: Pull updates including submodule changes:**
+```powershell
+git pull --recurse-submodules
+```
+
+> **Note**: If `.governance/` folder is empty, run `git submodule update --init`
 
 ## Checks
 
