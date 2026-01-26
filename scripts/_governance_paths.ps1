@@ -28,8 +28,19 @@ function Get-RelativePath {
   $fromPath = Resolve-PathOrFull -Path $From
   $toPath = Resolve-PathOrFull -Path $To
 
-  $fromIsDir = (Test-Path -Path $fromPath -PathType Container) -or ($From -match '[\\/]$')
-  $toIsDir = (Test-Path -Path $toPath -PathType Container) -or ($To -match '[\\/]$')
+  $fromExists = Test-Path -Path $fromPath
+  $toExists = Test-Path -Path $toPath
+
+  $fromIsDir = ($fromExists -and (Test-Path -Path $fromPath -PathType Container)) -or ($From -match '[\\/]$')
+  $toIsDir = ($toExists -and (Test-Path -Path $toPath -PathType Container)) -or ($To -match '[\\/]$')
+
+  if (-not $fromExists -and -not $fromIsDir) {
+    $fromIsDir = [string]::IsNullOrWhiteSpace([System.IO.Path]::GetExtension($From))
+  }
+
+  if (-not $toExists -and -not $toIsDir) {
+    $toIsDir = [string]::IsNullOrWhiteSpace([System.IO.Path]::GetExtension($To))
+  }
 
   $fromPath = $fromPath.TrimEnd('\', '/')
   if ($fromIsDir) {
@@ -73,6 +84,14 @@ function Get-GovernanceContext {
     Resolve-PathOrFull -Path $RepoRoot
   } else {
     $governanceRootPath
+  }
+
+  if (-not (Test-Path -Path $governanceRootPath -PathType Container)) {
+    throw "Governance root does not exist or is not a directory: $governanceRootPath"
+  }
+
+  if (-not (Test-Path -Path $repoRootPath -PathType Container)) {
+    throw "Repo root does not exist or is not a directory: $repoRootPath"
   }
 
   $relative = Get-RelativePath -From $repoRootPath -To $governanceRootPath
