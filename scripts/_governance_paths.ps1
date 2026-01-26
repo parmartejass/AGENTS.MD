@@ -1,5 +1,19 @@
 $ErrorActionPreference = "Stop"
 
+function Resolve-PathOrFull {
+  param(
+    [Parameter(Mandatory = $true)]
+    [string]$Path
+  )
+
+  $resolved = Resolve-Path -Path $Path -ErrorAction SilentlyContinue
+  if ($resolved) {
+    return $resolved.Path
+  }
+
+  return [System.IO.Path]::GetFullPath($Path)
+}
+
 function Get-RelativePath {
   param(
     [Parameter(Mandatory = $true)]
@@ -8,16 +22,19 @@ function Get-RelativePath {
     [string]$To
   )
 
-  $fromResolved = Resolve-Path -Path $From
-  $toResolved = Resolve-Path -Path $To
+  $fromPath = Resolve-PathOrFull -Path $From
+  $toPath = Resolve-PathOrFull -Path $To
 
-  $fromPath = $fromResolved.Path.TrimEnd('\')
-  if (Test-Path -Path $fromResolved.Path -PathType Container) {
+  $fromIsDir = (Test-Path -Path $fromPath -PathType Container) -or ($From -match '[\\/]$')
+  $toIsDir = (Test-Path -Path $toPath -PathType Container) -or ($To -match '[\\/]$')
+
+  $fromPath = $fromPath.TrimEnd('\', '/')
+  if ($fromIsDir) {
     $fromPath += '\'
   }
 
-  $toPath = $toResolved.Path.TrimEnd('\')
-  if (Test-Path -Path $toResolved.Path -PathType Container) {
+  $toPath = $toPath.TrimEnd('\', '/')
+  if ($toIsDir) {
     $toPath += '\'
   }
 
@@ -43,19 +60,19 @@ function Get-GovernanceContext {
     $ScriptRoot = $PSScriptRoot
   }
 
-  $resolvedGovernanceRoot = if ($GovernanceRoot) {
-    Resolve-Path -Path $GovernanceRoot
+  $governanceRootPath = if ($GovernanceRoot) {
+    Resolve-PathOrFull -Path $GovernanceRoot
   } else {
-    Resolve-Path -Path (Split-Path -Parent $ScriptRoot)
+    Resolve-PathOrFull -Path (Split-Path -Parent $ScriptRoot)
   }
 
-  $resolvedRepoRoot = if ($RepoRoot) {
-    Resolve-Path -Path $RepoRoot
+  $repoRootPath = if ($RepoRoot) {
+    Resolve-PathOrFull -Path $RepoRoot
   } else {
-    $resolvedGovernanceRoot
+    $governanceRootPath
   }
 
-  $relative = Get-RelativePath -From $resolvedRepoRoot.Path -To $resolvedGovernanceRoot.Path
+  $relative = Get-RelativePath -From $repoRootPath -To $governanceRootPath
   if ($relative -eq "." -or [string]::IsNullOrWhiteSpace($relative)) {
     $relative = ""
   } else {
@@ -63,8 +80,8 @@ function Get-GovernanceContext {
   }
 
   return [pscustomobject]@{
-    RepoRoot = $resolvedRepoRoot.Path
-    GovernanceRoot = $resolvedGovernanceRoot.Path
+    RepoRoot = $repoRootPath
+    GovernanceRoot = $governanceRootPath
     GovernanceRelPath = $relative
   }
 }

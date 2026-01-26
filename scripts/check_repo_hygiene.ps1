@@ -5,6 +5,12 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+$repoRootProvided = $PSBoundParameters.ContainsKey('RepoRoot')
+$governanceRootName = Split-Path -Leaf (Split-Path -Parent $PSScriptRoot)
+if (-not $repoRootProvided -and $governanceRootName -eq ".governance") {
+  throw "RepoRoot is required when running from a vendored governance submodule. Use -RepoRoot <target repo root> (e.g., -RepoRoot .)."
+}
+
 . (Join-Path $PSScriptRoot "_governance_paths.ps1")
 $context = Get-GovernanceContext -RepoRoot $RepoRoot -GovernanceRoot $GovernanceRoot -ScriptRoot $PSScriptRoot
 
