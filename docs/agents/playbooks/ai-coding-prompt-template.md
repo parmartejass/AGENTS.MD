@@ -31,6 +31,11 @@ Repo context (verified):
 - Entrypoint/workflow this must be wired through:
 - Injection profiles matched (from `agents-manifest.yaml`):
 
+First-principles artifacts:
+- Model (inputs/outputs/side effects/boundaries):
+- SSOT map (constants/config/rules/workflows/lifecycle):
+- Proof obligations (preconditions/postconditions/failure modes):
+
 Constraints:
 - Follow `AGENTS.md` (SSOT): verify with tools, avoid duplicates, explicit failures, resource safety.
 - Minimal diff; no unrelated refactors.

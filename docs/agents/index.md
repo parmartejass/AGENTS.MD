@@ -22,11 +22,17 @@ Core docs:
 
 Playbooks (copy/paste templates):
 - AI prompt template: `docs/agents/playbooks/ai-coding-prompt-template.md`
+- Project docs (minimal): `docs/agents/playbooks/project-docs-template.md`
+- Governance learnings (session → governance deltas): `docs/agents/playbooks/governance-learnings-template.md`
 - Excel tasks: `docs/agents/playbooks/excel-task-template.md`
 - GUI tasks: `docs/agents/playbooks/gui-task-template.md`
+- High I/O / batch processing: `docs/agents/playbooks/io-batch-task-template.md`
+- Performance hotspots: `docs/agents/playbooks/perf-hotspots-template.md`
 - Bugfixes: `docs/agents/playbooks/bugfix-template.md`
 
 Checks:
 - Docs SSOT headers: `scripts/check_docs_ssot.ps1`
 - Agents manifest references: `scripts/check_agents_manifest.ps1`
+- Project docs exist + README linkage: `scripts/check_project_docs.ps1`
+- Repo hygiene (no generated artifacts tracked): `scripts/check_repo_hygiene.ps1`
 - Python safety baseline (print/except/timeout/file handles): `scripts/check_python_safety.py`

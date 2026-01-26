@@ -78,9 +78,13 @@ profiles:
         - "Excel.Application"
         - "xlwings"
         - "excel com"
+        - "win32com"
+        - "Dispatch"
       code_patterns:
         - "Excel.Application"
         - "xlwings"
+        - "win32com.client"
+        - "Dispatch("
       file_globs: []
     inject:
       - "docs/agents/50-excel-com-lifecycle.md"

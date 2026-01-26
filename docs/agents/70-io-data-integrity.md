@@ -22,7 +22,6 @@ Automation must not “fix” data unless the spec explicitly requires it.
 ## Run outcomes
 Every processed item should record:
 - identifier
-- status (`EXECUTED` / `SKIPPED`)
-- reason (when skipped)
+- outcome (`EXECUTED` / `SKIPPED` / `FAILED`)
+- reason (when skipped or failed)
 - produced artifacts/paths (if any)
-

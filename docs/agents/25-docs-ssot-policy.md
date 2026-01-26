@@ -25,7 +25,9 @@ Docs may describe:
 - decision records (ADR-style)
 
 ## Required header template
-Every doc under `docs/` (except index pages and generated docs) must start with:
+Every doc under `docs/` (except index pages) must start with:
+
+Index pages are limited to `docs/index.md` and `docs/<section>/index.md`.
 
 ```
 ---
@@ -34,6 +36,8 @@ ssot_owner: AGENTS.md | <module path> | <workflow registry location>
 update_trigger: <what change requires updating this doc>
 ---
 ```
+
+Generated docs must also use this header, set `doc_type: generated`, and live under `docs/generated/`.
 
 ## “Reference by identifier” convention
 When mentioning a value, prefer the SSOT identifier name, not the literal.

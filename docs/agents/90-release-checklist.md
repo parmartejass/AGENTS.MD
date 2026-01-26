@@ -15,7 +15,12 @@ update_trigger: release gates change
 - No `print()`.
 - Exceptions are meaningful and include context.
 - No silent skips; skipped work records a reason.
-- Run repo checks: `python scripts/check_python_safety.py` (and ensure it passes).
+- Run repo checks:
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_docs_ssot.ps1`
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_agents_manifest.ps1`
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_project_docs.ps1`
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_repo_hygiene.ps1`
+  - `python scripts/check_python_safety.py` (and ensure it passes).
 
 ## Excel COM (if applicable)
 - Quit attempted and verified.
