@@ -1,9 +1,22 @@
+param(
+  [string]$RepoRoot,
+  [string]$GovernanceRoot
+)
+
 $ErrorActionPreference = "Stop"
+
+. (Join-Path $PSScriptRoot "_governance_paths.ps1")
+$context = Get-GovernanceContext -RepoRoot $RepoRoot -GovernanceRoot $GovernanceRoot -ScriptRoot $PSScriptRoot
 
 # Validates that minimal project docs exist and are reachable from README.
 # Usage: powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_project_docs.ps1
 
-$repoRoot = Split-Path -Parent $PSScriptRoot
+$repoRoot = $context.RepoRoot
+
+$governancePrefix = ""
+if (-not [string]::IsNullOrWhiteSpace($context.GovernanceRelPath)) {
+  $governancePrefix = $context.GovernanceRelPath.TrimEnd("/") + "/"
+}
 
 $issues = New-Object System.Collections.Generic.List[string]
 
@@ -32,11 +45,11 @@ if ((Join-Path $repoRoot "README.md") | Test-Path) {
   $requiredReadmeRefs = @(
     "docs/project/index.md",
     "AGENTS.md",
-    "scripts/check_docs_ssot.ps1",
-    "scripts/check_agents_manifest.ps1",
-    "scripts/check_project_docs.ps1",
-    "scripts/check_repo_hygiene.ps1",
-    "scripts/check_python_safety.py"
+    "${governancePrefix}scripts/check_docs_ssot.ps1",
+    "${governancePrefix}scripts/check_agents_manifest.ps1",
+    "${governancePrefix}scripts/check_project_docs.ps1",
+    "${governancePrefix}scripts/check_repo_hygiene.ps1",
+    "${governancePrefix}scripts/check_python_safety.py"
   )
 
   foreach ($ref in $requiredReadmeRefs) {

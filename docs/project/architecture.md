@@ -18,5 +18,10 @@ update_trigger: repo layout, injection profiles, or validation scripts change
 - Docs policy and headers: `docs/agents/25-docs-ssot-policy.md`
 - Reference implementation (dual-entry template): `templates/python-dual-entry/`
 
+## Authority graph (owners -> dependents)
+- `AGENTS.md` -> `docs/agents/*`, `docs/project/*`, `scripts/check_*.ps1`, `scripts/check_python_safety.py`
+- `agents-manifest.yaml` -> context injection procedure in `AGENTS.md` and supporting retrieval guidance
+- `docs/agents/25-docs-ssot-policy.md` -> `scripts/check_docs_ssot.ps1`
+
 ## Outputs
-- A copied governance pack in downstream repos, with project docs under `docs/project/` and governance docs under `docs/agents/`.
+- A vendored governance pack under `.governance/` in downstream repos, with project docs under `docs/project/` and governance docs under `.governance/docs/agents/`.

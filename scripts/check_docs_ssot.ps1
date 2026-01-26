@@ -1,20 +1,23 @@
+param(
+  [string]$RepoRoot,
+  [string]$GovernanceRoot
+)
+
 $ErrorActionPreference = "Stop"
 
-$docsRoot = "docs"
-$agentsDocsRoot = Join-Path $docsRoot "agents"
+. (Join-Path $PSScriptRoot "_governance_paths.ps1")
+$context = Get-GovernanceContext -RepoRoot $RepoRoot -GovernanceRoot $GovernanceRoot -ScriptRoot $PSScriptRoot
+
+$docsRoot = Join-Path $context.RepoRoot "docs"
+$policyPath = Join-Path $context.GovernanceRoot "docs/agents/25-docs-ssot-policy.md"
 
 if (-not (Test-Path $docsRoot -PathType Container)) {
   Write-Host "No docs/ folder found. Skipping docs SSOT checks."
   exit 0
 }
 
-if (-not (Test-Path $agentsDocsRoot -PathType Container)) {
-  throw "docs/agents/ missing. This repo expects governance docs there."
-}
-
-$policyPath = Join-Path $agentsDocsRoot "25-docs-ssot-policy.md"
 if (-not (Test-Path $policyPath -PathType Leaf)) {
-  throw "docs/agents/25-docs-ssot-policy.md missing. Doc header enum SSOT is required."
+  throw "docs/agents/25-docs-ssot-policy.md missing in governance root. Doc header enum SSOT is required."
 }
 
 $policyLines = Get-Content -Path $policyPath

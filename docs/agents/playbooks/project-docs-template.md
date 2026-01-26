@@ -27,6 +27,7 @@ Also required:
 - Prefer short bullet lists; avoid long prose.
 - Keep each doc focused on what must be true "all the time" (invariants, entrypoints, verification commands).
 - Never copy constants/defaults/rules into docs; reference the SSOT owner by identifier/path.
+- Use `docs/agents/20-sources-of-truth-map.md` when filling SSOT pointers to avoid parallel ownership.
 - When a change impacts goal/verification/entrypoints/owners, update the affected doc in the same change.
 
 ## README linkage (required)
@@ -35,11 +36,11 @@ Ensure `README.md` contains (at minimum):
 - A link to `AGENTS.md` (governance SSOT).
 - A short "Checks" section listing the deterministic commands used to verify the repo.
   - Minimum governance checks:
-    - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_agents_manifest.ps1`
-    - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_docs_ssot.ps1`
-    - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_project_docs.ps1`
-    - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_repo_hygiene.ps1`
-    - `python scripts/check_python_safety.py`
+    - `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_agents_manifest.ps1`
+    - `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_docs_ssot.ps1 -RepoRoot .`
+    - `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_project_docs.ps1 -RepoRoot .`
+    - `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_repo_hygiene.ps1 -RepoRoot .`
+    - `python .governance/scripts/check_python_safety.py --root .`
 
 ## Template files (copy/paste, then customize)
 
@@ -47,6 +48,7 @@ Ensure `README.md` contains (at minimum):
 ```md
 # Project Docs
 
+- Governance SSOT: `AGENTS.md`
 - Goal + acceptance criteria: `docs/project/goal.md`
 - Do/Don't rules: `docs/project/rules.md`
 - Architecture (SSOT pointers): `docs/project/architecture.md`
@@ -123,6 +125,9 @@ update_trigger: entrypoints/modules/workflows layout changes
 - Inputs:
 - Outputs/artifacts:
 - Side effects:
+
+## Authority graph (required for non-trivial systems)
+- <owner -> dependents>
 ```
 
 ### `docs/project/learning.md`

@@ -11,4 +11,7 @@ update_trigger: new operational learnings/pitfalls discovered in real use
 - Generated artifacts (e.g., `__pycache__/`, `*.pyc`, template outputs) must not be committed.
 
 ## Verification tips
-- If a repo adopts this pack, run `scripts/check_project_docs.ps1` early to ensure docs+README linkage is in place.
+- If a repo adopts this pack, run `.governance/scripts/check_project_docs.ps1 -RepoRoot .` early to ensure docs+README linkage is in place.
+
+## Debugging references
+- Use `AGENTS.md` "Bias-Resistant Debugging" and "AI Stuck-Loop Reset" for evidence-driven fixes.

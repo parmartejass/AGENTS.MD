@@ -1,4 +1,11 @@
+param(
+  [string]$GovernanceRoot
+)
+
 $ErrorActionPreference = "Stop"
+
+. (Join-Path $PSScriptRoot "_governance_paths.ps1")
+$context = Get-GovernanceContext -GovernanceRoot $GovernanceRoot -ScriptRoot $PSScriptRoot
 
 # Validates agents-manifest.yaml for:
 # - quoted paths in `default_inject` and `profiles.*.inject`
@@ -6,11 +13,11 @@ $ErrorActionPreference = "Stop"
 # - referenced paths exist
 # Usage: powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_agents_manifest.ps1
 
-$repoRoot = Split-Path -Parent $PSScriptRoot
-$manifestPath = Join-Path $repoRoot "agents-manifest.yaml"
+$governanceRoot = $context.GovernanceRoot
+$manifestPath = Join-Path $governanceRoot "agents-manifest.yaml"
 
 if (-not (Test-Path $manifestPath -PathType Leaf)) {
-  throw "Missing agents-manifest.yaml at repo root: $manifestPath"
+  throw "Missing agents-manifest.yaml at governance root: $manifestPath"
 }
 
 $lines = Get-Content -Path $manifestPath
@@ -164,7 +171,7 @@ foreach ($listKey in $pathsByList.Keys) {
 }
 
 foreach ($p in ($allPaths | Select-Object -Unique)) {
-  $full = Join-Path $repoRoot $p
+  $full = Join-Path $governanceRoot $p
   if (-not (Test-Path $full)) {
     Write-Host "ERROR: Manifest references missing path: $p"
     $issues++
