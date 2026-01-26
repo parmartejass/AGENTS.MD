@@ -18,6 +18,10 @@ $context = Get-GovernanceContext -RepoRoot $RepoRoot -GovernanceRoot $Governance
 # Usage: powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_repo_hygiene.ps1
 
 $repoRoot = $context.RepoRoot
+$gitDir = Join-Path $repoRoot ".git"
+if (-not (Test-Path -Path $gitDir)) {
+  throw "Repo root does not appear to be a git repository: $repoRoot"
+}
 
 function Add-Issue([System.Collections.Generic.List[string]]$issues, [string]$message) {
   $issues.Add($message)
@@ -27,6 +31,9 @@ $issues = New-Object System.Collections.Generic.List[string]
 
 try {
   $tracked = git -C $repoRoot ls-files
+  if ($LASTEXITCODE -ne 0) {
+    throw "git ls-files failed for repo root: $repoRoot"
+  }
 } catch {
   throw "git is required for hygiene checks."
 }
