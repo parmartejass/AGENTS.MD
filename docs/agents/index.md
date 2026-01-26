@@ -36,3 +36,5 @@ Checks:
 - Project docs exist + README linkage: `scripts/check_project_docs.ps1`
 - Repo hygiene (no generated artifacts tracked): `scripts/check_repo_hygiene.ps1`
 - Python safety baseline (print/except/timeout/file handles): `scripts/check_python_safety.py`
+
+When this pack is vendored under `.governance/`, invoke checks via `.governance/scripts/...` and pass `-RepoRoot .` for repo-scoped checks.

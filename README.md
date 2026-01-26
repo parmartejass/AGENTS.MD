@@ -70,23 +70,39 @@ This repository maintains a reusable, repo-agnostic instruction pack for autonom
 │        ├─ perf-hotspots-template.md
 │        └─ project-docs-template.md
 ├─ scripts/
+│  ├─ _governance_paths.ps1
 │  ├─ check_docs_ssot.ps1
 │  ├─ check_agents_manifest.ps1
 │  ├─ check_project_docs.ps1
 │  ├─ check_repo_hygiene.ps1
-│  └─ check_python_safety.py
+│  ├─ check_python_safety.py
+│  └─ sync-governance.ps1
 └─ .editorconfig
 ```
 
-## Use in other repos
+## Use in other repos (submodule)
 
-Copy the governance pack into the root of another repo:
-- `AGENTS.md`, `agents-manifest.yaml`, `.cursorrules`, `CLAUDE.md`, `.github/copilot-instructions.md`, `docs/agents/`, `scripts/`, `.editorconfig`
+Add the pack as a submodule under `.governance/`:
+- `git submodule add -b main <pack-url> .governance`
+- Keep project-owned overlays at the repo root: `AGENTS.md`, `CLAUDE.md`, `.cursorrules`, `.github/copilot-instructions.md`, `.editorconfig`
+  - Each overlay must direct readers to `.governance/AGENTS.md` and `.governance/agents-manifest.yaml`.
+- Keep project docs under `docs/project/` (do not copy `docs/agents` into the project root).
+
+Update governance explicitly:
+- `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/sync-governance.ps1`
 
 ## Checks
 
+This repo:
 - Docs SSOT header checks (all `docs/` except index pages): `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_docs_ssot.ps1`
 - Agents manifest checks: `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_agents_manifest.ps1`
 - Project docs checks (required files + README linkage): `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_project_docs.ps1`
 - Repo hygiene checks (no generated artifacts tracked): `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_repo_hygiene.ps1`
 - Python safety baseline checks: `python scripts/check_python_safety.py` (add `--fail-on-warnings` to enforce warnings)
+
+Target repo (submodule under `.governance/`):
+- Docs SSOT header checks: `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_docs_ssot.ps1 -RepoRoot .`
+- Agents manifest checks: `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_agents_manifest.ps1`
+- Project docs checks: `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_project_docs.ps1 -RepoRoot .`
+- Repo hygiene checks: `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_repo_hygiene.ps1 -RepoRoot .`
+- Python safety baseline checks: `python .governance/scripts/check_python_safety.py --root .` (add `--fail-on-warnings` to enforce warnings)

@@ -1,9 +1,17 @@
+param(
+  [string]$RepoRoot,
+  [string]$GovernanceRoot
+)
+
 $ErrorActionPreference = "Stop"
+
+. (Join-Path $PSScriptRoot "_governance_paths.ps1")
+$context = Get-GovernanceContext -RepoRoot $RepoRoot -GovernanceRoot $GovernanceRoot -ScriptRoot $PSScriptRoot
 
 # Lightweight repo hygiene checks for common generated artifacts that should not be tracked.
 # Usage: powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_repo_hygiene.ps1
 
-$repoRoot = Split-Path -Parent $PSScriptRoot
+$repoRoot = $context.RepoRoot
 
 function Add-Issue([System.Collections.Generic.List[string]]$issues, [string]$message) {
   $issues.Add($message)

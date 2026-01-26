@@ -18,6 +18,14 @@ Deliver changes that are:
 - **Safe**: no resource leaks; Excel COM + GUI threading rules are enforced.
 - **Searchable**: critical concepts are discoverable via grep + semantic search.
 
+## Governance Pack Layout (When Vendored)
+
+When this pack is installed as a submodule under `.governance/` in a target repo:
+- `.governance/AGENTS.md` is authoritative; root `AGENTS.md`, `CLAUDE.md`, `.cursorrules`, and `.github/copilot-instructions.md` are project-owned overlays that must direct readers to the governance root.
+- The context injection manifest lives at `.governance/agents-manifest.yaml`.
+- Governance docs and scripts live under `.governance/docs/agents/` and `.governance/scripts/`.
+- Project-specific docs remain at `docs/project/` in the target repo.
+
 ## Prime Directive: Verify, Then Trust
 
 Agents are probabilistic generators. The repo and tools are deterministic.
@@ -125,8 +133,9 @@ Before reasoning or implementing, agents MUST:
    - `detect.code_patterns`: regex/substrings matched against code in scope.
    - `detect.file_globs`: match against files referenced and/or being edited.
    - `detect.signals`: explicit signals provided by the harness/user.
+   - If semantic search is available and a profile matches, start with `agents-manifest.yaml:semantic_queries.<profile>` when present (see `docs/agents/05-context-retrieval.md`).
 3) READ all files from `default_inject`.
-4) If one or more profiles match, READ the union of all matching profiles' `inject` lists (unless `injection_mode` specifies otherwise). If no profiles match, READ `fallback_inject` (if defined).
+4) If one or more profiles match, READ the union of all matching profiles' `inject` lists (unless `agents-manifest.yaml:injection_mode` specifies otherwise). If no profiles match, READ `fallback_inject` (if defined).
 5) Follow context retrieval best practices in `docs/agents/05-context-retrieval.md`.
 
 If any referenced file is not accessible, STOP and ask the user to paste it.
