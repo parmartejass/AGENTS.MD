@@ -133,6 +133,37 @@ git add .governance
 git commit -m "Update governance pack"
 ```
 
+### Editing governance (from inside a project)
+
+Changes to `.governance/` must be committed to the **submodule repo (AGENTS.MD)**, not the parent.
+
+```powershell
+# 1. Go INTO the submodule
+cd .governance
+
+# 2. Make sure you're on main and up to date
+git checkout main
+git pull origin main
+
+# 3. Create branch, edit, commit, push
+git checkout -b fix/my-change
+# ... make edits ...
+git add .
+git commit -m "My change"
+git push origin fix/my-change
+
+# 4. Create PR in AGENTS.MD repo (github.com/parmartejass/AGENTS.MD), merge to main
+
+# 5. Back in parent repo, update pointer to latest main
+cd ..
+git submodule update --remote .governance
+git add .governance
+git commit -m "Update governance"
+```
+
+> **WARNING**: Do NOT commit `.governance/` changes from the parent repo directory.
+> The parent only tracks a pointer (SHA) to a commit—it cannot store file changes.
+
 ### Cloning a repo that uses this pack
 
 **Option A: Clone with submodules (recommended)**
@@ -151,6 +182,16 @@ git pull --recurse-submodules
 ```
 
 > **Note**: If `.governance/` folder is empty, run `git submodule update --init`
+
+### Troubleshooting
+
+| Problem | Solution |
+|---------|----------|
+| `.governance/` is empty | `git submodule update --init` |
+| Submodule shows "modified" but you didn't change it | `git submodule update --force .governance` |
+| Accidentally edited from parent repo | Go into `.governance/`, commit there, push, then update parent |
+| Changes not appearing after update | `git submodule update --remote .governance` |
+| Detached HEAD in submodule | `cd .governance && git checkout main && git pull` |
 
 ## Checks
 

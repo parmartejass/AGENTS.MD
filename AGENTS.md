@@ -26,6 +26,22 @@ When this pack is installed as a submodule under `.governance/` in a target repo
 - Governance docs and scripts live under `.governance/docs/agents/` and `.governance/scripts/`.
 - Project-specific docs remain at `docs/project/` in the target repo.
 
+## Submodule Workflow Rules (Hard Gate)
+
+The governance pack source repo is: `https://github.com/parmartejass/AGENTS.MD.git`
+
+When editing files inside `.governance/`:
+1. **NEVER** commit `.governance/` changes from the parent repo directory.
+2. **ALWAYS** go INTO the submodule first: `cd .governance`
+3. **ALWAYS** checkout and pull main before making changes: `git checkout main && git pull origin main`
+4. Create a branch, commit, and push to the **submodule repo** (parmartejass/AGENTS.MD).
+5. Create PR in the submodule repo, merge to main.
+6. Return to parent repo and update the pointer: `git submodule update --remote .governance`
+
+The parent repo only stores a pointer (SHA) to a commit in the submodule—it cannot store file changes.
+
+See `README.md` section "Editing governance (from inside a project)" for exact commands.
+
 ## Prime Directive: Verify, Then Trust
 
 Agents are probabilistic generators. The repo and tools are deterministic.
