@@ -1,4 +1,5 @@
 # CLAUDE.md (Loader Stub)
+# Test line added for testing purposes
 
 Hard gate:
 - Before doing any work, open and follow `AGENTS.md`.
