@@ -82,14 +82,56 @@ This repository maintains a reusable, repo-agnostic instruction pack for autonom
 
 ## Use in other repos (submodule)
 
-Add the pack as a submodule under `.governance/`:
-- `git submodule add -b main <pack-url> .governance`
-- Keep project-owned overlays at the repo root: `AGENTS.md`, `CLAUDE.md`, `.cursorrules`, `.github/copilot-instructions.md`, `.editorconfig`
-  - Each overlay must direct readers to `.governance/AGENTS.md` and `.governance/agents-manifest.yaml`.
-- Keep project docs under `docs/project/` (do not copy `docs/agents` into the project root).
+### Step 1: Add the governance pack as a submodule
 
-Update governance explicitly:
-- `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/sync-governance.ps1`
+```powershell
+cd "C:\path\to\your\project"
+git submodule add -b main https://github.com/parmartejass/AGENTS.MD.git .governance
+```
+
+### Step 2: Create stub files at project root
+
+Create these files at your project root, each pointing to `.governance/`:
+
+**AGENTS.md** (required):
+```md
+# AGENTS.md
+
+Before any work, read and follow `.governance/AGENTS.md`.
+Manifest: `.governance/agents-manifest.yaml`.
+```
+
+**CLAUDE.md** (optional, for Claude):
+```md
+# CLAUDE.md
+
+Before any work, read and follow `.governance/AGENTS.md`.
+```
+
+**Note**: Keep your project docs under `docs/project/` (do not copy `docs/agents` into the project root).
+
+### Step 3: Commit
+
+```powershell
+git add .
+git commit -m "Add governance pack as submodule"
+```
+
+### Updating governance (when pack gets updates)
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/sync-governance.ps1
+git add .governance
+git commit -m "Update governance pack"
+```
+
+### Cloning a repo that uses this pack
+
+```powershell
+git clone --recurse-submodules <repo-url>
+# OR if already cloned:
+git submodule update --init --remote
+```
 
 ## Checks
 
