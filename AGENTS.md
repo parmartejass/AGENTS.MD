@@ -150,7 +150,7 @@ Default posture:
 
 Before reasoning or implementing, agents MUST:
 
-1) Read `agents-manifest.yaml`.
+1) Read `agents-manifest.yaml` and resolve any referenced paths relative to the governance root (directory containing the manifest), per **Path Resolution (SSOT)** above.
 2) Determine matching profiles by evaluating each profile's `detect` signals against the task:
    - `detect.keywords`: case-insensitive substring match on the user prompt and any referenced file contents.
    - `detect.code_patterns`: regex/substrings matched against code in scope.
