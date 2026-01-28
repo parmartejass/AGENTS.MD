@@ -29,8 +29,8 @@ When this pack is installed as a submodule under `.governance/` in a target repo
 ## Path Resolution (SSOT)
 
 All paths in this governance pack are written relative to a root. Resolve paths as follows:
-- Governance root: the directory containing this `AGENTS.md` and `agents-manifest.yaml`. Unless explicitly marked as project-root, all governance paths (e.g., `docs/agents/...`, `docs/agents/playbooks/...`, `scripts/...`) are resolved relative to this root.
-- Project root: the target repo root into which the pack is vendored (parent of `.governance/` when used as a submodule). Paths under `docs/project/...` and `README.md` are resolved relative to the project root.
+- Governance root: the directory containing this `AGENTS.md` and `agents-manifest.yaml`. Unless explicitly marked as project-root, all governance paths (e.g., `docs/agents/...`, `docs/agents/playbooks/...`, `scripts/...`, `./README.md`) are resolved relative to this root.
+- Project root: the target repo root into which the pack is vendored (parent of `.governance/` when used as a submodule). Paths under `docs/project/...` and `README.md` (project README) are resolved relative to the project root.
 - When vendored as `.governance/`, governance-root paths resolve under `.governance/` without rewriting the path strings in docs or manifests.
 
 ## Submodule Workflow Rules (Hard Gate)
@@ -47,7 +47,7 @@ When editing files inside `.governance/`:
 
 The parent repo only stores a pointer (SHA) to a commit in the submodule—it cannot store file changes.
 
-See `README.md` section "Editing governance (from inside a project)" for exact commands.
+See `./README.md` section "Editing governance (from inside a project)" for exact commands.
 
 ## Prime Directive: Verify, Then Trust
 
