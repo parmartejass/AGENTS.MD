@@ -1,0 +1,44 @@
+# Memory Index (Git-Native Provider)
+# SSOT Owner: memory-config.yaml
+# Auto-generated - manual edits will be overwritten by memory operations
+
+version: 1
+last_updated: "2025-01-30T00:00:00Z"
+
+# Summary statistics
+stats:
+  total_memories: 1
+  by_type:
+    learning: 1
+    decision: 0
+    discovery: 0
+    invariant: 0
+  by_status:
+    active: 1
+    promoted: 0
+    superseded: 0
+    rejected: 0
+  pending_promotions: 0
+
+# Memory entries (lightweight index - full content in individual files)
+memories:
+  - id: "LEARN-001"
+    file: "learnings/LEARN-001.yaml"
+    type: learning
+    status: active
+    title: "Example: Git-native memory storage format"
+    confidence: 0.8
+    tags: ["governance", "memory", "example"]
+    created_at: "2025-01-30T00:00:00Z"
+
+# Promotion queue
+promotions: []
+
+# Tag index for fast filtering
+tag_index:
+  governance:
+    - "LEARN-001"
+  memory:
+    - "LEARN-001"
+  example:
+    - "LEARN-001"

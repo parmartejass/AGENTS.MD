@@ -1,0 +1,59 @@
+# Learning Memory Entry
+# This is an example of the git-native memory format
+# Real learnings will be captured during agent sessions
+
+id: "LEARN-001"
+type: learning
+status: active
+title: "Example: Git-native memory storage format"
+
+content: |
+  This is an example learning entry demonstrating the git-native memory format.
+
+  The git-native provider stores each learning as a YAML file that is:
+  - Version-controlled (full audit trail)
+  - Human-readable and editable
+  - Works offline without dependencies
+  - Searchable via grep/ripgrep
+
+  Trade-off: No semantic search (keyword matching only).
+  For semantic search, use ChromaDB or Supermemory providers.
+
+metadata:
+  source: "initial-setup"
+  confidence: 0.8
+  tags:
+    - governance
+    - memory
+    - example
+  evidence:
+    - "Roadmap document: docs/agents/proposals/memory-integration-roadmap.md"
+    - "MPI specification: docs/agents/specs/memory-provider-interface.yaml"
+  related_memories: []
+
+  # If this learning maps to governance
+  governance_ref: null  # Set when promoted
+
+# Invariant (if applicable)
+invariant:
+  statement: "Memory entries must be human-readable and version-controlled"
+  category: "observability"
+
+# Witness (verification)
+witness:
+  what_is_measured: "File exists and is valid YAML"
+  where_recorded: "Git history + index.yaml"
+  pass_criteria: "File parses as YAML and contains required fields"
+
+# Promotion tracking
+promotion:
+  status: null  # pending | approved | rejected | merged
+  target: null  # Where to promote (AGENTS.md, manifest, etc.)
+  proposal: null  # Draft governance text
+  reviewed_by: null
+  reviewed_at: null
+  merged_commit: null
+
+# Timestamps
+created_at: "2025-01-30T00:00:00Z"
+updated_at: "2025-01-30T00:00:00Z"

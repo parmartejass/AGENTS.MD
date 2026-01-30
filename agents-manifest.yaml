@@ -279,3 +279,46 @@ profiles:
         - "verification_contradicts_claim"
     inject:
       - "docs/agents/15-stuck-in-loop-generate-fresh-restart-prompt.md"
+
+# =============================================================================
+# MEMORY INTEGRATION (Provider-Agnostic Learning Enhancement)
+# =============================================================================
+# See: docs/agents/proposals/memory-integration-roadmap.md
+# See: docs/agents/specs/memory-provider-interface.yaml
+
+memory:
+  enabled: true
+  config_file: memory-config.yaml  # Provider selection and settings
+
+  # When to query memory for relevant learnings
+  inject_on:
+    - task_start           # Before reasoning on new task
+    - profile_match        # When a manifest profile matches
+    - stuck_loop_reset     # When restarting after failure
+
+  # What to capture during sessions
+  capture:
+    learnings: true        # Operational pitfalls discovered
+    decisions: true        # Architecture/implementation decisions
+    discoveries: false     # SSOT maps in docs are sufficient
+
+  # Query templates for memory retrieval
+  query_templates:
+    task_start: "learnings relevant to: {task_description}"
+    profile_match: "pitfalls and best practices for: {matched_profiles}"
+    stuck_loop_reset: "similar failures and their resolutions"
+
+  # Semantic query hints per profile (extends semantic_queries section)
+  profile_queries:
+    excel_automation:
+      - "past issues with Excel file processing"
+      - "workbook validation pitfalls"
+    excel_com:
+      - "Excel COM lifecycle failures"
+      - "process cleanup issues"
+    gui_task:
+      - "GUI threading race conditions"
+      - "queue/drain pattern issues"
+    io_batch:
+      - "large file handling pitfalls"
+      - "chunking and memory issues"

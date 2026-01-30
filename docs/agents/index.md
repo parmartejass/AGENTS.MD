@@ -20,6 +20,12 @@ Core docs:
 - Release checklist: `docs/agents/90-release-checklist.md`
 - Workflow registry standard: `docs/agents/workflow-registry.md`
 
+Specifications:
+- Memory Provider Interface (MPI): `docs/agents/specs/memory-provider-interface.yaml`
+
+Proposals:
+- Memory Integration Roadmap: `docs/agents/proposals/memory-integration-roadmap.md`
+
 Playbooks (copy/paste templates):
 - AI prompt template: `docs/agents/playbooks/ai-coding-prompt-template.md`
 - Project docs (minimal): `docs/agents/playbooks/project-docs-template.md`

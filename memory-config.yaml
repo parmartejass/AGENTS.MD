@@ -1,0 +1,145 @@
+# Memory Configuration for Governance Framework
+# SSOT Owner: AGENTS.md
+# Update Trigger: Memory provider or settings change
+
+version: 1
+description: >-
+  Configuration for the memory layer that enhances governance with
+  persistent learning capabilities. Provider-agnostic by design.
+
+# =============================================================================
+# PROVIDER SELECTION
+# =============================================================================
+
+# Active provider (change this to switch providers)
+# Options: git-native | chromadb | lancedb | supermemory | hybrid
+provider: git-native
+
+# =============================================================================
+# PROVIDER-SPECIFIC CONFIGURATIONS
+# =============================================================================
+
+providers:
+  git-native:
+    # Zero-dependency, fully auditable, works offline
+    enabled: true
+    path: .governance/memory/learnings
+    index_file: .governance/memory/index.yaml
+    format: yaml
+    auto_commit: false  # Set true to auto-commit new learnings
+
+  chromadb:
+    # Local vector DB with semantic search
+    enabled: false
+    path: .governance/memory/chroma.db
+    embedding_model: all-MiniLM-L6-v2
+    collection_name: governance_learnings
+
+  lancedb:
+    # Alternative local vector DB
+    enabled: false
+    path: .governance/memory/lance.db
+
+  supermemory:
+    # Cloud/MCP provider for cross-LLM memory
+    enabled: false
+    mode: mcp  # 'mcp' or 'api'
+    collection: governance_learnings
+    self_hosted: false
+    # For self-hosted: set SUPERMEMORY_API_KEY env var
+
+  hybrid:
+    # Multiple providers with fallback
+    enabled: false
+    primary: supermemory
+    fallback: git-native
+    sync_strategy: bidirectional
+    sync_on_session_end: true
+
+# =============================================================================
+# CAPTURE SETTINGS
+# =============================================================================
+
+capture:
+  # What to automatically capture
+  learnings: true
+  decisions: true
+  discoveries: false  # SSOT maps in docs are sufficient
+
+  # Auto-capture triggers
+  triggers:
+    - on_error          # Capture when errors occur
+    - on_retry          # Capture when agent retries
+    - on_stuck_loop     # Capture when stuck-loop-reset triggered
+    - on_session_end    # Prompt for learnings at session end
+
+  # Minimum confidence to store
+  min_confidence: 0.5
+
+  # Tags to auto-add based on context
+  auto_tags:
+    - from_file_extensions  # Add tags like 'python', 'yaml' from file types
+    - from_profile_match    # Add tags from matched manifest profiles
+
+# =============================================================================
+# RETRIEVAL SETTINGS
+# =============================================================================
+
+retrieval:
+  # When to query memory
+  inject_on:
+    - task_start        # Before reasoning on new task
+    - profile_match     # When manifest profile matches
+    - stuck_loop_reset  # When restarting after failure
+
+  # Query settings
+  max_results: 5
+  min_confidence: 0.7
+  semantic_search: true  # Only if provider supports
+
+  # Context budget (tokens approximate)
+  max_context_tokens: 1000
+
+# =============================================================================
+# PROMOTION SETTINGS
+# =============================================================================
+
+promotion:
+  # Auto-promotion criteria
+  auto_promote_threshold:
+    min_occurrences: 2      # Same learning seen N times
+    min_confidence: 0.9
+    requires_witness: true   # Must have verification defined
+
+  # What requires human review
+  human_review_required:
+    - AGENTS.md              # All hard gate changes
+    - agents-manifest.yaml   # Profile/injection changes
+    - new_playbook           # New playbook creation
+
+  # Notification (future: webhook, email, etc.)
+  notify_on_pending: false
+
+# =============================================================================
+# PRIVACY & SECURITY
+# =============================================================================
+
+privacy:
+  # What NOT to store in memory
+  exclude_patterns:
+    - "password"
+    - "secret"
+    - "api_key"
+    - "token"
+    - "credential"
+    - "private_key"
+
+  # Redaction for external providers
+  redact_for_external:
+    - file_paths          # Redact absolute paths
+    - user_names          # Redact usernames
+    - internal_urls       # Redact internal URLs
+
+  # Local-only types (never sync to external)
+  local_only_types:
+    - discovery           # SSOT discoveries stay local

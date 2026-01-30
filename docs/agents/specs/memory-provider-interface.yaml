@@ -1,0 +1,477 @@
+# Memory Provider Interface (MPI) Specification
+# Version: 1.0
+# SSOT Owner: AGENTS.md
+# Update Trigger: Memory integration requirements change
+
+version: 1
+interface: MemoryProvider
+description: >-
+  Abstract interface for memory operations in the governance framework.
+  Any provider (Supermemory, ChromaDB, LanceDB, git-native, etc.) must
+  implement these operations to be compatible with the learning feedback loop.
+
+# =============================================================================
+# DATA TYPES
+# =============================================================================
+
+types:
+  MemoryType:
+    enum:
+      - learning        # Operational pitfall or best practice discovered
+      - decision        # Architectural or implementation decision
+      - discovery       # SSOT owner, entrypoint, or structure found
+      - invariant       # Semantic truth that must hold
+      - witness         # Evidence/verification for an invariant
+
+  MemoryStatus:
+    enum:
+      - active          # In use, retrievable
+      - superseded      # Replaced by newer learning
+      - promoted        # Merged into governance
+      - rejected        # Reviewed and rejected
+
+  PromotionTarget:
+    enum:
+      - AGENTS.md                    # Hard gates, cross-cutting rules
+      - agents-manifest.yaml         # Injection profiles, detection signals
+      - docs/agents/*.md             # Supporting policy docs
+      - docs/agents/playbooks/*.md   # Copy/paste templates
+      - docs/project/learning.md     # Project-specific pitfalls
+      - scripts/*                    # Enforcement scripts
+
+  ConfidenceLevel:
+    type: float
+    min: 0.0
+    max: 1.0
+    description: >-
+      How confident we are in this learning.
+      0.0-0.3: Unverified hypothesis
+      0.4-0.6: Single observation
+      0.7-0.8: Multiple observations
+      0.9-1.0: Verified with witness
+
+  Memory:
+    properties:
+      id:
+        type: string
+        description: Unique identifier (UUID or provider-specific)
+      content:
+        type: string
+        description: The learning/decision/discovery content
+      type:
+        type: MemoryType
+      status:
+        type: MemoryStatus
+      metadata:
+        type: MemoryMetadata
+      created_at:
+        type: string
+        format: ISO8601
+      updated_at:
+        type: string
+        format: ISO8601
+
+  MemoryMetadata:
+    properties:
+      source:
+        type: string
+        description: Where this came from (session_id, file_path, user)
+      tags:
+        type: array
+        items: string
+        description: Searchable tags for filtering
+      confidence:
+        type: ConfidenceLevel
+      evidence:
+        type: array
+        items: string
+        description: Supporting evidence (quotes, log excerpts, file refs)
+      related_memories:
+        type: array
+        items: string
+        description: IDs of related memories
+      governance_ref:
+        type: string
+        description: If promoted, reference to governance location
+
+  Promotion:
+    properties:
+      id:
+        type: string
+      memory_id:
+        type: string
+      target:
+        type: PromotionTarget
+      proposal:
+        type: string
+        description: Draft governance text
+      status:
+        enum: [pending, approved, rejected, merged]
+      review_notes:
+        type: string
+      created_at:
+        type: string
+        format: ISO8601
+
+# =============================================================================
+# OPERATIONS
+# =============================================================================
+
+operations:
+  # ---------------------------------------------------------------------------
+  # STORE - Add a new memory
+  # ---------------------------------------------------------------------------
+  store:
+    description: Store a memory item in the provider
+    input:
+      content:
+        type: string
+        required: true
+        description: The content to store
+      type:
+        type: MemoryType
+        required: true
+      metadata:
+        type: MemoryMetadata
+        required: false
+        description: Optional metadata (source, tags, confidence, evidence)
+    output:
+      memory_id:
+        type: string
+        description: The ID of the stored memory
+    errors:
+      - INVALID_TYPE
+      - STORAGE_FAILED
+      - DUPLICATE_CONTENT
+
+  # ---------------------------------------------------------------------------
+  # RETRIEVE - Semantic or keyword search
+  # ---------------------------------------------------------------------------
+  retrieve:
+    description: Search for relevant memories
+    input:
+      query:
+        type: string
+        required: true
+        description: Natural language query or keywords
+      filters:
+        type: object
+        required: false
+        properties:
+          types:
+            type: array
+            items: MemoryType
+          tags:
+            type: array
+            items: string
+          min_confidence:
+            type: ConfidenceLevel
+          status:
+            type: array
+            items: MemoryStatus
+          since:
+            type: string
+            format: ISO8601
+            description: Only memories created after this time
+      limit:
+        type: integer
+        default: 10
+        max: 100
+      semantic:
+        type: boolean
+        default: true
+        description: Use semantic search (if provider supports)
+    output:
+      memories:
+        type: array
+        items: Memory
+      total_count:
+        type: integer
+    errors:
+      - QUERY_EMPTY
+      - PROVIDER_UNAVAILABLE
+
+  # ---------------------------------------------------------------------------
+  # UPDATE - Modify existing memory
+  # ---------------------------------------------------------------------------
+  update:
+    description: Update a memory's content or metadata
+    input:
+      memory_id:
+        type: string
+        required: true
+      updates:
+        type: object
+        properties:
+          content:
+            type: string
+          metadata:
+            type: MemoryMetadata
+          status:
+            type: MemoryStatus
+    output:
+      success:
+        type: boolean
+      memory:
+        type: Memory
+    errors:
+      - NOT_FOUND
+      - UPDATE_FAILED
+
+  # ---------------------------------------------------------------------------
+  # DELETE - Remove a memory
+  # ---------------------------------------------------------------------------
+  delete:
+    description: Remove a memory from the provider
+    input:
+      memory_id:
+        type: string
+        required: true
+      hard_delete:
+        type: boolean
+        default: false
+        description: If true, permanently delete. If false, mark as superseded.
+    output:
+      success:
+        type: boolean
+    errors:
+      - NOT_FOUND
+      - DELETE_FAILED
+
+  # ---------------------------------------------------------------------------
+  # PROMOTE - Propose memory for governance inclusion
+  # ---------------------------------------------------------------------------
+  promote:
+    description: Mark a learning as governance-ready and create a proposal
+    input:
+      memory_id:
+        type: string
+        required: true
+      target:
+        type: PromotionTarget
+        required: true
+      proposal:
+        type: string
+        required: true
+        description: Draft governance text to add
+      rationale:
+        type: string
+        required: false
+        description: Why this should be in governance
+    output:
+      promotion_id:
+        type: string
+    errors:
+      - MEMORY_NOT_FOUND
+      - ALREADY_PROMOTED
+      - INVALID_TARGET
+
+  # ---------------------------------------------------------------------------
+  # LIST_PROMOTIONS - Get pending governance proposals
+  # ---------------------------------------------------------------------------
+  list_promotions:
+    description: Get promotions filtered by status
+    input:
+      status:
+        type: array
+        items:
+          enum: [pending, approved, rejected, merged]
+        default: [pending]
+      limit:
+        type: integer
+        default: 20
+    output:
+      promotions:
+        type: array
+        items: Promotion
+
+  # ---------------------------------------------------------------------------
+  # APPROVE_PROMOTION - Mark promotion as approved
+  # ---------------------------------------------------------------------------
+  approve_promotion:
+    description: Approve a promotion for merge into governance
+    input:
+      promotion_id:
+        type: string
+        required: true
+      review_notes:
+        type: string
+        required: false
+    output:
+      success:
+        type: boolean
+    errors:
+      - NOT_FOUND
+      - ALREADY_PROCESSED
+
+  # ---------------------------------------------------------------------------
+  # MERGE_PROMOTION - Mark promotion as merged
+  # ---------------------------------------------------------------------------
+  merge_promotion:
+    description: Mark promotion as merged into governance
+    input:
+      promotion_id:
+        type: string
+        required: true
+      commit_ref:
+        type: string
+        required: false
+        description: Git commit SHA where merge occurred
+    output:
+      success:
+        type: boolean
+    errors:
+      - NOT_FOUND
+      - NOT_APPROVED
+
+  # ---------------------------------------------------------------------------
+  # SYNC - Synchronize with another provider (for hybrid setups)
+  # ---------------------------------------------------------------------------
+  sync:
+    description: Synchronize memories with another provider
+    input:
+      target_provider:
+        type: string
+        required: true
+        description: Provider identifier to sync with
+      direction:
+        enum: [push, pull, bidirectional]
+        default: bidirectional
+      filters:
+        type: object
+        properties:
+          types:
+            type: array
+            items: MemoryType
+          min_confidence:
+            type: ConfidenceLevel
+    output:
+      pushed:
+        type: integer
+      pulled:
+        type: integer
+      conflicts:
+        type: array
+        items:
+          type: object
+          properties:
+            memory_id: string
+            reason: string
+    errors:
+      - PROVIDER_NOT_FOUND
+      - SYNC_FAILED
+
+# =============================================================================
+# PROVIDER CAPABILITIES
+# =============================================================================
+
+capabilities:
+  description: >-
+    Providers should declare which capabilities they support.
+    Consumers can check capabilities before calling operations.
+
+  properties:
+    semantic_search:
+      type: boolean
+      description: Supports embedding-based semantic search
+    cross_session:
+      type: boolean
+      description: Memories persist across sessions
+    mcp_compatible:
+      type: boolean
+      description: Can be accessed via Model Context Protocol
+    offline:
+      type: boolean
+      description: Works without network access
+    audit_trail:
+      type: boolean
+      description: Maintains full history of changes
+    sync:
+      type: boolean
+      description: Supports sync operation with other providers
+
+# =============================================================================
+# PROVIDER REGISTRY
+# =============================================================================
+
+known_providers:
+  supermemory:
+    name: Supermemory (Cloud/MCP)
+    capabilities:
+      semantic_search: true
+      cross_session: true
+      mcp_compatible: true
+      offline: false
+      audit_trail: false
+      sync: false
+    config_schema:
+      mode:
+        enum: [mcp, api]
+      collection:
+        type: string
+      self_hosted:
+        type: boolean
+
+  chromadb:
+    name: ChromaDB (Local Vector)
+    capabilities:
+      semantic_search: true
+      cross_session: true
+      mcp_compatible: false
+      offline: true
+      audit_trail: false
+      sync: false
+    config_schema:
+      path:
+        type: string
+      embedding_model:
+        type: string
+
+  lancedb:
+    name: LanceDB (Local Vector)
+    capabilities:
+      semantic_search: true
+      cross_session: true
+      mcp_compatible: false
+      offline: true
+      audit_trail: false
+      sync: false
+    config_schema:
+      path:
+        type: string
+
+  git-native:
+    name: Git-Native (Structured YAML)
+    capabilities:
+      semantic_search: false
+      cross_session: true
+      mcp_compatible: false
+      offline: true
+      audit_trail: true
+      sync: false
+    config_schema:
+      path:
+        type: string
+      format:
+        enum: [yaml, json]
+      index_file:
+        type: string
+
+  hybrid:
+    name: Hybrid (Multiple Providers)
+    capabilities:
+      semantic_search: true
+      cross_session: true
+      mcp_compatible: true
+      offline: true
+      audit_trail: true
+      sync: true
+    config_schema:
+      primary:
+        type: string
+        description: Primary provider ID
+      fallback:
+        type: string
+        description: Fallback provider ID
+      sync_strategy:
+        enum: [primary_wins, fallback_wins, bidirectional]
