@@ -38,6 +38,11 @@ Use this to prevent "fixing symptoms" and to reduce rework:
 - Workflows orchestrate; UI and scripts call workflows.
 - Resource safety via context managers and `finally`.
 
+## Where to encode guidance
+- Core docs (`docs/agents/*.md`): principle-level policy and runbooks; avoid platform/tool specifics.
+- Playbooks (`docs/agents/playbooks/*.md`): copy/paste templates and checklists.
+- Skills (`docs/agents/skills/*.md`): platform adapters + skill standards; reference core policy, do not duplicate it.
+
 ## Resource + speed discipline (reduce risk and time)
 - When speed/scale is a goal, follow `AGENTS.md` "Performance & Speed (When Relevant)" (performance model, safe optimizations, bounded concurrency).
 - Prefer bounded waits/timeouts and cancellation for anything that can block.

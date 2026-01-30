@@ -45,6 +45,10 @@ Verification:
 - Commands to run:
 - If no automated tests: deterministic manual check steps:
 
+Review / Validate (required before final response):
+- Use `docs/agents/15-stuck-in-loop-generate-fresh-restart-prompt.md` for repetition/verification contradictions.
+- Use `docs/agents/90-release-checklist.md` as the final pass (reference only; do not duplicate policies).
+
 Output format:
 1) Approach summary (<= 100 words)
 2) Changes made (file list)
@@ -124,7 +128,5 @@ Completion protocol:
   - Output exactly: <promise>COMPLETE</promise>
 ```
 
-## After-the-output review
-- Run the verification commands you listed.
-- Use `docs/agents/90-release-checklist.md` as a final pass.
-- If you hit a repetition loop, use `docs/agents/15-stuck-in-loop-generate-fresh-restart-prompt.md`.
+## Review / Validate (single step)
+Use the "Review / Validate" section in the prompt skeleton above; do not add separate checklists here.

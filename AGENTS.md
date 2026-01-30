@@ -163,6 +163,21 @@ Before reasoning or implementing, agents MUST:
 
 If any referenced file is not accessible, STOP and ask the user to paste it.
 
+## Governance Auto-Edit + Council Review (Hard Gate)
+
+Auto-edit for governance learnings is allowed only when the governance learnings playbook is **explicitly invoked**; otherwise, produce proposals only for governance learnings.
+
+Council review is required before any auto-edit:
+- Run 2-3 parallel subagents with focused review lenses (SSOT/duplication, silent-error/edge-case scan, resource/security risks).
+- Merge findings; if conflicts or gaps remain, pause and ask before editing.
+
+Confirmation gate:
+- If a proposed change is not grounded in existing `AGENTS.md` authority (new rule/invariant/SSOT owner), ask for explicit confirmation before editing.
+- Edits to `AGENTS.md` always require explicit confirmation, except changes limited to this section.
+
+Scope:
+- For governance learnings auto-edit, scope defaults to governance docs/playbooks and `agents-manifest.yaml` only.
+
 ## Non-Negotiables (Hard Gates)
 
 ### 1) Single Source of Truth (SSOT)

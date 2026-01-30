@@ -17,6 +17,9 @@ fallback_inject:
 
 semantic_queries:
   # Pre-defined queries agents can use for embedding-based search when a profile matches.
+  governance_improvement:
+    - "Where are governance policies and core principles defined?"
+    - "How is context injection for governance docs configured?"
   excel_automation:
     - "Where is Excel file processing handled in this repo?"
     - "Where are workbook/sheet constants and validation rules defined?"
@@ -35,6 +38,10 @@ semantic_queries:
   io_batch:
     - "Where is high-volume file I/O handled in this repo?"
     - "What SSOT owns batching/chunking/caching for file processing?"
+  pdf_task:
+    - "Where is PDF merging handled in this repo?"
+    - "How is merged PDF integrity validated (page count, IDs, size checks)?"
+    - "Which PDF backend(s) are used and how is fallback handled?"
   perf_hotspots:
     - "Where are known performance hotspots handled in this repo?"
     - "What SSOT owns caching/batching for the slow path?"
@@ -176,6 +183,35 @@ profiles:
       - "docs/agents/40-config-constants.md"
       - "docs/agents/playbooks/io-batch-task-template.md"
 
+  pdf_task:
+    detect:
+      keywords:
+        - "pdf"
+        - ".pdf"
+        - "pypdf2"
+        - "pypdf"
+        - "pymupdf"
+        - "fitz"
+        - "pdfwriter"
+        - "pdfreader"
+      code_patterns:
+        - "PdfReader"
+        - "PdfWriter"
+        - "fitz.open"
+        - "insert_pdf"
+        - "merge_pdfs"
+      file_globs:
+        - "*.pdf"
+        - "**/pdf/**"
+        - "**/merger.py"
+        - "**/*merge*.py"
+    inject:
+      - "docs/agents/70-io-data-integrity.md"
+      - "docs/agents/30-logging-errors.md"
+      - "docs/agents/80-testing-real-files.md"
+      - "docs/agents/40-config-constants.md"
+      - "docs/agents/playbooks/pdf-task-template.md"
+
   perf_hotspots:
     detect:
       keywords:
@@ -271,6 +307,52 @@ profiles:
       - "docs/agents/25-docs-ssot-policy.md"
       - "docs/agents/20-sources-of-truth-map.md"
       - "docs/agents/playbooks/project-docs-template.md"
+
+  governance_improvement:
+    detect:
+      keywords:
+        - "governance"
+        - "agents-manifest"
+        - "context injection"
+        - "ssot"
+        - "docs ssot"
+        - "playbook"
+        - "governance learnings"
+        - "session recap"
+        - "council review"
+        - "post-session"
+        - "retrospective"
+      code_patterns: []
+      file_globs:
+        - "agents-manifest.yaml"
+        - "docs/agents/*.md"
+        - "docs/agents/playbooks/*.md"
+        - "docs/agents/skills/*.md"
+    inject:
+      - "docs/agents/00-principles.md"
+      - "docs/agents/20-sources-of-truth-map.md"
+      - "docs/agents/25-docs-ssot-policy.md"
+      - "docs/agents/05-context-retrieval.md"
+      - "docs/agents/15-stuck-in-loop-generate-fresh-restart-prompt.md"
+      - "docs/agents/playbooks/governance-learnings-template.md"
+
+  skills_task:
+    detect:
+      keywords:
+        - "cursor skill"
+        - "codex skill"
+        - "claude skill"
+        - "skill standard"
+        - "skill standards"
+        - "skills ssot"
+        - "platform adapter"
+        - "skill adapter"
+      code_patterns: []
+      file_globs:
+        - "docs/agents/skills/*.md"
+    inject:
+      - "docs/agents/skills/00-skill-standards.md"
+      - "docs/agents/skills/10-platform-adapters.md"
 
   stuck_loop_reset:
     detect:

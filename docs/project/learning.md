@@ -7,7 +7,7 @@ update_trigger: new operational learnings/pitfalls discovered in real use
 # Learning Notes
 
 ## Common pitfalls
-- Python may not be runnable on some machines (Windows Store app aliases); prefer deterministic PowerShell checks when possible.
+- Python may not be runnable on some machines (Windows Store app aliases). Ensure `python` resolves correctly so `scripts/check_python_safety.py` can run.
 - Generated artifacts (e.g., `__pycache__/`, `*.pyc`, template outputs) must not be committed.
 
 ## Verification tips
