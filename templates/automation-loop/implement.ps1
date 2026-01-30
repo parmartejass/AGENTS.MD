@@ -33,7 +33,32 @@ try {
 
   $learningDoc = Resolve-RepoPath -RepoRoot $repoRoot -PathValue $config.paths.learning_doc
   $priorityReport = Resolve-RepoPath -RepoRoot $repoRoot -PathValue $config.paths.priority_report
-  $governanceProposals = Resolve-RepoPath -RepoRoot $repoRoot -PathValue (Expand-DateToken -PathTemplate $config.paths.governance_proposals -DateToken (Get-Date -Format "yyyyMMdd"))
+
+  $governanceTemplate = $config.paths.governance_proposals
+  $governanceDate = Get-Date -Format "yyyyMMdd"
+  $governanceExpanded = Expand-DateToken -PathTemplate $governanceTemplate -DateToken $governanceDate
+  $governanceProposals = Resolve-RepoPath -RepoRoot $repoRoot -PathValue $governanceExpanded
+
+  if (-not (Test-Path $governanceProposals) -and ($governanceTemplate -like "*{date}*")) {
+    $wildcardTemplate = $governanceTemplate -replace "\{date\}", "*"
+    $wildcardPath = Resolve-RepoPath -RepoRoot $repoRoot -PathValue $wildcardTemplate
+    $wildcardDir = Split-Path -Parent $wildcardPath
+    $wildcardPattern = Split-Path -Leaf $wildcardPath
+
+    if (Test-Path $wildcardDir) {
+      $candidate = Get-ChildItem -Path $wildcardDir -Filter $wildcardPattern -File -ErrorAction SilentlyContinue |
+        Sort-Object LastWriteTime -Descending |
+        Select-Object -First 1
+      if ($candidate) {
+        $governanceProposals = $candidate.FullName
+        Write-Log "Using latest governance proposals: $governanceProposals"
+      } else {
+        Write-Log "SKIPPED: governance proposals not found for $governanceDate" "WARN"
+      }
+    } else {
+      Write-Log "SKIPPED: governance proposals directory not found: $wildcardDir" "WARN"
+    }
+  }
 
   $promptTemplate = Resolve-AutomationPath -AutomationRoot $AutomationRoot -PathValue $config.implement.prompt_template
   $prompt = Format-Prompt -TemplatePath $promptTemplate -Tokens @{
@@ -54,7 +79,7 @@ try {
       Write-Log "gh CLI not found; skipping PR creation" "WARN"
     } else {
       $title = "Compound: $branchName"
-      $ghArgs = @("pr", "create", "--title", $title, "--base", $config.git.main_branch)
+      $ghArgs = @("pr", "create", "--title", $title, "--base", $config.git.main_branch, "--body", "")
       if ($config.implement.pr_draft) {
         $ghArgs += "--draft"
       }

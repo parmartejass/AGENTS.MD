@@ -48,7 +48,9 @@ try {
   Invoke-Agent -Config $config -PromptText $prompt
   Assert-GovernanceClean -RepoRoot $repoRoot -Config $config
 
-  if ($config.review.auto_commit -or $config.review.auto_push) {
+  $didCommit = $false
+
+  if ($config.review.auto_commit) {
     $pathsToAdd = @()
     if (Test-Path $learningDoc) { $pathsToAdd += $learningDoc }
     if (Test-Path $governanceProposals) { $pathsToAdd += $governanceProposals }
@@ -64,14 +66,22 @@ try {
       } elseif ($LASTEXITCODE -eq 1) {
         $commitMessage = "Nightly review learnings ($timestamp)"
         Invoke-Git -RepoRoot $repoRoot -GitArgs @("commit", "-m", $commitMessage)
-        if ($config.review.auto_push) {
-          Invoke-Git -RepoRoot $repoRoot -GitArgs @("push", $config.git.remote, $config.git.main_branch)
-        }
+        $didCommit = $true
       } else {
         throw "git diff --cached --quiet failed with exit code $LASTEXITCODE"
       }
     } else {
-      Write-Log "No review artifacts found to commit"
+      Write-Log "SKIPPED: no review artifacts found to commit"
+    }
+  } else {
+    Write-Log "SKIPPED: auto_commit disabled"
+  }
+
+  if ($config.review.auto_push) {
+    if ($didCommit) {
+      Invoke-Git -RepoRoot $repoRoot -GitArgs @("push", $config.git.remote, $config.git.main_branch)
+    } else {
+      Write-Log "SKIPPED: no new commit to push"
     }
   }
 
