@@ -57,10 +57,18 @@ try {
     if ($pathsToAdd.Count -gt 0) {
       $gitAddArgs = @("add") + $pathsToAdd
       Invoke-Git -RepoRoot $repoRoot -GitArgs $gitAddArgs
-      $commitMessage = "Nightly review learnings ($timestamp)"
-      Invoke-Git -RepoRoot $repoRoot -GitArgs @("commit", "-m", $commitMessage)
-      if ($config.review.auto_push) {
-        Invoke-Git -RepoRoot $repoRoot -GitArgs @("push", $config.git.remote, $config.git.main_branch)
+
+      & git -C $repoRoot diff --cached --quiet
+      if ($LASTEXITCODE -eq 0) {
+        Write-Log "SKIPPED: no staged changes to commit"
+      } elseif ($LASTEXITCODE -eq 1) {
+        $commitMessage = "Nightly review learnings ($timestamp)"
+        Invoke-Git -RepoRoot $repoRoot -GitArgs @("commit", "-m", $commitMessage)
+        if ($config.review.auto_push) {
+          Invoke-Git -RepoRoot $repoRoot -GitArgs @("push", $config.git.remote, $config.git.main_branch)
+        }
+      } else {
+        throw "git diff --cached --quiet failed with exit code $LASTEXITCODE"
       }
     } else {
       Write-Log "No review artifacts found to commit"
