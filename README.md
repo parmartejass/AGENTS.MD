@@ -49,6 +49,7 @@ This repository maintains a reusable, repo-agnostic instruction pack for autonom
 │  └─ agents/
 │     ├─ index.md
 │     ├─ 00-principles.md
+│     ├─ 05-context-retrieval.md
 │     ├─ 10-repo-discovery.md
 │     ├─ 15-stuck-in-loop-generate-fresh-restart-prompt.md
 │     ├─ 20-sources-of-truth-map.md
@@ -59,14 +60,20 @@ This repository maintains a reusable, repo-agnostic instruction pack for autonom
 │     ├─ 60-gui-threading.md
 │     ├─ 70-io-data-integrity.md
 │     ├─ 80-testing-real-files.md
+│     ├─ 85-dual-entry-template.md
 │     ├─ 90-release-checklist.md
 │     ├─ workflow-registry.md
+│     ├─ skills/
+│     │  ├─ 00-skill-standards.md
+│     │  └─ 10-platform-adapters.md
 │     └─ playbooks/
 │        ├─ ai-coding-prompt-template.md
 │        ├─ bugfix-template.md
 │        ├─ excel-task-template.md
+│        ├─ governance-learnings-template.md
 │        ├─ gui-task-template.md
 │        ├─ io-batch-task-template.md
+│        ├─ pdf-task-template.md
 │        ├─ perf-hotspots-template.md
 │        └─ project-docs-template.md
 ├─ scripts/

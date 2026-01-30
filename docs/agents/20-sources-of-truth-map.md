@@ -34,6 +34,11 @@ Owner: one module or cohesive package.
 Owner: `agents-manifest.yaml`
 - task signal → which supporting docs/playbooks to load alongside `AGENTS.md`
 
+## Skills (platform adapters + standards)
+Owner: `docs/agents/skills/00-skill-standards.md`
+- skill standards and compatibility expectations
+- platform-specific adapter guidance (no policy duplication)
+
 ## Excel COM lifecycle
 Owner: exactly one implementation.
 - start/open, PID, quit, verify, bounded kill fallback

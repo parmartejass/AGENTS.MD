@@ -20,6 +20,10 @@ Core docs:
 - Release checklist: `docs/agents/90-release-checklist.md`
 - Workflow registry standard: `docs/agents/workflow-registry.md`
 
+Skills (standards + platform adapters):
+- Skill standards: `docs/agents/skills/00-skill-standards.md`
+- Platform adapters: `docs/agents/skills/10-platform-adapters.md`
+
 Playbooks (copy/paste templates):
 - AI prompt template: `docs/agents/playbooks/ai-coding-prompt-template.md`
 - Project docs (minimal): `docs/agents/playbooks/project-docs-template.md`
@@ -27,6 +31,7 @@ Playbooks (copy/paste templates):
 - Excel tasks: `docs/agents/playbooks/excel-task-template.md`
 - GUI tasks: `docs/agents/playbooks/gui-task-template.md`
 - High I/O / batch processing: `docs/agents/playbooks/io-batch-task-template.md`
+- PDF tasks: `docs/agents/playbooks/pdf-task-template.md`
 - Performance hotspots: `docs/agents/playbooks/perf-hotspots-template.md`
 - Bugfixes: `docs/agents/playbooks/bugfix-template.md`
 
