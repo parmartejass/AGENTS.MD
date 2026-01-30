@@ -21,7 +21,19 @@ This folder is a copyable template for a simple nightly automation loop:
 - `implement.ps1` - nightly implementation step.
 - `nightly.ps1` - optional wrapper (runs review then implement).
 - `automation-lib.ps1` - shared helpers.
+- `verify.ps1` - optional harness that runs template checks in a temp repo.
 - `prompts/` - prompt templates used by the scripts.
+
+## Verification (optional)
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File verify.ps1
+```
+
+Options:
+- `-IncludePrCheck` (adds a stub `gh` to verify non-interactive PR creation)
+- `-KeepWorkDir` (retain temp repo for inspection)
+- `-WorkingRoot <path>` (use a specific working directory; not auto-deleted)
 
 ## Risk-accepted runner examples (non-interactive)
 
