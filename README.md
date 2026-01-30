@@ -24,6 +24,7 @@ This repository maintains a reusable, repo-agnostic instruction pack for autonom
 
 ## Templates (reference implementations)
 
+- Automation loop (nightly review + implement): `templates/automation-loop/`
 - Dual-entry GUI+CLI + scenario tests (SSOT): `templates/python-dual-entry/`
   - Reference implementation only: follow `AGENTS.md` discovery/adoption rules; copy patterns, not files.
   - Run one scenario: `cd templates/python-dual-entry; python -m myapp --cli --scenario tests/scenarios/scenario_001_happy_path.json --verify`

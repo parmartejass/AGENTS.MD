@@ -35,6 +35,11 @@ Playbooks (copy/paste templates):
 - Performance hotspots: `docs/agents/playbooks/perf-hotspots-template.md`
 - Bugfixes: `docs/agents/playbooks/bugfix-template.md`
 
+Automation loops:
+- Overview: `docs/agents/automation/overview.md`
+- Nightly compound loop: `docs/agents/automation/nightly-compound-loop.md`
+- Templates: `templates/automation-loop/`
+
 Checks:
 - Docs SSOT headers: `scripts/check_docs_ssot.ps1`
 - Agents manifest references: `scripts/check_agents_manifest.ps1`
