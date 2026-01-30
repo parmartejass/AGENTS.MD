@@ -20,6 +20,9 @@ semantic_queries:
   governance_improvement:
     - "Where are governance policies and core principles defined?"
     - "How is context injection for governance docs configured?"
+  automation_loop:
+    - "Where are the automation loop templates and runbooks?"
+    - "How are the nightly review and implement steps defined?"
   excel_automation:
     - "Where is Excel file processing handled in this repo?"
     - "Where are workbook/sheet constants and validation rules defined?"
@@ -307,6 +310,29 @@ profiles:
       - "docs/agents/25-docs-ssot-policy.md"
       - "docs/agents/20-sources-of-truth-map.md"
       - "docs/agents/playbooks/project-docs-template.md"
+
+  automation_loop:
+    detect:
+      keywords:
+        - "automation loop"
+        - "nightly"
+        - "compound"
+        - "auto-compound"
+        - "agent loop"
+        - "autonomous"
+        - "task scheduler"
+        - "launchd"
+        - "cron"
+        - "caffeinate"
+        - "priority report"
+      code_patterns: []
+      file_globs:
+        - "templates/automation-loop/**"
+        - "**/automation/**"
+        - "**/automation-loop/**"
+    inject:
+      - "docs/agents/automation/nightly-compound-loop.md"
+      - "docs/agents/playbooks/governance-learnings-template.md"
 
   governance_improvement:
     detect:

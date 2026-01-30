@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "paths": {
+    "learning_doc": "docs/project/learning.md",
+    "priority_report": "reports/priorities.md",
+    "governance_proposals": "reports/governance-proposals-{date}.md",
+    "review_report": "reports/compound-review-{date}.md",
+    "logs_dir": "logs"
+  },
+  "git": {
+    "main_branch": "main",
+    "remote": "origin"
+  },
+  "runner": {
+    "command": "",
+    "args": [],
+    "prompt_mode": "stdin"
+  },
+  "review": {
+    "prompt_template": "prompts/review.md",
+    "auto_commit": true,
+    "auto_push": false
+  },
+  "implement": {
+    "prompt_template": "prompts/implement.md",
+    "branch_prefix": "compound",
+    "create_pr": false,
+    "pr_draft": true
+  },
+  "guard": {
+    "governance_path": ".governance",
+    "fail_on_governance_changes": true
+  }
+}
