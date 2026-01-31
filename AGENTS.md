@@ -122,6 +122,19 @@ Mandatory anti-bias artifacts for every fix:
 Confidence rule:
 - confidence is evidence-weighted; "it worked once" is not evidence
 
+### Verification Floors (Hard Gate)
+- Verification commands are a single SSOT in the repo: the README "Checks" section. Do not invent commands. If a required verification step is repeatable, add the command to README before running; otherwise record deterministic manual steps in the report.
+- Minimums by change type (in addition to repo-specific checks):
+  - Docs-only or formatting: run doc-related checks if present; otherwise record a deterministic manual check.
+  - Behavior-neutral code change: run baseline checks relevant to the touched area plus at least one targeted smoke test if available; if none, record a deterministic manual check.
+  - Behavior change or new feature: baseline checks plus targeted tests covering the new behavior and at least one failure-path check (see I/O guidance in `docs/agents/80-testing-real-files.md` when applicable).
+  - Bugfix/regression: follow "Bias-Resistant Debugging" (no extra exceptions) and run the applicable tests.
+- Coverage/fixtures:
+  - If coverage thresholds exist (CI/config/tooling), meet them and do not lower them.
+  - If no coverage thresholds exist, require fixture-backed tests: regression fixture for bugfixes; representative scenario/fixture for new features when feasible.
+  - Fixtures must be deterministic and sanitized (no secrets/PII/licensed data).
+- For changes affecting I/O or file processing, follow `docs/agents/80-testing-real-files.md` (supporting guidance).
+
 ### Rewrite Risk Policy
 Large rewrites are risk amplification unless all are true:
 - pre-existing invariants are enumerated and preserved
@@ -140,11 +153,12 @@ Default posture:
    - Use `docs/agents/10-repo-discovery.md` for discovery search terms and SSOT adoption rules.
    - MUST ensure project docs exist and are read (start with `README.md` and `docs/project/index.md`; create missing docs per "Documentation SSOT Policy").
 3) **Decompose** into atomic, independently verifiable subtasks.
-4) **Ambiguity gate**: if multiple interpretations would change code materially, STOP and ask 1-3 clarifying questions.
-5) **Implement minimally**: smallest diff that satisfies acceptance criteria; no bundled refactors.
-6) **Verify** with deterministic tools (tests/lint/run) or provide deterministic manual checks
+4) **Subagent council**: run intention-based subagent review per "Subagent Council (Hard Gate)" and integrate findings into the plan.
+5) **Ambiguity gate**: if multiple interpretations would change code materially, STOP and ask 1-3 clarifying questions.
+6) **Implement minimally**: smallest diff that satisfies acceptance criteria; no bundled refactors.
+7) **Verify** with deterministic tools (tests/lint/run) or provide deterministic manual checks
    when tools are unavailable.
-7) **Report**: what changed, where SSOT lives, and evidence of verification.
+8) **Report**: what changed, where SSOT lives, council findings, and evidence of verification.
 
 ## Context Injection Procedure (Hard Gate)
 
@@ -163,12 +177,41 @@ Before reasoning or implementing, agents MUST:
 
 If any referenced file is not accessible, STOP and ask the user to paste it.
 
+## Subagent Council (Hard Gate)
+
+Purpose: force independent, intention-based review so silent errors, edge cases, and SSOT alignment issues are surfaced before decisions or implementation. There is no maximum number of subagents.
+
+### When required
+- Mandatory for: discussions that shape design/behavior, new features, behavior changes, bug/error diagnosis or fixes, code reviews, refactors that impact behavior, and governance changes.
+- Small edits still require at least one review subagent; use the minimum scope if the change is clearly behavior-neutral.
+
+### Intention-based roles (minimum coverage)
+Each council must cover these intentions (one or more subagents may cover multiple intentions):
+- **SSOT/duplication alignment**: ensure existing owners are extended and no new duplicate authorities are introduced.
+- **Silent-error + edge-case scan**: identify missing validation, boundary conditions, and pre/post-change failure modes.
+- **Resource/security/perf risks**: look for leaks, unsafe inputs, timeouts, and performance regressions.
+
+Optional intentions (add as needed): integration/compatibility across modules and entrypoints, data migration/backward compatibility, test/verification gaps.
+
+### Council sizing (preference ranges, not caps)
+Choose size based on risk, scope, and uncertainty. Increase when the change touches many files or unclear invariants.
+- Micro edits or formatting-only: **1** (minimum review).
+- Small behavior-neutral change: **1-2**.
+- Discussion/design or moderate change: **2-4**.
+- Feature addition or behavior change: **3-6** (raise if cross-cutting).
+- Bugfix/error/regression: **10-20** when risk/impact is high; if smaller, justify the reduced scope.
+No maximum: scale up as needed.
+
+### Timing
+- **Pre-change**: run the council before decisions or implementation and update the plan.
+- **Post-change**: run a brief independent scan (at least one reviewer) before final response to catch newly introduced silent errors or edge cases.
+
 ## Governance Auto-Edit + Council Review (Hard Gate)
 
 Auto-edit for governance learnings is allowed only when the governance learnings playbook is **explicitly invoked**; otherwise, produce proposals only for governance learnings.
 
 Council review is required before any auto-edit:
-- Run 2-3 parallel subagents with focused review lenses (SSOT/duplication, silent-error/edge-case scan, resource/security risks).
+- Run the Subagent Council (see above) with minimum coverage for SSOT/duplication, silent-error/edge-case scan, and resource/security/perf risks.
 - Merge findings; if conflicts or gaps remain, pause and ask before editing.
 
 Confirmation gate:
