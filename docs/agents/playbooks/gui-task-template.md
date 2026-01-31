@@ -18,6 +18,8 @@ Use when:
 - worker mechanism:
 - queue message schema:
 - drain interval:
+- stop/cancel mechanism (event + UI poll; no join on UI thread):
+- interruptible waits (use `Event.wait(...)`):
 
 ## Responsiveness & performance plan (when relevant)
 - Follow `AGENTS.md` "Performance & Speed (When Relevant)" (UI stays correct + responsive; no safety trade-offs).
