@@ -90,7 +90,7 @@ Steps:
      - `scripts/*` for deterministic enforcement checks
      - `docs/agents/index.md` or README if a new doc/playbook is proposed (avoid orphan docs)
 3) Council review (required before edits):
-   - Spawn 2-3 subagents with focused lenses (SSOT/duplication, silent-error/edge-case scan, resource/security risks).
+   - Run the Subagent Council per `AGENTS.md` "Subagent Council (Hard Gate)" and ensure minimum intention coverage (SSOT/duplication, silent-error/edge-case, resource/security/perf).
    - Merge findings; if conflicts or gaps remain, pause and ask before editing.
 4) Produce governance deltas (proposals or auto-edits, depending on authorization):
    - If auto-edit is authorized: apply minimal edits after the confirmation gate, and summarize changes using the fields below.
