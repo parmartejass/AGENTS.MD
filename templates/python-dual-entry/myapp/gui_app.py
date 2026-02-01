@@ -26,6 +26,24 @@ class UiResult:
     message: str
 
 
+def _poll_queue_once(
+    result_queue: queue.Queue[UiResult],
+    worker: threading.Thread | None,
+) -> tuple[UiResult | None, bool]:
+    """Return (ui_result, should_reschedule) for a single poll tick."""
+    try:
+        return result_queue.get_nowait(), False
+    except queue.Empty:
+        if worker and worker.is_alive():
+            return None, True
+
+    # Worker finished; drain once more to avoid missing a late enqueue.
+    try:
+        return result_queue.get_nowait(), False
+    except queue.Empty:
+        return None, False
+
+
 class Application(tk.Tk):
     def __init__(self) -> None:
         super().__init__()
@@ -116,10 +134,9 @@ class Application(tk.Tk):
             self._queue.put(UiResult(scenario_id=scenario_id, success=False, message=message))
 
     def _poll_queue(self) -> None:
-        try:
-            ui_result = self._queue.get_nowait()
-        except queue.Empty:
-            if self._worker and self._worker.is_alive():
+        ui_result, should_reschedule = _poll_queue_once(self._queue, self._worker)
+        if ui_result is None:
+            if should_reschedule:
                 self.after(DEFAULT_GUI_POLL_MS, self._poll_queue)
             return
 
@@ -146,4 +163,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

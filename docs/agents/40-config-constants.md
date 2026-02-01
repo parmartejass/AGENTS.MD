@@ -24,3 +24,15 @@ Use config for values that may vary by user/machine/environment:
 
 Rule: keys/defaults/schema must have a single owner; docs reference keys by identifier and point to the owner.
 
+### Enum-like config values
+- Allowed values and defaults live in one lightweight owner.
+- Config validation and runtime logic must import from that owner; no duplicated lists.
+
+### Validation + fallback
+- Invalid config values are handled by the config SSOT (reject or coerce).
+- Runtime fallback must use the config SSOT default and log key + value + fallback.
+
+### Dependency boundaries
+- Config/constant owners must remain dependency-light; avoid importing runtime/UI modules.
+- Use shared lightweight modules for enums/constants to prevent circular imports.
+
