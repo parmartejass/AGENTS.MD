@@ -11,6 +11,7 @@ Core docs:
 - Sources of truth map: `docs/agents/20-sources-of-truth-map.md`
 - Docs SSOT policy: `docs/agents/25-docs-ssot-policy.md`
 - Logging + errors: `docs/agents/30-logging-errors.md`
+- Authority-bounded modules: `docs/agents/35-authority-bounded-modules.md`
 - Config + constants: `docs/agents/40-config-constants.md`
 - Excel COM lifecycle: `docs/agents/50-excel-com-lifecycle.md`
 - GUI threading: `docs/agents/60-gui-threading.md`
