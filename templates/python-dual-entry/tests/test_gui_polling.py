@@ -1,35 +1,45 @@
+from __future__ import annotations
+
 import json
 import queue
 import random
 import unittest
+from collections.abc import Sequence
 from pathlib import Path
+from typing import Generic, TypeVar
 
 from myapp.gui_app import UiResult, _poll_queue_once
 
 
 FIXTURES_DIR = Path(__file__).resolve().parent / "fixtures"
 RACE_FIXTURE = FIXTURES_DIR / "gui_poll_race_sequence.json"
-_EMPTY = object()
+_EMPTY: object = object()
+
+_T = TypeVar("_T")
 
 
-class SequenceQueue:
-    def __init__(self, sequence):
-        self._sequence = list(sequence)
+class SequenceQueue(Generic[_T]):
+    """Test double for queue.Queue that returns items from a predefined sequence."""
 
-    def get_nowait(self):
+    def __init__(self, sequence: Sequence[_T | object]) -> None:
+        self._sequence: list[_T | object] = list(sequence)
+
+    def get_nowait(self) -> _T:
         if not self._sequence:
             raise queue.Empty
         token = self._sequence.pop(0)
         if token is _EMPTY:
             raise queue.Empty
-        return token
+        return token  # type: ignore[return-value]
 
 
 class StubWorker:
-    def __init__(self, alive):
+    """Test double for threading.Thread that reports a fixed alive state."""
+
+    def __init__(self, alive: bool) -> None:
         self._alive = alive
 
-    def is_alive(self):
+    def is_alive(self) -> bool:
         return self._alive
 
 

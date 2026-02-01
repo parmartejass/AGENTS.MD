@@ -9,6 +9,7 @@ import tkinter as tk
 from dataclasses import dataclass
 from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
+from typing import Protocol, TypeVar
 
 from myapp.constants import DEFAULT_GUI_POLL_MS
 from myapp.errors import ConfigError
@@ -19,6 +20,21 @@ from myapp.scenarios import load_scenario
 logger = logging.getLogger(__name__)
 
 
+_T = TypeVar("_T")
+
+
+class SupportsGetNowait(Protocol[_T]):
+    """Protocol for queue-like objects that support non-blocking get."""
+
+    def get_nowait(self) -> _T: ...
+
+
+class SupportsIsAlive(Protocol):
+    """Protocol for thread-like objects that support is_alive check."""
+
+    def is_alive(self) -> bool: ...
+
+
 @dataclass(frozen=True)
 class UiResult:
     scenario_id: str
@@ -27,8 +43,8 @@ class UiResult:
 
 
 def _poll_queue_once(
-    result_queue: queue.Queue[UiResult],
-    worker: threading.Thread | None,
+    result_queue: SupportsGetNowait[UiResult],
+    worker: SupportsIsAlive | None,
 ) -> tuple[UiResult | None, bool]:
     """Return (ui_result, should_reschedule) for a single poll tick."""
     try:
