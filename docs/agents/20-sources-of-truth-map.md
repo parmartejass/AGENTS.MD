@@ -19,6 +19,12 @@ Owner: exactly one place.
 - keys + defaults + schema
 - loader mechanism consistent with repo conventions
 
+## Schema / types / data model
+Owner: exactly one place.
+- data shape and type definitions shared across modules
+- validation rules remain in Rules / conditions / validations
+- schema SSOT must be a single code location (module or generated schema); docs reference it only
+
 ## Rules / conditions / validations
 Owner: exactly one place.
 - `is_*` predicates, `require_*` requirements, `validate_*` validators
@@ -29,6 +35,11 @@ Owner: one module or cohesive package.
 - compose constants/config/rules
 - call I/O adapters
 - emit run outcomes (report/logs)
+
+## Module boundaries + contracts
+Owner: exactly one place.
+- authority boundaries recorded in `docs/project/architecture.md` (project root)
+- module contracts defined in the authority module entrypoint (see `docs/agents/35-authority-bounded-modules.md`)
 
 ## Context injection (supporting docs selection)
 Owner: `agents-manifest.yaml`

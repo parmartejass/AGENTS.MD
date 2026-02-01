@@ -98,6 +98,7 @@ Implications:
 ### Authority Graph (Required for non-trivial systems)
 (Non-trivial: >1 workflow entrypoint, OR >1 SSOT owner, OR external resource dependencies such as COM/DB/network)
 - Maintain a single authoritative owner per decision-critical fact/state (see SSOT section).
+- If code is split into modules/packages, align module boundaries with authority boundaries and expose a single explicit public contract per authority (see `docs/agents/35-authority-bounded-modules.md`).
 - Record the authority graph in `docs/project/architecture.md` or the workflow registry; no orphan docs.
 - All reads/writes must go through the authority; no shadow logic or one-off duplication.
 
