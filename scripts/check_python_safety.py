@@ -152,6 +152,18 @@ class _SafetyVisitor(ast.NodeVisitor):
                     message=f"`except {node.type.id}` must not be silent; log context and/or raise a domain error.",
                 )
                 return
+            if self._is_literal_return_except_body(node.body):
+                self._add_issue(
+                    node=node,
+                    severity="WARN",
+                    rule="EXCEPT_RETURN_LITERAL",
+                    message=(
+                        f"`except {node.type.id}` that only returns a literal/sentinel can hide failures; "
+                        "acceptable only when the sentinel is part of the function's explicit contract and callers handle it. "
+                        "Otherwise log context and/or raise a domain error."
+                    ),
+                )
+                return
 
         self.generic_visit(node)
 
@@ -161,6 +173,26 @@ class _SafetyVisitor(ast.NodeVisitor):
         if len(meaningful) != 1:
             return False
         return isinstance(meaningful[0], ast.Pass)
+
+    @staticmethod
+    def _is_literal_return_except_body(body: list[ast.stmt]) -> bool:
+        meaningful = [stmt for stmt in body if not (isinstance(stmt, ast.Expr) and isinstance(stmt.value, ast.Constant))]
+        if len(meaningful) != 1:
+            return False
+        stmt = meaningful[0]
+        if not isinstance(stmt, ast.Return):
+            return False
+        return _SafetyVisitor._is_literalish_expr(stmt.value)
+
+    @staticmethod
+    def _is_literalish_expr(expr) -> bool:
+        if expr is None:
+            return True
+        if isinstance(expr, ast.Constant):
+            return True
+        if isinstance(expr, ast.Tuple):
+            return all(_SafetyVisitor._is_literalish_expr(elt) for elt in expr.elts)
+        return False
 
     def visit_Call(self, node: ast.Call) -> None:  # noqa: N802
         if isinstance(node.func, ast.Name) and node.func.id == "print":

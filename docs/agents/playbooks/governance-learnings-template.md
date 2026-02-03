@@ -20,6 +20,7 @@ Hard gates:
 - Auto-edit is allowed only when this playbook is explicitly invoked and edit permission is granted for governance docs/playbooks and `agents-manifest.yaml`; otherwise propose deltas only (see `AGENTS.md` "Governance Auto-Edit + Council Review").
 - Before any edit: run the Council Review step and apply the confirmation gate from `AGENTS.md`.
 - Follow `docs/agents/25-docs-ssot-policy.md` (docs cannot become a second SSOT).
+- Language strength: use MUST / Hard Gate only for requirements explicitly listed in `AGENTS.md` Non-Negotiables; use must/required for playbook procedure steps; use should/recommended for suggestions and preferences.
 
 ## Prompt skeleton (copy/paste into any chat)
 
@@ -77,12 +78,12 @@ Steps:
      - Proposed witness (what is measured, where recorded, pass criteria)
    - If evidence is weak, mark as UNVERIFIED and ask for more context.
 2) De-duplicate and place (verify):
-   - For each candidate, search the repo for existing coverage.
+   - For each candidate, search the repo for existing coverage (start with governance docs + referenced SSOT owners; expand only if needed).
    - If covered: mark ALREADY COVERED and cite where (file + section).
    - If partially covered: mark PARTIAL and cite the gap.
    - If missing: decide correct codification target:
-     - `AGENTS.md` for hard gates / cross-cutting invariants / "must always"
-     - `docs/agents/*.md` for supporting policy/runbook (non-authoritative; intent/runbook only)
+     - `AGENTS.md` for hard gates / cross-cutting invariants / "must always" (only if failure to follow causes errors/corruption/data loss; not for preferences or optimizations)
+     - `docs/agents/*.md` for supporting policy/runbook (non-authoritative; intent/runbook only) or suggestions/preferences that improve outcomes but aren't required to prevent failure
      - `docs/agents/playbooks/*.md` for copy/paste templates
      - `docs/agents/skills/*.md` for skill standards and platform adapters (no policy duplication)
      - `docs/project/learning.md` for repo-specific operational pitfalls
@@ -93,7 +94,7 @@ Steps:
    - Run the Subagent Council per `AGENTS.md` "Subagent Council (Hard Gate)" and ensure minimum intention coverage (SSOT/duplication, silent-error/edge-case, resource/security/perf).
    - Merge findings; if conflicts or gaps remain, pause and ask before editing.
 4) Produce governance deltas (proposals or auto-edits, depending on authorization):
-   - If auto-edit is authorized: apply minimal edits after the confirmation gate, and summarize changes using the fields below.
+   - If auto-edit is authorized: apply minimal edits after the confirmation gate and within the scope defined in `AGENTS.md` "Governance Auto-Edit + Council Review"; summarize changes using the fields below.
    - If auto-edit is not authorized: propose deltas only.
    - For each missing learning, output:
      - ID: `LEARN-###` + short title
@@ -104,7 +105,7 @@ Steps:
      - Change Contract alignment: reference `AGENTS.md` (map to the relevant sections; do not duplicate the full contract)
      - Witness/verification (how to prove/enforce deterministically)
      - Risk if not addressed
-     - Confidence: MUST | SHOULD | COULD + VERIFIED | UNVERIFIED (MUST requires a concrete witness + verification command)
+     - Confidence: MUST | SHOULD | COULD + VERIFIED | UNVERIFIED (MUST requires a concrete witness + verification command; use MUST only if failure causes errors/corruption/data loss; use SHOULD/COULD for preferences/optimizations)
 5) Final summary:
    - MUST-codify (max 7)
    - SHOULD/COULD
