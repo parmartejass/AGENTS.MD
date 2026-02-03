@@ -67,7 +67,8 @@ If verification is not possible, treat it as **Unknown** and ask.
 Before implementing, explicitly define:
 - **Model**: inputs, outputs, side effects, and system boundaries.
 - **SSOT map**: which owner(s) hold constants, config, rules, workflows, and any lifecycle utilities.
-- **Root-cause uplift** (authority-first): for any defect or error, trace from symptom to the earliest authority/contract/boundary that should have prevented it; prefer fixing there by adding or strengthening invariants/validation so the class of errors becomes structurally impossible; one authority fix prevents N errors. If a symptom-level patch is unavoidable, record why upstream prevention is infeasible.
+- **Root-cause uplift** (authority-first): for any defect or error, trace from symptom to the earliest authority/contract/boundary that should have prevented it; prefer fixing there by adding or strengthening invariants/validation so the class of errors becomes structurally impossible; one authority fix prevents N errors. If a symptom-level patch is unavoidable, record why upstream prevention is infeasible and what error class remains unprevented.
+- **Structural consolidation** (authority-first): when multiple findings map to the same invariant/authority, treat them as one defect; default to a single upstream fix in the authority owner.
 - **Proof obligations**: preconditions/postconditions + failure modes to cover.
 - **Verification**: exact commands or deterministic manual checks (include at least one failure-path check when feasible).
 - **Resource bounds**: timeouts, cancellation, and guaranteed cleanup in `finally` for external resources.
