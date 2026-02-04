@@ -5,6 +5,7 @@ Context injection manifest: `agents-manifest.yaml`
 
 Core docs:
 - Principles: `docs/agents/00-principles.md`
+- Coding best practices (distilled): `docs/agents/01-coding-best-practices.md`
 - Context retrieval: `docs/agents/05-context-retrieval.md`
 - Repo discovery: `docs/agents/10-repo-discovery.md`
 - Stuck-loop restart prompt: `docs/agents/15-stuck-in-loop-generate-fresh-restart-prompt.md`

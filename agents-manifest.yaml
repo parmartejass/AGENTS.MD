@@ -12,6 +12,7 @@ default_inject:
 injection_mode: union # union | first_match
 
 fallback_inject:
+  - "docs/agents/01-coding-best-practices.md"
   - "docs/agents/10-repo-discovery.md"
   - "docs/agents/30-logging-errors.md"
 
@@ -356,6 +357,7 @@ profiles:
         - "docs/agents/skills/*.md"
     inject:
       - "docs/agents/00-principles.md"
+      - "docs/agents/01-coding-best-practices.md"
       - "docs/agents/20-sources-of-truth-map.md"
       - "docs/agents/25-docs-ssot-policy.md"
       - "docs/agents/35-authority-bounded-modules.md"
