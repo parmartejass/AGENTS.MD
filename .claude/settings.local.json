@@ -5,7 +5,9 @@
       "Bash(gh api:*)",
       "Bash(python -m py_compile:*)",
       "Bash(python -m pytest:*)",
-      "Bash(python -m mypy:*)"
+      "Bash(python -m mypy:*)",
+      "Bash(git show:*)",
+      "Bash(git pull:*)"
     ]
   }
 }

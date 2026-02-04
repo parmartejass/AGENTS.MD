@@ -199,7 +199,7 @@ git pull --recurse-submodules
 | Submodule shows "modified" but you didn't change it | `git submodule update --force .governance` |
 | Accidentally edited from parent repo | Go into `.governance/`, commit there, push, then update parent |
 | Changes not appearing after update | `git submodule update --remote .governance` |
-| Detached HEAD in submodule | `cd .governance && git checkout main && git pull` |
+| Detached HEAD in submodule | From inside `.governance/`: `git checkout main`, then `git pull origin main` |
 
 ## Checks
 
