@@ -40,7 +40,7 @@ The governance pack source repo is: `https://github.com/parmartejass/AGENTS.MD.g
 When editing files inside `.governance/`:
 1. **NEVER** commit `.governance/` changes from the parent repo directory.
 2. **ALWAYS** go INTO the submodule first: `cd .governance`
-3. **ALWAYS** checkout and pull main before making changes: `git checkout main && git pull origin main`
+3. **ALWAYS** checkout and pull main before making changes: run `git checkout main`, then `git pull origin main`
 4. Create a branch, commit, and push to the **submodule repo** (parmartejass/AGENTS.MD).
 5. Create PR in the submodule repo, merge to main.
 6. Return to parent repo and update the pointer: `git submodule update --remote .governance`
@@ -296,6 +296,22 @@ GUI updates must occur on the main/UI thread only:
 - If speed/performance is an acceptance criterion or implied by scale, state a performance model and pick low-risk optimizations first (algorithmic wins, reduce I/O, avoid repeated scans).
 - Never trade away correctness, determinism, data integrity, edge-case safety, logging, or guaranteed cleanup for speed; keep concurrency bounded and cancellation-aware.
 - Verify claimed speedups with deterministic evidence (benchmark/timing) or complexity reasoning; avoid premature micro-optimizations.
+
+### 11) Mandatory Modularity + SOLID/DI (Authority Bloat Prevention)
+- Proactive modularization (decision at change time): before adding new logic to an authority entrypoint, you MUST decide whether it is a distinct internal component (e.g., it owns its own invariants, lifecycle, I/O boundary, or can be tested independently). If yes, you MUST create/extend an internal module (file/dir/namespace) inside the authority package, keeping the entrypoint thin and focused on the public contract (per "Authority Graph" and `docs/agents/35-authority-bounded-modules.md`). This is internal modularization only: NOT a git submodule, repo split, or service boundary. Apply only to new logic in this change; do not refactor unrelated code.
+- SOLID at authority boundaries (mandatory):
+  - SRP: keep authority entrypoints thin; extract distinct internal components instead of accreting in a single file.
+  - OCP: add new implementations/modules only when a second variant is required; avoid speculative plugin systems.
+  - LSP: substitutions must preserve contract pre/postconditions; do not weaken invariants.
+  - ISP: keep contracts minimal and consumer-driven; avoid "fat" contracts.
+  - DIP/DI: depend on stable contracts; use explicit parameter/constructor injection; ban service locators in domain logic. Do not introduce DI containers/frameworks or extra interfaces unless 2+ implementations or test doubles require it.
+- Guardrails (mandatory):
+  - Modularity does not mandate microservices; prefer in-repo modules unless explicitly required.
+  - No runtime discovery, dynamic import, or eval for wiring. Implementation selection must be explicit and allowlisted in code; configuration/environment may select only among that allowlist and MUST NOT accept arbitrary module/class names.
+  - Wire dependencies explicitly (prefer wiring once at the boundary); avoid per-call container resolution or registry scanning.
+  - Do not add indirection in hot paths unless performance acceptance criteria exist or profiling identifies the path, and a performance model is stated.
+  - Internal modules are private to the authority. Cross-authority reuse requires promotion to a shared leaf module: pure/stateless utilities only (no decision rules, no I/O or resource acquisition, no global mutable state; bounded caches only). Leaf modules MUST NOT depend on authorities and must be recorded in `docs/project/architecture.md` (or the workflow registry if that is the SSOT for entrypoints).
+  - Internal modules must be import-safe (no heavy work at import time); acquire external resources only in explicit functions and clean up per "Resource Safety".
 
 ## Governance Templates (Required)
 

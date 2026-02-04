@@ -20,7 +20,7 @@ Hard gates:
 - Auto-edit is allowed only when this playbook is explicitly invoked and edit permission is granted for governance docs/playbooks and `agents-manifest.yaml`; otherwise propose deltas only (see `AGENTS.md` "Governance Auto-Edit + Council Review").
 - Before any edit: run the Council Review step and apply the confirmation gate from `AGENTS.md`.
 - Follow `docs/agents/25-docs-ssot-policy.md` (docs cannot become a second SSOT).
-- Language strength: use MUST / Hard Gate only for requirements explicitly listed in `AGENTS.md` Non-Negotiables; use must/required for playbook procedure steps; use should/recommended for suggestions and preferences.
+- Language strength: use MUST / Hard Gate only when quoting requirements that are explicitly hard-gated in `AGENTS.md` (do not introduce new global hard gates here); use must/required for playbook procedure steps; use should/recommended for suggestions and preferences.
 
 ## Prompt skeleton (copy/paste into any chat)
 
@@ -65,6 +65,7 @@ Required repo context (read at minimum):
 Decision-grade brief (required before learnings):
 - Model summary (inputs/outputs/side effects/boundaries); reference `docs/agents/00-principles.md` and `AGENTS.md` "First-Principles Protocol" (do not duplicate).
 - SSOT map for this session (constants/config/rules/workflows/lifecycle utilities); reference `docs/agents/20-sources-of-truth-map.md`.
+- Authority uplift summary (session-level): list up to 3 failure classes (consolidate where possible) with the earliest upstream authority/contract boundary for each (per `AGENTS.md` Root-cause uplift / Structural consolidation). Label each class VERIFIED or UNVERIFIED; if UNVERIFIED, state the heuristic used. Record any additional classes as `DEPRIORITIZED: <class> — reason` (e.g., summary cap). If none, `N/A + reason`. If external, name the external owner/system; if the authority boundary is unknown, write `Unknown authority boundary + reason`. Write an initial summary here, then ensure the final output reflects any updates after Step 4; if a mismatch remains, add a reconciliation note under it listing differences from per-learning authority points.
 - Proof obligations (preconditions/postconditions/failure modes) + verification commands you will use.
 - Confidence gate: label each claim as VERIFIED or UNVERIFIED (no MUST proposals without VERIFIED evidence).
 - Change Contract alignment (required before any edit; reference the `AGENTS.md` template).
@@ -100,6 +101,7 @@ Steps:
      - ID: `LEARN-###` + short title
      - Evidence (session) + why it matters
      - Authority-first prevention point (earliest contract/authority that should prevent it) + why there instead of the symptom location
+     - Modularity/structure decision (required when learning implies new logic or cross-authority reuse, including scripts; otherwise `N/A + reason`, e.g., doc-only/test-only/manifest-only/config-only): decide per `AGENTS.md` Non-Negotiable 11 (distinct internal component or not; justify), and if cross-authority reuse is needed, promote to a shared leaf per `docs/agents/35-authority-bounded-modules.md`
      - Target file + exact section to update (or create)
      - Draft text snippet (minimal; reference SSOT owners by identifier; do not re-encode constants/rules)
      - Change Contract alignment: reference `AGENTS.md` (map to the relevant sections; do not duplicate the full contract)

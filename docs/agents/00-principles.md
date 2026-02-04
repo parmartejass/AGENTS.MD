@@ -1,24 +1,38 @@
 ---
 doc_type: policy
 ssot_owner: AGENTS.md
-update_trigger: AGENTS.md objective/invariants change
+update_trigger: AGENTS.md requirements or referenced section headings change
 ---
 
 # 00 - Principles (First Principles)
 
-## Invariants (SSOT)
-The normative invariants live in `AGENTS.md` under:
+## Invariants (SSOT: `AGENTS.md`)
+Normative requirements live in `AGENTS.md` (and win on conflict). Start with:
 - "Objective"
 - "Non-Negotiables (Hard Gates)"
 
 This doc extends those invariants with a practical first-principles operating protocol.
+It is supporting guidance only; follow `AGENTS.md` "Mandatory Execution Loop (Follow For Every Task)" for the required end-to-end procedure.
+
+## Hard gate references (SSOT: `AGENTS.md`)
+Index only (do not restate requirements here):
+- "Prime Directive: Verify, Then Trust"
+- "First-Principles Protocol (Hard Gate)"
+- "First-Principles + SSOT + Evidence Model (Hard Gate)" (truth layers R/S/D; invariants + witnesses)
+- "Authority Graph (Required for non-trivial systems)" (see also `docs/agents/35-authority-bounded-modules.md`)
+- "Workflow State Machine + Two-Phase Commit (When writes occur)"
+- "Bias-Resistant Debugging (Hard Gate)"
+- "Verification Floors (Hard Gate)"
+- "Rewrite Risk Policy"
+- "Subagent Council (Hard Gate)"
+- "Change Contract (Required for any change record)"
 
 ## Protocol (Model -> Proof -> Change)
 Use this to prevent "fixing symptoms" and to reduce rework:
 
 1) **Model** the system: inputs, outputs, side effects, boundaries.
 2) **Trace to Authority** (canonical: AGENTS.md "Root-cause uplift"):
-   - Don't patch at the symptom location.
+   - Prefer not to patch at the symptom location; if a symptom-level patch is unavoidable, record why upstream prevention is infeasible and what error class remains unprevented.
    - Trace upstream to the **authority point** (config, schema, boundary, contract) where this error class should be structurally prevented.
    - Fix there: one fix at authority prevents N errors (leverage).
 3) **Map SSOT owners** (constants/config/rules/workflows/lifecycle utilities) and extend them (no parallel ownership).
@@ -26,26 +40,29 @@ Use this to prevent "fixing symptoms" and to reduce rework:
    - Preconditions: what must be true before work begins
    - Postconditions: what must be true after success
    - Failure modes: what can go wrong and how it should fail (explicitly)
+   - Invariants + witnesses: follow `AGENTS.md` "Invariants + Witnesses (Required)" (define how correctness is measured and recorded)
 5) **Choose verification** first:
-   - tightest deterministic check available (tests > scenario run > lint/static check > manual steps)
-   - include at least one failure-path check when feasible
+   - Follow `AGENTS.md` "Verification Floors (Hard Gate)" and the repo-root `README.md` "Checks" (SSOT for commands).
+   - Prefer the tightest deterministic check that still satisfies the verification floors and proves the proof obligations.
+   - Include at least one failure-path check when feasible
 6) **Implement minimally** (smallest diff that satisfies acceptance criteria).
 7) **Verify and report evidence** (commands + outcomes, or deterministic manual checks if tooling is unavailable).
 
 ## Preferred patterns
-- “Verify, then trust”: confirm paths/symbols/dependencies with repo + tools.
-- Named rules for conditions (`is_*`, `require_*`, `validate_*`) to avoid duplicated `if` logic.
+- "Verify, then trust": confirm paths/symbols/dependencies with repo + tools.
+- Named rules for conditions (`is_*`, `require_*`, `validate_*`) in the appropriate SSOT owner to avoid duplicated `if` logic (see `docs/agents/20-sources-of-truth-map.md`).
 - Workflows orchestrate; UI and scripts call workflows.
 - Resource safety via context managers and `finally`.
 
 ## Where to encode guidance
 - Core docs (`docs/agents/*.md`): principle-level policy and runbooks; avoid platform/tool specifics.
 - Playbooks (`docs/agents/playbooks/*.md`): copy/paste templates and checklists.
-- Skills (`docs/agents/skills/*.md`): platform adapters + skill standards; reference core policy, do not duplicate it.
+- Skills (`docs/agents/skills/00-skill-standards.md`): platform adapters + skill standards; reference core policy, do not duplicate it.
 
 ## Resource + speed discipline (reduce risk and time)
 - When speed/scale is a goal, follow `AGENTS.md` "Performance & Speed (When Relevant)" (performance model, safe optimizations, bounded concurrency).
 - Prefer bounded waits/timeouts and cancellation for anything that can block.
+- When workflows write, follow `AGENTS.md` "Workflow State Machine + Two-Phase Commit (When writes occur)".
 - Keep I/O transactional (temp + atomic replace) where overwrites matter.
 - Keep discovery fast and complete: follow `docs/agents/05-context-retrieval.md`.
 
