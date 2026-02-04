@@ -10,7 +10,7 @@ These are distilled, non-negotiable rules. Adhering to them eliminates most bugs
 
 ---
 
-## The 7 Invariants
+## The 8 Invariants
 
 ### 1. Verify Before You Act
 Never guess paths, imports, APIs, or config keys. Use tools to confirm facts exist before using them. If unverifiable, treat as **Unknown** and ask.
@@ -32,6 +32,9 @@ When debugging, trace upstream to the contract/boundary that should prevent the 
 
 ### 7. Prove Correctness
 State preconditions, postconditions, and failure modes. Define invariants with measurable witnesses. Run deterministic verification before claiming done.
+
+### 8. Secure by Default
+Never hardcode secrets (use env vars or secret stores). Avoid injection risks (shell, SQL, template). Refuse to weaken security without explicit, scoped justification.
 
 ---
 
@@ -59,6 +62,8 @@ State preconditions, postconditions, and failure modes. Define invariants with m
 | Editing code you haven't read | Blind mutation; unintended side effects |
 | Guessing API/path without verification | Hallucinated dependencies; runtime crash |
 | Patching symptom without root-cause analysis | Whack-a-mole; bug reappears elsewhere |
+| Hardcoded secrets / credentials in code | Exposure risk; rotation impossible |
+| Unsanitized input in shell/SQL/template | Injection vulnerability |
 
 ---
 
