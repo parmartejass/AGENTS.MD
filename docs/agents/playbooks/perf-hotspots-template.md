@@ -9,6 +9,14 @@ update_trigger: performance/speed guidance changes OR new recurring hotspot patt
 Use when:
 - Task matches profile `perf_hotspots` in `agents-manifest.yaml` (e.g., `iterrows`, per-cell Excel loops).
 
+## Change classification (required)
+- task type (feature|bugfix|refactor):
+- blast radius (modules/workflows/users):
+- if bugfix/regression: fill `docs/agents/playbooks/bugfix-template.md` and satisfy `AGENTS.md` "Bias-Resistant Debugging (Hard Gate)".
+- if behavior change/new feature: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" shift-left baseline.
+- if refactor/behavior-neutral change: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" behavior-neutral minimums.
+- if new logic is introduced: apply `AGENTS.md` Non-Negotiable 11 "Mandatory Modularity + SOLID/DI (Authority Bloat Prevention)".
+
 ## Goal
 - Improve speed/throughput without data loss, determinism regressions, or weakened cleanup/logging.
 
@@ -33,3 +41,5 @@ Use when:
 ## Evidence plan
 - Deterministic timing capture (same inputs, same environment): what is measured and where recorded.
 - Complexity reasoning (big-O + dominant constants) when benchmarks aren’t feasible.
+- Correctness witness: output equivalence/regression check on frozen representative fixtures.
+- Disconfirming check: one edge/adversarial case that could invalidate the optimization hypothesis.

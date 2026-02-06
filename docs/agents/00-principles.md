@@ -21,32 +21,36 @@ Index only (do not restate requirements here):
 - "First-Principles + SSOT + Evidence Model (Hard Gate)" (truth layers R/S/D; invariants + witnesses)
 - "Authority Graph (Required for non-trivial systems)" (see also `docs/agents/35-authority-bounded-modules.md`)
 - "Workflow State Machine + Two-Phase Commit (When writes occur)"
+- "Defect vocabulary + root-cause fix policy" (under `AGENTS.md` "First-Principles Protocol (Hard Gate)" and "Bias-Resistant Debugging (Hard Gate)")
+- "RCA workflow + method stack (Fishbone/Pareto/5 Whys/FMEA)" (under `AGENTS.md` "Bias-Resistant Debugging (Hard Gate)")
 - "Bias-Resistant Debugging (Hard Gate)"
 - "Verification Floors (Hard Gate)"
+- "Shift-left quality baseline" (under `AGENTS.md` "Verification Floors (Hard Gate)")
 - "Rewrite Risk Policy"
+- "Mandatory modularity and reusability checklist" (under `AGENTS.md` "Mandatory Modularity + SOLID/DI (Authority Bloat Prevention)")
 - "Subagent Council (Hard Gate)"
 - "Change Contract (Required for any change record)"
 
 ## Protocol (Model -> Proof -> Change)
-Use this to prevent "fixing symptoms" and to reduce rework:
+This protocol is supporting guidance only (non-normative) and is intended to prevent symptom-only fixes and reduce rework:
 
-1) **Model** the system: inputs, outputs, side effects, boundaries.
-2) **Trace to Authority** (canonical: AGENTS.md "Root-cause uplift"):
-   - Prefer not to patch at the symptom location; if a symptom-level patch is unavoidable, record why upstream prevention is infeasible and what error class remains unprevented.
+1) **Modeling** the system: inputs, outputs, side effects, boundaries.
+2) **Tracing to Authority** (canonical: AGENTS.md "Root-cause uplift"):
+   - It is preferable not to patch at the symptom location; if a symptom-level patch is unavoidable, record why upstream prevention is infeasible and what error class remains unprevented.
    - Trace upstream to the **authority point** (config, schema, boundary, contract) where this error class should be structurally prevented.
-   - Fix there: one fix at authority prevents N errors (leverage).
-3) **Map SSOT owners** (constants/config/rules/workflows/lifecycle utilities) and extend them (no parallel ownership).
-4) **State proof obligations**:
+   - Fix there when feasible: one fix at authority prevents N errors (leverage).
+3) **Mapping SSOT owners** (constants/config/rules/workflows/lifecycle utilities) and extending them (no parallel ownership).
+4) **Stating proof obligations**:
    - Preconditions: what must be true before work begins
    - Postconditions: what must be true after success
    - Failure modes: what can go wrong and how it should fail (explicitly)
    - Invariants + witnesses: follow `AGENTS.md` "Invariants + Witnesses (Required)" (define how correctness is measured and recorded)
-5) **Choose verification** first:
-   - Follow `AGENTS.md` "Verification Floors (Hard Gate)" and the repo-root `README.md` "Checks" (SSOT for commands).
-   - Prefer the tightest deterministic check that still satisfies the verification floors and proves the proof obligations.
-   - Include at least one failure-path check when feasible
-6) **Implement minimally** (smallest diff that satisfies acceptance criteria).
-7) **Verify and report evidence** (commands + outcomes, or deterministic manual checks if tooling is unavailable).
+5) **Choosing verification first**:
+   - Reference `AGENTS.md` "Verification Floors (Hard Gate)" and the repo-root `README.md` "Checks" (SSOT for commands).
+   - A tight deterministic check is typically preferred when it satisfies the verification floors and proves the proof obligations.
+   - A failure-path check is useful when feasible.
+6) **Minimal implementation** (smallest diff that satisfies acceptance criteria).
+7) **Verification and evidence reporting** (commands + outcomes, or deterministic manual checks if tooling is unavailable).
 
 ## Preferred patterns
 - "Verify, then trust": confirm paths/symbols/dependencies with repo + tools.
@@ -60,18 +64,19 @@ Use this to prevent "fixing symptoms" and to reduce rework:
 - Skills (`docs/agents/skills/00-skill-standards.md`): platform adapters + skill standards; reference core policy, do not duplicate it.
 
 ## Resource + speed discipline (reduce risk and time)
-- When speed/scale is a goal, follow `AGENTS.md` "Performance & Speed (When Relevant)" (performance model, safe optimizations, bounded concurrency).
-- Prefer bounded waits/timeouts and cancellation for anything that can block.
-- When workflows write, follow `AGENTS.md` "Workflow State Machine + Two-Phase Commit (When writes occur)".
-- Keep I/O transactional (temp + atomic replace) where overwrites matter.
-- Keep discovery fast and complete: follow `docs/agents/05-context-retrieval.md`.
+- For speed/scale work, the governing policy is `AGENTS.md` "Performance & Speed (When Relevant)" (performance model, safe optimizations, bounded concurrency).
+- Bounded waits/timeouts and cancellation are recommended for blocking operations.
+- For write workflows, the governing policy is `AGENTS.md` "Workflow State Machine + Two-Phase Commit (When writes occur)".
+- Transactional I/O (temp + atomic replace) is recommended where overwrites matter.
+- Fast/complete discovery is supported by `docs/agents/05-context-retrieval.md`.
 
 ## Communication (make work auditable)
-- Clearly separate what is verified vs assumed/unknown.
-- If ambiguity would materially change code, stop and ask 1-3 clarifying questions.
-- Always include verification evidence (commands + outcomes) or deterministic manual checks.
+- Clearly separating verified facts from assumptions/unknowns improves auditability.
+- If ambiguity would materially change code, asking 1-3 clarifying questions reduces rework risk.
+- Verification evidence (commands + outcomes) or deterministic manual checks should be included.
 
-## Reject patterns
+## Non-normative anti-pattern examples
+Examples (mapped to `AGENTS.md` hard gates and included here as guidance only):
 - Copy/paste helpers.
 - Duplicate constants/config defaults in multiple files/docs.
 - Multiple lifecycle implementations for the same external system (Excel, GUI queue/drain, etc.).

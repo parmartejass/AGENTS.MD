@@ -11,6 +11,14 @@ Use when:
 - Investigating missing/duplicate pages, “merge drift”, or integrity validation failures
 - Introducing or tuning PDF validation (size checks, page checks, identifier checks)
 
+## Change classification (required)
+- task type (feature|bugfix|refactor):
+- blast radius (workflows/consumers/users):
+- if bugfix/regression: fill `docs/agents/playbooks/bugfix-template.md` and satisfy `AGENTS.md` "Bias-Resistant Debugging (Hard Gate)".
+- if behavior change/new feature: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" shift-left baseline.
+- if refactor/behavior-neutral change: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" behavior-neutral minimums.
+- if new logic is introduced: apply `AGENTS.md` Non-Negotiable 11 "Mandatory Modularity + SOLID/DI (Authority Bloat Prevention)".
+
 Non-goals:
 - This is not a library specification. Library notes are examples; verify in your environment.
 - Do not duplicate constants/defaults here; reference SSOT owners (config/constants/workflows).
@@ -100,3 +108,4 @@ Use multiple witnesses; size alone is a heuristic.
 - [ ] Happy path: representative multi-file merge; verify page count and (if asserted) IDs.
 - [ ] Failure path: remove one input or include an unreadable PDF; ensure explicit FAILED with reason.
 - [ ] Retry path (if implemented): confirm witnesses do not drift across attempts for identical inputs.
+- [ ] Verification commands come from README.md "Checks" (or deterministic manual steps are recorded).

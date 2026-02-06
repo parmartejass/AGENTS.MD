@@ -14,6 +14,7 @@ It explains how to structure code so authority boundaries are explicit and audit
 - The authority boundary is represented by a single module or package entrypoint; internal submodules are allowed but must not expose public contracts.
 - Each authority exposes a single explicit public contract; consumers use the contract only.
 - UI/presentation layers are consumers; they do not own business rules, constants, or config.
+- Apply `AGENTS.md` Non-Negotiable 11 core principle: high cohesion + low coupling.
 
 ## Contract expectations (what "explicit" means)
 - Declare inputs, outputs, and side effects (I/O boundaries must be visible).

@@ -4,7 +4,7 @@ ssot_owner: AGENTS.md
 update_trigger: context retrieval expectations or available tools change
 ---
 
-# 05 — Context Retrieval Best Practices (Hard Gate)
+# 05 - Context Retrieval Best Practices
 
 Goal: retrieve complete, relevant context before reasoning or implementing, and avoid incomplete/incorrect conclusions caused by partial reads.
 
@@ -63,8 +63,12 @@ When you touch a module, also check:
 - its config/constants owners (if referenced)
 - its package/entrypoints (`__init__.py`, `__main__.py`, CLI/GUI dispatchers)
 
-### Read before editing (hard gate)
+### Read before editing (baseline guardrail)
 Never edit a file you haven't read.
+
+## SSOT Guardrails (Avoid Drift)
+- Treat injected docs as supporting context only; verify behavior in code/config and with deterministic tools.
+- Verification commands must come from README.md "Checks" (SSOT); do not introduce new commands in docs.
 
 ## Anti-Patterns (Reject)
 

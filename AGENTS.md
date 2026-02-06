@@ -73,6 +73,14 @@ Before implementing, explicitly define:
 - **Verification**: exact commands or deterministic manual checks (include at least one failure-path check when feasible).
 - **Resource bounds**: timeouts, cancellation, and guaranteed cleanup in `finally` for external resources.
 - **Performance constraints**: expected data sizes and speed targets; choose algorithm/I/O strategy accordingly, without weakening correctness or safety.
+- **Defect vocabulary** (mandatory for bug/error work): use these terms precisely in reports/reviews:
+  - symptom/manifestation: where the bug is observed
+  - root cause: earliest defect/condition that makes the symptom inevitable
+  - workaround: avoids symptom without removing cause
+  - patch: code change (root-cause or symptom-level)
+  - regression: new failure introduced by the fix
+  - blast radius: scope of impacted modules/workflows/users
+- **Shift-left quality** (mandatory for behavior changes/new features): convert reactive RCA learnings into proactive prevention via tests, design failure analysis, boundary contracts, static checks, and observability.
 
 Supporting references:
 - First principles patterns: `docs/agents/00-principles.md`
@@ -113,6 +121,29 @@ Implications:
 Biases to guard against:
 - premature closure, confirmation bias, anchoring, novelty/recency bias
 
+Required terminology for defect analysis:
+- Use the single SSOT definition in "First-Principles Protocol (Hard Gate)" -> "Defect vocabulary".
+
+Mandatory RCA workflow for bug/error/regression work (execute in order and record evidence):
+- Step 0 - Define failure precisely: expected vs actual, inputs/environment/version/commit, and impact.
+- Step 1 - Reproduce reliably: reproduce on demand; if intermittent, capture triggering conditions.
+- Step 2 - Build MRE: reduce to minimal deterministic repro (fixture + command + expected failure signal).
+- Step 3 - Observe facts: collect stack trace/logs/metrics/traces; add targeted assertions/instrumentation as needed.
+- Step 4 - Localize first wrong state: identify where invalid state first appears (not only crash site).
+- Step 5 - Form falsifiable hypothesis: "If X, then Y; therefore symptom Z."
+- Step 6 - Run targeted disconfirming experiment: change one variable at a time and rule out alternatives.
+- Step 7 - Declare root cause statement: specific, upstream, and directly actionable.
+- Step 8 - Implement root-cause fix upstream: fix at authority/origin, not symptom site; if symptom patch is unavoidable, record infeasibility and residual unprevented error class.
+- Step 9 - Lock with tests: add regression test (fails pre-fix/passes post-fix) plus nearby edge-case tests.
+- Step 10 - Validate system-wide: run applicable suites/checks and verify runtime signals after rollout/staging.
+
+RCA method stack for complex defects (default order):
+- Fishbone/Ishikawa to enumerate plausible causes
+- Pareto analysis to prioritize likely high-impact causes
+- 5 Whys to drill to upstream authority fix point
+- Implement root-cause fix and regression test
+- FMEA/DFMEA to prevent recurrence in adjacent paths
+
 Mandatory anti-bias artifacts for every fix:
 - minimal reproducible example (MRE)
 - regression fixture stored in repo
@@ -130,7 +161,8 @@ Confidence rule:
   - Docs-only or formatting: run doc-related checks if present; otherwise record a deterministic manual check.
   - Behavior-neutral code change: run baseline checks relevant to the touched area plus at least one targeted smoke test if available; if none, record a deterministic manual check.
   - Behavior change or new feature: baseline checks plus targeted tests covering the new behavior and at least one failure-path check (see I/O guidance in `docs/agents/80-testing-real-files.md` when applicable).
-  - Bugfix/regression: follow "Bias-Resistant Debugging" (no extra exceptions) and run the applicable tests.
+  - Bugfix/regression: follow "Bias-Resistant Debugging" (no extra exceptions) and run applicable tests, including deterministic MRE witness, regression test, at least one disconfirming edge/adversarial test, and at least one failure-path check.
+- Shift-left quality baseline (new features/behavior changes): before merge, encode prevention with tests (TDD/BDD where feasible), design pre-mortem or failure-mode review, relevant static checks, contract tests on module/service boundaries, and observability-by-design.
 - Coverage/fixtures:
   - If coverage thresholds exist (CI/config/tooling), meet them and do not lower them.
   - If no coverage thresholds exist, require fixture-backed tests: regression fixture for bugfixes; representative scenario/fixture for new features when feasible.
@@ -216,9 +248,9 @@ Council review is required before any auto-edit:
 - Run the Subagent Council (see above) with minimum coverage for SSOT/duplication, silent-error/edge-case scan, and resource/security/perf risks.
 - Merge findings; if conflicts or gaps remain, pause and ask before editing.
 
-Confirmation gate:
-- If a proposed change is not grounded in existing `AGENTS.md` authority (new rule/invariant/SSOT owner), ask for explicit confirmation before editing.
-- Edits to `AGENTS.md` always require explicit confirmation, except changes limited to this section.
+Confirmation gate (for governance learnings auto-edit in this section):
+- If a proposed governance change is not grounded in existing `AGENTS.md` authority (new rule/invariant/SSOT owner), ask for explicit confirmation before editing.
+- For governance learnings auto-edit, edits to `AGENTS.md` always require explicit confirmation, except changes limited to the "Confirmation gate" subsection above.
 
 Scope:
 - For governance learnings auto-edit, scope defaults to governance docs/playbooks and `agents-manifest.yaml` only.
@@ -298,6 +330,24 @@ GUI updates must occur on the main/UI thread only:
 - Verify claimed speedups with deterministic evidence (benchmark/timing) or complexity reasoning; avoid premature micro-optimizations.
 
 ### 11) Mandatory Modularity + SOLID/DI (Authority Bloat Prevention)
+- Core principle (mandatory): high cohesion + low coupling.
+- Reusability checklist (required when adding/extending a reusable module):
+  - one responsibility with explicit boundary
+  - API-first contract (stable public interface, private internals)
+  - no cyclic dependencies (ADP)
+  - depend on abstractions/contracts, not concrete implementations (DIP)
+  - configurable via parameters/config, not global mutable state
+  - testable in isolation
+  - minimal transitive dependencies (CRP); avoid forcing unused dependencies on consumers
+  - if shared across repos/teams, declare versioned contract and change policy
+- Red flags (must trigger redesign or explicit exception rationale):
+  - shotgun surgery (one feature requires edits across many unrelated modules)
+  - deep cross-module call chains that expose internals (Law of Demeter violations)
+  - repeated scattered conditionals for same rule ("add this if-check here too")
+- Package/module graph hygiene (for shared modules):
+  - CCP: things that change together should live together
+  - SDP: dependencies should point toward more stable modules
+  - SAP: stable modules should prefer abstract/stable contracts over concrete details
 - Proactive modularization (decision at change time): before adding new logic to an authority entrypoint, you MUST decide whether it is a distinct internal component (e.g., it owns its own invariants, lifecycle, I/O boundary, or can be tested independently). If yes, you MUST create/extend an internal module (file/dir/namespace) inside the authority package, keeping the entrypoint thin and focused on the public contract (per "Authority Graph" and `docs/agents/35-authority-bounded-modules.md`). This is internal modularization only: NOT a git submodule, repo split, or service boundary. Apply only to new logic in this change; do not refactor unrelated code.
 - SOLID at authority boundaries (mandatory):
   - SRP: keep authority entrypoints thin; extract distinct internal components instead of accreting in a single file.
@@ -325,6 +375,7 @@ Use in PR description or commit message.
 - Observed:
 - Expected:
 - Scope: (rows/files/modules/users impacted)
+- Blast radius: (what else could be impacted by the fix/change)
 
 ## B) Invariants (Semantic Truth: S)
 List invariants affected by this change. Use categories.
@@ -375,6 +426,7 @@ No-duplication proof (list any removed duplicated logic/files):
 - Authority fix point (where fix was applied):
 - Class of errors prevented by fixing at authority:
 - If patching at symptom, justify:
+- RCA method(s) used (Fishbone/Pareto/5 Whys/FMEA etc.):
 
 ## E) Minimal Repro + Regression Fixture
 - Minimal repro description:
@@ -400,6 +452,8 @@ List tests designed to break your hypothesis.
 - [ ] Every row/file ends with terminal outcome + reason
 - [ ] Cleanup baseline restored (Excel/process/temp files)
 - [ ] Fixture added + tests pass
+- [ ] Bugfixes include deterministic MRE + regression + disconfirming test evidence
+- [ ] Root-cause fix is upstream/authority-first, or infeasibility is documented
 ```
 
 ### Standard Log Schema (Required when logs are emitted)
