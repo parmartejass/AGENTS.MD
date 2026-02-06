@@ -73,6 +73,7 @@ Before implementing, explicitly define:
 - **Verification**: exact commands or deterministic manual checks (include at least one failure-path check when feasible).
 - **Resource bounds**: timeouts, cancellation, and guaranteed cleanup in `finally` for external resources.
 - **Performance constraints**: expected data sizes and speed targets; choose algorithm/I/O strategy accordingly, without weakening correctness or safety.
+- **Design principles (generation + maintenance)**: apply DRY, KISS, YAGNI, Separation of Concerns, and Law of Demeter alongside SOLID/DI; prefer simple designs that preserve explicit contracts and authority boundaries.
 - **Defect vocabulary** (mandatory for bug/error work): use these terms precisely in reports/reviews:
   - symptom/manifestation: where the bug is observed
   - root cause: earliest defect/condition that makes the symptom inevitable
@@ -161,7 +162,8 @@ Confidence rule:
   - Docs-only or formatting: run doc-related checks if present; otherwise record a deterministic manual check.
   - Behavior-neutral code change: run baseline checks relevant to the touched area plus at least one targeted smoke test if available; if none, record a deterministic manual check.
   - Behavior change or new feature: baseline checks plus targeted tests covering the new behavior and at least one failure-path check (see I/O guidance in `docs/agents/80-testing-real-files.md` when applicable).
-  - Bugfix/regression: follow "Bias-Resistant Debugging" (no extra exceptions) and run applicable tests, including deterministic MRE witness, regression test, at least one disconfirming edge/adversarial test, and at least one failure-path check.
+  - Bugfix/regression: follow "Bias-Resistant Debugging" (no extra exceptions) and run applicable tests, including deterministic MRE witness, regression test, at least one disconfirming edge/adversarial test, and at least one failure-path check; when artifact-based verification is enabled, store evidence in `docs/project/change-records/*.json` using `docs/agents/schemas/change-record.schema.json`.
+    Artifact-based verification is enabled when `docs/project/change-records/.required` exists or `scripts/check_change_records.ps1` is run with `-RequireRecords`.
 - Shift-left quality baseline (new features/behavior changes): before merge, encode prevention with tests (TDD/BDD where feasible), design pre-mortem or failure-mode review, relevant static checks, contract tests on module/service boundaries, and observability-by-design.
 - Coverage/fixtures:
   - If coverage thresholds exist (CI/config/tooling), meet them and do not lower them.
@@ -239,6 +241,34 @@ No maximum: scale up as needed.
 ### Timing
 - **Pre-change**: run the council before decisions or implementation and update the plan.
 - **Post-change**: run a brief independent scan (at least one reviewer) before final response to catch newly introduced silent errors or edge cases.
+  - Exception (proportionality): post-change review may be waived for doc-only or formatting-only changes when pre-change council coverage is recorded and verification evidence is deterministic.
+
+### Required council output (Hard Gate)
+- Every required council run MUST produce one merged council summary.
+- Full council summary fields (for non-micro changes):
+  - `council_run_id`
+  - `phase` (`pre_change` | `post_change`)
+  - `intent_coverage` (`ssot_duplication`, `silent_error_edge_case`, `resource_security_perf`)
+  - `reviewers` (id, role, scope)
+  - `findings` (severity, location, issue, evidence, recommendation)
+  - `conflicts` (if any)
+  - `reconciliation_decision` (accepted/rejected/deferred + rationale)
+  - `residual_risks`
+  - `go_no_go` (`go` | `go_with_risks` | `hold`)
+  - `verification_links` (README checks and/or deterministic manual witness)
+- Micro edits or formatting-only changes may use an abbreviated summary:
+  - `intent_coverage`
+  - `findings` (or explicit `No findings`)
+  - `residual_risks` (or `none observed`)
+  - `go_no_go`
+
+### Conflict Resolution + Closure Gates (Hard Gate)
+- If reviewers conflict on severity, root cause, fix placement, or risk disposition and the conflict could materially change implementation, do not proceed until reconciled.
+  - Reconcile by running one targeted disconfirming check where feasible; if still unresolved, STOP and ask the user.
+  - Record `conflicts` and `reconciliation_decision` in the merged council summary.
+- Any unresolved blocker finding requires `go_no_go = hold`; implementation is prohibited until resolved or explicitly accepted by the user.
+- Pre-change closure: implementation may begin only after required intention coverage and a merged council summary are complete.
+- Post-change closure: final response may be sent only after required post-change scan (or documented proportionality exception) and merged summary are complete.
 
 ## Governance Auto-Edit + Council Review (Hard Gate)
 
@@ -366,7 +396,7 @@ GUI updates must occur on the main/UI thread only:
 ## Governance Templates (Required)
 
 ### Change Contract (Required for any change record)
-Use in PR description or commit message.
+Use in PR description or commit message. When artifact-based verification is enabled for the repo, record the same evidence in `docs/project/change-records/*.json` and validate it against `docs/agents/schemas/change-record.schema.json`.
 
 ```md
 # Change Contract (Required)
@@ -547,7 +577,7 @@ All project docs must:
 - prose re-implementations of business rules without pointing to the named rule function
 - manually-maintained code blocks that mirror production code
 
-### Required doc header (for files under `docs/`)
+### Required doc header (for Markdown files under `docs/`)
 Each doc (except indexes) must declare:
 - `doc_type`
 - `ssot_owner`

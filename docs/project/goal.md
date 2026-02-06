@@ -12,15 +12,10 @@ update_trigger: repo objective, structure, or required checks change
 ## Acceptance criteria
 - Governance SSOT is `AGENTS.md` and remains authoritative.
 - Context injection remains deterministic via `agents-manifest.yaml`.
-- Repo checks pass:
-  - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_agents_manifest.ps1`
-  - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_docs_ssot.ps1`
-  - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_project_docs.ps1`
-  - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_repo_hygiene.ps1`
-  - `python scripts/check_python_safety.py`
+- Repo checks pass (single command SSOT: `README.md` section "Checks").
 
 ## Non-goals
 - This repo does not define domain business logic; templates are reference implementations only.
 
 ## Verification
-- Run the checks listed in "Acceptance criteria".
+- Run the commands listed in `README.md` section "Checks".

@@ -63,6 +63,7 @@ Reference authority:
 - regression test:
 - disconfirming test:
 - failure-path check:
+- change record artifact (when enabled): `docs/project/change-records/<timestamp>-<slug>.json`
 - if behavior changed: shift-left prevention updates (tests/design/contracts/observability):
 - modularity decision (if new logic introduced; reference `AGENTS.md` Non-Negotiable 11):
 - security/resource/perf scan (notes):

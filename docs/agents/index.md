@@ -2,6 +2,7 @@
 
 Canonical policy: `/AGENTS.md`
 Context injection manifest: `agents-manifest.yaml`
+- Council guidance (authoritative): `AGENTS.md` section "Subagent Council (Hard Gate)"
 
 Core docs:
 - Principles: `docs/agents/00-principles.md`
@@ -28,13 +29,18 @@ Skills (standards + platform adapters):
 Playbooks (copy/paste templates):
 - AI prompt template: `docs/agents/playbooks/ai-coding-prompt-template.md`
 - Project docs (minimal): `docs/agents/playbooks/project-docs-template.md`
-- Governance learnings (session → governance deltas): `docs/agents/playbooks/governance-learnings-template.md`
+- Governance learnings (session -> governance deltas): `docs/agents/playbooks/governance-learnings-template.md`
+- RCA methods: `docs/agents/playbooks/rca-methods-template.md`
+- Design principles checklist: `docs/agents/playbooks/design-principles-checklist.md`
 - Excel tasks: `docs/agents/playbooks/excel-task-template.md`
 - GUI tasks: `docs/agents/playbooks/gui-task-template.md`
 - High I/O / batch processing: `docs/agents/playbooks/io-batch-task-template.md`
 - PDF tasks: `docs/agents/playbooks/pdf-task-template.md`
 - Performance hotspots: `docs/agents/playbooks/perf-hotspots-template.md`
 - Bugfixes: `docs/agents/playbooks/bugfix-template.md`
+
+Schemas:
+- Change record artifact schema: `docs/agents/schemas/change-record.schema.json`
 
 Automation loops:
 - Overview: `docs/agents/automation/overview.md`
@@ -46,6 +52,8 @@ Checks:
 - Agents manifest references: `scripts/check_agents_manifest.ps1`
 - Project docs exist + README linkage: `scripts/check_project_docs.ps1`
 - Repo hygiene (no generated artifacts tracked): `scripts/check_repo_hygiene.ps1`
+- Change record artifacts: `scripts/check_change_records.ps1`
 - Python safety baseline (print/except/timeout/file handles): `scripts/check_python_safety.py`
 
 When this pack is vendored under `.governance/`, invoke checks via `.governance/scripts/...` and pass `-RepoRoot .` for repo-scoped checks.
+
