@@ -25,11 +25,15 @@ Goal:
 Acceptance criteria:
 - ...
 
+Change classification:
+- Blast radius (modules/workflows/users):
+
 Repo context (verified):
 - Files to read first:
 - Existing SSOT owners to extend:
 - Entrypoint/workflow this must be wired through:
 - Injection profiles matched (from `agents-manifest.yaml`):
+- README.md "Checks" reviewed:
 
 First-principles artifacts:
 - Model (inputs/outputs/side effects/boundaries):
@@ -40,10 +44,23 @@ Constraints:
 - Follow `AGENTS.md` (SSOT): verify with tools, avoid duplicates, explicit failures, resource safety.
 - Minimal diff; no unrelated refactors.
 - No new dependencies unless explicitly approved.
+- If new logic is introduced, apply `AGENTS.md` "Mandatory Modularity + SOLID/DI (Authority Bloat Prevention)".
+
+Bugfix artifacts (required when Task type = bugfix):
+- Defect vocabulary summary (symptom/root cause/workaround):
+- Authority-first fix point (or infeasibility rationale for symptom patch):
+- MRE witness (fail before / pass after):
+- Regression test:
+- Disconfirming test:
+- Failure-path check:
+
+Feature/behavior-change baseline (required when Task type = feature):
+- Shift-left prevention plan (tests/design failure analysis/contracts/observability):
 
 Verification:
 - Commands to run:
 - If no automated tests: deterministic manual check steps:
+- Commands must come from README.md "Checks" (SSOT); otherwise record manual checks per `AGENTS.md`.
 
 Review / Validate (required before final response):
 - Use `docs/agents/15-stuck-in-loop-generate-fresh-restart-prompt.md` for repetition/verification contradictions.
@@ -115,6 +132,16 @@ Acceptance criteria:
 
 Verification (must run):
 - <exact command(s) the agent will run>
+- Commands must come from README.md "Checks" (SSOT), or deterministic manual checks must be recorded.
+
+Bugfix evidence (when Task type = bugfix):
+- MRE witness (fail before / pass after)
+- Regression test
+- Disconfirming test
+- Failure-path check
+
+Feature/behavior-change baseline (when Task type = feature):
+- Shift-left prevention checks per `AGENTS.md` "Verification Floors (Hard Gate)"
 
 Stop conditions:
 - If you detect the same failure twice with the same root cause, STOP and output the filled restart prompt template from `docs/agents/15-stuck-in-loop-generate-fresh-restart-prompt.md`.

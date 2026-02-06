@@ -17,6 +17,7 @@ This is supporting guidance. The normative rules live in `AGENTS.md` (Prime Dire
 1) Re-run the `AGENTS.md` Mandatory Execution Loop steps 1-4 explicitly
    (goal/AC, discovery, decomposition, ambiguity gate).
 2) Reproduce/verify the failure with deterministic tools; capture the exact command + output.
+   Use README.md "Checks" (SSOT) when available.
 3) Populate the Restart Prompt Template below and present it as a copy-pasteable restart prompt.
 4) Restart in a fresh chat/model using that prompt, then re-attempt implementation minimally and re-run verification.
 
@@ -43,6 +44,12 @@ Acceptance criteria:
 Why restarting (current failure evidence):
 -
 
+Defect vocabulary (for bug/error work):
+  (use `AGENTS.md` "First-Principles Protocol (Hard Gate)" -> "Defect vocabulary")
+- Symptom/manifestation:
+- Root-cause hypothesis:
+- Blast radius:
+
 Previous attempts and why they failed:
 - Attempt 1:
 - Attempt 2:
@@ -61,6 +68,12 @@ Applicable constraints (from `AGENTS.md`):
 
 Verification commands (exact):
 -
+
+Bugfix evidence to carry forward (if applicable):
+- MRE witness (fail before / pass after):
+- Regression test:
+- Disconfirming test:
+- Failure-path check:
 
 Open questions / Unknowns:
 -
@@ -113,6 +126,7 @@ Open questions / Unknowns:
 - Confirm failures are explicit (logged + raised), not silently skipped (`AGENTS.md` "Logging + Explicit Failure").
 - Scan for security regressions relevant to the change (input validation, injection surfaces, secret handling).
 - Scan for resource leaks relevant to the change (files, subprocesses, Excel COM, UI threads).
+- Scan for performance regressions when perf is relevant (timing or complexity reasoning).
 
 ## Model/tool switching (optional)
 If your platform supports it, switching models can break repetition loops; otherwise,

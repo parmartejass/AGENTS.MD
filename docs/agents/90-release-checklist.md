@@ -4,23 +4,20 @@ ssot_owner: AGENTS.md
 update_trigger: release gates change
 ---
 
-# 90 — Release Checklist
+# 90 - Release Checklist
 
 ## SSOT / No duplicates
-- No repeated literals representing the same concept.
-- No repeated conditions: rules are named and centralized.
-- No parallel lifecycle or GUI threading implementations.
+- Use `AGENTS.md` Non-Negotiables 1-3 as the release gate for SSOT, no-duplication, and no-orphan checks.
+- Use `AGENTS.md` Non-Negotiables 6-7 for Excel lifecycle and GUI threading implementation checks.
+- If module boundaries changed, apply `AGENTS.md` "Mandatory Modularity + SOLID/DI (Authority Bloat Prevention)" (high cohesion + low coupling, no cycles).
 
 ## Logging / Errors
 - No `print()`.
 - Exceptions are meaningful and include context.
 - No silent skips; skipped work records a reason.
-- Run repo checks:
-  - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_docs_ssot.ps1`
-  - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_agents_manifest.ps1`
-  - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_project_docs.ps1`
-  - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_repo_hygiene.ps1`
-  - `python scripts/check_python_safety.py` (and ensure it passes).
+- Run the applicable README.md "Checks" section (this repo vs target repo/submodule) and ensure all listed commands pass.
+- For bugfix/regression releases, include `AGENTS.md` "Bias-Resistant Debugging (Hard Gate)" evidence package.
+- For behavior changes/new features, include `AGENTS.md` "Verification Floors (Hard Gate)" shift-left baseline evidence.
 
 ## Excel COM (if applicable)
 - Quit attempted and verified.
@@ -33,4 +30,4 @@ update_trigger: release gates change
 
 ## Docs + comments
 - Docs do not duplicate facts; they reference identifiers and owners.
-- Comments are “why-only” and do not restate logic/defaults.
+- Comments are "why-only" and do not restate logic/defaults.

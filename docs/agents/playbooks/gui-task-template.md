@@ -9,6 +9,14 @@ update_trigger: GUI threading, performance, or cancellation expectations change
 Use when:
 - Task matches profile `gui_task` in `agents-manifest.yaml`.
 
+## Change classification (required)
+- task type (feature|bugfix|refactor):
+- blast radius (modules/workflows/users):
+- if bugfix/regression: fill `docs/agents/playbooks/bugfix-template.md` and satisfy `AGENTS.md` "Bias-Resistant Debugging (Hard Gate)".
+- if behavior change/new feature: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" shift-left baseline.
+- if refactor/behavior-neutral change: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" behavior-neutral minimums.
+- if new logic is introduced: apply `AGENTS.md` Non-Negotiable 11 "Mandatory Modularity + SOLID/DI (Authority Bloat Prevention)".
+
 ## UI requirements
 - controls:
 - progress display:
@@ -44,3 +52,5 @@ Use when:
 - UI never blocks:
 - no UI updates off main thread:
 - cancel stops worker:
+- failure-path check executed:
+- verification commands come from README.md "Checks":

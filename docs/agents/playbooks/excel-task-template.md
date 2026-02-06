@@ -10,6 +10,14 @@ Use when:
 - Task matches profile `excel_automation` in `agents-manifest.yaml`.
 - If using Excel COM automation (`win32com`/`xlwings`), profile `excel_com` also applies and injects `docs/agents/50-excel-com-lifecycle.md`.
 
+## Change classification (required)
+- task type (feature|bugfix|refactor):
+- blast radius (modules/workflows/users):
+- if bugfix/regression: fill `docs/agents/playbooks/bugfix-template.md` and satisfy `AGENTS.md` "Bias-Resistant Debugging (Hard Gate)".
+- if behavior change/new feature: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" shift-left baseline.
+- if refactor/behavior-neutral change: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" behavior-neutral minimums.
+- if new logic is introduced: apply `AGENTS.md` Non-Negotiable 11 "Mandatory Modularity + SOLID/DI (Authority Bloat Prevention)".
+
 ## Inputs
 - workbooks involved:
 - sheets/tables involved:
@@ -51,3 +59,5 @@ Use when:
 - run outcomes recorded (EXECUTED/SKIPPED + reason):
 - logs present:
 - no orphan Excel.exe:
+- failure-path check executed:
+- verification commands come from README.md "Checks":

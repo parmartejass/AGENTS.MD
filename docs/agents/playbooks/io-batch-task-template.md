@@ -9,6 +9,14 @@ update_trigger: I/O performance, integrity, or run-outcome expectations change
 Use when:
 - Task matches profile `io_batch` in `agents-manifest.yaml`.
 
+## Change classification (required)
+- task type (feature|bugfix|refactor):
+- blast radius (datasets/workflows/users):
+- if bugfix/regression: fill `docs/agents/playbooks/bugfix-template.md` and satisfy `AGENTS.md` "Bias-Resistant Debugging (Hard Gate)".
+- if behavior change/new feature: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" shift-left baseline.
+- if refactor/behavior-neutral change: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" behavior-neutral minimums.
+- if new logic is introduced: apply `AGENTS.md` Non-Negotiable 11 "Mandatory Modularity + SOLID/DI (Authority Bloat Prevention)".
+
 ## Inputs
 - input formats (csv/json/jsonl/parquet/etc):
 - input locations (paths/globs):
@@ -53,3 +61,4 @@ Use when:
 - run outcomes recorded (EXECUTED/SKIPPED + reason):
 - logs present with paths + counts:
 - at least one failure-path check executed (e.g., missing input, invalid schema):
+- verification commands come from README.md "Checks":
