@@ -22,7 +22,7 @@ Index only (do not restate requirements here):
 - "Authority Graph (Required for non-trivial systems)" (see also `docs/agents/35-authority-bounded-modules.md`)
 - "Workflow State Machine + Two-Phase Commit (When writes occur)"
 - "Defect vocabulary + root-cause fix policy" (under `AGENTS.md` "First-Principles Protocol (Hard Gate)" and "Bias-Resistant Debugging (Hard Gate)")
-- "RCA workflow + method stack (Fishbone/Pareto/5 Whys/FMEA)" (under `AGENTS.md` "Bias-Resistant Debugging (Hard Gate)")
+- "RCA workflow + method stack (5 Whys/Fishbone/Pareto/FMEA)" (under `AGENTS.md` "Bias-Resistant Debugging (Hard Gate)")
 - "Bias-Resistant Debugging (Hard Gate)"
 - "Verification Floors (Hard Gate)"
 - "Shift-left quality baseline" (under `AGENTS.md` "Verification Floors (Hard Gate)")
@@ -38,9 +38,7 @@ This protocol is supporting guidance only (non-normative) and is intended to pre
 
 1) **Modeling** the system: inputs, outputs, side effects, boundaries.
 2) **Tracing to Authority** (canonical: AGENTS.md "Root-cause uplift"):
-   - It is preferable not to patch at the symptom location; if a symptom-level patch is unavoidable, record why upstream prevention is infeasible and what error class remains unprevented.
-   - Trace upstream to the **authority point** (config, schema, boundary, contract) where this error class should be structurally prevented.
-   - Fix there when feasible: one fix at authority prevents N errors (leverage).
+   - Follow `AGENTS.md` root-cause uplift and bias-resistant debugging requirements; use `docs/agents/playbooks/rca-methods-template.md` for method steps/examples.
 3) **Mapping SSOT owners** (constants/config/rules/workflows/lifecycle utilities) and extending them (no parallel ownership).
 4) **Stating proof obligations**:
    - Preconditions: what must be true before work begins
@@ -67,7 +65,7 @@ This protocol is supporting guidance only (non-normative) and is intended to pre
 
 ## Resource + speed discipline (reduce risk and time)
 - For speed/scale work, the governing policy is `AGENTS.md` "Performance & Speed (When Relevant)" (performance model, safe optimizations, bounded concurrency).
-- Bounded waits/timeouts and cancellation are recommended for blocking operations.
+- Bounded waits/timeouts and cancellation are required for blocking operations.
 - For write workflows, the governing policy is `AGENTS.md` "Workflow State Machine + Two-Phase Commit (When writes occur)".
 - Transactional I/O (temp + atomic replace) is recommended where overwrites matter.
 - Fast/complete discovery is supported by `docs/agents/05-context-retrieval.md`.

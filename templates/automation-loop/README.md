@@ -4,6 +4,8 @@ This folder is a copyable template for a simple nightly automation loop:
 - Review the last day of work and capture learnings.
 - Implement the top priority item.
 
+This is supporting template guidance. If any wording conflicts with `AGENTS.md`, `AGENTS.md` wins.
+
 ## How to use
 1) Copy this folder into your target repo (example: `automation/`).
 2) Update `automation.config.json` with your repo-specific paths and your agent runner command.
@@ -23,7 +25,21 @@ This folder is a copyable template for a simple nightly automation loop:
 - `automation-lib.ps1` - shared helpers.
 - `prompts/` - prompt templates used by the scripts.
 
+## Safe-default runner examples (recommended)
+
+Claude Code (platform defaults):
+```powershell
+claude -p --max-turns 20 "Review repo, update learning doc, write review report."
+```
+
+Codex CLI (platform defaults):
+```powershell
+"Review repo, update learning doc, write review report." | codex exec -
+```
+
 ## Risk-accepted runner examples (non-interactive)
+
+Use these only after explicit risk acceptance in a confined environment, because approvals/sandbox protections are reduced.
 
 Claude Code (no approvals, non-interactive):
 ```powershell
@@ -52,3 +68,4 @@ Config snippet:
   "prompt_mode": "stdin"
 }
 ```
+

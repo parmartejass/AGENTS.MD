@@ -13,6 +13,8 @@ Follow the repo's first principles in `AGENTS.md`:
 - adopt/extend them instead of introducing parallel modules
 - copy only the parts you need (CLI-only vs GUI+CLI)
 
+If any wording here conflicts with `AGENTS.md`, `AGENTS.md` wins.
+
 ## Quickstart
 
 ```powershell

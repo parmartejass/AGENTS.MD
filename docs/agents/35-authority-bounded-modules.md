@@ -8,6 +8,7 @@ update_trigger: authority graph rules change OR module boundary/contract guidanc
 
 This policy supports the hard-gated "Authority Graph" requirement in `AGENTS.md`.
 It explains how to structure code so authority boundaries are explicit and auditable.
+If any wording conflicts with `AGENTS.md`, `AGENTS.md` wins.
 
 ## Core rules (authority alignment)
 - One authority per decision-critical responsibility.
@@ -26,6 +27,11 @@ It explains how to structure code so authority boundaries are explicit and audit
 - Config/constants/schema types are leaf dependencies (authorities may depend on them; they do not depend on authorities).
 - Workflows compose authorities; UI calls workflows.
 - Avoid cycles across authority boundaries.
+
+## Decomposition trigger + guardrail
+- Use the decomposition decision flow in `docs/agents/playbooks/design-principles-checklist.md` before adding logic to authority entrypoints.
+- Distinct invariants/lifecycle/I/O/testability/change-cadence signals require extracting or extending child internal modules.
+- 300 lines per module file is a soft review trigger, not a standalone reason for unrelated refactors.
 
 ## Witnesses (required by `AGENTS.md`)
 Use the existing "Invariants + Witnesses" rule in `AGENTS.md`:

@@ -1,11 +1,21 @@
-# AGENTS.MD (Repo) — Canonical Governance Pack
+# AGENTS.MD (Repo) - Canonical Governance Pack
 
-This repository maintains a reusable, repo-agnostic instruction pack for autonomous coding agents.
+This repository maintains a reusable, repo-agnostic governance pack for autonomous coding agents.
 
 ## Canonical SSOT
 
 - Canonical policy: `AGENTS.md`
 - Context injection manifest: `agents-manifest.yaml`
+
+## Read Order (Top-Down)
+
+1. `AGENTS.md` (authoritative rules and hard gates)
+2. `agents-manifest.yaml` (context injection and profile routing)
+3. `docs/agents/index.md` (supporting branch map and when-to-read guidance)
+4. Task-specific supporting docs/playbooks under `docs/agents/`
+5. Project docs entrypoint: `docs/project/index.md`
+
+When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` and `.governance/agents-manifest.yaml`.
 
 ## Project docs (this repo)
 
@@ -25,77 +35,91 @@ This repository maintains a reusable, repo-agnostic instruction pack for autonom
 ## Templates (reference implementations)
 
 - Automation loop (nightly review + implement): `templates/automation-loop/`
-- Dual-entry GUI+CLI + scenario tests (SSOT): `templates/python-dual-entry/`
+- Dual-entry GUI+CLI + scenario tests: `templates/python-dual-entry/`
   - Reference implementation only: follow `AGENTS.md` discovery/adoption rules; copy patterns, not files.
   - Run one scenario: `cd templates/python-dual-entry; python -m myapp --cli --scenario tests/scenarios/scenario_001_happy_path.json --verify`
   - Run all scenarios: `cd templates/python-dual-entry; python -m unittest -v`
 
 ## Repo structure
 
-```
+```text
 .
-├─ AGENTS.md
-├─ agents-manifest.yaml
-├─ CLAUDE.md
-├─ .cursorrules
-├─ .github/
-│  └─ copilot-instructions.md
-├─ docs/
-│  ├─ project/
-│  │  ├─ index.md
-│  │  ├─ goal.md
-│  │  ├─ rules.md
-│  │  ├─ architecture.md
-│  │  └─ learning.md
-│  └─ agents/
-│     ├─ index.md
-│     ├─ 00-principles.md
-│     ├─ 05-context-retrieval.md
-│     ├─ 10-repo-discovery.md
-│     ├─ 15-stuck-in-loop-generate-fresh-restart-prompt.md
-│     ├─ 20-sources-of-truth-map.md
-│     ├─ 25-docs-ssot-policy.md
-│     ├─ 30-logging-errors.md
-│     ├─ 40-config-constants.md
-│     ├─ 50-excel-com-lifecycle.md
-│     ├─ 60-gui-threading.md
-│     ├─ 70-io-data-integrity.md
-│     ├─ 80-testing-real-files.md
-│     ├─ 85-dual-entry-template.md
-│     ├─ 90-release-checklist.md
-│     ├─ workflow-registry.md
-│     ├─ skills/
-│     │  ├─ 00-skill-standards.md
-│     │  └─ 10-platform-adapters.md
-│     └─ playbooks/
-│        ├─ ai-coding-prompt-template.md
-│        ├─ bugfix-template.md
-│        ├─ excel-task-template.md
-│        ├─ governance-learnings-template.md
-│        ├─ gui-task-template.md
-│        ├─ io-batch-task-template.md
-│        ├─ pdf-task-template.md
-│        ├─ perf-hotspots-template.md
-│        └─ project-docs-template.md
-├─ scripts/
-│  ├─ _governance_paths.ps1
-│  ├─ check_docs_ssot.ps1
-│  ├─ check_agents_manifest.ps1
-│  ├─ check_project_docs.ps1
-│  ├─ check_repo_hygiene.ps1
-│  ├─ check_python_safety.py
-│  └─ sync-governance.ps1
-└─ .editorconfig
+|- AGENTS.md
+|- agents-manifest.yaml
+|- CLAUDE.md
+|- .cursorrules
+|- .github/
+|  |- copilot-instructions.md
+|- docs/
+|  |- project/
+|  |  |- index.md
+|  |  |- goal.md
+|  |  |- rules.md
+|  |  |- architecture.md
+|  |  |- learning.md
+|  |- agents/
+|  |  |- index.md
+|  |  |- 00-principles.md
+|  |  |- 05-context-retrieval.md
+|  |  |- 10-repo-discovery.md
+|  |  |- 15-stuck-in-loop-generate-fresh-restart-prompt.md
+|  |  |- 20-sources-of-truth-map.md
+|  |  |- 25-docs-ssot-policy.md
+|  |  |- 30-logging-errors.md
+|  |  |- 35-authority-bounded-modules.md
+|  |  |- 40-config-constants.md
+|  |  |- 50-excel-com-lifecycle.md
+|  |  |- 60-gui-threading.md
+|  |  |- 70-io-data-integrity.md
+|  |  |- 80-testing-real-files.md
+|  |  |- 85-dual-entry-template.md
+|  |  |- 90-release-checklist.md
+|  |  |- workflow-registry.md
+|  |  |- automation/
+|  |  |  |- overview.md
+|  |  |  |- nightly-compound-loop.md
+|  |  |- skills/
+|  |  |  |- 00-skill-standards.md
+|  |  |  |- 10-platform-adapters.md
+|  |  |- schemas/
+|  |  |  |- change-record.schema.json
+|  |  |- playbooks/
+|  |     |- ai-coding-prompt-template.md
+|  |     |- bugfix-template.md
+|  |     |- design-principles-checklist.md
+|  |     |- excel-task-template.md
+|  |     |- governance-learnings-template.md
+|  |     |- gui-task-template.md
+|  |     |- io-batch-task-template.md
+|  |     |- pdf-task-template.md
+|  |     |- perf-hotspots-template.md
+|  |     |- project-docs-template.md
+|  |     |- rca-methods-template.md
+|- scripts/
+|  |- _governance_paths.ps1
+|  |- check_docs_ssot.ps1
+|  |- check_agents_manifest.ps1
+|  |- check_project_docs.ps1
+|  |- check_repo_hygiene.ps1
+|  |- check_change_records.ps1
+|  |- check_python_safety.py
+|  |- sync-governance.ps1
+|- templates/
+|  |- automation-loop/
+|  |- python-dual-entry/
+|- .editorconfig
 ```
 
 ## Use in other repos (submodule)
 
-> **IMPORTANT**: Git does NOT auto-pull submodules by default!
-> 
-> When cloning a repo that uses this pack, you MUST use `--recurse-submodules`:
+> IMPORTANT: Git does not auto-pull submodules by default.
+>
+> When cloning a repo that uses this pack, you must use `--recurse-submodules`:
+>
 > ```powershell
 > git clone --recurse-submodules <repo-url>
 > ```
+>
 > Otherwise `.governance/` will be empty. See "Cloning a repo that uses this pack" below.
 
 ### Step 1: Add the governance pack as a submodule
@@ -107,9 +131,10 @@ git submodule add -b main https://github.com/parmartejass/AGENTS.MD.git .governa
 
 ### Step 2: Create stub files at project root
 
-Create these files at your project root, each pointing to `.governance/`:
+Create these files at your project root, each pointing to `.governance/`.
 
 **AGENTS.md** (required):
+
 ```md
 # AGENTS.md
 
@@ -118,13 +143,14 @@ Manifest: `.governance/agents-manifest.yaml`.
 ```
 
 **CLAUDE.md** (optional, for Claude):
+
 ```md
 # CLAUDE.md
 
 Before any work, read and follow `.governance/AGENTS.md`.
 ```
 
-**Note**: Keep your project docs under `docs/project/` (do not copy `docs/agents` into the project root).
+Note: Keep your project docs under `docs/project/` (do not copy `docs/agents` into the project root).
 
 ### Step 3: Commit
 
@@ -143,7 +169,7 @@ git commit -m "Update governance pack"
 
 ### Editing governance (from inside a project)
 
-Changes to `.governance/` must be committed to the **submodule repo (AGENTS.MD)**, not the parent.
+Changes to `.governance/` must be committed to the submodule repo (`AGENTS.MD`), not the parent.
 
 ```powershell
 # 1. Go INTO the submodule
@@ -169,34 +195,37 @@ git add .governance
 git commit -m "Update governance"
 ```
 
-> **WARNING**: Do NOT commit `.governance/` changes from the parent repo directory.
-> The parent only tracks a pointer (SHA) to a commit—it cannot store file changes.
+> WARNING: Do not commit `.governance/` changes from the parent repo directory.
+> The parent only tracks a pointer (SHA) to a commit; it cannot store file changes.
 
 ### Cloning a repo that uses this pack
 
 **Option A: Clone with submodules (recommended)**
+
 ```powershell
 git clone --recurse-submodules <repo-url>
 ```
 
 **Option B: Already cloned without submodules? Initialize manually:**
+
 ```powershell
 git submodule update --init
 ```
 
 **Option C: Pull updates including submodule changes:**
+
 ```powershell
 git pull --recurse-submodules
 ```
 
-> **Note**: If `.governance/` folder is empty, run `git submodule update --init`
+Note: If `.governance/` folder is empty, run `git submodule update --init`.
 
 ### Troubleshooting
 
 | Problem | Solution |
 |---------|----------|
 | `.governance/` is empty | `git submodule update --init` |
-| Submodule shows "modified" but you didn't change it | `git submodule update --force .governance` |
+| Submodule shows "modified" but you didn't change it | Check for local edits in `.governance/` first (`git -C .governance status --short`), then run `git submodule update --force .governance` only if you intend to discard those local edits |
 | Accidentally edited from parent repo | Go into `.governance/`, commit there, push, then update parent |
 | Changes not appearing after update | `git submodule update --remote .governance` |
 | Detached HEAD in submodule | From inside `.governance/`: `git checkout main`, then `git pull origin main` |
@@ -220,3 +249,4 @@ Target repo (submodule under `.governance/`):
 - Change record artifact checks: `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_change_records.ps1 -RepoRoot .`
   - Enforce required records by creating `docs/project/change-records/.required` or running with `-RequireRecords`.
 - Python safety baseline checks: `python .governance/scripts/check_python_safety.py --root .` (add `--fail-on-warnings` to enforce warnings)
+

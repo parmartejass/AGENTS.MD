@@ -9,6 +9,7 @@ update_trigger: project docs minimum set or header policy changes
 Use when:
 - The user asks to add or improve project docs, or
 - A repo has no clear docs entrypoint/runbook and adding one would materially reduce ambiguity for future work.
+- Any required project docs from `AGENTS.md` Documentation SSOT Policy are missing (apply this playbook even if the task was not docs-specific).
 
 Goal: create a minimal docs set that captures intent/runbooks without duplicating code facts (constants, rules, defaults).
 
@@ -35,7 +36,14 @@ Ensure `README.md` contains (at minimum):
 - A link to `docs/project/index.md` (project docs entrypoint).
 - A link to `AGENTS.md` (governance SSOT).
 - A short "Checks" section listing the deterministic commands used to verify the repo.
-  - Minimum governance checks:
+  - Source governance repo (this repo):
+    - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_agents_manifest.ps1`
+    - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_docs_ssot.ps1`
+    - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_project_docs.ps1`
+    - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_repo_hygiene.ps1`
+    - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_change_records.ps1`
+    - `python scripts/check_python_safety.py`
+  - Vendored target repo (`.governance/` present):
     - `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_agents_manifest.ps1`
     - `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_docs_ssot.ps1 -RepoRoot .`
     - `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_project_docs.ps1 -RepoRoot .`

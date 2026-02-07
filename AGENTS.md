@@ -139,9 +139,9 @@ Mandatory RCA workflow for bug/error/regression work (execute in order and recor
 - Step 10 - Validate system-wide: run applicable suites/checks and verify runtime signals after rollout/staging.
 
 RCA method stack for complex defects (default order):
+- 5 Whys to drill to upstream authority fix point
 - Fishbone/Ishikawa to enumerate plausible causes
 - Pareto analysis to prioritize likely high-impact causes
-- 5 Whys to drill to upstream authority fix point
 - Implement root-cause fix and regression test
 - FMEA/DFMEA to prevent recurrence in adjacent paths
 
@@ -378,7 +378,17 @@ GUI updates must occur on the main/UI thread only:
   - CCP: things that change together should live together
   - SDP: dependencies should point toward more stable modules
   - SAP: stable modules should prefer abstract/stable contracts over concrete details
-- Proactive modularization (decision at change time): before adding new logic to an authority entrypoint, you MUST decide whether it is a distinct internal component (e.g., it owns its own invariants, lifecycle, I/O boundary, or can be tested independently). If yes, you MUST create/extend an internal module (file/dir/namespace) inside the authority package, keeping the entrypoint thin and focused on the public contract (per "Authority Graph" and `docs/agents/35-authority-bounded-modules.md`). This is internal modularization only: NOT a git submodule, repo split, or service boundary. Apply only to new logic in this change; do not refactor unrelated code.
+- Proactive modularization (decision at change time): before adding new logic to an authority entrypoint, you MUST evaluate decomposition signals and keep the entrypoint thin, per the module decomposition trigger below. This is internal modularization only: NOT a git submodule, repo split, or service boundary. Apply only to new logic in this change; do not refactor unrelated code.
+- Module decomposition trigger (mandatory): before adding logic to an existing authority module, evaluate whether the new logic has any of these boundary signals:
+  - distinct invariants or rules
+  - distinct lifecycle/state management
+  - distinct I/O boundary or side effects
+  - independent testability as a unit
+  - independent change cadence from the authority entrypoint
+  - If any signal is present, create/extend a child internal module and keep the authority entrypoint as orchestration + public contract only.
+- LOC guardrail (advisory, not standalone authority): use 300 lines per module file as a soft review trigger for decomposition.
+  - LOC alone MUST NOT force unrelated refactors.
+  - If LOC exceeds the guardrail, record a decomposition decision (extract now / defer with rationale) in the change evidence.
 - SOLID at authority boundaries (mandatory):
   - SRP: keep authority entrypoints thin; extract distinct internal components instead of accreting in a single file.
   - OCP: add new implementations/modules only when a second variant is required; avoid speculative plugin systems.
@@ -483,6 +493,7 @@ List tests designed to break your hypothesis.
 - [ ] Cleanup baseline restored (Excel/process/temp files)
 - [ ] Fixture added + tests pass
 - [ ] Bugfixes include deterministic MRE + regression + disconfirming test evidence
+- [ ] Failure-path check executed where required by Verification Floors (bugfix and behavior-change work)
 - [ ] Root-cause fix is upstream/authority-first, or infeasibility is documented
 ```
 
