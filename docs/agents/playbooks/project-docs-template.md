@@ -40,6 +40,8 @@ Ensure `README.md` contains (at minimum):
     - `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_docs_ssot.ps1 -RepoRoot .`
     - `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_project_docs.ps1 -RepoRoot .`
     - `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_repo_hygiene.ps1 -RepoRoot .`
+    - `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_change_records.ps1 -RepoRoot .`
+      - enforce required records via `docs/project/change-records/.required` or by adding `-RequireRecords`
     - `python .governance/scripts/check_python_safety.py --root .`
 
 ## Template files (copy/paste, then customize)
@@ -53,6 +55,7 @@ Ensure `README.md` contains (at minimum):
 - Do/Don't rules: `docs/project/rules.md`
 - Architecture (SSOT pointers): `docs/project/architecture.md`
 - Learning notes: `docs/project/learning.md`
+- Change records (artifacts): `docs/project/change-records/`
 ```
 
 ### `docs/project/goal.md`

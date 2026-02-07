@@ -29,6 +29,8 @@ Index only (do not restate requirements here):
 - "Rewrite Risk Policy"
 - "Mandatory modularity and reusability checklist" (under `AGENTS.md` "Mandatory Modularity + SOLID/DI (Authority Bloat Prevention)")
 - "Subagent Council (Hard Gate)"
+  - "Required council output (Hard Gate)"
+  - "Conflict Resolution + Closure Gates (Hard Gate)"
 - "Change Contract (Required for any change record)"
 
 ## Protocol (Model -> Proof -> Change)
@@ -74,6 +76,11 @@ This protocol is supporting guidance only (non-normative) and is intended to pre
 - Clearly separating verified facts from assumptions/unknowns improves auditability.
 - If ambiguity would materially change code, asking 1-3 clarifying questions reduces rework risk.
 - Verification evidence (commands + outcomes) or deterministic manual checks should be included.
+
+## Council evidence discipline (supporting)
+- Council summaries are recorded-truth artifacts (D) that provide review witnesses for risk decisions.
+- For non-micro changes, use the full council output fields defined in `AGENTS.md` "Subagent Council (Hard Gate)".
+- If `go_no_go` is `hold`, do not implement until reconciliation is complete or user risk acceptance is explicit.
 
 ## Non-normative anti-pattern examples
 Examples (mapped to `AGENTS.md` hard gates and included here as guidance only):

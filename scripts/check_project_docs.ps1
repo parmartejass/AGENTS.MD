@@ -49,6 +49,7 @@ if ((Join-Path $repoRoot "README.md") | Test-Path) {
     "${governancePrefix}scripts/check_agents_manifest.ps1",
     "${governancePrefix}scripts/check_project_docs.ps1",
     "${governancePrefix}scripts/check_repo_hygiene.ps1",
+    "${governancePrefix}scripts/check_change_records.ps1",
     "${governancePrefix}scripts/check_python_safety.py"
   )
 

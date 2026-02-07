@@ -4,3 +4,4 @@
 - Do/Don't rules: `docs/project/rules.md`
 - Architecture (SSOT pointers): `docs/project/architecture.md`
 - Learning notes: `docs/project/learning.md`
+- Change records (artifacts): `docs/project/change-records/`

@@ -96,6 +96,18 @@ Decision-grade brief (required before learnings; use this exact label order):
 - Confidence gate summary (claim-level VERIFIED/UNVERIFIED status):
 - Change Contract alignment (map to `AGENTS.md` template sections; do not duplicate full contract):
 
+Council summary block (required before Step 4; follow `AGENTS.md` "Subagent Council (Hard Gate)"):
+- council_run_id:
+- phase (`pre_change` | `post_change`):
+- intent_coverage (`ssot_duplication`, `silent_error_edge_case`, `resource_security_perf`):
+- reviewers (id, role, scope):
+- findings (severity, location, issue, evidence, recommendation):
+- conflicts:
+- reconciliation_decision:
+- residual_risks:
+- go_no_go (`go` | `go_with_risks` | `hold`):
+- verification_links:
+
 Steps:
 1) Extract candidate learnings (0-15):
    - If fewer than 5 VERIFIED candidates exist, continue with available candidates and state shortfall + reason.
@@ -110,7 +122,10 @@ Steps:
    - Mark status as `ALREADY_COVERED`, `PARTIAL`, or `MISSING`.
 3) Council review (required before edits):
    - Run the Subagent Council per `AGENTS.md` "Subagent Council (Hard Gate)" with minimum intention coverage (SSOT/duplication, silent-error/edge-case, resource/security/perf).
-   - Merge findings; if conflicts or gaps remain, pause and ask before editing.
+   - Merge findings into one council summary block using the required fields above.
+   - For each HIGH/MEDIUM finding, include at least one evidence item (R or D) and one action (apply/defer + rationale).
+   - If `go_no_go` is `hold`, stop and ask before editing.
+   - If conflicts or gaps remain, pause and ask before editing.
 4) Produce governance deltas (proposals or auto-edits, depending on authorization):
    - If auto-edit is authorized: apply minimal edits after the confirmation gate and within the scope in `AGENTS.md` "Governance Auto-Edit + Council Review".
    - If auto-edit is not authorized: propose deltas only.

@@ -25,7 +25,7 @@ Docs may describe:
 - decision records (ADR-style)
 
 ## Required header template
-Every doc under `docs/` (except index pages) must start with:
+Every Markdown doc (`*.md`) under `docs/` (except index pages) must start with:
 
 Index pages are limited to `docs/index.md` and `docs/<section>/index.md`.
 

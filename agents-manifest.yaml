@@ -38,6 +38,9 @@ semantic_queries:
   bugfix:
     - "Where is the failing functionality implemented?"
     - "What SSOT owns this behavior?"
+  design_review:
+    - "Where are module boundaries and authority contracts defined?"
+    - "Where are design principles and modularity checks codified?"
   io_batch:
     - "Where is high-volume file I/O handled in this repo?"
     - "What SSOT owns batching/chunking/caching for file processing?"
@@ -272,7 +275,9 @@ profiles:
     inject:
       - "docs/agents/10-repo-discovery.md"
       - "docs/agents/30-logging-errors.md"
+      - "docs/agents/35-authority-bounded-modules.md"
       - "docs/agents/playbooks/bugfix-template.md"
+      - "docs/agents/playbooks/rca-methods-template.md"
 
   ai_prompt_authoring:
     detect:
@@ -362,6 +367,30 @@ profiles:
       - "docs/agents/05-context-retrieval.md"
       - "docs/agents/15-stuck-in-loop-generate-fresh-restart-prompt.md"
       - "docs/agents/playbooks/governance-learnings-template.md"
+      - "docs/agents/playbooks/design-principles-checklist.md"
+      - "docs/agents/playbooks/rca-methods-template.md"
+
+  design_review:
+    detect:
+      keywords:
+        - "design review"
+        - "module"
+        - "modularity"
+        - "reusability"
+        - "high cohesion"
+        - "low coupling"
+        - "solid"
+        - "dry"
+        - "kiss"
+        - "yagni"
+        - "separation of concerns"
+        - "law of demeter"
+        - "dependency inversion"
+      code_patterns: []
+      file_globs: []
+    inject:
+      - "docs/agents/35-authority-bounded-modules.md"
+      - "docs/agents/playbooks/design-principles-checklist.md"
 
   skills_task:
     detect:
