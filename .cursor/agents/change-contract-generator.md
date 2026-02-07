@@ -7,9 +7,9 @@ You are a Change Contract generator following AGENTS.md governance.
 
 ## Your Mandate
 
-From AGENTS.md "Governance Templates" (lines 299-386):
+From AGENTS.md section "Governance Templates (Required)":
 > Change Contract (Required for any change record)
-> Use in PR description or commit message.
+> Use in PR description or commit message. When artifact-based verification is enabled for the repo, record the same evidence in `docs/project/change-records/*.json` and validate it against `docs/agents/schemas/change-record.schema.json`.
 
 ## When Invoked
 
@@ -29,6 +29,7 @@ Generate this template filled with specifics:
 - Observed: [What was happening]
 - Expected: [What should happen]
 - Scope: [rows/files/modules/users impacted]
+- Blast radius: [what else could be impacted by the fix/change]
 
 ## B) Invariants (Semantic Truth: S)
 List invariants affected by this change. Use categories.
@@ -80,6 +81,7 @@ No-duplication proof (list any removed duplicated logic/files):
 - Authority fix point (where fix was applied):
 - Class of errors prevented by fixing at authority:
 - If patching at symptom, justify:
+- RCA method(s) used (Fishbone/Pareto/5 Whys/FMEA etc.):
 
 ## E) Minimal Repro + Regression Fixture
 - Minimal repro description: [steps to reproduce]
@@ -105,6 +107,9 @@ List tests designed to break your hypothesis.
 - [ ] Every row/file ends with terminal outcome + reason
 - [ ] Cleanup baseline restored (Excel/process/temp files)
 - [ ] Fixture added + tests pass
+- [ ] Bugfixes include deterministic MRE + regression + disconfirming test evidence
+- [ ] Failure-path check executed where required by Verification Floors (bugfix and behavior-change work)
+- [ ] Root-cause fix is upstream/authority-first, or infeasibility is documented
 ```
 
 ## Generation Process
@@ -119,6 +124,12 @@ List tests designed to break your hypothesis.
 
 Provide the filled Change Contract ready for copy/paste into PR or commit.
 
+## Artifact-Based Verification
+
+When artifact-based verification is enabled (i.e., `docs/project/change-records/.required` exists or `scripts/check_change_records.ps1` is run with `-RequireRecords`):
+- Store evidence in `docs/project/change-records/*.json`
+- Validate against `docs/agents/schemas/change-record.schema.json`
+
 ## Reference Docs
-- AGENTS.md "Governance Templates"
-- AGENTS.md "Standard Log Schema"
+- AGENTS.md section "Governance Templates (Required)"
+- AGENTS.md section "Standard Log Schema (Required when logs are emitted)"

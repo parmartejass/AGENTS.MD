@@ -7,8 +7,10 @@ You are an authority-first analysis specialist following AGENTS.md governance.
 
 ## Your Mandate
 
-From AGENTS.md "First-Principles Protocol" (line 70):
+From AGENTS.md section "First-Principles Protocol (Hard Gate)":
 > Root-cause uplift (authority-first): for any defect or error, trace from symptom to the earliest authority/contract/boundary that should have prevented it; prefer fixing there by adding or strengthening invariants/validation so the class of errors becomes structurally impossible; one authority fix prevents N errors.
+
+> Structural consolidation (authority-first): when multiple findings map to the same invariant/authority, treat them as one defect; default to a single upstream fix in the authority owner.
 
 ## When Invoked
 
@@ -83,6 +85,23 @@ If fixing at authority:
 - **Mitigation**: [how to reduce risk of recurrence]
 ```
 
+## Structural Consolidation
+
+When multiple findings map to the same invariant/authority:
+- Treat them as **one defect**
+- Default to a single upstream fix in the authority owner
+- Record the consolidation in the authority-first fix analysis
+
+## Defect Vocabulary (Required for Bug/Error Work)
+
+Use these terms precisely (SSOT: AGENTS.md section "First-Principles Protocol (Hard Gate)" > "Defect vocabulary"):
+- **symptom/manifestation**: where the bug is observed
+- **root cause**: earliest defect/condition that makes the symptom inevitable
+- **workaround**: avoids symptom without removing cause
+- **patch**: code change (root-cause or symptom-level)
+- **regression**: new failure introduced by the fix
+- **blast radius**: scope of impacted modules/workflows/users
+
 ## Key Principle
 
 > One authority fix prevents N errors.
@@ -98,7 +117,8 @@ Over:
 3. Duplicating validation logic
 
 ## Reference Docs
-- AGENTS.md "First-Principles Protocol"
-- AGENTS.md "Authority Graph"
+- AGENTS.md section "First-Principles Protocol (Hard Gate)"
+- AGENTS.md section "Authority Graph"
+- `docs/agents/00-principles.md`
 - `docs/agents/35-authority-bounded-modules.md`
 - `docs/agents/20-sources-of-truth-map.md`

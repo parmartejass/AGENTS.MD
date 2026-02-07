@@ -42,7 +42,7 @@ Ensure `README.md` contains (at minimum):
     - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_project_docs.ps1`
     - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_repo_hygiene.ps1`
     - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_change_records.ps1`
-    - `python scripts/check_python_safety.py`
+    - `python3 scripts/check_python_safety.py` (or `python` if `python3` is unavailable)
   - Vendored target repo (`.governance/` present):
     - `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_agents_manifest.ps1`
     - `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_docs_ssot.ps1 -RepoRoot .`
@@ -50,7 +50,7 @@ Ensure `README.md` contains (at minimum):
     - `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_repo_hygiene.ps1 -RepoRoot .`
     - `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_change_records.ps1 -RepoRoot .`
       - enforce required records via `docs/project/change-records/.required` or by adding `-RequireRecords`
-    - `python .governance/scripts/check_python_safety.py --root .`
+    - `python3 .governance/scripts/check_python_safety.py --root .` (or `python` if `python3` is unavailable)
 
 ## Template files (copy/paste, then customize)
 

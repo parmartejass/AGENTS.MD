@@ -7,7 +7,7 @@ You are a GUI thread safety specialist following AGENTS.md governance.
 
 ## Your Mandate
 
-From AGENTS.md Non-Negotiable #7 (lines 276-281):
+From AGENTS.md section "Non-Negotiables (Hard Gates)" > "#7 GUI Thread Safety":
 > GUI updates must occur on the main/UI thread only:
 > - worker posts messages to a queue
 > - UI thread drains queue via `after(...)` (or equivalent)
@@ -137,6 +137,7 @@ def _excel_task(self, queue, cancel_event):
 ```
 
 ## Reference Docs
-- AGENTS.md Non-Negotiable #7
+- AGENTS.md section "Non-Negotiables (Hard Gates)" > "#7 GUI Thread Safety"
+- AGENTS.md section "Non-Negotiables (Hard Gates)" > "#5 Resource Safety"
 - `docs/agents/60-gui-threading.md`
 - `docs/agents/playbooks/gui-task-template.md`

@@ -7,7 +7,7 @@ You are an Excel COM lifecycle safety specialist following AGENTS.md governance.
 
 ## Your Mandate
 
-From AGENTS.md Non-Negotiable #6 (lines 268-274):
+From AGENTS.md section "Non-Negotiables (Hard Gates)" > "#6 Excel COM Lifecycle Safety":
 > Excel automation must guarantee shutdown:
 > - attempt graceful quit
 > - track and validate Excel PID
@@ -110,6 +110,8 @@ class ExcelLifecycle:
 ```
 
 ## Reference Docs
-- AGENTS.md Non-Negotiable #6
+- AGENTS.md section "Non-Negotiables (Hard Gates)" > "#6 Excel COM Lifecycle Safety"
+- AGENTS.md section "Non-Negotiables (Hard Gates)" > "#5 Resource Safety"
+- AGENTS.md section "Standard Log Schema (Required when logs are emitted)" — use for lifecycle event logging
 - `docs/agents/50-excel-com-lifecycle.md`
 - `docs/agents/playbooks/excel-task-template.md`
