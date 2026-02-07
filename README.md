@@ -37,8 +37,9 @@ When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` an
 - Automation loop (nightly review + implement): `templates/automation-loop/`
 - Dual-entry GUI+CLI + scenario tests: `templates/python-dual-entry/`
   - Reference implementation only: follow `AGENTS.md` discovery/adoption rules; copy patterns, not files.
-  - Run one scenario: `cd templates/python-dual-entry; python -m myapp --cli --scenario tests/scenarios/scenario_001_happy_path.json --verify`
-  - Run all scenarios: `cd templates/python-dual-entry; python -m unittest -v`
+  - Run one scenario: `cd templates/python-dual-entry; python3 -m myapp --cli --scenario tests/scenarios/scenario_001_happy_path.json --verify`
+  - Run all scenarios: `cd templates/python-dual-entry; python3 -m unittest -v`
+  - If your Python 3 binary is named `python`, replace `python3` with `python`.
 
 ## Repo structure
 
@@ -239,7 +240,7 @@ This repo:
 - Repo hygiene checks (no generated artifacts tracked): `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_repo_hygiene.ps1`
 - Change record artifact checks (schema + required evidence fields): `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_change_records.ps1`
   - Enforce required records by creating `docs/project/change-records/.required` or running with `-RequireRecords`.
-- Python safety baseline checks: `python scripts/check_python_safety.py` (add `--fail-on-warnings` to enforce warnings)
+- Python safety baseline checks: `python3 scripts/check_python_safety.py` (add `--fail-on-warnings` to enforce warnings; use `python` if `python3` is unavailable)
 
 Target repo (submodule under `.governance/`):
 - Docs SSOT header checks: `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_docs_ssot.ps1 -RepoRoot .`
@@ -248,5 +249,5 @@ Target repo (submodule under `.governance/`):
 - Repo hygiene checks: `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_repo_hygiene.ps1 -RepoRoot .`
 - Change record artifact checks: `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_change_records.ps1 -RepoRoot .`
   - Enforce required records by creating `docs/project/change-records/.required` or running with `-RequireRecords`.
-- Python safety baseline checks: `python .governance/scripts/check_python_safety.py --root .` (add `--fail-on-warnings` to enforce warnings)
+- Python safety baseline checks: `python3 .governance/scripts/check_python_safety.py --root .` (add `--fail-on-warnings` to enforce warnings; use `python` if `python3` is unavailable)
 

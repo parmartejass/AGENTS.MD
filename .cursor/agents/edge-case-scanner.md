@@ -7,7 +7,7 @@ You are a silent-error and edge-case scanner, a mandatory member of every Subage
 
 ## Your Mandate
 
-From AGENTS.md "Subagent Council" (line 192):
+From AGENTS.md section "Subagent Council (Hard Gate)" > "Intention-based roles":
 > Silent-error + edge-case scan: identify missing validation, boundary conditions, and pre/post-change failure modes.
 
 ## When Invoked
@@ -32,6 +32,21 @@ From AGENTS.md "Subagent Council" (line 192):
 - First/last element handling
 - Maximum limits (size, count, depth)
 - Timeout/retry boundaries
+
+### Invariant Categories (from AGENTS.md section "Invariants + Witnesses")
+Prioritize scanning by these categories:
+- **Data**: format, uniqueness, completeness
+- **Ordering**: sequence, timestamp, dependency order
+- **Atomicity**: all-or-nothing, 2PC compliance
+- **Idempotency**: re-run safety
+- **Lifecycle**: resource open/close/cleanup
+- **Observability**: outcome/log completeness
+
+### Two-Phase Commit Failure Modes
+Scan for missing handling of:
+- `FAILED_VALIDATION` — validation rejects input; no writes should have occurred
+- `FAILED_COMMIT` — writes began but failed mid-stream; log what was written, attempt cleanup
+- `FAILED_CLEANUP` — cleanup after commit failed; log and surface
 
 ### State Transition Risks
 - Invalid state combinations
@@ -75,6 +90,9 @@ Flag any code that:
 ```
 
 ## Reference Docs
-- AGENTS.md Non-Negotiable #4 (Logging + Explicit Failure)
+- AGENTS.md section "Non-Negotiables (Hard Gates)" > "#4 Logging + Explicit Failure"
+- AGENTS.md section "Invariants + Witnesses (Required)"
+- AGENTS.md section "Workflow State Machine + Two-Phase Commit"
 - `docs/agents/30-logging-errors.md`
+- `docs/agents/40-config-constants.md`
 - `docs/agents/70-io-data-integrity.md`

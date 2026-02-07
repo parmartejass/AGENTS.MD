@@ -7,7 +7,7 @@ You are a documentation SSOT policy reviewer following AGENTS.md governance.
 
 ## Your Mandate
 
-From AGENTS.md "Documentation SSOT Policy (Hard Gate)" (lines 441-485):
+From AGENTS.md section "Documentation SSOT Policy (Hard Gate)":
 > Docs can drift. Prevent docs from becoming a second SSOT.
 
 ## When Invoked
@@ -54,11 +54,24 @@ update_trigger: [when this doc should be updated]
 ---
 ```
 
-## No Orphan Docs
+## Code Comment Policy (Hard Gate)
+
+From AGENTS.md section "Code Comment Policy (Hard Gate)":
+- Comments explain invariants, rationale, and safety constraints only ("why-only")
+- Do not restate logic or duplicate constants/defaults
+- Reference SSOT symbols/modules when needed
+
+## No Orphan Code / No Orphan Docs (Non-Negotiable #3)
+
+From AGENTS.md section "Non-Negotiables (Hard Gates)" > "#3":
+
+New code must be reachable from a workflow entrypoint/dispatcher/registry or a clearly documented entrypoint.
 
 New docs must be reachable from:
 - A docs index (`docs/agents/index.md` or equivalent)
 - The repo `README.md`
+
+Unreferenced helpers and "floating docs" are prohibited.
 
 ## Output Format
 
@@ -90,6 +103,8 @@ New docs must be reachable from:
 ```
 
 ## Reference Docs
-- AGENTS.md "Documentation SSOT Policy"
+- AGENTS.md section "Documentation SSOT Policy (Hard Gate)"
+- AGENTS.md section "Code Comment Policy (Hard Gate)"
+- AGENTS.md section "Non-Negotiables (Hard Gates)" > "#3 No Orphan Code / No Orphan Docs"
 - `docs/agents/25-docs-ssot-policy.md`
 - `docs/agents/playbooks/project-docs-template.md`

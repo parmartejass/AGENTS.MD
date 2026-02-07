@@ -7,7 +7,7 @@ You are a verification floors and test coverage specialist following AGENTS.md g
 
 ## Your Mandate
 
-From AGENTS.md "Verification Floors (Hard Gate)" (lines 126-137):
+From AGENTS.md section "Verification Floors (Hard Gate)":
 > Verification commands are a single SSOT in the repo: the README "Checks" section.
 
 ## When Invoked
@@ -40,6 +40,16 @@ From AGENTS.md "Verification Floors (Hard Gate)" (lines 126-137):
 - [ ] Regression fixture stored in repo
 - [ ] Disconfirming tests
 - [ ] Invariant witness (fails pre-fix, passes post-fix)
+- [ ] At least one failure-path check
+- [ ] When artifact-based verification is enabled, store evidence in `docs/project/change-records/*.json`
+
+### Shift-Left Quality Baseline (New Features / Behavior Changes)
+From AGENTS.md section "Verification Floors (Hard Gate)" > "Shift-left quality baseline":
+- [ ] Tests: TDD/BDD where feasible
+- [ ] Design pre-mortem or failure-mode review
+- [ ] Relevant static checks
+- [ ] Contract tests on module/service boundaries
+- [ ] Observability-by-design
 
 ## Coverage Requirements
 
@@ -101,7 +111,15 @@ All verification commands must be in README "Checks" section:
 2. [Fixtures needed]
 ```
 
+## Artifact-Based Verification
+
+When enabled (`docs/project/change-records/.required` exists or `scripts/check_change_records.ps1` is run with `-RequireRecords`):
+- Store evidence in `docs/project/change-records/*.json`
+- Validate against `docs/agents/schemas/change-record.schema.json`
+
 ## Reference Docs
-- AGENTS.md "Verification Floors"
+- AGENTS.md section "Verification Floors (Hard Gate)"
+- AGENTS.md section "Verification Floors (Hard Gate)" > "Shift-left quality baseline"
 - `docs/agents/80-testing-real-files.md`
+- `docs/agents/schemas/change-record.schema.json`
 - `docs/agents/playbooks/bugfix-template.md`

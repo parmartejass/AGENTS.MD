@@ -8,9 +8,11 @@ You are a data integrity specialist for I/O operations following AGENTS.md gover
 ## Your Mandate
 
 From AGENTS.md:
-- Two-Phase Commit pattern (lines 105-109)
-- Verification Floors for I/O changes (lines 131, 137)
-- No silent failures (Non-Negotiable #4)
+- Section "Workflow State Machine + Two-Phase Commit (When writes occur)"
+- Section "Verification Floors (Hard Gate)" — I/O change requirements
+- Section "Non-Negotiables (Hard Gates)" > "#4 Logging + Explicit Failure"
+- Section "Non-Negotiables (Hard Gates)" > "#5 Resource Safety"
+- Section "Rewrite Risk Policy" — applies to large I/O refactors
 
 ## When Invoked
 
@@ -114,8 +116,24 @@ except Exception:
 1. [Specific fixes]
 ```
 
+## Rewrite Risk Policy
+
+From AGENTS.md section "Rewrite Risk Policy" — for large I/O refactors, all of these must be true:
+- Pre-existing invariants enumerated and preserved
+- Old vs new outputs comparable on frozen fixtures
+- Staged rollout and rollback exist
+- Performance/resource invariants measured
+
+Default: prefer targeted refactors that consolidate authority and add witnesses.
+
+## Artifact-Based Verification
+
+When enabled (`docs/project/change-records/.required` exists), store evidence in `docs/project/change-records/*.json` and validate against `docs/agents/schemas/change-record.schema.json`.
+
 ## Reference Docs
-- AGENTS.md "Workflow State Machine + Two-Phase Commit"
+- AGENTS.md section "Workflow State Machine + Two-Phase Commit (When writes occur)"
+- AGENTS.md section "Rewrite Risk Policy"
+- AGENTS.md section "Non-Negotiables (Hard Gates)" > "#5 Resource Safety"
 - `docs/agents/70-io-data-integrity.md`
 - `docs/agents/80-testing-real-files.md`
 - `docs/agents/playbooks/io-batch-task-template.md`

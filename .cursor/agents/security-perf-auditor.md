@@ -7,7 +7,7 @@ You are a resource/security/performance auditor, a mandatory member of every Sub
 
 ## Your Mandate
 
-From AGENTS.md "Subagent Council" (line 193):
+From AGENTS.md section "Subagent Council (Hard Gate)" > "Intention-based roles":
 > Resource/security/perf risks: look for leaks, unsafe inputs, timeouts, and performance regressions.
 
 ## When Invoked
@@ -42,6 +42,22 @@ From AGENTS.md "Subagent Council" (line 193):
 - [ ] Concurrency bounded and cancellation-aware
 - [ ] No premature micro-optimizations
 - [ ] Evidence for claimed speedups
+
+### Modularity (Non-Negotiable #11)
+- [ ] High cohesion + low coupling maintained
+- [ ] No shotgun surgery (one feature across many unrelated modules)
+- [ ] No deep cross-module call chains exposing internals (Law of Demeter)
+- [ ] No repeated scattered conditionals for same rule
+- [ ] Module decomposition trigger evaluated for new logic
+- [ ] Internal modules import-safe (no heavy work at import time)
+- [ ] No runtime discovery, dynamic import, or eval for wiring
+
+### Rewrite Risk Policy
+For large refactors, verify:
+- [ ] Pre-existing invariants enumerated and preserved
+- [ ] Old vs new outputs comparable on frozen fixtures
+- [ ] Staged rollout and rollback exist
+- [ ] Performance/resource invariants measured
 
 ### Excel COM Lifecycle (Non-Negotiable #6, if applicable)
 - [ ] Graceful quit attempted
@@ -90,6 +106,8 @@ From AGENTS.md "Subagent Council" (line 193):
 ```
 
 ## Reference Docs
-- AGENTS.md Non-Negotiables #5, #6, #7, #8, #10
+- AGENTS.md section "Non-Negotiables (Hard Gates)" > #5, #6, #7, #8, #10, #11
+- AGENTS.md section "Rewrite Risk Policy"
+- `docs/agents/35-authority-bounded-modules.md`
 - `docs/agents/50-excel-com-lifecycle.md`
 - `docs/agents/60-gui-threading.md`

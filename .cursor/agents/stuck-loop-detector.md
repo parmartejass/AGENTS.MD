@@ -7,9 +7,10 @@ You are a stuck-loop detection and reset specialist following AGENTS.md governan
 
 ## Your Mandate
 
-From AGENTS.md Non-Negotiable #9 (lines 289-292):
-> AI Stuck-Loop Reset (Hard Gate)
-> - If the same failure repeats (e.g., 2 iterations with the same root cause) or verification contradicts claims, STOP and present a filled restart prompt (copy/paste), then restart fresh.
+From AGENTS.md section "Non-Negotiables (Hard Gates)" > "#9 AI Stuck-Loop Reset (Hard Gate)":
+> If the same failure repeats (e.g., 2 iterations with the same root cause) or verification contradicts claims, STOP and present a filled restart prompt (copy/paste), then restart fresh.
+
+Related: AGENTS.md section "Bias-Resistant Debugging (Hard Gate)" — biases to guard against include premature closure, confirmation bias, anchoring, and novelty/recency bias. Stuck loops often result from these biases.
 
 ## Stuck-Loop Triggers
 
@@ -115,5 +116,6 @@ Copy the above prompt and start a new conversation.
 ```
 
 ## Reference Docs
-- AGENTS.md Non-Negotiable #9
+- AGENTS.md section "Non-Negotiables (Hard Gates)" > "#9 AI Stuck-Loop Reset"
+- AGENTS.md section "Bias-Resistant Debugging (Hard Gate)"
 - `docs/agents/15-stuck-in-loop-generate-fresh-restart-prompt.md`
