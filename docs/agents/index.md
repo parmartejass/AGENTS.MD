@@ -1,10 +1,39 @@
 # Agents Docs Index (Supporting Material)
 
-Canonical policy: `/AGENTS.md`
+Canonical policy: `AGENTS.md`
 Context injection manifest: `agents-manifest.yaml`
-- Council guidance (authoritative): `AGENTS.md` section "Subagent Council (Hard Gate)"
+Council guidance (authoritative): `AGENTS.md` section "Subagent Council (Hard Gate)"
 
-Core docs:
+If any wording conflicts with `AGENTS.md`, `AGENTS.md` wins.
+
+## Read Order by Task Type
+
+### Always
+1. `AGENTS.md`
+2. `agents-manifest.yaml`
+3. `docs/agents/05-context-retrieval.md`
+4. `docs/agents/10-repo-discovery.md`
+
+### Bugfix or regression
+1. `docs/agents/00-principles.md`
+2. `docs/agents/playbooks/bugfix-template.md`
+3. `docs/agents/playbooks/rca-methods-template.md`
+4. Domain-specific docs (`50/60/70/80` as applicable)
+
+### New feature or behavior change
+1. `docs/agents/00-principles.md`
+2. `docs/agents/35-authority-bounded-modules.md`
+3. `docs/agents/playbooks/design-principles-checklist.md`
+4. Relevant task playbook (`excel/gui/io/perf/pdf`)
+
+### Docs or governance updates
+1. `docs/agents/25-docs-ssot-policy.md`
+2. `docs/agents/playbooks/project-docs-template.md`
+3. `docs/agents/playbooks/governance-learnings-template.md` (when explicitly invoked)
+
+## Branches (Top -> Down)
+
+### Core governance branches
 - Principles: `docs/agents/00-principles.md`
 - Context retrieval: `docs/agents/05-context-retrieval.md`
 - Repo discovery: `docs/agents/10-repo-discovery.md`
@@ -22,14 +51,10 @@ Core docs:
 - Release checklist: `docs/agents/90-release-checklist.md`
 - Workflow registry standard: `docs/agents/workflow-registry.md`
 
-Skills (standards + platform adapters):
-- Skill standards: `docs/agents/skills/00-skill-standards.md`
-- Platform adapters: `docs/agents/skills/10-platform-adapters.md`
-
-Playbooks (copy/paste templates):
+### Playbooks (copy/paste task templates)
 - AI prompt template: `docs/agents/playbooks/ai-coding-prompt-template.md`
 - Project docs (minimal): `docs/agents/playbooks/project-docs-template.md`
-- Governance learnings (session -> governance deltas): `docs/agents/playbooks/governance-learnings-template.md`
+- Governance learnings: `docs/agents/playbooks/governance-learnings-template.md`
 - RCA methods: `docs/agents/playbooks/rca-methods-template.md`
 - Design principles checklist: `docs/agents/playbooks/design-principles-checklist.md`
 - Excel tasks: `docs/agents/playbooks/excel-task-template.md`
@@ -39,15 +64,20 @@ Playbooks (copy/paste templates):
 - Performance hotspots: `docs/agents/playbooks/perf-hotspots-template.md`
 - Bugfixes: `docs/agents/playbooks/bugfix-template.md`
 
-Schemas:
-- Change record artifact schema: `docs/agents/schemas/change-record.schema.json`
+### Skills
+- Skill standards: `docs/agents/skills/00-skill-standards.md`
+- Platform adapters: `docs/agents/skills/10-platform-adapters.md`
 
-Automation loops:
+### Automation
 - Overview: `docs/agents/automation/overview.md`
 - Nightly compound loop: `docs/agents/automation/nightly-compound-loop.md`
 - Templates: `templates/automation-loop/`
 
-Checks:
+### Schemas
+- Change record artifact schema: `docs/agents/schemas/change-record.schema.json`
+
+## Checks
+
 - Docs SSOT headers: `scripts/check_docs_ssot.ps1`
 - Agents manifest references: `scripts/check_agents_manifest.ps1`
 - Project docs exist + README linkage: `scripts/check_project_docs.ps1`

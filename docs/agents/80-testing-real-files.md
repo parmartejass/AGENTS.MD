@@ -4,9 +4,11 @@ ssot_owner: AGENTS.md
 update_trigger: verification expectations change
 ---
 
-# 80 — Testing With Real Files
+# 80 - Testing With Real Files
 
-Acceptance criteria are often I/O driven; when changes affect I/O or file processing, tests must include real representative inputs (see fixture hygiene in `AGENTS.md`) when possible. If not feasible, record why in the final response or run report per repo conventions.
+Acceptance criteria are often I/O driven. When changes affect I/O or file processing, tests must include representative real inputs when feasible (see fixture hygiene in `AGENTS.md`).
+If real inputs are not feasible, document why and use a deterministic surrogate fixture plus an explicit failure-path witness in the final response or run report.
+
 Baseline verification floors live in `AGENTS.md` ("Verification Floors (Hard Gate)"); this runbook adds I/O-specific expectations.
 Follow `AGENTS.md` for verification command ownership and manual-check recording.
 For I/O bugfix/regression changes, also satisfy `AGENTS.md` "Bias-Resistant Debugging (Hard Gate)" evidence (MRE + regression + disconfirming + failure-path).

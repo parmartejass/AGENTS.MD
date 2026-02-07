@@ -14,8 +14,12 @@ This is supporting guidance. The normative rules live in `AGENTS.md` (Prime Dire
 - output "looks right" but verification contradicts it (phantom compliance)
 
 ## Stuck-loop reset protocol (must be deterministic)
-1) Re-run the `AGENTS.md` Mandatory Execution Loop steps 1-4 explicitly
-   (goal/AC, discovery, decomposition, ambiguity gate).
+1) Re-run the `AGENTS.md` Mandatory Execution Loop steps 1-5 explicitly:
+   - restate goal + acceptance criteria
+   - discover files and SSOT owners
+   - decompose into atomic subtasks
+   - run subagent council and reconcile findings
+   - run ambiguity gate (ask clarifying questions only if material ambiguity remains)
 2) Reproduce/verify the failure with deterministic tools; capture the exact command + output.
    Use README.md "Checks" (SSOT) when available.
 3) Populate the Restart Prompt Template below and present it as a copy-pasteable restart prompt.

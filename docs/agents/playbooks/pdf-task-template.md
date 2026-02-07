@@ -4,12 +4,19 @@ ssot_owner: AGENTS.md
 update_trigger: PDF workflow/integrity guidance changes OR new recurring PDF merge failure modes emerge
 ---
 
-# Playbook — PDF Tasks (Merge, Integrity, Verification)
+# Playbook - PDF Tasks (Merge, Integrity, Verification)
 
 Use when:
-- Working on PDF generation/overlay/merge workflows
-- Investigating missing/duplicate pages, “merge drift”, or integrity validation failures
-- Introducing or tuning PDF validation (size checks, page checks, identifier checks)
+- Working on PDF generation/overlay/merge workflows.
+- Investigating missing/duplicate pages, merge drift, or integrity validation failures.
+- Introducing or tuning PDF validation (size checks, page checks, identifier checks).
+
+Reference authority:
+- `AGENTS.md` "Bias-Resistant Debugging (Hard Gate)"
+- `AGENTS.md` "Verification Floors (Hard Gate)"
+- `AGENTS.md` "Mandatory Modularity + SOLID/DI (Authority Bloat Prevention)"
+
+This template is a prompting scaffold. If any wording conflicts with policy, `AGENTS.md` wins.
 
 ## Change classification (required)
 - task type (feature|bugfix|refactor):
@@ -24,10 +31,10 @@ Non-goals:
 - Do not duplicate constants/defaults here; reference SSOT owners (config/constants/workflows).
 
 ## Model (first principles)
-- Inputs: ordered list of source PDFs (and optionally expected identifiers like tracking/order IDs)
-- Transformation: optional normalize/dedupe → merge using a backend → validate witnesses
-- Outputs: merged PDF + logs/report entries
-- Side effects: file writes, temp files, optional cleanup
+- Inputs: ordered list of source PDFs (and optionally expected identifiers like tracking/order IDs).
+- Transformation: optional normalize/dedupe -> merge using a backend -> validate witnesses.
+- Outputs: merged PDF + logs/report entries.
+- Side effects: file writes and temp files; cleanup is required when temp artifacts are created.
 
 ## Invariants (Semantic Truth: S)
 
@@ -40,10 +47,10 @@ Non-goals:
 
 ### Idempotency invariants
 - INV-PDF-I1: Re-merging identical inputs must not drift on core witnesses (page count, identifier coverage, size ratio within tolerance).
-  - If drift occurs, treat it as corruption (switch backend or fail fast; do not blindly retry same strategy).
+  - If drift occurs, treat it as corruption (switch backend or fail fast; do not blindly retry the same strategy).
 
 ### Observability invariants
-- INV-PDF-OBS1: Logs record: backend used, page counts, validation outcomes, and any retry attempt number.
+- INV-PDF-OBS1: Logs record backend used, page counts, validation outcomes, and retry attempt number.
 
 ## Witnesses (Runtime Evidence: R / Recorded Truth: D)
 
@@ -71,28 +78,28 @@ Use multiple witnesses; size alone is a heuristic.
   - expected_ids (if available) from upstream SSOT (not from merged output)
 
 2) Choose witnesses (minimum set)
-- Required: page count, backend, output size, attempt number
-- Optional: expected IDs coverage (only if IDs are reliably extractable/defined upstream)
+- Required: page count, backend, output size, attempt number.
+- Optional: expected ID coverage (only if IDs are reliably extractable/defined upstream).
 
 3) Merge attempt
 - Use the default (most deterministic) backend.
 - Emit attempt-level logs with witness values.
 
 4) Validate
-- If page count mismatches: FAIL (do not “pass” on size).
-- If IDs are asserted and missing: FAIL (but be aware of text extraction limits; see notes).
+- If page count mismatches: FAIL (do not pass on size).
+- If IDs are asserted and missing: FAIL (be aware of text extraction limits; see notes).
 - If size check is used:
   - Use a tolerance ratio (configurable per repo).
-  - Interpret small deficits as “possible optimization” only if other witnesses pass.
+  - Interpret small deficits as possible optimization only if other witnesses pass.
 
 5) If validation fails
-- If witnesses drift across repeated attempts with identical inputs: treat as corruption
+- If witnesses drift across repeated attempts with identical inputs: treat as corruption.
   - Switch backend OR restart process OR fail fast (pick one per repo policy).
-- If failure is stable and explainable (e.g., optimization delta): adjust tolerance (project-level config), not the invariant.
+- If failure is stable and explainable (for example, optimization delta): adjust tolerance (project-level config), not the invariant.
 
 ## Notes (common pitfalls)
 
-- PDF text extraction is imperfect. “Missing IDs” can be false negatives if the PDF contains images or non-extractable text.
+- PDF text extraction is imperfect. Missing IDs can be false negatives if the PDF contains images or non-extractable text.
   - If IDs are a hard requirement, define them upstream and validate via a robust method (or acknowledge extraction limits).
 - Size validation is a heuristic. Optimized formats can legitimately shrink due to deduplication/structure optimization.
 
@@ -100,7 +107,7 @@ Use multiple witnesses; size alone is a heuristic.
 
 - PyPDF2 vs PyMuPDF:
   - Some workflows observe drift across repeated merges in the same process with certain libraries.
-  - If you observe drift (same inputs → different outputs), prefer a more deterministic backend and keep the other as fallback.
+  - If you observe drift (same inputs -> different outputs), prefer a more deterministic backend and keep the other as fallback.
   - Always rely on witnesses (page count / ID coverage / size ratio) to confirm.
 
 ## Deterministic verification checklist
@@ -109,3 +116,4 @@ Use multiple witnesses; size alone is a heuristic.
 - [ ] Failure path: remove one input or include an unreadable PDF; ensure explicit FAILED with reason.
 - [ ] Retry path (if implemented): confirm witnesses do not drift across attempts for identical inputs.
 - [ ] Verification commands come from README.md "Checks" (or deterministic manual steps are recorded).
+

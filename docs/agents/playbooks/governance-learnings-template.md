@@ -24,6 +24,7 @@ Language discipline:
 - Use `MUST` / `Hard Gate` only when quoting requirements explicitly hard-gated in `AGENTS.md`.
 - Use `must` / `required` for playbook procedure steps.
 - Use `should` / `recommended` for suggestions and preferences.
+- Use `P1` / `P2` / `P3` for proposal priority labels (do not use `MUST` as a priority label).
 
 Procedure guardrails:
 - Before claiming something is "missing", verify it does not already exist (search the repo with `rg`).
@@ -141,15 +142,15 @@ Steps:
    - Witness/verification:
    - Risk if not addressed:
    - Modularity/structure decision:
-   - Confidence (`MUST`|`SHOULD`|`COULD` + `VERIFIED`|`UNVERIFIED`):
+   - Priority + confidence (`P1`|`P2`|`P3` + `VERIFIED`|`UNVERIFIED`):
    - If a field is not applicable, write `N/A + reason`.
 6) Final summary:
-   - MUST-codify (max 7; MUST requires VERIFIED evidence + concrete verification command/manual check)
-   - SHOULD/COULD
+   - P1 codify now (max 7; requires VERIFIED evidence + concrete verification command/manual check)
+   - P2/P3 backlog
    - Already-covered (no action)
    - Manifest/injection improvements (if any)
    - Open questions/unknowns
-   - UNVERIFIED items cannot be promoted as MUST.
+   - UNVERIFIED items cannot be promoted as P1.
 
 Output format:
 - Markdown

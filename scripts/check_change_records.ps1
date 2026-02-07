@@ -62,6 +62,27 @@ function ConvertFrom-JsonCompat([string]$jsonText) {
   return $jsonText | ConvertFrom-Json
 }
 
+function ConvertFrom-JsonTokenCompat([string]$jsonText) {
+  $convertCmd = Get-Command ConvertFrom-Json
+  if ($convertCmd.Parameters.ContainsKey("AsHashtable")) {
+    if ($convertCmd.Parameters.ContainsKey("Depth")) {
+      if ($convertCmd.Parameters.ContainsKey("NoEnumerate")) {
+        return $jsonText | ConvertFrom-Json -AsHashtable -Depth 100 -NoEnumerate
+      }
+      return $jsonText | ConvertFrom-Json -AsHashtable -Depth 100
+    }
+    if ($convertCmd.Parameters.ContainsKey("NoEnumerate")) {
+      return $jsonText | ConvertFrom-Json -AsHashtable -NoEnumerate
+    }
+    return $jsonText | ConvertFrom-Json -AsHashtable
+  }
+
+  Add-Type -AssemblyName System.Web.Extensions
+  $serializer = New-Object System.Web.Script.Serialization.JavaScriptSerializer
+  $serializer.MaxJsonLength = [int]::MaxValue
+  return $serializer.DeserializeObject($jsonText)
+}
+
 function Test-HasProperty([object]$obj, [string]$name) {
   if (-not $obj) { return $false }
   return $null -ne $obj.PSObject.Properties[$name]
@@ -86,6 +107,22 @@ function Test-NonEmptyValue([object]$value) {
     return $false
   }
   return $true
+}
+
+function Get-DictionaryValue([object]$obj, [string]$name) {
+  if ($null -eq $obj) { return $null }
+  if ($obj -is [System.Collections.IDictionary]) {
+    if ($obj.Keys -contains $name) {
+      Write-Output -NoEnumerate $obj[$name]
+      return
+    }
+  }
+  return $null
+}
+
+function Test-IsJsonArray([object]$value) {
+  if ($null -eq $value) { return $false }
+  return ($value -is [System.Collections.IList]) -and -not ($value -is [string])
 }
 
 function Convert-ToArray([object]$value) {
@@ -158,11 +195,27 @@ $validRecords = 0
 
 foreach ($recordFile in $recordFiles) {
   $record = $null
+  $recordText = $null
+  $recordToken = $null
 
   try {
-    $record = ConvertFrom-JsonCompat (Get-Content -Raw -Path $recordFile.FullName)
+    $recordText = Get-Content -Raw -Path $recordFile.FullName
+  } catch {
+    Add-Issue $issues "Failed to read $($recordFile.FullName): $($_.Exception.Message)"
+    continue
+  }
+
+  try {
+    $record = ConvertFrom-JsonCompat $recordText
   } catch {
     Add-Issue $issues "Failed to parse JSON in $($recordFile.FullName): $($_.Exception.Message)"
+    continue
+  }
+
+  try {
+    $recordToken = ConvertFrom-JsonTokenCompat $recordText
+  } catch {
+    Add-Issue $issues "Failed to parse JSON token types in $($recordFile.FullName): $($_.Exception.Message)"
     continue
   }
 
@@ -181,6 +234,10 @@ foreach ($recordFile in $recordFiles) {
     }
   }
 
+  if (-not (Test-IsJsonArray (Get-DictionaryValue $recordToken "invariants"))) {
+    Add-Issue $issues "'invariants' must be a JSON array in $($recordFile.FullName)."
+    $recordHasErrors = $true
+  }
   $invariants = Convert-ToArray (Get-PropertyValue $record "invariants")
   $invariantCount = 0
   foreach ($invariant in $invariants) {
@@ -195,6 +252,10 @@ foreach ($recordFile in $recordFiles) {
     $recordHasErrors = $true
   }
 
+  if (-not (Test-IsJsonArray (Get-DictionaryValue $recordToken "ssot_owner_paths"))) {
+    Add-Issue $issues "'ssot_owner_paths' must be a JSON array in $($recordFile.FullName)."
+    $recordHasErrors = $true
+  }
   $ssotOwnerPaths = Convert-ToArray (Get-PropertyValue $record "ssot_owner_paths")
   $ownerPathCount = 0
   foreach ($ownerPath in $ssotOwnerPaths) {
@@ -218,6 +279,10 @@ foreach ($recordFile in $recordFiles) {
     $recordHasErrors = $true
   }
 
+  if (-not (Test-IsJsonArray (Get-DictionaryValue $recordToken "verification_commands"))) {
+    Add-Issue $issues "'verification_commands' must be a JSON array in $($recordFile.FullName)."
+    $recordHasErrors = $true
+  }
   $verificationCommands = Convert-ToArray (Get-PropertyValue $record "verification_commands")
   $verificationCount = 0
   foreach ($command in $verificationCommands) {
@@ -232,6 +297,10 @@ foreach ($recordFile in $recordFiles) {
     $recordHasErrors = $true
   }
 
+  if (-not (Test-IsJsonArray (Get-DictionaryValue $recordToken "witnesses"))) {
+    Add-Issue $issues "'witnesses' must be a JSON array in $($recordFile.FullName)."
+    $recordHasErrors = $true
+  }
   $witnesses = Convert-ToArray (Get-PropertyValue $record "witnesses")
   $witnessCount = 0
   foreach ($witness in $witnesses) {
