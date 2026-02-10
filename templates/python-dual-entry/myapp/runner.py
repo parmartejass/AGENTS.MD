@@ -150,132 +150,74 @@ def run_job(config: JobConfig, *, cancel_event: Event | None = None, mode: str =
         transition(Phase.COMMITTING, notes="workflow execution started")
         is_cancelled = cancel_event.is_set if cancel_event is not None else (lambda: False)
 
+        def fail_workflow_exception(
+            *,
+            exc: BaseException,
+            code: ReasonCode,
+            detail: str,
+            log_with_exception: bool = False,
+        ) -> JobResult:
+            nonlocal reason_code, reason_detail, final_phase, item_outcome, run_result
+            reason_code = code
+            reason_detail = detail
+            final_phase = Phase.FAILED_COMMIT
+            item_outcome = ItemOutcome.FAILED
+            run_result = RunResultKind.FAILURE
+            if log_with_exception:
+                logger.exception("Unexpected error")
+            else:
+                logger.error("%s", reason_detail)
+            error_records.append(
+                {
+                    "type": type(exc).__name__,
+                    "message": str(exc),
+                    "where": "workflow.run",
+                    "fatal": True,
+                }
+            )
+            transition(Phase.FAILED_COMMIT, notes=reason_detail)
+            emit_failure(
+                run,
+                phase=Phase.FAILED_COMMIT,
+                reason_code=reason_code,
+                reason_detail=reason_detail,
+                exc=exc,
+            )
+            return JobResult(
+                success=False,
+                status=RunStatus.FAILED,
+                run_id=run.run_id,
+                errors=[reason_detail],
+                warnings=warnings,
+            )
+
         try:
             workflow_result = workflow.run(config, is_cancelled)
         except FileNotFoundError as exc:
-            reason_code = ReasonCode.FILE_NOT_FOUND
-            reason_detail = f"File not found: {exc}"
-            final_phase = Phase.FAILED_COMMIT
-            item_outcome = ItemOutcome.FAILED
-            run_result = RunResultKind.FAILURE
-            logger.error("%s", reason_detail)
-            error_records.append(
-                {
-                    "type": type(exc).__name__,
-                    "message": str(exc),
-                    "where": "workflow.run",
-                    "fatal": True,
-                }
-            )
-            transition(Phase.FAILED_COMMIT, notes=reason_detail)
-            emit_failure(
-                run,
-                phase=Phase.FAILED_COMMIT,
-                reason_code=reason_code,
-                reason_detail=reason_detail,
+            return fail_workflow_exception(
                 exc=exc,
+                code=ReasonCode.FILE_NOT_FOUND,
+                detail=f"File not found: {exc}",
             )
-            result = JobResult(
-                success=False,
-                status=RunStatus.FAILED,
-                run_id=run.run_id,
-                errors=[reason_detail],
-                warnings=warnings,
-            )
-            return result
         except PermissionError as exc:
-            reason_code = ReasonCode.PERMISSION_DENIED
-            reason_detail = f"Permission denied: {exc}"
-            final_phase = Phase.FAILED_COMMIT
-            item_outcome = ItemOutcome.FAILED
-            run_result = RunResultKind.FAILURE
-            logger.error("%s", reason_detail)
-            error_records.append(
-                {
-                    "type": type(exc).__name__,
-                    "message": str(exc),
-                    "where": "workflow.run",
-                    "fatal": True,
-                }
-            )
-            transition(Phase.FAILED_COMMIT, notes=reason_detail)
-            emit_failure(
-                run,
-                phase=Phase.FAILED_COMMIT,
-                reason_code=reason_code,
-                reason_detail=reason_detail,
+            return fail_workflow_exception(
                 exc=exc,
+                code=ReasonCode.PERMISSION_DENIED,
+                detail=f"Permission denied: {exc}",
             )
-            result = JobResult(
-                success=False,
-                status=RunStatus.FAILED,
-                run_id=run.run_id,
-                errors=[reason_detail],
-                warnings=warnings,
-            )
-            return result
         except OSError as exc:
-            reason_code = ReasonCode.OS_ERROR
-            reason_detail = f"OS error: {exc}"
-            final_phase = Phase.FAILED_COMMIT
-            item_outcome = ItemOutcome.FAILED
-            run_result = RunResultKind.FAILURE
-            logger.error("%s", reason_detail)
-            error_records.append(
-                {
-                    "type": type(exc).__name__,
-                    "message": str(exc),
-                    "where": "workflow.run",
-                    "fatal": True,
-                }
-            )
-            transition(Phase.FAILED_COMMIT, notes=reason_detail)
-            emit_failure(
-                run,
-                phase=Phase.FAILED_COMMIT,
-                reason_code=reason_code,
-                reason_detail=reason_detail,
+            return fail_workflow_exception(
                 exc=exc,
+                code=ReasonCode.OS_ERROR,
+                detail=f"OS error: {exc}",
             )
-            result = JobResult(
-                success=False,
-                status=RunStatus.FAILED,
-                run_id=run.run_id,
-                errors=[reason_detail],
-                warnings=warnings,
-            )
-            return result
         except Exception as exc:
-            reason_code = ReasonCode.UNEXPECTED_EXCEPTION
-            reason_detail = f"Unexpected error: {exc}"
-            final_phase = Phase.FAILED_COMMIT
-            item_outcome = ItemOutcome.FAILED
-            run_result = RunResultKind.FAILURE
-            logger.exception("Unexpected error")
-            error_records.append(
-                {
-                    "type": type(exc).__name__,
-                    "message": str(exc),
-                    "where": "workflow.run",
-                    "fatal": True,
-                }
-            )
-            transition(Phase.FAILED_COMMIT, notes=reason_detail)
-            emit_failure(
-                run,
-                phase=Phase.FAILED_COMMIT,
-                reason_code=reason_code,
-                reason_detail=reason_detail,
+            return fail_workflow_exception(
                 exc=exc,
+                code=ReasonCode.UNEXPECTED_EXCEPTION,
+                detail=f"Unexpected error: {exc}",
+                log_with_exception=True,
             )
-            result = JobResult(
-                success=False,
-                status=RunStatus.FAILED,
-                run_id=run.run_id,
-                errors=[reason_detail],
-                warnings=warnings,
-            )
-            return result
 
         lines_processed = workflow_result.lines_processed
 
