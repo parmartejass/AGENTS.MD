@@ -103,6 +103,7 @@ When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` an
 |  |- check_project_docs.ps1
 |  |- check_repo_hygiene.ps1
 |  |- check_change_records.ps1
+|  |- check_governance_core.py
 |  |- check_python_safety.py
 |  |- sync-governance.ps1
 |- templates/
@@ -312,16 +313,18 @@ This repo:
 - Agents manifest checks: `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_agents_manifest.ps1`
 - Project docs checks (required files + README linkage): `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_project_docs.ps1`
 - Repo hygiene checks (no generated artifacts tracked): `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_repo_hygiene.ps1`
+- Cross-platform core governance checks (manifest + docs SSOT + project docs + hygiene): `python3 scripts/check_governance_core.py` (use `python` if `python3` is unavailable)
 - Change record artifact checks (schema + required evidence fields): `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_change_records.ps1`
   - Enforce required records by creating `docs/project/change-records/.required` or running with `-RequireRecords`.
 - Python safety baseline checks: `python3 scripts/check_python_safety.py` (add `--fail-on-warnings` to enforce warnings; use `python` if `python3` is unavailable)
+- Template structured logging contract tests: `cd templates/python-dual-entry && python3 -m unittest -v tests.test_logging_contract` (use `python` if `python3` is unavailable)
 
 Target repo (submodule under `.governance/`):
 - Docs SSOT header checks: `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_docs_ssot.ps1 -RepoRoot .`
 - Agents manifest checks: `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_agents_manifest.ps1`
 - Project docs checks: `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_project_docs.ps1 -RepoRoot .`
 - Repo hygiene checks: `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_repo_hygiene.ps1 -RepoRoot .`
+- Cross-platform core governance checks: `python3 .governance/scripts/check_governance_core.py --repo-root .` (use `python` if `python3` is unavailable)
 - Change record artifact checks: `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_change_records.ps1 -RepoRoot .`
   - Enforce required records by creating `docs/project/change-records/.required` or running with `-RequireRecords`.
 - Python safety baseline checks: `python3 .governance/scripts/check_python_safety.py --root .` (add `--fail-on-warnings` to enforce warnings; use `python` if `python3` is unavailable)
-

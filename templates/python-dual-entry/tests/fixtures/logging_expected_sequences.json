@@ -1,0 +1,22 @@
+{
+  "happy_path_phases": [
+    "INIT",
+    "VALIDATED",
+    "COMMIT_READY",
+    "COMMITTING",
+    "CLEANING",
+    "DONE"
+  ],
+  "validation_failure_phases": [
+    "INIT",
+    "FAILED_VALIDATION"
+  ],
+  "cancelled_phases": [
+    "INIT",
+    "VALIDATED",
+    "COMMIT_READY",
+    "COMMITTING",
+    "FAILED_COMMIT",
+    "CLEANING"
+  ]
+}

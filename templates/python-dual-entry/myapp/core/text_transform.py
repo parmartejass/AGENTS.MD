@@ -48,6 +48,10 @@ class ProcessResult:
     error: str | None = None
 
 
+class _StepCancelled(Exception):
+    """Internal signal to abort workflow work promptly when cancellation is requested."""
+
+
 def process_text_file(
     *,
     input_path: Path,
@@ -81,7 +85,11 @@ def process_text_file(
                         return ProcessResult(success=False, cancelled=True, lines_processed=lines_processed)
 
                     line = raw_line.rstrip("\r\n")
-                    transformed = _apply_steps(line, steps)
+                    try:
+                        transformed = _apply_steps(line, steps, is_cancelled=is_cancelled)
+                    except _StepCancelled:
+                        logger.warning("Cancellation requested during step execution; stopping early")
+                        return ProcessResult(success=False, cancelled=True, lines_processed=lines_processed)
                     if transformed is None:
                         continue
 
@@ -104,10 +112,13 @@ def process_text_file(
                 logger.warning("Failed to clean up temp file %s: %s", tmp_path, exc)
 
 
-def _apply_steps(line: str, steps: list[dict[str, Any]]) -> str | None:
+def _apply_steps(line: str, steps: list[dict[str, Any]], *, is_cancelled: Callable[[], bool]) -> str | None:
     current: str | None = line
 
     for step in steps:
+        if is_cancelled():
+            raise _StepCancelled
+
         op = step.get(STEP_KEY_OP)
         if op == OP_STRIP:
             current = current.strip() if current is not None else None
@@ -131,9 +142,20 @@ def _apply_steps(line: str, steps: list[dict[str, Any]]) -> str | None:
                 return None
         elif op == OP_SLEEP_MS:
             ms = step.get(STEP_KEY_MS, 0)
-            time.sleep(float(ms) / 1000.0)
+            if _sleep_ms_interruptibly(float(ms), is_cancelled=is_cancelled):
+                raise _StepCancelled
         else:
             raise ValueError(f"Unknown operation: {op!r}")
 
     return current
 
+
+def _sleep_ms_interruptibly(ms: float, *, is_cancelled: Callable[[], bool]) -> bool:
+    remaining = max(ms, 0.0) / 1000.0
+    while remaining > 0:
+        if is_cancelled():
+            return True
+        chunk = min(remaining, 0.05)
+        time.sleep(chunk)
+        remaining -= chunk
+    return is_cancelled()

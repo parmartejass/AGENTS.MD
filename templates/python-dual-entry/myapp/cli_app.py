@@ -17,6 +17,32 @@ from myapp.scenarios import load_scenario
 
 logger = logging.getLogger(__name__)
 
+CLI_INTENT_FLAGS = frozenset(
+    {
+        "--cli",
+        "--scenario",
+        "--verify",
+        "--verbose",
+        "--log-file",
+        "--event-log",
+        "--help",
+        "-h",
+        "--version",
+    }
+)
+CLI_INTENT_PREFIXES = ("--scenario=", "--log-file=", "--event-log=")
+
+
+def has_cli_intent(argv: list[str]) -> bool:
+    for token in argv:
+        if token in CLI_INTENT_FLAGS:
+            return True
+        if any(token.startswith(prefix) for prefix in CLI_INTENT_PREFIXES):
+            return True
+        if token.startswith("-"):
+            return True
+    return False
+
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(prog="myapp", description="Dual-entry automation template (CLI mode).")
@@ -27,13 +53,14 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--verify", action="store_true", help="Verify outputs vs scenario.expected.*.")
     parser.add_argument("--verbose", action="store_true", help="Enable debug logging.")
     parser.add_argument("--log-file", type=Path, default=None, help="Optional log file path.")
+    parser.add_argument("--event-log", type=Path, default=None, help="Optional structured JSONL event log path.")
 
     return parser.parse_args(argv)
 
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
-    setup_logging(verbose=args.verbose, log_file=args.log_file)
+    setup_logging(verbose=args.verbose, log_file=args.log_file, event_log=args.event_log)
 
     try:
         scenario = load_scenario(args.scenario)
@@ -45,7 +72,7 @@ def main(argv: list[str] | None = None) -> int:
     if scenario.description:
         logger.info("Description: %s", scenario.description)
 
-    result = run_job(scenario.job)
+    result = run_job(scenario.job, mode="cli")
 
     if args.verify:
         if result.success != scenario.expected.success:

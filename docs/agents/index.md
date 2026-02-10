@@ -58,6 +58,7 @@ If any wording conflicts with `AGENTS.md`, `AGENTS.md` wins.
 - RCA methods: `docs/agents/playbooks/rca-methods-template.md`
 - Design principles checklist: `docs/agents/playbooks/design-principles-checklist.md`
 - Excel tasks: `docs/agents/playbooks/excel-task-template.md`
+- Excel library selection: `docs/agents/playbooks/excel-library-selection-playbook.md`
 - GUI tasks: `docs/agents/playbooks/gui-task-template.md`
 - High I/O / batch processing: `docs/agents/playbooks/io-batch-task-template.md`
 - PDF tasks: `docs/agents/playbooks/pdf-task-template.md`
@@ -82,8 +83,8 @@ If any wording conflicts with `AGENTS.md`, `AGENTS.md` wins.
 - Agents manifest references: `scripts/check_agents_manifest.ps1`
 - Project docs exist + README linkage: `scripts/check_project_docs.ps1`
 - Repo hygiene (no generated artifacts tracked): `scripts/check_repo_hygiene.ps1`
+- Cross-platform core governance checks: `scripts/check_governance_core.py`
 - Change record artifacts: `scripts/check_change_records.ps1`
 - Python safety baseline (print/except/timeout/file handles): `scripts/check_python_safety.py`
 
 When this pack is vendored under `.governance/`, invoke checks via `.governance/scripts/...` and pass `-RepoRoot .` for repo-scoped checks.
-

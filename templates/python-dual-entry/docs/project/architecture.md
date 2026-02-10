@@ -8,7 +8,8 @@ update_trigger: entrypoints, workflow registry, or scenario harness changes
 
 ## Entrypoints
 
-- Dispatcher: `myapp/__main__.py`
+- Canonical wrapper: `myapp/main.py`
+- Package delegate (`python -m myapp`): `myapp/__main__.py`
 - CLI: `myapp/cli_app.py`
 - GUI: `myapp/gui_app.py`
 
@@ -19,6 +20,9 @@ Both CLI and GUI call:
 - Orchestration: `myapp/runner.py`
 - Workflow registry: `myapp/workflows.py`
 - Core logic (no GUI imports): `myapp/core/`
+- Structured event contract: `myapp/log_contract.py`
+- Structured event emitters: `myapp/observability.py`
+- Logging setup + JSONL sink: `myapp/logging_config.py`
 
 ## Test path (real files)
 
@@ -26,4 +30,3 @@ Both CLI and GUI call:
 - Fixtures: `tests/fixtures/`
 - Expected outputs: `tests/expected/`
 - Harness: `tests/test_scenarios.py`
-
