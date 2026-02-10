@@ -29,6 +29,7 @@ class JobConfig:
 class JobResult:
     success: bool
     status: RunStatus
+    run_id: str = ""
     output_path: Path | None = None
     lines_processed: int = 0
     errors: list[str] = field(default_factory=list)
@@ -37,4 +38,3 @@ class JobResult:
     @property
     def exit_code(self) -> int:
         return 0 if self.success else 1
-

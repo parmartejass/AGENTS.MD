@@ -10,6 +10,12 @@ update_trigger: logging/error requirements change
 - No `print()`.
 - Use module-level logging where applicable.
 - Log workflow boundaries and failure points with context (paths, sheet, row identifiers).
+- Prefer a structured event contract for machine-debuggable runs:
+  - `run_start`, `phase_transition`, terminal item event, `run_end`
+  - explicit `reason_code` + `reason_detail` on failures/skips
+  - source attribution (`module`, `function`, `file`, `line`)
+- Keep one SSOT owner for event names/phases/reason codes (no duplicate enums in multiple modules).
+- Redact sensitive keys by default (`token`, `password`, `secret`, `key`, `credential`) and store large payloads as summaries (size/hash/path reference) instead of raw dumps.
 
 ## Error taxonomy (recommended)
 Maintain one owner for domain errors so failures are searchable and consistent, e.g.:

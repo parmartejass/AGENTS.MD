@@ -139,7 +139,7 @@ class Application(tk.Tk):
         self.after(DEFAULT_GUI_POLL_MS, self._poll_queue)
 
     def _worker_run(self, scenario_id: str, job_config) -> None:
-        result = run_job(job_config, cancel_event=self._cancel_event)
+        result = run_job(job_config, cancel_event=self._cancel_event, mode="gui")
 
         if result.success:
             message = f"SUCCESS: lines_processed={result.lines_processed}\nOutput: {result.output_path}"

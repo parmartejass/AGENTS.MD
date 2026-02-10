@@ -25,16 +25,32 @@ python -m myapp --cli --scenario tests/scenarios/scenario_001_happy_path.json --
 
 # Run all scenarios via the test harness (no third-party deps)
 python -m unittest -v
+
+# Optional: write structured lifecycle events to a deterministic JSONL file
+python -m myapp --cli --scenario tests/scenarios/scenario_001_happy_path.json --verify --event-log tests/output/run.events.jsonl
 ```
+
+If `--event-log` is not provided, events are written to:
+- `run-logs/<YYYYMMDD>/<run_id>.jsonl`
+
+Each run emits:
+- `run_start`
+- `phase_transition`
+- `failure_event` (when applicable)
+- `item_terminal`
+- `run_end`
 
 ## Where to look (SSOT)
 
-- Entry dispatcher: `myapp/__main__.py`
+- Canonical entry wrapper: `myapp/main.py`
+- Package delegate for `python -m myapp`: `myapp/__main__.py`
 - CLI entry: `myapp/cli_app.py`
 - GUI entry: `myapp/gui_app.py`
 - Orchestration: `myapp/runner.py`
 - Workflow registry: `myapp/workflows.py`
+- Structured event contract: `myapp/log_contract.py`
+- Structured event emitters: `myapp/observability.py`
+- Logging setup + JSONL sink: `myapp/logging_config.py`
 - Core business logic: `myapp/core/`
 - Scenarios (JSON): `tests/scenarios/`
 - Fixtures + expected outputs: `tests/fixtures/`, `tests/expected/`
-

@@ -14,6 +14,7 @@ venv/
 # Template-generated outputs
 templates/python-dual-entry/tests/output/*
 !templates/python-dual-entry/tests/output/.gitkeep
+templates/python-dual-entry/run-logs/
 
 # OS / editor noise
 .DS_Store

@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 
 from myapp.core.verification import compare_text_files
+from myapp.logging_config import setup_logging
 from myapp.runner import run_job
 from myapp.scenarios import list_scenario_files, load_scenario
 
@@ -18,6 +19,7 @@ class ScenarioTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+        setup_logging(event_log=OUTPUT_DIR / "scenario_suite.events.jsonl")
 
     def test_all_scenarios(self) -> None:
         scenario_files = list_scenario_files(SCENARIOS_DIR)
@@ -48,15 +50,32 @@ class ScenarioTests(unittest.TestCase):
 
     def test_cli_happy_path(self) -> None:
         scenario_path = SCENARIOS_DIR / "scenario_001_happy_path.json"
+        event_log_path = OUTPUT_DIR / "scenario_cli.events.jsonl"
+        if event_log_path.exists():
+            event_log_path.unlink()
 
-        proc = subprocess.run(
-            [sys.executable, "-m", "myapp", "--cli", "--scenario", str(scenario_path), "--verify"],
-            cwd=str(TEMPLATE_ROOT),
-            capture_output=True,
-            text=True,
-            check=False,
-            timeout=60,
-        )
+        try:
+            proc = subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "myapp",
+                    "--cli",
+                    "--scenario",
+                    str(scenario_path),
+                    "--verify",
+                    "--event-log",
+                    str(event_log_path),
+                ],
+                cwd=str(TEMPLATE_ROOT),
+                capture_output=True,
+                text=True,
+                check=False,
+                timeout=60,
+            )
+        finally:
+            if event_log_path.exists():
+                event_log_path.unlink()
 
         self.assertEqual(
             proc.returncode,

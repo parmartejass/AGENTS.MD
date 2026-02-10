@@ -1,7 +1,7 @@
 ---
 doc_type: playbook
 ssot_owner: AGENTS.md
-update_trigger: Excel lifecycle, performance, or reporting expectations change
+update_trigger: Excel lifecycle, library-selection, performance, or reporting expectations change
 ---
 
 # Playbook — Excel Automation Task
@@ -9,6 +9,14 @@ update_trigger: Excel lifecycle, performance, or reporting expectations change
 Use when:
 - Task matches profile `excel_automation` in `agents-manifest.yaml`.
 - If using Excel COM automation (`win32com`/`xlwings`), profile `excel_com` also applies and injects `docs/agents/50-excel-com-lifecycle.md`.
+
+## Library selection authority (required)
+- Use `docs/agents/playbooks/excel-library-selection-playbook.md` as the single owner for:
+  - cross-platform default vs COM escalation rules
+  - capability-to-library matrix
+  - single-library vs multi-library pipeline decisions
+  - speed/reliability/safety selection order
+- Do not duplicate library-selection rules in task docs; reference the canonical playbook and record your chosen path.
 
 ## Change classification (required)
 - task type (feature|bugfix|refactor):
@@ -23,6 +31,7 @@ Use when:
 - sheets/tables involved:
 - required headers:
 - output artifacts:
+- selected library path (from canonical selection playbook):
 
 ## SSOT mapping (fill with exact repo locations)
 - constants owner:
