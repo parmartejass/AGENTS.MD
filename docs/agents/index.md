@@ -31,6 +31,23 @@ If any wording conflicts with `AGENTS.md`, `AGENTS.md` wins.
 2. `docs/agents/playbooks/project-docs-template.md`
 3. `docs/agents/playbooks/governance-learnings-template.md` (when explicitly invoked)
 
+## Playbook Alias Map (Discoverability Only)
+
+Use these as search/invocation aliases to find existing owners quickly.
+Mappings are aliases for discoverability; authority remains in `AGENTS.md` and existing playbooks.
+
+| Alias category | Existing manifest profile(s) | Existing playbook(s) / owner docs |
+|---|---|---|
+| `PB-DEBUG` | `bugfix` | `docs/agents/playbooks/bugfix-template.md`, `docs/agents/playbooks/rca-methods-template.md` |
+| `PB-PERF` | `perf_hotspots` | `docs/agents/playbooks/perf-hotspots-template.md` |
+| `PB-CONC` | `gui_task` | `docs/agents/playbooks/gui-task-template.md`, `docs/agents/60-gui-threading.md` |
+| `PB-SSOT` | `design_review`, `project_docs` | `docs/agents/20-sources-of-truth-map.md`, `docs/agents/25-docs-ssot-policy.md`, `docs/agents/playbooks/design-principles-checklist.md` |
+| `PB-REF` | `design_review` | `docs/agents/playbooks/design-principles-checklist.md` |
+| `PB-DEPS` | `excel_automation` (Excel-specific) | `docs/agents/playbooks/excel-library-selection-playbook.md` |
+| `PB-CONSISTENCY` | `design_review`, `project_docs` | `docs/agents/20-sources-of-truth-map.md`, `docs/agents/playbooks/design-principles-checklist.md` |
+| `PB-REQ` | n/a (procedure in `AGENTS.md`) | `docs/agents/playbooks/ai-coding-prompt-template.md` |
+| `PB-MIG` | n/a (no dedicated profile in this pack) | Use `AGENTS.md` First-Principles + Verification Floors + relevant domain playbook |
+
 ## Branches (Top -> Down)
 
 ### Core governance branches
