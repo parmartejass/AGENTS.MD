@@ -301,6 +301,7 @@ def _check_repo_hygiene(repo_root: Path) -> List[str]:
             check=True,
             capture_output=True,
             text=True,
+            cwd=repo_root,
             timeout=_GIT_LS_FILES_TIMEOUT_SEC,
         )
     except FileNotFoundError:
