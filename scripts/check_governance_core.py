@@ -12,12 +12,24 @@ This script mirrors the core PowerShell checks:
 from __future__ import annotations
 
 import argparse
+import logging
 import os
 import re
 import subprocess
 import sys
 from pathlib import Path
 from typing import Dict, List, Sequence, Set, Tuple
+
+logger = logging.getLogger(__name__)
+_GIT_LS_FILES_TIMEOUT_SEC = 30
+
+
+def _configure_logging() -> None:
+    handler = logging.StreamHandler(stream=sys.stdout)
+    handler.setFormatter(logging.Formatter("%(message)s"))
+    logger.handlers.clear()
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
 
 
 def _resolve_path(path: str | None, default: Path) -> Path:
@@ -289,9 +301,15 @@ def _check_repo_hygiene(repo_root: Path) -> List[str]:
             check=True,
             capture_output=True,
             text=True,
+            cwd=repo_root,
+            timeout=_GIT_LS_FILES_TIMEOUT_SEC,
         )
     except FileNotFoundError:
         return ["git is required for hygiene checks."]
+    except subprocess.TimeoutExpired:
+        return [
+            f"git ls-files timed out after {_GIT_LS_FILES_TIMEOUT_SEC}s for repo root: {repo_root}"
+        ]
     except subprocess.CalledProcessError:
         return [f"git ls-files failed for repo root: {repo_root}"]
 
@@ -319,6 +337,7 @@ def _check_repo_hygiene(repo_root: Path) -> List[str]:
 
 
 def main(argv: Sequence[str]) -> int:
+    _configure_logging()
     parser = argparse.ArgumentParser(
         description="Run cross-platform governance checks for manifest/docs/project-docs/hygiene."
     )
@@ -336,7 +355,7 @@ def main(argv: Sequence[str]) -> int:
             args.repo_root, args.governance_root, script_root
         )
     except RuntimeError as err:
-        print(f"ERROR: {err}")
+        logger.error("ERROR: %s", err)
         return 1
 
     total_errors = 0
@@ -344,42 +363,42 @@ def main(argv: Sequence[str]) -> int:
     manifest_errors = _check_agents_manifest(governance_root)
     if manifest_errors:
         for issue in manifest_errors:
-            print(f"ERROR: {issue}")
+            logger.error("ERROR: %s", issue)
         total_errors += len(manifest_errors)
     else:
-        print("Agents manifest checks passed.")
+        logger.info("Agents manifest checks passed.")
 
     docs_errors, docs_warnings = _check_docs_ssot(repo_root, governance_root)
     if docs_errors:
         for issue in docs_errors:
-            print(f"ERROR: {issue}")
+            logger.error("ERROR: %s", issue)
         total_errors += len(docs_errors)
     else:
-        print("Docs SSOT checks passed.")
+        logger.info("Docs SSOT checks passed.")
     for warn in docs_warnings:
-        print(f"WARNING: {warn}")
+        logger.warning("WARNING: %s", warn)
 
     project_errors = _check_project_docs(repo_root, governance_rel)
     if project_errors:
         for issue in project_errors:
-            print(f"ERROR: {issue}")
+            logger.error("ERROR: %s", issue)
         total_errors += len(project_errors)
     else:
-        print("Project docs checks passed.")
+        logger.info("Project docs checks passed.")
 
     hygiene_errors = _check_repo_hygiene(repo_root)
     if hygiene_errors:
         for issue in hygiene_errors:
-            print(f"ERROR: {issue}")
+            logger.error("ERROR: %s", issue)
         total_errors += len(hygiene_errors)
     else:
-        print("Repo hygiene checks passed.")
+        logger.info("Repo hygiene checks passed.")
 
     if total_errors > 0:
-        print(f"Governance core checks failed: {total_errors} issue(s).")
+        logger.error("Governance core checks failed: %s issue(s).", total_errors)
         return 1
 
-    print("Governance core checks passed.")
+    logger.info("Governance core checks passed.")
     return 0
 
 
