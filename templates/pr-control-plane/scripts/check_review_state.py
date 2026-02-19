@@ -70,6 +70,16 @@ def evaluate_review_state(
 ) -> dict[str, Any]:
     failures: list[dict[str, Any]] = []
     review_policy = contract["reviewPolicy"]
+
+    if not review_policy.get("enabled", True):
+        return {
+            "result": "SUCCESS",
+            "headSha": head_sha,
+            "reviewRun": None,
+            "actionableFindingCount": 0,
+            "failures": [],
+        }
+
     required_current_head = bool(review_policy.get("requireCurrentHeadSha", True))
 
     if timed_out:

@@ -67,6 +67,19 @@ class ReviewStateTests(unittest.TestCase):
         self.assertEqual(result["result"], "FAILURE")
         self.assertTrue(any(item["code"] == "REVIEW_TIMEOUT" for item in result["failures"]))
 
+    def test_disabled_review_policy_passes_without_run(self) -> None:
+        disabled_contract = {**self.contract, "reviewPolicy": {**self.contract["reviewPolicy"], "enabled": False}}
+        result = evaluate_review_state(
+            contract=disabled_contract,
+            head_sha="abc123",
+            review_run=None,
+            findings=_load_fixture("findings_actionable.json"),
+            timed_out=False,
+        )
+        self.assertEqual(result["result"], "SUCCESS")
+        self.assertEqual(result["actionableFindingCount"], 0)
+        self.assertEqual(result["failures"], [])
+
 
 if __name__ == "__main__":
     unittest.main()
