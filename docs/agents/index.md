@@ -89,7 +89,9 @@ Mappings are aliases for discoverability; authority remains in `AGENTS.md` and e
 ### Automation
 - Overview: `docs/agents/automation/overview.md`
 - Nightly compound loop: `docs/agents/automation/nightly-compound-loop.md`
+- PR control-plane loop: `docs/agents/automation/pr-control-plane-loop.md`
 - Templates: `templates/automation-loop/`
+- Templates: `templates/pr-control-plane/`
 
 ### Schemas
 - Change record artifact schema: `docs/agents/schemas/change-record.schema.json`

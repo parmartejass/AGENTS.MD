@@ -1,0 +1,8 @@
+{
+  "name": "Code Review Agent",
+  "head_sha": "abc123",
+  "status": "completed",
+  "conclusion": "success",
+  "summary": "No actionable findings.",
+  "completed_at": "2026-01-01T00:10:00Z"
+}

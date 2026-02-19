@@ -35,6 +35,7 @@ When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` an
 ## Templates (reference implementations)
 
 - Automation loop (nightly review + implement): `templates/automation-loop/`
+- PR control-plane loop (risk gate + review state + evidence + remediation): `templates/pr-control-plane/`
 - Dual-entry GUI+CLI + scenario tests: `templates/python-dual-entry/`
   - Reference implementation only: follow `AGENTS.md` discovery/adoption rules; copy patterns, not files.
   - Run one scenario: `cd templates/python-dual-entry; python3 -m myapp --cli --scenario tests/scenarios/scenario_001_happy_path.json --verify`

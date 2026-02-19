@@ -1,0 +1,26 @@
+[
+  {
+    "id": "thread-bot-only",
+    "isResolved": false,
+    "comments": [
+      {
+        "author_login": "review-agent[bot]"
+      },
+      {
+        "author_login": "greptile[bot]"
+      }
+    ]
+  },
+  {
+    "id": "thread-human",
+    "isResolved": false,
+    "comments": [
+      {
+        "author_login": "review-agent[bot]"
+      },
+      {
+        "author_login": "human-maintainer"
+      }
+    ]
+  }
+]

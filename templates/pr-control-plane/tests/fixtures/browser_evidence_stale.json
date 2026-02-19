@@ -1,0 +1,22 @@
+{
+  "headSha": "abc123",
+  "generatedAt": "2025-12-20T00:00:00Z",
+  "flows": [
+    {
+      "id": "critical-login-flow",
+      "entrypoint": "/login",
+      "requiresIdentity": true,
+      "identity": "qa-user@example.com",
+      "assertions": [
+        {
+          "name": "login-screen-visible",
+          "passed": true
+        },
+        {
+          "name": "submit-success",
+          "passed": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "id": "INC-1001",
+  "summary": "Production regression in legal chat response rendering",
+  "regressionSha": "abc123",
+  "workflow": "production",
+  "fixturePath": "harness/fixtures/inc-1001.json"
+}

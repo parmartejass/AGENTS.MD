@@ -1,0 +1,86 @@
+name: harness-gap-intake
+
+on:
+  workflow_dispatch:
+    inputs:
+      incident_id:
+        description: Incident identifier
+        required: true
+        type: string
+      summary:
+        description: Regression summary
+        required: true
+        type: string
+      regression_sha:
+        description: Regression commit SHA
+        required: true
+        type: string
+
+permissions: {}
+
+jobs:
+  harness-gap-intake:
+    name: harness-gap-intake
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+    env:
+      CONTROL_PLANE_ROOT: automation/pr-control-plane
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Build incident payload
+        run: |
+          cat > incident.json <<'JSON'
+          {
+            "id": "${{ github.event.inputs.incident_id }}",
+            "summary": "${{ github.event.inputs.summary }}",
+            "regressionSha": "${{ github.event.inputs.regression_sha }}",
+            "workflow": "production"
+          }
+          JSON
+
+      - name: Generate harness-gap case
+        run: |
+          python "${CONTROL_PLANE_ROOT}/scripts/harness_gap.py" \
+            --contract "${CONTROL_PLANE_ROOT}/control-plane.contract.json" \
+            --incident-json incident.json \
+            --case-output harness-gap-case.json \
+            --output-json harness-gap-result.json
+
+      - name: Upload harness-gap artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: harness-gap-${{ github.event.inputs.incident_id }}
+          path: |
+            harness-gap-case.json
+            harness-gap-result.json
+
+      - name: Open harness-gap issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require("fs");
+            const result = JSON.parse(fs.readFileSync("harness-gap-result.json", "utf8"));
+            const body = [
+              "Automated harness-gap intake record",
+              "",
+              `incident: ${result.case.id}`,
+              `regression_sha: ${result.case.regressionSha || "unknown"}`,
+              `due_at: ${result.case.slaDueAt}`,
+              `case_output: ${result.caseOutputPath}`
+            ].join("\n");
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `[harness-gap] ${result.case.id}`,
+              body,
+              labels: [result.issueLabel]
+            });

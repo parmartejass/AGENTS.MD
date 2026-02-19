@@ -1,5 +1,6 @@
 ---
 name: change-contract-generator
+model: gpt-5.3-codex-high
 description: Change Contract generator for PR descriptions and commit messages. Use proactively when preparing to commit or create a PR to generate the required governance template with invariants, witnesses, and verification checklist.
 ---
 

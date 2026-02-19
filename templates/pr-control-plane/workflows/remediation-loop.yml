@@ -1,0 +1,107 @@
+name: remediation-loop
+
+on:
+  workflow_run:
+    workflows:
+      - risk-policy-gate
+    types:
+      - completed
+
+permissions: {}
+
+jobs:
+  remediation-loop:
+    name: remediation-loop
+    if: ${{ github.event.workflow_run.conclusion == 'failure' && github.event.workflow_run.pull_requests[0] != null }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+    env:
+      CONTROL_PLANE_ROOT: automation/pr-control-plane
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Build findings payload (replace with provider output in production)
+        run: |
+          if [ -f "${CONTROL_PLANE_ROOT}/artifacts/review-findings.json" ]; then
+            cp "${CONTROL_PLANE_ROOT}/artifacts/review-findings.json" remediation-findings.json
+          else
+            echo "[]" > remediation-findings.json
+          fi
+
+      - name: Gather remediation attempt history for current head
+        id: attempts
+        uses: actions/github-script@v7
+        env:
+          PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        with:
+          script: |
+            const marker = "<!-- remediation-loop-request -->";
+            const trigger = `head_sha:${process.env.HEAD_SHA}`;
+            const comments = await github.paginate(
+              github.rest.issues.listComments,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: Number(process.env.PR_NUMBER),
+                per_page: 100
+              }
+            );
+            const attempts = comments
+              .filter((comment) => {
+                const body = comment.body || "";
+                return body.includes(marker) && body.includes(trigger);
+              })
+              .map((comment) => ({
+                headSha: process.env.HEAD_SHA,
+                status: "requested",
+                commentId: comment.id
+              }));
+            core.setOutput("attempt_history_json", JSON.stringify(attempts));
+
+      - name: Evaluate remediation decision
+        env:
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          ATTEMPT_HISTORY_JSON: ${{ steps.attempts.outputs.attempt_history_json }}
+        run: |
+          python "${CONTROL_PLANE_ROOT}/scripts/remediation_loop.py" \
+            --contract "${CONTROL_PLANE_ROOT}/control-plane.contract.json" \
+            --head-sha "${HEAD_SHA}" \
+            --findings-json remediation-findings.json \
+            --attempt-history-json "${ATTEMPT_HISTORY_JSON}" \
+            --output-json remediation-decision.json
+
+      - name: Emit remediation request comment
+        uses: actions/github-script@v7
+        env:
+          PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
+        with:
+          script: |
+            const fs = require("fs");
+            const result = JSON.parse(fs.readFileSync("remediation-decision.json", "utf8"));
+            if (result.action !== "REMEDIATION_REQUESTED") {
+              core.info(`SKIPPED: ${result.reason}`);
+              return;
+            }
+            const body = [
+              "<!-- remediation-loop-request -->",
+              `head_sha:${result.headSha}`,
+              `branch:${result.branchName}`,
+              `reason:${result.reason}`,
+              "Run your coding agent remediation action on this branch and push a fix commit."
+            ].join("\n");
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: Number(process.env.PR_NUMBER),
+              body
+            });

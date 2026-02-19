@@ -1,5 +1,6 @@
 ---
 name: excel-lifecycle
+model: gpt-5.3-codex-high
 description: Excel COM lifecycle safety specialist. Use proactively for any Excel automation code to verify graceful quit, PID tracking, process verification, and kill fallback. Enforces Non-Negotiable #6.
 ---
 

@@ -1,0 +1,134 @@
+name: risk-policy-gate
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Pull request number (required for manual runs)
+        required: true
+        type: string
+
+permissions: {}
+
+jobs:
+  risk-policy-gate:
+    name: risk-policy-gate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+      checks: read
+    env:
+      CONTROL_PLANE_ROOT: automation/pr-control-plane
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Gather PR files and head SHA
+        id: pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.eventName === "workflow_dispatch"
+              ? Number(core.getInput("pr_number"))
+              : context.payload.pull_request.number;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const pr = await github.rest.pulls.get({ owner, repo, pull_number: prNumber });
+            const files = await github.paginate(
+              github.rest.pulls.listFiles,
+              { owner, repo, pull_number: prNumber, per_page: 100 }
+            );
+            core.setOutput("pr_number", String(prNumber));
+            core.setOutput("head_sha", pr.data.head.sha);
+            core.setOutput("files_json", JSON.stringify(files.map((f) => f.filename)));
+
+      - name: Gather check runs for current head
+        id: checks
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const ref = "${{ steps.pr.outputs.head_sha }}";
+            const checks = await github.rest.checks.listForRef({
+              owner,
+              repo,
+              ref,
+              per_page: 100
+            });
+            core.setOutput("check_runs_json", JSON.stringify(checks.data.check_runs));
+
+      - name: Gather findings from PR review comments
+        id: findings
+        env:
+          PR_NUMBER: ${{ steps.pr.outputs.pr_number }}
+          HEAD_SHA: ${{ steps.pr.outputs.head_sha }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = parseInt(process.env.PR_NUMBER || "0", 10);
+            const headSha = process.env.HEAD_SHA || "";
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const { data: comments } = await github.rest.pulls.listReviewComments({
+              owner,
+              repo,
+              pull_number: prNumber,
+              per_page: 100
+            });
+            const findings = (comments || [])
+              .filter((c) => String(c.commit_id || "") === String(headSha))
+              .map((c) => ({
+                id: c.id?.toString(),
+                severity: "medium",
+                confidence: "medium",
+                summary: (c.body || "").slice(0, 500),
+                actionable: true
+              }));
+            const fs = require("fs");
+            fs.writeFileSync("findings.json", JSON.stringify(findings));
+
+      - name: Evaluate risk policy contract
+        env:
+          CHANGED_FILES_JSON: ${{ steps.pr.outputs.files_json }}
+          CHECK_RUNS_JSON: ${{ steps.checks.outputs.check_runs_json }}
+          HEAD_SHA: ${{ steps.pr.outputs.head_sha }}
+        run: |
+          python "${CONTROL_PLANE_ROOT}/scripts/risk_policy_gate.py" \
+            --contract "${CONTROL_PLANE_ROOT}/control-plane.contract.json" \
+            --changed-files-json "${CHANGED_FILES_JSON}" \
+            --check-runs-json "${CHECK_RUNS_JSON}" \
+            --head-sha "${HEAD_SHA}" \
+            --output-json risk-policy-result.json
+
+      - name: Evaluate review state for current head
+        env:
+          CHECK_RUNS_JSON: ${{ steps.checks.outputs.check_runs_json }}
+          HEAD_SHA: ${{ steps.pr.outputs.head_sha }}
+        run: |
+          python "${CONTROL_PLANE_ROOT}/scripts/check_review_state.py" \
+            --contract "${CONTROL_PLANE_ROOT}/control-plane.contract.json" \
+            --head-sha "${HEAD_SHA}" \
+            --review-runs-json "${CHECK_RUNS_JSON}" \
+            --findings-json findings.json \
+            --output-json review-state-result.json
+
+      - name: Upload preflight evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: risk-policy-gate-${{ steps.pr.outputs.head_sha }}
+          path: |
+            risk-policy-result.json
+            review-state-result.json

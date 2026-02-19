@@ -19,12 +19,14 @@ update_trigger: repo layout, injection profiles, or validation scripts change
 - Change record artifact schema: `docs/agents/schemas/change-record.schema.json`
 - Change record artifact location: `docs/project/change-records/*.json`
 - Reference implementation (dual-entry template): `templates/python-dual-entry/`
+- Reference implementation (PR control-plane template): `templates/pr-control-plane/`
 
 ## Authority graph (owners -> dependents)
 - `AGENTS.md` -> `docs/agents/*`, `docs/project/*`, `scripts/check_*.ps1`, `scripts/check_python_safety.py`
 - `agents-manifest.yaml` -> context injection procedure in `AGENTS.md` and supporting retrieval guidance
 - `docs/agents/25-docs-ssot-policy.md` -> `scripts/check_docs_ssot.ps1`
 - `docs/agents/schemas/change-record.schema.json` -> `scripts/check_change_records.ps1`
+- `templates/pr-control-plane/control-plane.contract.json` -> template workflows + policy/evidence scripts in `templates/pr-control-plane/scripts/`
 
 ## Outputs
 - A vendored governance pack under `.governance/` in downstream repos, with project docs under `docs/project/` and governance docs under `.governance/docs/agents/`.

@@ -1,5 +1,6 @@
 ---
 name: governance-learner
+model: gpt-5.3-codex-high
 description: Governance improvement specialist for capturing session learnings. Use at end of sessions or after significant debugging to propose governance updates, new playbooks, or manifest profile additions.
 ---
 
