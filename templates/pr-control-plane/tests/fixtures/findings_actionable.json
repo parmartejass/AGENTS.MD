@@ -1,0 +1,9 @@
+[
+  {
+    "id": "finding-001",
+    "severity": "high",
+    "confidence": "high",
+    "summary": "Potential SQL injection vulnerability in query builder.",
+    "actionable": true
+  }
+]

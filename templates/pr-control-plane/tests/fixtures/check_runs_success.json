@@ -1,0 +1,30 @@
+[
+  {
+    "name": "risk-policy-gate",
+    "head_sha": "abc123",
+    "status": "completed",
+    "conclusion": "success",
+    "completed_at": "2026-01-01T00:00:00Z"
+  },
+  {
+    "name": "harness-smoke",
+    "head_sha": "abc123",
+    "status": "completed",
+    "conclusion": "success",
+    "completed_at": "2026-01-01T00:02:00Z"
+  },
+  {
+    "name": "Browser Evidence",
+    "head_sha": "abc123",
+    "status": "completed",
+    "conclusion": "success",
+    "completed_at": "2026-01-01T00:03:00Z"
+  },
+  {
+    "name": "CI Pipeline",
+    "head_sha": "abc123",
+    "status": "completed",
+    "conclusion": "success",
+    "completed_at": "2026-01-01T00:04:00Z"
+  }
+]

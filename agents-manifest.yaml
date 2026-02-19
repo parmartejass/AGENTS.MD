@@ -340,6 +340,11 @@ profiles:
         - "auto-compound"
         - "agent loop"
         - "autonomous"
+        - "pr control-plane"
+        - "risk policy gate"
+        - "review agent"
+        - "browser evidence"
+        - "harness gap"
         - "task scheduler"
         - "launchd"
         - "cron"
@@ -348,10 +353,13 @@ profiles:
       code_patterns: []
       file_globs:
         - "templates/automation-loop/**"
+        - "templates/pr-control-plane/**"
         - "**/automation/**"
         - "**/automation-loop/**"
+        - "**/pr-control-plane/**"
     inject:
       - "docs/agents/automation/nightly-compound-loop.md"
+      - "docs/agents/automation/pr-control-plane-loop.md"
       - "docs/agents/playbooks/governance-learnings-template.md"
 
   governance_improvement:

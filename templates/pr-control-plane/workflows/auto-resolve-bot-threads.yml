@@ -1,0 +1,120 @@
+name: auto-resolve-bot-threads
+
+on:
+  workflow_run:
+    workflows:
+      - risk-policy-gate
+    types:
+      - completed
+
+permissions: {}
+
+jobs:
+  auto-resolve-bot-threads:
+    name: auto-resolve-bot-threads
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.pull_requests[0] != null }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    env:
+      CONTROL_PLANE_ROOT: automation/pr-control-plane
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Fetch review threads
+        id: threads
+        uses: actions/github-script@v7
+        env:
+          PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
+        with:
+          script: |
+            const query = `
+              query($owner: String!, $repo: String!, $number: Int!, $after: String) {
+                repository(owner: $owner, name: $repo) {
+                  pullRequest(number: $number) {
+                    reviewThreads(first: 100, after: $after) {
+                      pageInfo {
+                        hasNextPage
+                        endCursor
+                      }
+                      nodes {
+                        id
+                        isResolved
+                        comments(first: 100) {
+                          nodes {
+                            author { login }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `;
+            const normalized = [];
+            let hasNextPage = true;
+            let after = null;
+            while (hasNextPage) {
+              const response = await github.graphql(query, {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                number: Number(process.env.PR_NUMBER),
+                after
+              });
+              const threads = response.repository.pullRequest.reviewThreads;
+              const nodes = threads.nodes || [];
+              for (const thread of nodes) {
+                normalized.push({
+                  id: thread.id,
+                  isResolved: thread.isResolved,
+                  comments: (thread.comments.nodes || []).map((comment) => ({
+                    author_login: comment.author ? comment.author.login : ""
+                  }))
+                });
+              }
+              hasNextPage = Boolean(threads.pageInfo.hasNextPage);
+              after = threads.pageInfo.endCursor;
+            }
+            core.setOutput("threads_json", JSON.stringify(normalized));
+
+      - name: Compute bot-only thread resolutions
+        env:
+          THREADS_JSON: ${{ steps.threads.outputs.threads_json }}
+        run: |
+          python "${CONTROL_PLANE_ROOT}/scripts/resolve_bot_threads.py" \
+            --contract "${CONTROL_PLANE_ROOT}/control-plane.contract.json" \
+            --threads-json "${THREADS_JSON}" \
+            --clean-rerun \
+            --output-json thread-resolution.json
+
+      - name: Resolve threads
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require("fs");
+            const result = JSON.parse(fs.readFileSync("thread-resolution.json", "utf8"));
+            const toResolve = result.toResolve || [];
+            if (toResolve.length === 0) {
+              core.info(`SKIPPED: ${result.reason || "no bot-only unresolved threads"}`);
+              return;
+            }
+            const mutation = `
+              mutation($threadId: ID!) {
+                resolveReviewThread(input: { threadId: $threadId }) {
+                  thread {
+                    id
+                    isResolved
+                  }
+                }
+              }
+            `;
+            for (const threadId of toResolve) {
+              await github.graphql(mutation, { threadId });
+            }

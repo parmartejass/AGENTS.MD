@@ -1,0 +1,61 @@
+name: ci-fanout
+
+on:
+  workflow_run:
+    workflows:
+      - risk-policy-gate
+    types:
+      - completed
+
+permissions: {}
+
+concurrency:
+  group: ci-fanout-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: true
+
+jobs:
+  ci-pipeline:
+    name: CI Pipeline
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      CONTROL_PLANE_ROOT: automation/pr-control-plane
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run deterministic baseline checks
+        run: |
+          python -m unittest discover -s "${CONTROL_PLANE_ROOT}/tests" -p "test_*.py"
+
+  harness-smoke:
+    name: harness-smoke
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      CONTROL_PLANE_ROOT: automation/pr-control-plane
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run harness-gap smoke case
+        run: |
+          python "${CONTROL_PLANE_ROOT}/scripts/harness_gap.py" \
+            --contract "${CONTROL_PLANE_ROOT}/control-plane.contract.json" \
+            --incident-json "${CONTROL_PLANE_ROOT}/tests/fixtures/incident_regression.json" \
+            --case-output /tmp/harness-gap-case.json \
+            --output-json /tmp/harness-gap-result.json

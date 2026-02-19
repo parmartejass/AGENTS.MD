@@ -1,0 +1,257 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agents-md.local/schemas/pr-control-plane-contract.schema.json",
+  "title": "PR Control-Plane Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "riskTierRules",
+    "mergePolicy",
+    "docsDriftRules",
+    "reviewPolicy",
+    "rerunPolicy",
+    "remediationPolicy",
+    "threadPolicy",
+    "browserEvidencePolicy",
+    "harnessGapPolicy"
+  ],
+  "properties": {
+    "version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "riskTierRules": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "mergePolicy": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "requiredChecks"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "requiredChecks": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1
+          }
+        }
+      }
+    },
+    "docsDriftRules": {
+      "type": "object",
+      "required": [
+        "controlPlanePaths",
+        "requiredDocs"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "controlPlanePaths": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "requiredDocs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "reviewPolicy": {
+      "type": "object",
+      "required": [
+        "enabled",
+        "requiredReviewCheck",
+        "requireCurrentHeadSha",
+        "timeoutMinutes",
+        "actionableTokens",
+        "weakConfidenceTokens"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "requiredReviewCheck": {
+          "type": "string",
+          "minLength": 1
+        },
+        "requireCurrentHeadSha": {
+          "type": "boolean"
+        },
+        "timeoutMinutes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "actionableTokens": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "weakConfidenceTokens": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "rerunPolicy": {
+      "type": "object",
+      "required": [
+        "enabled",
+        "canonicalWorkflow",
+        "commentMarker",
+        "triggerText",
+        "dedupeByHeadSha"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "canonicalWorkflow": {
+          "type": "string"
+        },
+        "commentMarker": {
+          "type": "string"
+        },
+        "triggerText": {
+          "type": "string"
+        },
+        "dedupeByHeadSha": {
+          "type": "boolean"
+        }
+      }
+    },
+    "remediationPolicy": {
+      "type": "object",
+      "required": [
+        "enabled",
+        "maxAttemptsPerSha",
+        "neverBypassPolicyGate",
+        "branchPrefix"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "maxAttemptsPerSha": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "neverBypassPolicyGate": {
+          "type": "boolean"
+        },
+        "branchPrefix": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "threadPolicy": {
+      "type": "object",
+      "required": [
+        "autoResolveBotOnlyAfterCleanRerun",
+        "botAuthorAllowlist"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "autoResolveBotOnlyAfterCleanRerun": {
+          "type": "boolean"
+        },
+        "botAuthorAllowlist": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "browserEvidencePolicy": {
+      "type": "object",
+      "required": [
+        "blocking",
+        "requiredForRiskTiers",
+        "manifestPath",
+        "requiredFlows",
+        "maxArtifactAgeHours"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "blocking": {
+          "type": "boolean"
+        },
+        "requiredForRiskTiers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "manifestPath": {
+          "type": "string",
+          "minLength": 1
+        },
+        "requiredFlows": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "maxArtifactAgeHours": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      }
+    },
+    "harnessGapPolicy": {
+      "type": "object",
+      "required": [
+        "enabled",
+        "issueLabel",
+        "slaDays",
+        "casesPath"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "issueLabel": {
+          "type": "string",
+          "minLength": 1
+        },
+        "slaDays": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "casesPath": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

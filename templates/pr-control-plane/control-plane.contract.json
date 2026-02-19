@@ -1,0 +1,116 @@
+{
+  "version": "1",
+  "riskTierRules": {
+    "high": [
+      "app/api/legal-cha/**",
+      "lib/tools/**",
+      "db/schema.ts",
+      "ui/critical-flows/**"
+    ],
+    "medium": [
+      "app/**",
+      "ui/**",
+      "web/**"
+    ],
+    "low": [
+      "**"
+    ]
+  },
+  "mergePolicy": {
+    "high": {
+      "requiredChecks": [
+        "risk-policy-gate",
+        "harness-smoke",
+        "Browser Evidence",
+        "CI Pipeline"
+      ]
+    },
+    "medium": {
+      "requiredChecks": [
+        "risk-policy-gate",
+        "Browser Evidence",
+        "CI Pipeline"
+      ]
+    },
+    "low": {
+      "requiredChecks": [
+        "risk-policy-gate",
+        "CI Pipeline"
+      ]
+    }
+  },
+  "docsDriftRules": {
+    "controlPlanePaths": [
+      ".github/workflows/risk-policy-gate.yml",
+      ".github/workflows/ci-fanout.yml",
+      ".github/workflows/review-rerun-request.yml",
+      ".github/workflows/remediation-loop.yml",
+      ".github/workflows/auto-resolve-bot-threads.yml",
+      ".github/workflows/browser-evidence.yml",
+      ".github/workflows/harness-gap-intake.yml",
+      "automation/pr-control-plane/control-plane.contract.json",
+      "automation/pr-control-plane/scripts/**",
+      "automation/pr-control-plane/adapters/**"
+    ],
+    "requiredDocs": [
+      "docs/project/architecture.md",
+      "docs/project/learning.md"
+    ]
+  },
+  "reviewPolicy": {
+    "enabled": true,
+    "requiredReviewCheck": "Code Review Agent",
+    "requireCurrentHeadSha": true,
+    "timeoutMinutes": 20,
+    "actionableTokens": [
+      "vulnerability",
+      "security issue",
+      "regression risk",
+      "critical defect"
+    ],
+    "weakConfidenceTokens": [
+      "low confidence",
+      "uncertain",
+      "might be wrong"
+    ]
+  },
+  "rerunPolicy": {
+    "enabled": true,
+    "canonicalWorkflow": "review-rerun-request",
+    "commentMarker": "<!-- review-agent-auto-rerun -->",
+    "triggerText": "@review-agent please re-review",
+    "dedupeByHeadSha": true
+  },
+  "remediationPolicy": {
+    "enabled": true,
+    "maxAttemptsPerSha": 2,
+    "neverBypassPolicyGate": true,
+    "branchPrefix": "remediation"
+  },
+  "threadPolicy": {
+    "autoResolveBotOnlyAfterCleanRerun": true,
+    "botAuthorAllowlist": [
+      "review-agent[bot]",
+      "greptile[bot]",
+      "coderabbitai[bot]"
+    ]
+  },
+  "browserEvidencePolicy": {
+    "blocking": true,
+    "requiredForRiskTiers": [
+      "high",
+      "medium"
+    ],
+    "manifestPath": "artifacts/browser-evidence.json",
+    "requiredFlows": [
+      "critical-login-flow"
+    ],
+    "maxArtifactAgeHours": 24
+  },
+  "harnessGapPolicy": {
+    "enabled": true,
+    "issueLabel": "harness-gap",
+    "slaDays": 7,
+    "casesPath": "harness/cases"
+  }
+}
