@@ -1,5 +1,6 @@
 ---
 name: io-integrity-reviewer
+model: gpt-5.3-codex-high
 description: Data integrity specialist for file I/O and batch processing. Use proactively for any code that reads/writes files, processes batches, or handles data transformations. Ensures atomic writes, validation, and integrity checks.
 ---
 

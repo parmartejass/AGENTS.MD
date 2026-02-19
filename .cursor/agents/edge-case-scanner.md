@@ -1,5 +1,6 @@
 ---
 name: edge-case-scanner
+model: gpt-5.3-codex-high
 description: Silent-error and edge-case scanner. Use proactively for any code change to identify missing validation, boundary conditions, and pre/post-change failure modes. Required member of every Subagent Council.
 ---
 

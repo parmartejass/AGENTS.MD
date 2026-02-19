@@ -1,5 +1,6 @@
 ---
 name: test-coverage-checker
+model: gpt-5.3-codex-high
 description: Verification floors and test coverage specialist. Use proactively to ensure changes meet minimum verification requirements per change type. Validates fixtures, coverage thresholds, and failure-path tests.
 ---
 
