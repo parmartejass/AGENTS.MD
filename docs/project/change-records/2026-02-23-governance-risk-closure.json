@@ -1,0 +1,117 @@
+{
+  "change_id": "CR-2026-02-23-governance-risk-closure",
+  "change_type": "docs",
+  "summary": "Close governance enforcement gaps for report normalization, context injection completeness, playbook hard-gate parity, and cross-platform change-record validation.",
+  "verification_commands": [
+    "python3 scripts/check_governance_core.py",
+    "python3 scripts/check_governance_core.py --require-records",
+    "python3 scripts/check_governance_core.py --fail-on-safety-warnings",
+    "python3 scripts/check_python_safety.py",
+    "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/check_agents_manifest.ps1",
+    "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/check_change_records.ps1"
+  ],
+  "invariants": [
+    "INV-OBS-1: Governance core checks must validate manifest/docs/project/hygiene and governed evidence checks in one cross-platform command.",
+    "INV-ORD-1: Governance learnings prompt-pack hard gates must remain line-for-line aligned with canonical hard gates in the same playbook.",
+    "INV-OBS-2: Governed docs must not contain unresolved citation placeholder tokens.",
+    "INV-D-1: Governance-improvement context injection must include README checks and project learning sources required by the playbook."
+  ],
+  "witnesses": [
+    {
+      "invariant_id": "INV-OBS-1",
+      "signal": "Core check output includes change-record stage and success/failure signal",
+      "record_location": "scripts/check_governance_core.py stdout",
+      "pass_criteria": "check_governance_core.py exits 0 in baseline mode"
+    },
+    {
+      "invariant_id": "INV-ORD-1",
+      "signal": "Governance playbook hard-gate parity check stage",
+      "record_location": "scripts/check_governance_core.py stdout",
+      "pass_criteria": "parity stage reports passed"
+    },
+    {
+      "invariant_id": "INV-OBS-2",
+      "signal": "Unresolved citation token scan across docs",
+      "record_location": "scripts/check_governance_core.py stdout",
+      "pass_criteria": "docs unresolved-citation checks passed"
+    },
+    {
+      "invariant_id": "INV-D-1",
+      "signal": "Manifest validation and governance profile injection entries",
+      "record_location": "agents-manifest.yaml and scripts/check_agents_manifest.ps1 output",
+      "pass_criteria": "manifest check passes with governance_improvement inject list including README and project learning docs"
+    }
+  ],
+  "ssot_owner_paths": [
+    "AGENTS.md",
+    "agents-manifest.yaml",
+    "docs/agents/playbooks/governance-learnings-template.md",
+    "scripts/check_governance_core.py",
+    "docs/agents/schemas/change-record.schema.json"
+  ],
+  "council_summary": {
+    "council_run_id": "council-2026-02-23-governance-report-review-01",
+    "phase": "pre_change",
+    "intent_coverage": [
+      "ssot_duplication",
+      "silent_error_edge_case",
+      "resource_security_perf"
+    ],
+    "reviewers": [
+      {
+        "id": "reviewer-ssot",
+        "role": "SSOT/duplication alignment",
+        "scope": "manifest, playbook, report-to-SSOT mapping"
+      },
+      {
+        "id": "reviewer-edge",
+        "role": "silent-error and edge-case",
+        "scope": "checker enforceability and failure-path witnesses"
+      },
+      {
+        "id": "reviewer-rsp",
+        "role": "resource/security/performance",
+        "scope": "safety and governance drift risks"
+      }
+    ],
+    "findings": [
+      {
+        "severity": "HIGH",
+        "location": "scripts/check_governance_core.py",
+        "issue": "Core check omitted change-record validation",
+        "recommendation": "Integrate cross-platform change-record checks with strict flag support"
+      },
+      {
+        "severity": "HIGH",
+        "location": "agents-manifest.yaml",
+        "issue": "Governance context injection omitted required review context",
+        "recommendation": "Add README/docs index/project learning paths to governance_improvement.inject"
+      },
+      {
+        "severity": "MEDIUM",
+        "location": "docs/agents/playbooks/governance-learnings-template.md",
+        "issue": "Hard-gate duplication drift risk",
+        "recommendation": "Enforce canonical-to-prompt hard-gate parity in core checker"
+      }
+    ],
+    "conflicts": "none",
+    "reconciliation_decision": "accepted findings; implementation prioritized by blocker severity",
+    "residual_risks": "Records can still be low quality semantically; schema enforces structure only",
+    "go_no_go": "go",
+    "verification_links": [
+      "README.md#checks",
+      "scripts/check_governance_core.py",
+      "scripts/check_change_records.ps1"
+    ]
+  },
+  "validation_context": {
+    "intended_environment": "Governance source repo and downstream repos using .governance submodule",
+    "evidence_plan": "Run core checks in baseline, require-records, and strict safety modes plus manifest and change-record scripts",
+    "release_gate_decision": "go",
+    "traceability_refs": [
+      "README.md#checks",
+      "docs/project/learning.md",
+      "docs/generated/2026-02-23-deep-research-report-normalized.md"
+    ]
+  }
+}

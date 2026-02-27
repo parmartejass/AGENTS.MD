@@ -383,6 +383,8 @@ profiles:
         - "docs/agents/playbooks/*.md"
         - "docs/agents/skills/*.md"
     inject:
+      - "README.md"
+      - "docs/agents/index.md"
       - "docs/agents/00-principles.md"
       - "docs/agents/20-sources-of-truth-map.md"
       - "docs/agents/25-docs-ssot-policy.md"
@@ -392,6 +394,8 @@ profiles:
       - "docs/agents/playbooks/governance-learnings-template.md"
       - "docs/agents/playbooks/design-principles-checklist.md"
       - "docs/agents/playbooks/rca-methods-template.md"
+      - "docs/project/index.md"
+      - "docs/project/learning.md"
 
   design_review:
     detect:
