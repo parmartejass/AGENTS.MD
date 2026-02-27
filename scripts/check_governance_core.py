@@ -53,7 +53,7 @@ _WITNESS_REQUIRED_FIELDS = (
     "record_location",
     "pass_criteria",
 )
-_COUNCIL_REQUIRED_FIELDS = (
+_COUNCIL_FULL_REQUIRED_FIELDS = (
     "council_run_id",
     "phase",
     "intent_coverage",
@@ -64,6 +64,15 @@ _COUNCIL_REQUIRED_FIELDS = (
     "residual_risks",
     "go_no_go",
     "verification_links",
+)
+_COUNCIL_ABBREVIATED_REQUIRED_FIELDS = (
+    "intent_coverage",
+    "findings",
+    "residual_risks",
+    "go_no_go",
+)
+_COUNCIL_FULL_ONLY_FIELDS = tuple(
+    field for field in _COUNCIL_FULL_REQUIRED_FIELDS if field not in _COUNCIL_ABBREVIATED_REQUIRED_FIELDS
 )
 _COUNCIL_PHASE_ALLOWED = {"pre_change", "post_change"}
 _COUNCIL_GO_NO_GO_ALLOWED = {"go", "hold"}
@@ -567,38 +576,79 @@ def _check_governance_specific_record_fields(
         )
         return True
 
-    for field in _COUNCIL_REQUIRED_FIELDS:
-        if not _is_non_empty(council.get(field)):
+    missing_full_fields = [
+        field for field in _COUNCIL_FULL_REQUIRED_FIELDS if not _is_non_empty(council.get(field))
+    ]
+    missing_abbreviated_fields = [
+        field
+        for field in _COUNCIL_ABBREVIATED_REQUIRED_FIELDS
+        if not _is_non_empty(council.get(field))
+    ]
+    has_full_only_keys = any(field in council for field in _COUNCIL_FULL_ONLY_FIELDS)
+
+    council_mode = "full"
+    if missing_full_fields:
+        if has_full_only_keys:
+            for field in missing_full_fields:
+                errors.append(
+                    f"Governance docs council_summary missing or empty '{field}' in {path}."
+                )
             errors.append(
-                f"Governance docs council_summary missing or empty '{field}' in {path}."
+                "Governance docs council_summary includes full-summary fields and must satisfy "
+                f"the full required set {list(_COUNCIL_FULL_REQUIRED_FIELDS)} in {path}."
+            )
+            record_has_errors = True
+        elif missing_abbreviated_fields:
+            for field in missing_abbreviated_fields:
+                errors.append(
+                    f"Governance docs council_summary missing or empty '{field}' in {path}."
+                )
+            errors.append(
+                "Governance docs council_summary must provide either the full summary fields "
+                f"{list(_COUNCIL_FULL_REQUIRED_FIELDS)} or the abbreviated fields "
+                f"{list(_COUNCIL_ABBREVIATED_REQUIRED_FIELDS)} in {path}."
+            )
+            record_has_errors = True
+        else:
+            council_mode = "abbreviated"
+
+    if council_mode == "full":
+        reviewers = council.get("reviewers")
+        if not isinstance(reviewers, list) or not _as_non_empty_list(reviewers):
+            errors.append(
+                f"Governance docs council_summary.reviewers must be a non-empty array in {path}."
             )
             record_has_errors = True
 
-    reviewers = council.get("reviewers")
-    if not isinstance(reviewers, list) or not _as_non_empty_list(reviewers):
-        errors.append(
-            f"Governance docs council_summary.reviewers must be a non-empty array in {path}."
-        )
-        record_has_errors = True
-
     findings = council.get("findings")
-    if not isinstance(findings, list) or not _as_non_empty_list(findings):
-        errors.append(
-            f"Governance docs council_summary.findings must be a non-empty array in {path}."
-        )
-        record_has_errors = True
+    findings_valid = isinstance(findings, list) and bool(_as_non_empty_list(findings))
+    if council_mode == "full":
+        if not findings_valid:
+            errors.append(
+                f"Governance docs council_summary.findings must be a non-empty array in {path}."
+            )
+            record_has_errors = True
+    elif council_mode == "abbreviated":
+        no_findings_literal = isinstance(findings, str) and findings.strip().lower() == "no findings"
+        if not findings_valid and not no_findings_literal:
+            errors.append(
+                "Governance docs abbreviated council_summary.findings must be a non-empty array "
+                f"or the explicit string 'No findings' in {path}."
+            )
+            record_has_errors = True
 
-    verification_links = council.get("verification_links")
-    verification_links_valid = (
-        isinstance(verification_links, list)
-        and verification_links
-        and all(isinstance(link, str) and link.strip() for link in verification_links)
-    )
-    if not verification_links_valid:
-        errors.append(
-            f"Governance docs council_summary.verification_links must be a non-empty array of strings in {path}."
+    if council_mode == "full":
+        verification_links = council.get("verification_links")
+        verification_links_valid = (
+            isinstance(verification_links, list)
+            and verification_links
+            and all(isinstance(link, str) and link.strip() for link in verification_links)
         )
-        record_has_errors = True
+        if not verification_links_valid:
+            errors.append(
+                f"Governance docs council_summary.verification_links must be a non-empty array of strings in {path}."
+            )
+            record_has_errors = True
 
     phase = council.get("phase")
     if _is_non_empty(phase) and phase not in _COUNCIL_PHASE_ALLOWED:

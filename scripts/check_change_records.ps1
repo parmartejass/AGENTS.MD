@@ -127,6 +127,20 @@ function Test-NonEmptyValue([object]$value) {
   return $true
 }
 
+function Test-NonEmptyArrayElement([object]$value) {
+  if ($null -eq $value) { return $false }
+  if ($value -is [string]) {
+    return -not [string]::IsNullOrWhiteSpace($value)
+  }
+  if ($value -is [System.Collections.IDictionary]) {
+    return $value.Count -gt 0
+  }
+  if ($value -is [pscustomobject]) {
+    return $value.PSObject.Properties.Count -gt 0
+  }
+  return Test-NonEmptyValue $value
+}
+
 function Get-JsonPathValueKind([string]$jsonText, [string[]]$path) {
   $jsonDocType = "System.Text.Json.JsonDocument" -as [type]
   if ($null -eq $jsonDocType) {
@@ -222,7 +236,7 @@ $witnessRequired = @(
   "pass_criteria"
 )
 
-$councilRequired = @(
+$councilFullRequired = @(
   "council_run_id",
   "phase",
   "intent_coverage",
@@ -234,6 +248,14 @@ $councilRequired = @(
   "go_no_go",
   "verification_links"
 )
+
+$councilAbbreviatedRequired = @(
+  "intent_coverage",
+  "findings",
+  "residual_risks",
+  "go_no_go"
+)
+$councilFullOnlyFields = @($councilFullRequired | Where-Object { $councilAbbreviatedRequired -notcontains $_ })
 
 $councilPhasesAllowed = @("pre_change", "post_change")
 $councilGoNoGoAllowed = @("go", "hold")
@@ -422,56 +444,107 @@ foreach ($recordFile in $recordFiles) {
       Add-Issue $issues "Governance docs change record missing object field 'council_summary' in $($recordFile.FullName)."
       $recordHasErrors = $true
     } else {
-      foreach ($field in $councilRequired) {
+      $missingFullFields = @()
+      foreach ($field in $councilFullRequired) {
         $value = Get-PropertyValue $council $field
         if (-not (Test-HasProperty $council $field) -or -not (Test-NonEmptyValue $value)) {
-          Add-Issue $issues "Governance docs council_summary missing or empty '$field' in $($recordFile.FullName)."
-          $recordHasErrors = $true
+          $missingFullFields += $field
         }
       }
 
-      $reviewersValue = Get-PropertyValue $council "reviewers"
-      if ((Get-JsonPathValueKind $recordText @("council_summary", "reviewers")) -ne "Array") {
-        Add-Issue $issues "Governance docs council_summary.reviewers must be a non-empty array in $($recordFile.FullName)."
-        $recordHasErrors = $true
-      } else {
-        $reviewers = Convert-ToArray $reviewersValue
-        if ($reviewers.Count -eq 0) {
+      $missingAbbreviatedFields = @()
+      foreach ($field in $councilAbbreviatedRequired) {
+        $value = Get-PropertyValue $council $field
+        if (-not (Test-HasProperty $council $field) -or -not (Test-NonEmptyValue $value)) {
+          $missingAbbreviatedFields += $field
+        }
+      }
+      $hasFullOnlyKeys = $false
+      foreach ($field in $councilFullOnlyFields) {
+        if (Test-HasProperty $council $field) {
+          $hasFullOnlyKeys = $true
+          break
+        }
+      }
+
+      $councilMode = "full"
+      if ($missingFullFields.Count -gt 0) {
+        if ($hasFullOnlyKeys) {
+          foreach ($field in $missingFullFields) {
+            Add-Issue $issues "Governance docs council_summary missing or empty '$field' in $($recordFile.FullName)."
+          }
+          Add-Issue $issues "Governance docs council_summary includes full-summary fields and must satisfy the full required set [$($councilFullRequired -join ', ')] in $($recordFile.FullName)."
+          $recordHasErrors = $true
+        } elseif ($missingAbbreviatedFields.Count -gt 0) {
+          foreach ($field in $missingAbbreviatedFields) {
+            Add-Issue $issues "Governance docs council_summary missing or empty '$field' in $($recordFile.FullName)."
+          }
+          Add-Issue $issues "Governance docs council_summary must provide either the full summary fields [$($councilFullRequired -join ', ')] or the abbreviated fields [$($councilAbbreviatedRequired -join ', ')] in $($recordFile.FullName)."
+          $recordHasErrors = $true
+        } else {
+          $councilMode = "abbreviated"
+        }
+      }
+
+      if ($councilMode -eq "full") {
+        $reviewersValue = Get-PropertyValue $council "reviewers"
+        if ((Get-JsonPathValueKind $recordText @("council_summary", "reviewers")) -ne "Array") {
           Add-Issue $issues "Governance docs council_summary.reviewers must be a non-empty array in $($recordFile.FullName)."
           $recordHasErrors = $true
+        } else {
+          $reviewers = Convert-ToArray $reviewersValue
+          $reviewersNonEmpty = @($reviewers | Where-Object { Test-NonEmptyArrayElement $_ })
+          if ($reviewersNonEmpty.Count -eq 0) {
+            Add-Issue $issues "Governance docs council_summary.reviewers must be a non-empty array in $($recordFile.FullName)."
+            $recordHasErrors = $true
+          }
         }
       }
 
       $findingsValue = Get-PropertyValue $council "findings"
-      if ((Get-JsonPathValueKind $recordText @("council_summary", "findings")) -ne "Array") {
-        Add-Issue $issues "Governance docs council_summary.findings must be a non-empty array in $($recordFile.FullName)."
-        $recordHasErrors = $true
-      } else {
+      $findingsKind = Get-JsonPathValueKind $recordText @("council_summary", "findings")
+      $findingsAreNonEmptyArray = $false
+      if ($findingsKind -eq "Array") {
         $findings = Convert-ToArray $findingsValue
-        if ($findings.Count -eq 0) {
+        $findingsNonEmpty = @($findings | Where-Object { Test-NonEmptyArrayElement $_ })
+        if ($findingsNonEmpty.Count -gt 0) {
+          $findingsAreNonEmptyArray = $true
+        }
+      }
+
+      if ($councilMode -eq "full") {
+        if (-not $findingsAreNonEmptyArray) {
           Add-Issue $issues "Governance docs council_summary.findings must be a non-empty array in $($recordFile.FullName)."
+          $recordHasErrors = $true
+        }
+      } else {
+        $explicitNoFindings = ($findingsValue -is [string]) -and ($findingsValue.Trim().ToLowerInvariant() -eq "no findings")
+        if (-not $findingsAreNonEmptyArray -and -not $explicitNoFindings) {
+          Add-Issue $issues "Governance docs abbreviated council_summary.findings must be a non-empty array or the explicit string 'No findings' in $($recordFile.FullName)."
           $recordHasErrors = $true
         }
       }
 
-      $verificationLinksValue = Get-PropertyValue $council "verification_links"
-      if ((Get-JsonPathValueKind $recordText @("council_summary", "verification_links")) -ne "Array") {
-        Add-Issue $issues "Governance docs council_summary.verification_links must be a non-empty array in $($recordFile.FullName)."
-        $recordHasErrors = $true
-      } else {
-        $verificationLinks = Convert-ToArray $verificationLinksValue
-        $validVerificationLinks = 0
-        $invalidVerificationLinks = 0
-        foreach ($verificationLink in $verificationLinks) {
-          if ($verificationLink -is [string] -and -not [string]::IsNullOrWhiteSpace($verificationLink)) {
-            $validVerificationLinks++
-          } else {
-            $invalidVerificationLinks++
-          }
-        }
-        if ($validVerificationLinks -eq 0 -or $invalidVerificationLinks -gt 0) {
-          Add-Issue $issues "Governance docs council_summary.verification_links must be a non-empty array of strings in $($recordFile.FullName)."
+      if ($councilMode -eq "full") {
+        $verificationLinksValue = Get-PropertyValue $council "verification_links"
+        if ((Get-JsonPathValueKind $recordText @("council_summary", "verification_links")) -ne "Array") {
+          Add-Issue $issues "Governance docs council_summary.verification_links must be a non-empty array in $($recordFile.FullName)."
           $recordHasErrors = $true
+        } else {
+          $verificationLinks = Convert-ToArray $verificationLinksValue
+          $validVerificationLinks = 0
+          $invalidVerificationLinks = 0
+          foreach ($verificationLink in $verificationLinks) {
+            if ($verificationLink -is [string] -and -not [string]::IsNullOrWhiteSpace($verificationLink)) {
+              $validVerificationLinks++
+            } else {
+              $invalidVerificationLinks++
+            }
+          }
+          if ($validVerificationLinks -eq 0 -or $invalidVerificationLinks -gt 0) {
+            Add-Issue $issues "Governance docs council_summary.verification_links must be a non-empty array of strings in $($recordFile.FullName)."
+            $recordHasErrors = $true
+          }
         }
       }
 
