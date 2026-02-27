@@ -101,8 +101,8 @@ Mappings are aliases for discoverability; authority remains in `AGENTS.md` and e
 - Docs SSOT headers: `scripts/check_docs_ssot.ps1`
 - Agents manifest references: `scripts/check_agents_manifest.ps1`
 - Project docs exist + README linkage: `scripts/check_project_docs.ps1`
-- Repo hygiene (no generated artifacts tracked): `scripts/check_repo_hygiene.ps1`
-- Cross-platform core governance checks: `scripts/check_governance_core.py`
+- Repo hygiene (no runtime/generated artifact noise tracked): `scripts/check_repo_hygiene.ps1`
+- Cross-platform core governance checks: `scripts/check_governance_core.py` (`--require-records`, `--fail-on-safety-warnings` optional strict flags)
 - Change record artifacts: `scripts/check_change_records.ps1`
 - Python safety baseline (print/except/timeout/file handles): `scripts/check_python_safety.py`
 

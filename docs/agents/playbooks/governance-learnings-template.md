@@ -158,7 +158,7 @@ Council summary block (required before Step 4; follow `AGENTS.md` "Subagent Coun
 - conflicts:
 - reconciliation_decision:
 - residual_risks:
-- go_no_go (`go` | `go_with_risks` | `hold`):
+- go_no_go (`go` | `hold`):
 - verification_links:
 
 Severity rubric (for findings):

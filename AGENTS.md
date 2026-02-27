@@ -254,13 +254,13 @@ No maximum: scale up as needed.
   - `conflicts` (if any)
   - `reconciliation_decision` (accepted/rejected/deferred + rationale)
   - `residual_risks`
-  - `go_no_go` (`go` | `go_with_risks` | `hold`)
+  - `go_no_go` (`go` | `hold`)
   - `verification_links` (README checks and/or deterministic manual witness)
 - Micro edits or formatting-only changes may use an abbreviated summary:
   - `intent_coverage`
   - `findings` (or explicit `No findings`)
   - `residual_risks` (or `none observed`)
-  - `go_no_go`
+  - `go_no_go` (`go` | `hold`)
 
 ### Conflict Resolution + Closure Gates (Hard Gate)
 - If reviewers conflict on severity, root cause, fix placement, or risk disposition and the conflict could materially change implementation, do not proceed until reconciled.
