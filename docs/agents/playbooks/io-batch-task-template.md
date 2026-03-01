@@ -13,6 +13,9 @@ Use when:
 - task type (feature|bugfix|refactor):
 - blast radius (datasets/workflows/users):
 - if bugfix/regression: fill `docs/agents/playbooks/bugfix-template.md`.
+- if feature/behavior change: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" behavior-change/new-feature minimums (including shift-left baseline).
+- if refactor/behavior-neutral: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" behavior-neutral minimums.
+- if new logic is introduced: apply `AGENTS.md` "Mandatory Modularity + SOLID/DI (Authority Bloat Prevention)" (use `docs/agents/playbooks/design-principles-checklist.md`).
 
 ## Inputs
 - input formats (csv/json/jsonl/parquet/etc):

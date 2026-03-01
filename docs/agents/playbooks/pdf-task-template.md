@@ -17,6 +17,9 @@ This template is a prompting scaffold.
 - task type (feature|bugfix|refactor):
 - blast radius (workflows/consumers/users):
 - if bugfix/regression: fill `docs/agents/playbooks/bugfix-template.md`.
+- if feature/behavior change: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" behavior-change/new-feature minimums (including shift-left baseline).
+- if refactor/behavior-neutral: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" behavior-neutral minimums.
+- if new logic is introduced: apply `AGENTS.md` "Mandatory Modularity + SOLID/DI (Authority Bloat Prevention)" (use `docs/agents/playbooks/design-principles-checklist.md`).
 
 Non-goals:
 - This is not a library specification. Library notes are examples; verify in your environment.

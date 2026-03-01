@@ -21,4 +21,7 @@ update_trigger: platform adapter guidance changes OR new platform is added
 - Update `agents-manifest.yaml` profiles if a new skills doc should be injected by default for that platform.
 
 ## Cursor
-- Use the Task tool to run the council in parallel; keep council agents review-only and edits in the main agent.
+- Use the Task tool to run the council in parallel when available; keep council agents review-only and edits in the main agent.
+- Ensure minimum intention coverage per `AGENTS.md` "Subagent Council (Hard Gate)": SSOT/duplication, silent-error, edge-case, resource/security/perf.
+- Merge reviewer outputs into one council summary; if conflicts remain unresolved, stop and ask before editing.
+- Follow `AGENTS.md` "Governance Auto-Edit Gate (Hard Gate)" for authorization and confirmation before governance edits.
