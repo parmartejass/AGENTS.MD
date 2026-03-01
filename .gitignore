@@ -38,3 +38,6 @@ Thumbs.db
 
 # App-specific outputs
 *_DRYRUN_*.xlsb
+
+# Session-analysis scratch context
+.temp*/

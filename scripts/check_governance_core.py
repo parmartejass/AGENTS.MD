@@ -78,7 +78,8 @@ _COUNCIL_PHASE_ALLOWED = {"pre_change", "post_change"}
 _COUNCIL_GO_NO_GO_ALLOWED = {"go", "hold"}
 _COUNCIL_INTENT_REQUIRED = {
     "ssot_duplication",
-    "silent_error_edge_case",
+    "silent_error",
+    "edge_case",
     "resource_security_perf",
 }
 _GOVERNANCE_OWNER_PREFIXES = (

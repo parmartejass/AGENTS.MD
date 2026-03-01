@@ -6,7 +6,7 @@ update_trigger: execution-loop rules change OR new recurring AI failure patterns
 
 # 15 - Stuck in Loop: Generate a Fresh Restart Prompt
 
-This is supporting guidance. The normative rules live in `AGENTS.md` (Prime Directive + Mandatory Execution Loop).
+This is supporting guidance.
 
 ## Use this runbook when
 - repeated failures suggest a stuck loop (same error/bug reintroduced)
@@ -14,7 +14,7 @@ This is supporting guidance. The normative rules live in `AGENTS.md` (Prime Dire
 - output "looks right" but verification contradicts it (phantom compliance)
 
 ## Stuck-loop reset protocol (must be deterministic)
-1) Re-run the `AGENTS.md` Mandatory Execution Loop steps 1-5 explicitly:
+1) Re-run the Mandatory Execution Loop steps 1-5 explicitly:
    - restate goal + acceptance criteria
    - discover files and SSOT owners
    - decompose into atomic subtasks

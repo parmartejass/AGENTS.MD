@@ -46,7 +46,7 @@ When describing a rule, reference the named rule function (or equivalent).
 ## Context injection guardrails (avoid stale-doc confidence)
 Context injection should reduce bloat and prevent “random docs” from becoming implicit requirements:
 - Keep `agents-manifest.yaml:default_inject` minimal; inject supporting docs via narrowly-scoped profiles.
-- Treat injected docs as supporting context only; verify behavior in code/config and with deterministic tools (`AGENTS.md` "Verify, Then Trust").
+- Treat injected docs as supporting context only; verify behavior in code/config and with deterministic tools.
 - Create project-specific docs only for intent/runbooks, keep them minimal, and reference SSOT owners by identifier (do not re-encode constants/rules).
 - If a doc might drift, tighten its `update_trigger` and avoid adding it to broad/always-on injection.
 

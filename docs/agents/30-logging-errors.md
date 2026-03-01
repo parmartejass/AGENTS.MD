@@ -36,8 +36,8 @@ Maintain one owner for domain errors so failures are searchable and consistent, 
   - Definition: "explicit contract" means the sentinel meaning is documented (docstring/type) and callers handle it explicitly.
 - If execution continues after an error (best-effort loops), still surface it:
   - record a terminal per-item outcome + reason
-  - reflect partial failure at the run level (see `AGENTS.md` "Standard Log Schema")
+  - reflect partial failure at the run level (see Standard Log Schema)
 
 ## Witnesses (enforcement)
 - **Static**: `scripts/check_python_safety.py` flags `BARE_EXCEPT` and `SILENT_EXCEPT`, and warns on `EXCEPT_RETURN_LITERAL`.
-- **Runtime**: emit per-item outcome records and a run summary (see `AGENTS.md` "Standard Log Schema").
+- **Runtime**: emit per-item outcome records and a run summary (see Standard Log Schema).

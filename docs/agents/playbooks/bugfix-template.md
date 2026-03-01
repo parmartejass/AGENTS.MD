@@ -10,13 +10,9 @@ Use when:
 - Task matches profile `bugfix` in `agents-manifest.yaml`.
 - Task is a bug/error/regression diagnosis or fix.
 
-Reference authority:
-- `AGENTS.md` "First-Principles Protocol (Hard Gate)"
-- `AGENTS.md` "Bias-Resistant Debugging (Hard Gate)"
-- `AGENTS.md` "Verification Floors (Hard Gate)"
-- `docs/agents/playbooks/rca-methods-template.md`
+Reference: `docs/agents/playbooks/rca-methods-template.md`
 
-This template is a prompting scaffold. If any wording conflicts with policy, `AGENTS.md` wins.
+This template is a prompting scaffold.
 
 ## Symptom
 - observed behavior:
@@ -71,5 +67,5 @@ This template is a prompting scaffold. If any wording conflicts with policy, `AG
 - failure-path check:
 - change record artifact (when enabled): `docs/project/change-records/<timestamp>-<slug>.json`
 - if behavior changed: shift-left prevention updates (tests/design/contracts/observability):
-- modularity decision (if new logic introduced; reference `AGENTS.md` Non-Negotiable 11):
+- modularity decision (if new logic introduced; use the decomposition record in `design-principles-checklist.md`):
 - security/resource/perf scan (notes):
