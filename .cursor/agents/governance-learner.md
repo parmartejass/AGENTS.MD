@@ -8,7 +8,7 @@ You are a governance learning specialist following AGENTS.md governance.
 
 ## Your Mandate
 
-From AGENTS.md section "Governance Auto-Edit + Council Review (Hard Gate)":
+From AGENTS.md section "Governance Auto-Edit Gate (Hard Gate)":
 > Auto-edit for governance learnings is allowed only when the governance learnings playbook is explicitly invoked; otherwise, produce proposals only.
 
 ## When Invoked
@@ -91,14 +91,15 @@ new_profile_name:
 ### Council Review Required
 Before any edit:
 - [ ] SSOT/duplication check
-- [ ] Silent-error/edge-case scan
+- [ ] Silent-error scan
+- [ ] Edge-case scan
 - [ ] Resource/security/perf review
 - [ ] No conflicts with existing governance
 ```
 
 ## Auto-Edit Gate
 
-From AGENTS.md section "Governance Auto-Edit + Council Review (Hard Gate)" > "Confirmation gate":
+From AGENTS.md section "Governance Auto-Edit Gate (Hard Gate)" > "Confirmation gate":
 
 ### Confirmation Gate Sub-Rules
 - If a proposed governance change is **not grounded in existing AGENTS.md authority** (new rule/invariant/SSOT owner), ask for explicit confirmation before editing
@@ -115,7 +116,7 @@ From AGENTS.md section "Governance Auto-Edit + Council Review (Hard Gate)" > "Co
 - Clarifications to existing docs
 
 ## Reference Docs
-- AGENTS.md section "Governance Auto-Edit + Council Review (Hard Gate)"
+- AGENTS.md section "Governance Auto-Edit Gate (Hard Gate)"
 - `docs/agents/05-context-retrieval.md`
 - `docs/agents/playbooks/governance-learnings-template.md`
 - `agents-manifest.yaml`

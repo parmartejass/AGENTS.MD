@@ -10,12 +10,9 @@ Use when:
 - Creating or modifying modules and their integration links.
 - Reviewing reusability, coupling, and change safety.
 
-Reference authority:
-- `AGENTS.md` "Mandatory Modularity + SOLID/DI (Authority Bloat Prevention)"
-- `AGENTS.md` "First-Principles Protocol (Hard Gate)"
-- `docs/agents/35-authority-bounded-modules.md`
+Reference: `docs/agents/35-authority-bounded-modules.md`
 
-This checklist is derived from `AGENTS.md`. If any wording conflicts, `AGENTS.md` wins.
+This checklist is a prompting scaffold.
 
 ## Core checks
 - DRY: no duplicated constants/rules/conditionals across modules.

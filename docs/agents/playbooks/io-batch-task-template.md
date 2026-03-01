@@ -12,10 +12,10 @@ Use when:
 ## Change classification (required)
 - task type (feature|bugfix|refactor):
 - blast radius (datasets/workflows/users):
-- if bugfix/regression: fill `docs/agents/playbooks/bugfix-template.md` and satisfy `AGENTS.md` "Bias-Resistant Debugging (Hard Gate)".
-- if behavior change/new feature: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" shift-left baseline.
-- if refactor/behavior-neutral change: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" behavior-neutral minimums.
-- if new logic is introduced: apply `AGENTS.md` Non-Negotiable 11 "Mandatory Modularity + SOLID/DI (Authority Bloat Prevention)".
+- if bugfix/regression: fill `docs/agents/playbooks/bugfix-template.md`.
+- if feature/behavior change: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" behavior-change/new-feature minimums (including shift-left baseline).
+- if refactor/behavior-neutral: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" behavior-neutral minimums.
+- if new logic is introduced: apply `AGENTS.md` "Mandatory Modularity + SOLID/DI (Authority Bloat Prevention)" (use `docs/agents/playbooks/design-principles-checklist.md`).
 
 ## Inputs
 - input formats (csv/json/jsonl/parquet/etc):
@@ -42,7 +42,7 @@ Use when:
 - Failure behavior (partial outputs, cleanup, logged reason):
 
 ## Performance & throughput plan (when relevant)
-- Follow `AGENTS.md` "Performance & Speed (When Relevant)" (no safety/correctness trade-offs).
+- No safety/correctness trade-offs.
 - Bottleneck hypothesis (disk/network/parse/serialize/CPU):
 - Safe levers (pick the minimal set that applies):
   - Stream/chunk processing with bounded memory.

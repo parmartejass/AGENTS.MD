@@ -2,7 +2,6 @@
 
 Canonical policy: `AGENTS.md`
 Context injection manifest: `agents-manifest.yaml`
-Council guidance (authoritative): `AGENTS.md` section "Subagent Council (Hard Gate)"
 
 If any wording conflicts with `AGENTS.md`, `AGENTS.md` wins.
 

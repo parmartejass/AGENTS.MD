@@ -6,47 +6,23 @@ update_trigger: AGENTS.md requirements or referenced section headings change
 
 # 00 - Principles (First Principles)
 
-## Invariants (SSOT: `AGENTS.md`)
-Normative requirements live in `AGENTS.md` (and win on conflict). Start with:
-- "Objective"
-- "Non-Negotiables (Hard Gates)"
-
-This doc extends those invariants with a practical first-principles operating protocol.
-It is supporting guidance only; follow `AGENTS.md` "Mandatory Execution Loop (Follow For Every Task)" for the required end-to-end procedure.
-
-## Hard gate references (SSOT: `AGENTS.md`)
-Index only (do not restate requirements here):
-- "Prime Directive: Verify, Then Trust"
-- "First-Principles Protocol (Hard Gate)"
-- "First-Principles + SSOT + Evidence Model (Hard Gate)" (truth layers R/S/D; invariants + witnesses)
-- "Authority Graph (Required for non-trivial systems)" (see also `docs/agents/35-authority-bounded-modules.md`)
-- "Workflow State Machine + Two-Phase Commit (When writes occur)"
-- "Defect vocabulary + root-cause fix policy" (under `AGENTS.md` "First-Principles Protocol (Hard Gate)" and "Bias-Resistant Debugging (Hard Gate)")
-- "RCA workflow + method stack (5 Whys/Fishbone/Pareto/FMEA)" (under `AGENTS.md` "Bias-Resistant Debugging (Hard Gate)")
-- "Bias-Resistant Debugging (Hard Gate)"
-- "Verification Floors (Hard Gate)"
-- "Shift-left quality baseline" (under `AGENTS.md` "Verification Floors (Hard Gate)")
-- "Rewrite Risk Policy"
-- "Mandatory modularity and reusability checklist" (under `AGENTS.md` "Mandatory Modularity + SOLID/DI (Authority Bloat Prevention)")
-- "Subagent Council (Hard Gate)"
-  - "Required council output (Hard Gate)"
-  - "Conflict Resolution + Closure Gates (Hard Gate)"
-- "Change Contract (Required for any change record)"
+This doc extends the invariants in `AGENTS.md` with a practical first-principles operating protocol.
+It is supporting guidance only.
 
 ## Protocol (Model -> Proof -> Change)
 This protocol is supporting guidance only (non-normative) and is intended to prevent symptom-only fixes and reduce rework:
 
 1) **Modeling** the system: inputs, outputs, side effects, boundaries.
-2) **Tracing to Authority** (canonical: AGENTS.md "Root-cause uplift"):
-   - Follow `AGENTS.md` root-cause uplift and bias-resistant debugging requirements; use `docs/agents/playbooks/rca-methods-template.md` for method steps/examples.
+2) **Tracing to Authority** (root-cause uplift):
+   - Use `docs/agents/playbooks/rca-methods-template.md` for method steps/examples.
 3) **Mapping SSOT owners** (constants/config/rules/workflows/lifecycle utilities) and extending them (no parallel ownership).
 4) **Stating proof obligations**:
    - Preconditions: what must be true before work begins
    - Postconditions: what must be true after success
    - Failure modes: what can go wrong and how it should fail (explicitly)
-   - Invariants + witnesses: follow `AGENTS.md` "Invariants + Witnesses (Required)" (define how correctness is measured and recorded)
+   - Invariants + witnesses: define how correctness is measured and recorded
 5) **Choosing verification first**:
-   - Reference `AGENTS.md` "Verification Floors (Hard Gate)" and the repo-root `README.md` "Checks" (SSOT for commands).
+   - Reference the repo-root `README.md` "Checks" (SSOT for commands).
    - A tight deterministic check is typically preferred when it satisfies the verification floors and proves the proof obligations.
    - A failure-path check is useful when feasible.
 6) **Minimal implementation** (smallest diff that satisfies acceptance criteria).
@@ -64,9 +40,9 @@ This protocol is supporting guidance only (non-normative) and is intended to pre
 - Skills (`docs/agents/skills/00-skill-standards.md`): platform adapters + skill standards; reference core policy, do not duplicate it.
 
 ## Resource + speed discipline (reduce risk and time)
-- For speed/scale work, the governing policy is `AGENTS.md` "Performance & Speed (When Relevant)" (performance model, safe optimizations, bounded concurrency).
+- For speed/scale work: performance model, safe optimizations, bounded concurrency.
 - Bounded waits/timeouts and cancellation are required for blocking operations.
-- For write workflows, the governing policy is `AGENTS.md` "Workflow State Machine + Two-Phase Commit (When writes occur)".
+- For write workflows: use the two-phase commit pattern (no writes before validation).
 - Transactional I/O (temp + atomic replace) is recommended where overwrites matter.
 - Fast/complete discovery is supported by `docs/agents/05-context-retrieval.md`.
 
@@ -77,11 +53,11 @@ This protocol is supporting guidance only (non-normative) and is intended to pre
 
 ## Council evidence discipline (supporting)
 - Council summaries are recorded-truth artifacts (D) that provide review witnesses for risk decisions.
-- For non-micro changes, use the full council output fields defined in `AGENTS.md` "Subagent Council (Hard Gate)".
+- For non-micro changes, use the full council output fields.
 - If `go_no_go` is `hold`, do not implement until reconciliation is complete or user risk acceptance is explicit.
 
 ## Non-normative anti-pattern examples
-Examples (mapped to `AGENTS.md` hard gates and included here as guidance only):
+Examples (included here as guidance only):
 - Copy/paste helpers.
 - Duplicate constants/config defaults in multiple files/docs.
 - Multiple lifecycle implementations for the same external system (Excel, GUI queue/drain, etc.).

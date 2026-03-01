@@ -224,7 +224,8 @@ Purpose: force independent, intention-based review so silent errors, edge cases,
 ### Intention-based roles (minimum coverage)
 Each council must cover these intentions (one or more subagents may cover multiple intentions):
 - **SSOT/duplication alignment**: ensure existing owners are extended and no new duplicate authorities are introduced.
-- **Silent-error + edge-case scan**: identify missing validation, boundary conditions, and pre/post-change failure modes.
+- **Silent-error scan**: identify missing validation, silent failure paths, and "silently skip" patterns (violation of Non-Negotiable #4).
+- **Edge-case scan**: identify boundary conditions and pre/post-change failure modes.
 - **Resource/security/perf risks**: look for leaks, unsafe inputs, timeouts, and performance regressions.
 
 Optional intentions (add as needed): integration/compatibility across modules and entrypoints, data migration/backward compatibility, test/verification gaps.
@@ -248,7 +249,7 @@ No maximum: scale up as needed.
 - Full council summary fields (for non-micro changes):
   - `council_run_id`
   - `phase` (`pre_change` | `post_change`)
-  - `intent_coverage` (`ssot_duplication`, `silent_error_edge_case`, `resource_security_perf`)
+  - `intent_coverage` (`ssot_duplication`, `silent_error`, `edge_case`, `resource_security_perf`)
   - `reviewers` (id, role, scope)
   - `findings` (severity, location, issue, evidence, recommendation)
   - `conflicts` (if any)
@@ -270,15 +271,15 @@ No maximum: scale up as needed.
 - Pre-change closure: implementation may begin only after required intention coverage and a merged council summary are complete.
 - Post-change closure: final response may be sent only after required post-change scan (or documented proportionality exception) and merged summary are complete.
 
-## Governance Auto-Edit + Council Review (Hard Gate)
+### Governance Auto-Edit Gate (Hard Gate)
 
 Auto-edit for governance learnings is allowed only when the governance learnings playbook is **explicitly invoked**; otherwise, produce proposals only for governance learnings.
 
 Council review is required before any auto-edit:
-- Run the Subagent Council (see above) with minimum coverage for SSOT/duplication, silent-error/edge-case scan, and resource/security/perf risks.
+- Run the council with minimum intention coverage (SSOT/duplication, silent-error scan, edge-case scan, resource/security/perf).
 - Merge findings; if conflicts or gaps remain, pause and ask before editing.
 
-Confirmation gate (for governance learnings auto-edit in this section):
+Confirmation gate (for governance learnings auto-edit):
 - If a proposed governance change is not grounded in existing `AGENTS.md` authority (new rule/invariant/SSOT owner), ask for explicit confirmation before editing.
 - For governance learnings auto-edit, edits to `AGENTS.md` always require explicit confirmation, except changes limited to the "Confirmation gate" subsection above.
 

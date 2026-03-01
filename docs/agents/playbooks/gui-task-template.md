@@ -12,10 +12,10 @@ Use when:
 ## Change classification (required)
 - task type (feature|bugfix|refactor):
 - blast radius (modules/workflows/users):
-- if bugfix/regression: fill `docs/agents/playbooks/bugfix-template.md` and satisfy `AGENTS.md` "Bias-Resistant Debugging (Hard Gate)".
-- if behavior change/new feature: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" shift-left baseline.
-- if refactor/behavior-neutral change: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" behavior-neutral minimums.
-- if new logic is introduced: apply `AGENTS.md` Non-Negotiable 11 "Mandatory Modularity + SOLID/DI (Authority Bloat Prevention)".
+- if bugfix/regression: fill `docs/agents/playbooks/bugfix-template.md`.
+- if feature/behavior change: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" behavior-change/new-feature minimums (including shift-left baseline).
+- if refactor/behavior-neutral: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" behavior-neutral minimums.
+- if new logic is introduced: apply `AGENTS.md` "Mandatory Modularity + SOLID/DI (Authority Bloat Prevention)" (use `docs/agents/playbooks/design-principles-checklist.md`).
 
 ## UI requirements
 - controls:
@@ -30,7 +30,7 @@ Use when:
 - interruptible waits (use `Event.wait(...)`):
 
 ## Responsiveness & performance plan (when relevant)
-- Follow `AGENTS.md` "Performance & Speed (When Relevant)" (UI stays correct + responsive; no safety trade-offs).
+- UI stays correct + responsive; no safety trade-offs.
 - Workload model (items/events, expected update rate, worst-case runtime):
 - Queue strategy (avoid floods; coalesce progress; keep messages small; consider max queue size/backpressure):
 - UI update throttle (rate-limit progress updates; batch multiple messages per drain tick):

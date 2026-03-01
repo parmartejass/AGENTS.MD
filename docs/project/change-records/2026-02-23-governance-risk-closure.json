@@ -54,7 +54,8 @@
     "phase": "pre_change",
     "intent_coverage": [
       "ssot_duplication",
-      "silent_error_edge_case",
+      "silent_error",
+      "edge_case",
       "resource_security_perf"
     ],
     "reviewers": [
@@ -65,7 +66,7 @@
       },
       {
         "id": "reviewer-edge",
-        "role": "silent-error and edge-case",
+        "role": "silent-error and edge-case scan",
         "scope": "checker enforceability and failure-path witnesses"
       },
       {

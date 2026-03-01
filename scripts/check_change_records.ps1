@@ -259,7 +259,7 @@ $councilFullOnlyFields = @($councilFullRequired | Where-Object { $councilAbbrevi
 
 $councilPhasesAllowed = @("pre_change", "post_change")
 $councilGoNoGoAllowed = @("go", "hold")
-$councilIntentRequired = @("ssot_duplication", "silent_error_edge_case", "resource_security_perf")
+$councilIntentRequired = @("ssot_duplication", "silent_error", "edge_case", "resource_security_perf")
 
 function Test-IsGovernanceScopedRecord([object]$record) {
   $owners = Get-PropertyValue $record "ssot_owner_paths"

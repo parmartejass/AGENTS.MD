@@ -37,7 +37,7 @@ Use this playbook to have an AI assistant review a work session and extract repe
 ## Hard gates (canonical; keep wording in sync)
 - Read and follow `AGENTS.md` (SSOT). If you cannot access it, request it before doing any work.
 - Follow `AGENTS.md` "Context Injection Procedure (Hard Gate)" (consult `agents-manifest.yaml`, load injected docs/playbooks).
-- Auto-edit is allowed only when this playbook is explicitly invoked (see `AGENTS.md` "Governance Auto-Edit + Council Review").
+- Auto-edit is allowed only when this playbook is explicitly invoked (see `AGENTS.md` "Governance Auto-Edit Gate").
 - Before any edit: run the Council Review step and apply the confirmation gate from `AGENTS.md`.
 - Follow `docs/agents/25-docs-ssot-policy.md` (docs cannot become a second SSOT).
 
@@ -79,7 +79,7 @@ Use this playbook to have an AI assistant review a work session and extract repe
 Hard gates:
 - Read and follow `AGENTS.md` (SSOT). If you cannot access it, request it before doing any work.
 - Follow `AGENTS.md` "Context Injection Procedure (Hard Gate)" (consult `agents-manifest.yaml`, load injected docs/playbooks).
-- Auto-edit is allowed only when this playbook is explicitly invoked (see `AGENTS.md` "Governance Auto-Edit + Council Review").
+- Auto-edit is allowed only when this playbook is explicitly invoked (see `AGENTS.md` "Governance Auto-Edit Gate").
 - Before any edit: run the Council Review step and apply the confirmation gate from `AGENTS.md`.
 - Follow `docs/agents/25-docs-ssot-policy.md` (docs cannot become a second SSOT).
 
@@ -152,7 +152,7 @@ Decision-grade brief (required before learnings; use this exact label order):
 Council summary block (required before Step 4; follow `AGENTS.md` "Subagent Council (Hard Gate)"):
 - council_run_id:
 - phase (`pre_change` | `post_change`):
-- intent_coverage (`ssot_duplication`, `silent_error_edge_case`, `resource_security_perf`):
+- intent_coverage (`ssot_duplication`, `silent_error`, `edge_case`, `resource_security_perf`):
 - reviewers (id, role, scope):
 - findings (severity, location, issue, evidence, recommendation):
 - conflicts:
@@ -183,13 +183,13 @@ Steps:
    - Use `rg` for verification and record search terms used when practical.
    - Mark status as `ALREADY_COVERED`, `PARTIAL`, or `MISSING`.
 3) Council review (required before edits):
-   - Run the Subagent Council per `AGENTS.md` "Subagent Council (Hard Gate)" with minimum intention coverage (SSOT/duplication, silent-error/edge-case, resource/security/perf).
+   - Run the Subagent Council per `AGENTS.md` "Subagent Council (Hard Gate)" with minimum intention coverage (SSOT/duplication, silent-error scan, edge-case scan, resource/security/perf).
    - Merge findings into one council summary block using the required fields above.
    - For each HIGH/MEDIUM finding, include at least one evidence item (R or D) and one action (apply/defer + rationale).
    - If `go_no_go` is `hold`, stop and ask before editing.
    - If conflicts or gaps remain, pause and ask before editing.
 4) Produce governance deltas (proposals or auto-edits, depending on authorization):
-   - If auto-edit is authorized: apply minimal edits after the confirmation gate and within the scope in `AGENTS.md` "Governance Auto-Edit + Council Review".
+   - If auto-edit is authorized: apply minimal edits after the confirmation gate and within the scope in `AGENTS.md` "Governance Auto-Edit Gate".
    - If auto-edit is not authorized: propose deltas only.
 5) Output records (deterministic; one record per candidate, exact field order):
    - ID:

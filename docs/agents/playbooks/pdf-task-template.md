@@ -11,20 +11,15 @@ Use when:
 - Investigating missing/duplicate pages, merge drift, or integrity validation failures.
 - Introducing or tuning PDF validation (size checks, page checks, identifier checks).
 
-Reference authority:
-- `AGENTS.md` "Bias-Resistant Debugging (Hard Gate)"
-- `AGENTS.md` "Verification Floors (Hard Gate)"
-- `AGENTS.md` "Mandatory Modularity + SOLID/DI (Authority Bloat Prevention)"
-
-This template is a prompting scaffold. If any wording conflicts with policy, `AGENTS.md` wins.
+This template is a prompting scaffold.
 
 ## Change classification (required)
 - task type (feature|bugfix|refactor):
 - blast radius (workflows/consumers/users):
-- if bugfix/regression: fill `docs/agents/playbooks/bugfix-template.md` and satisfy `AGENTS.md` "Bias-Resistant Debugging (Hard Gate)".
-- if behavior change/new feature: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" shift-left baseline.
-- if refactor/behavior-neutral change: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" behavior-neutral minimums.
-- if new logic is introduced: apply `AGENTS.md` Non-Negotiable 11 "Mandatory Modularity + SOLID/DI (Authority Bloat Prevention)".
+- if bugfix/regression: fill `docs/agents/playbooks/bugfix-template.md`.
+- if feature/behavior change: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" behavior-change/new-feature minimums (including shift-left baseline).
+- if refactor/behavior-neutral: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" behavior-neutral minimums.
+- if new logic is introduced: apply `AGENTS.md` "Mandatory Modularity + SOLID/DI (Authority Bloat Prevention)" (use `docs/agents/playbooks/design-principles-checklist.md`).
 
 Non-goals:
 - This is not a library specification. Library notes are examples; verify in your environment.

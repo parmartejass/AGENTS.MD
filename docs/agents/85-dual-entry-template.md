@@ -23,7 +23,7 @@ This template is **not a spec**. It exists so agents can copy *patterns* while s
 
 ## How to use it (avoid blind copying)
 
-- Start with target-repo discovery: follow `AGENTS.md` + `docs/agents/10-repo-discovery.md`.
+- Start with target-repo discovery: follow `docs/agents/10-repo-discovery.md`.
 - Adopt existing owners first: extend the repo's current config/constants/logging/workflow registry instead of introducing parallel modules.
 - Copy only the needed parts:
   - CLI-only automation: keep dispatcher+CLI+runner+workflow registry+scenario harness; skip the GUI.
@@ -40,7 +40,7 @@ This template is **not a spec**. It exists so agents can copy *patterns* while s
 
 ## Minimal project docs set (copy, then customize)
 
-For the recommended minimal project docs set, see `AGENTS.md` → "Documentation SSOT Policy" → "Project-specific docs".
+For the recommended minimal project docs set, see the Documentation SSOT Policy.
 This template provides an example implementation under `templates/python-dual-entry/docs/project/index.md`.
 
 ## Deterministic verification (copy/paste)

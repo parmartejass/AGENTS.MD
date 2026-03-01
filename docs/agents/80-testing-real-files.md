@@ -6,12 +6,11 @@ update_trigger: verification expectations change
 
 # 80 - Testing With Real Files
 
-Acceptance criteria are often I/O driven. When changes affect I/O or file processing, tests must include representative real inputs when feasible (see fixture hygiene in `AGENTS.md`).
+Acceptance criteria are often I/O driven. When changes affect I/O or file processing, tests must include representative real inputs when feasible.
 If real inputs are not feasible, document why and use a deterministic surrogate fixture plus an explicit failure-path witness in the final response or run report.
 
-Baseline verification floors live in `AGENTS.md` ("Verification Floors (Hard Gate)"); this runbook adds I/O-specific expectations.
-Follow `AGENTS.md` for verification command ownership and manual-check recording.
-For I/O bugfix/regression changes, also satisfy `AGENTS.md` "Bias-Resistant Debugging (Hard Gate)" evidence (MRE + regression + disconfirming + failure-path).
+This runbook adds I/O-specific expectations on top of the baseline verification floors.
+For I/O bugfix/regression changes, include bias-resistant debugging evidence (MRE + regression + disconfirming + failure-path).
 
 ## Minimum expectations when changes affect I/O or file processing
 1) One happy-path run on a representative real input.
@@ -19,7 +18,7 @@ For I/O bugfix/regression changes, also satisfy `AGENTS.md` "Bias-Resistant Debu
    - missing file
    - missing required header/sheet
    - permission denied path
-   This failure-path run satisfies the "failure-path check" requirement in `AGENTS.md` for I/O changes.
+   This failure-path run satisfies the failure-path check requirement for I/O changes.
 3) Confirm (per repo logging/reporting conventions; do not invent new locations):
    - logs contain key stages
    - run outcomes/report exist
