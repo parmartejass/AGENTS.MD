@@ -1,6 +1,6 @@
 ---
 name: gui-thread-checker
-model: gpt-5.3-codex-high
+model: gpt-5.4-high
 description: GUI thread safety specialist. Use proactively for any GUI code to verify UI updates on main thread, worker queue pattern, and shutdown/cancel handling. Enforces Non-Negotiable #7.
 ---
 

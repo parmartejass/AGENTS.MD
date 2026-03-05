@@ -1,6 +1,6 @@
 ---
 name: docs-reviewer
-model: gpt-5.3-codex-high
+model: gpt-5.4-high
 description: Documentation SSOT policy compliance specialist. Use proactively when creating or editing documentation to ensure docs reference SSOT owners, avoid duplication, and follow required structure.
 ---
 

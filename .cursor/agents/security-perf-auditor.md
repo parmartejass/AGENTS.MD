@@ -1,6 +1,6 @@
 ---
 name: security-perf-auditor
-model: gpt-5.3-codex-high
+model: gpt-5.4-high
 description: Resource, security, and performance risk auditor. Use proactively for any code change to identify leaks, unsafe inputs, timeouts, and performance regressions. Required member of every Subagent Council.
 ---
 

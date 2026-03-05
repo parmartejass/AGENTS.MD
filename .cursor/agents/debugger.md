@@ -1,6 +1,6 @@
 ---
 name: debugger
-model: gpt-5.3-codex-high
+model: gpt-5.4-high
 description: Bias-resistant debugging specialist for errors, test failures, and unexpected behavior. Use proactively when encountering bugs, regressions, or crashes. Follows AGENTS.md Bias-Resistant Debugging protocol.
 ---
 

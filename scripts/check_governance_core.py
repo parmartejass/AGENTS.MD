@@ -56,7 +56,6 @@ _WITNESS_REQUIRED_FIELDS = (
 _COUNCIL_FULL_REQUIRED_FIELDS = (
     "council_run_id",
     "phase",
-    "intent_coverage",
     "reviewers",
     "findings",
     "conflicts",
@@ -66,7 +65,6 @@ _COUNCIL_FULL_REQUIRED_FIELDS = (
     "verification_links",
 )
 _COUNCIL_ABBREVIATED_REQUIRED_FIELDS = (
-    "intent_coverage",
     "findings",
     "residual_risks",
     "go_no_go",
@@ -76,12 +74,6 @@ _COUNCIL_FULL_ONLY_FIELDS = tuple(
 )
 _COUNCIL_PHASE_ALLOWED = {"pre_change", "post_change"}
 _COUNCIL_GO_NO_GO_ALLOWED = {"go", "hold"}
-_COUNCIL_INTENT_REQUIRED = {
-    "ssot_duplication",
-    "silent_error",
-    "edge_case",
-    "resource_security_perf",
-}
 _GOVERNANCE_OWNER_PREFIXES = (
     "AGENTS.md",
     "agents-manifest.yaml",
@@ -665,33 +657,6 @@ def _check_governance_specific_record_fields(
             f"Governance docs council_summary.go_no_go must be one of "
             f"{sorted(_COUNCIL_GO_NO_GO_ALLOWED)} in {path}."
         )
-        record_has_errors = True
-
-    intent_coverage = council.get("intent_coverage")
-    if isinstance(intent_coverage, list):
-        normalized_intents = []
-        invalid_intent_values = False
-        for intent in intent_coverage:
-            if not isinstance(intent, str) or not intent.strip():
-                invalid_intent_values = True
-                continue
-            normalized_intents.append(intent.strip())
-
-        if invalid_intent_values:
-            errors.append(
-                f"Governance docs council_summary.intent_coverage must contain only non-empty strings in {path}."
-            )
-            record_has_errors = True
-
-        missing_intents = _COUNCIL_INTENT_REQUIRED.difference(set(normalized_intents))
-        if missing_intents:
-            errors.append(
-                f"Governance docs council_summary.intent_coverage missing required intents "
-                f"{sorted(missing_intents)} in {path}."
-            )
-            record_has_errors = True
-    else:
-        errors.append(f"Governance docs council_summary.intent_coverage must be an array in {path}.")
         record_has_errors = True
 
     validation_context = record.get("validation_context")

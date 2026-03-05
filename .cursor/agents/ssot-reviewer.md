@@ -1,6 +1,6 @@
 ---
 name: ssot-reviewer
-model: gpt-5.3-codex-high
+model: gpt-5.4-high
 description: SSOT/duplication alignment specialist. Use proactively for any code change to ensure existing SSOT owners are extended (not duplicated) and no new competing authorities are introduced. Required member of every Subagent Council.
 ---
 
