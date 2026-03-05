@@ -1,6 +1,6 @@
 ---
 name: authority-analyst
-model: gpt-5.3-codex-high
+model: gpt-5.4-high
 description: Root-cause uplift and authority-first analysis specialist. Use proactively when debugging or designing fixes to trace from symptom to the earliest authority that should have prevented the error. Ensures fixes prevent classes of errors, not just symptoms.
 ---
 

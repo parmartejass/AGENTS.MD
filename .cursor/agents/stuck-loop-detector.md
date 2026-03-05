@@ -1,6 +1,6 @@
 ---
 name: stuck-loop-detector
-model: gpt-5.3-codex-high
+model: gpt-5.4-high
 description: AI stuck-loop detection and reset specialist. Use proactively when the same failure repeats twice or verification contradicts claims. Generates fresh restart prompt per Non-Negotiable #9.
 ---
 

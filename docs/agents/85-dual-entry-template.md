@@ -40,7 +40,7 @@ This template is **not a spec**. It exists so agents can copy *patterns* while s
 
 ## Minimal project docs set (copy, then customize)
 
-For the recommended minimal project docs set, see the Documentation SSOT Policy.
+For the recommended minimal project docs set, see `AGENTS.md` "Documentation SSOT Policy (Hard Gate)".
 This template provides an example implementation under `templates/python-dual-entry/docs/project/index.md`.
 
 ## Deterministic verification (copy/paste)
