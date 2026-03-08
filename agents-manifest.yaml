@@ -382,6 +382,14 @@ profiles:
         - "docs/agents/*.md"
         - "docs/agents/playbooks/*.md"
         - "docs/agents/skills/*.md"
+        - "docs/agents/settings/*.md"
+        - "docs/agents/settings/**/*.md"
+        - "docs/agents/platforms/*.md"
+        - "docs/agents/platforms/**/*.md"
+        - "docs/agents/platforms/*.json"
+        - "docs/agents/integrations/*.md"
+        - "docs/agents/integrations/**/*.md"
+        - "scripts/setup_repo_platform_assets.ps1"
     inject:
       - "README.md"
       - "docs/agents/index.md"
@@ -390,6 +398,10 @@ profiles:
       - "docs/agents/25-docs-ssot-policy.md"
       - "docs/agents/35-authority-bounded-modules.md"
       - "docs/agents/05-context-retrieval.md"
+      - "docs/agents/platforms/00-platform-runtime-standards.md"
+      - "docs/agents/platforms/index.md"
+      - "docs/agents/settings/00-settings-standards.md"
+      - "docs/agents/integrations/index.md"
       - "docs/agents/15-stuck-in-loop-generate-fresh-restart-prompt.md"
       - "docs/agents/playbooks/governance-learnings-template.md"
       - "docs/agents/playbooks/design-principles-checklist.md"
@@ -433,9 +445,61 @@ profiles:
       code_patterns: []
       file_globs:
         - "docs/agents/skills/*.md"
+        - "docs/agents/skills/**/*.md"
     inject:
       - "docs/agents/skills/00-skill-standards.md"
       - "docs/agents/skills/10-platform-adapters.md"
+
+  platform_assets_task:
+    detect:
+      keywords:
+        - "subagent"
+        - "subagents"
+        - "custom agent"
+        - "mcp"
+        - "model context protocol"
+        - "acp"
+        - "agent asset"
+        - "link repo assets"
+        - "repo-owned agent assets"
+        - "runtime projection"
+        - "runtime projections"
+        - "platform runtime"
+        - "platform docs"
+        - "setup script"
+        - "bootstrap"
+        - "persistent memory"
+        - "supermemory"
+        - "nia"
+      code_patterns: []
+      file_globs:
+        - "docs/agents/subagents/*.md"
+        - "docs/agents/subagents/**/*.md"
+        - "docs/agents/mcp/*.md"
+        - "docs/agents/mcp/**/*.md"
+        - "docs/agents/acp/*.md"
+        - "docs/agents/acp/**/*.md"
+        - "docs/agents/platforms/*.md"
+        - "docs/agents/platforms/**/*.md"
+        - "docs/agents/platforms/*.json"
+        - "docs/agents/settings/*.md"
+        - "docs/agents/settings/**/*.md"
+        - "docs/agents/settings/**/*.json"
+        - "docs/agents/settings/**/*.toml"
+        - "docs/agents/integrations/*.md"
+        - "docs/agents/integrations/**/*.md"
+        - "docs/agents/link_repo_assets.ps1"
+        - "scripts/setup_repo_platform_assets.ps1"
+    inject:
+      - "docs/agents/platforms/00-platform-runtime-standards.md"
+      - "docs/agents/platforms/index.md"
+      - "docs/agents/platforms/runtime-projections.json"
+      - "docs/agents/settings/00-settings-standards.md"
+      - "docs/agents/link_repo_assets.ps1"
+      - "docs/agents/subagents/00-subagent-standards.md"
+      - "docs/agents/mcp/00-mcp-standards.md"
+      - "docs/agents/acp/00-acp-standards.md"
+      - "docs/agents/integrations/index.md"
 
   stuck_loop_reset:
     detect:

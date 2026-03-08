@@ -32,6 +32,21 @@ Thumbs.db
 # IDE settings
 .vscode/
 .idea/
+.codex/config.toml
+.codex/agents/
+.agents/skills/
+.cursor/skills/
+.cursor/agents/
+.cursor/plans/
+.cursor/rules/
+.cursor/mcp.json
+.cursor/cli.json
+.claude/skills/
+.claude/agents/
+.claude/commands/
+.claude/settings.json
+.claude/settings.local.json
+.mcp.json
 
 # Logs
 *.log

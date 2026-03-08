@@ -39,7 +39,12 @@ $issues = 0
 foreach ($file in $files) {
   $relativePath = $file.FullName.Substring($docsRootFull.Length).TrimStart('\', '/')
   $relativePath = $relativePath -replace '\\', '/'
-  if ($relativePath -eq "index.md" -or $relativePath -match '^[^/]+/index\.md$') { continue }
+  if ($relativePath -match '^agents/skills/([^/]+)/') {
+    $skillBundleRoot = Join-Path $docsRoot ("agents/skills/" + $Matches[1])
+    if (Test-Path (Join-Path $skillBundleRoot "SKILL.md") -PathType Leaf) { continue }
+  }
+  if ($relativePath -match '^agents/subagents/[^/]+/') { continue }
+  if ($relativePath -eq "index.md" -or $relativePath -match '(^|/)index\.md$') { continue }
 
   $head = Get-Content -Path $file.FullName -TotalCount 25
 

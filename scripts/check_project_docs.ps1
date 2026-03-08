@@ -45,6 +45,11 @@ if ((Join-Path $repoRoot "README.md") | Test-Path) {
   $requiredReadmeRefs = @(
     "docs/project/index.md",
     "AGENTS.md",
+    "${governancePrefix}docs/agents/platforms/00-platform-runtime-standards.md",
+    "${governancePrefix}docs/agents/platforms/index.md",
+    "${governancePrefix}docs/agents/platforms/runtime-projections.json",
+    "${governancePrefix}docs/agents/integrations/index.md",
+    "${governancePrefix}scripts/setup_repo_platform_assets.ps1",
     "${governancePrefix}scripts/check_docs_ssot.ps1",
     "${governancePrefix}scripts/check_agents_manifest.ps1",
     "${governancePrefix}scripts/check_project_docs.ps1",

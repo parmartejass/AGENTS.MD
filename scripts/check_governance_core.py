@@ -25,6 +25,14 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List, Sequence, Set, Tuple
 
+try:
+    import tomllib  # type: ignore[no-redef]
+except ModuleNotFoundError:  # pragma: no cover - Python < 3.11 fallback
+    try:
+        import tomli as tomllib  # type: ignore[no-redef]
+    except ModuleNotFoundError:  # pragma: no cover - optional dependency
+        tomllib = None  # type: ignore[assignment]
+
 logger = logging.getLogger(__name__)
 _GIT_LS_FILES_TIMEOUT_SEC = 30
 _PYTHON_SAFETY_TIMEOUT_SEC = 120
@@ -80,6 +88,30 @@ _GOVERNANCE_OWNER_PREFIXES = (
     "docs/agents/",
     "scripts/check_",
 )
+_RUNTIME_PROJECTION_REQUIRED_SUPPORT_LEVELS = {
+    "official",
+    "compatibility",
+    "manual",
+    "unsupported",
+    "reserved",
+}
+_RUNTIME_PROJECTION_ALLOWED_SCOPES = {"project", "user", "system"}
+_RUNTIME_PROJECTION_ALLOWED_MODES_BY_ASSET_CLASS = {
+    "skills": {
+        "child_directory_links",
+        "generated_cursor_rules_from_skills",
+        "generated_claude_commands_from_skills",
+        "skip",
+    },
+    "subagents": {
+        "directory_link",
+        "generated_claude_agents_from_subagents",
+        "skip",
+    },
+    "mcp": {"mcp_file_link", "skip"},
+    "settings": {"settings_file_link", "skip"},
+    "acp": {"skip"},
+}
 _UNRESOLVED_CITATION_PATTERNS = (
     "cite",
     "entity",
@@ -287,7 +319,14 @@ def _check_docs_ssot(repo_root: Path, governance_root: Path) -> Tuple[List[str],
 
     for md_file in docs_root.rglob("*.md"):
         rel = md_file.relative_to(docs_root).as_posix()
-        if rel == "index.md" or re.match(r"^[^/]+/index\.md$", rel):
+        skill_match = re.match(r"^agents/skills/([^/]+)/", rel)
+        if skill_match:
+            skill_root = docs_root / "agents" / "skills" / skill_match.group(1)
+            if (skill_root / "SKILL.md").is_file():
+                continue
+        if re.match(r"^agents/subagents/[^/]+/", rel):
+            continue
+        if rel == "index.md" or rel.endswith("/index.md"):
             continue
 
         head = md_file.read_text(encoding="utf-8").splitlines()[:25]
@@ -343,6 +382,11 @@ def _check_project_docs(repo_root: Path, governance_rel_path: str) -> List[str]:
         required_refs = [
             "docs/project/index.md",
             "AGENTS.md",
+            f"{governance_prefix}docs/agents/platforms/00-platform-runtime-standards.md",
+            f"{governance_prefix}docs/agents/platforms/index.md",
+            f"{governance_prefix}docs/agents/platforms/runtime-projections.json",
+            f"{governance_prefix}docs/agents/integrations/index.md",
+            f"{governance_prefix}scripts/setup_repo_platform_assets.ps1",
             f"{governance_prefix}scripts/check_docs_ssot.ps1",
             f"{governance_prefix}scripts/check_agents_manifest.ps1",
             f"{governance_prefix}scripts/check_project_docs.ps1",
@@ -536,6 +580,284 @@ def _load_json(path: Path) -> Any:
         raise RuntimeError(f"Failed to read JSON file {path}: {exc}") from exc
     except json.JSONDecodeError as exc:
         raise RuntimeError(f"Failed to parse JSON file {path}: {exc}") from exc
+
+
+class TomlValidationUnavailable(RuntimeError):
+    """Raised when TOML validation support is unavailable in the current runtime."""
+
+
+def _load_toml(path: Path) -> Any:
+    if tomllib is None:
+        raise TomlValidationUnavailable(
+            "TOML validation skipped because neither tomllib (Python 3.11+) nor tomli is available."
+        )
+    try:
+        return tomllib.loads(path.read_text(encoding="utf-8"))
+    except OSError as exc:
+        raise RuntimeError(f"Failed to read TOML file {path}: {exc}") from exc
+    except tomllib.TOMLDecodeError as exc:  # type: ignore[attr-defined]
+        raise RuntimeError(f"Failed to parse TOML file {path}: {exc}") from exc
+
+
+def _resolve_runtime_projection_source(path_spec: str, governance_root: Path) -> Path:
+    expanded = path_spec.replace("{HOME}", str(Path.home()))
+    path = Path(expanded).expanduser()
+    if path.is_absolute():
+        return path
+    return (governance_root / path).resolve()
+
+
+def _check_runtime_projection_manifest(
+    repo_root: Path, governance_root: Path
+) -> Tuple[List[str], List[str]]:
+    del repo_root
+    errors: List[str] = []
+    notes: List[str] = []
+
+    manifest_path = governance_root / "docs/agents/platforms/runtime-projections.json"
+    if not manifest_path.is_file():
+        return [f"Missing runtime projection manifest: {manifest_path}"], notes
+
+    try:
+        manifest = _load_json(manifest_path)
+    except RuntimeError as exc:
+        return [str(exc)], notes
+
+    if not isinstance(manifest, dict):
+        return [f"Runtime projection manifest must be a JSON object: {manifest_path}"], notes
+
+    for field in (
+        "version",
+        "ssot_owner",
+        "update_trigger",
+        "support_levels",
+    "path_resolution",
+    "asset_classes",
+    ):
+        if field not in manifest:
+            errors.append(
+                f"Runtime projection manifest missing top-level field '{field}': {manifest_path}"
+            )
+
+    if errors:
+        return errors, notes
+
+    if manifest.get("ssot_owner") != "docs/agents/platforms/runtime-projections.json":
+        errors.append(
+            "Runtime projection manifest ssot_owner must be "
+            "'docs/agents/platforms/runtime-projections.json'."
+        )
+
+    support_levels = manifest.get("support_levels")
+    if not isinstance(support_levels, list) or not support_levels:
+        errors.append("runtime-projections.json support_levels must be a non-empty array.")
+    else:
+        normalized_support_levels = [
+            item for item in support_levels if isinstance(item, str) and item.strip()
+        ]
+        if len(normalized_support_levels) != len(support_levels):
+            errors.append("runtime-projections.json support_levels must contain only non-empty strings.")
+        if len(set(normalized_support_levels)) != len(normalized_support_levels):
+            errors.append("runtime-projections.json support_levels contains duplicates.")
+        missing_support_levels = _RUNTIME_PROJECTION_REQUIRED_SUPPORT_LEVELS.difference(
+            normalized_support_levels
+        )
+        if missing_support_levels:
+            errors.append(
+                "runtime-projections.json support_levels is missing required values: "
+                + ", ".join(sorted(missing_support_levels))
+            )
+
+    path_resolution = manifest.get("path_resolution")
+    if not isinstance(path_resolution, dict):
+        errors.append("runtime-projections.json path_resolution must be an object.")
+    else:
+        for field in ("source_root", "source_path", "source_preference", "target_root", "target_path"):
+            value = path_resolution.get(field)
+            if not isinstance(value, str) or not value.strip():
+                errors.append(
+                    f"runtime-projections.json path_resolution.{field} must be a non-empty string."
+                )
+
+    asset_classes = manifest.get("asset_classes")
+    if not isinstance(asset_classes, dict):
+        errors.append("runtime-projections.json asset_classes must be an object.")
+        return errors, notes
+
+    seen_ids: Set[str] = set()
+    for asset_class, allowed_modes in _RUNTIME_PROJECTION_ALLOWED_MODES_BY_ASSET_CLASS.items():
+        entries = asset_classes.get(asset_class)
+        if not isinstance(entries, list):
+            errors.append(f"runtime-projections.json asset_classes.{asset_class} must be an array.")
+            continue
+
+        for idx, entry in enumerate(entries, start=1):
+            if not isinstance(entry, dict):
+                errors.append(
+                    f"runtime-projections.json asset_classes.{asset_class}[{idx}] must be an object."
+                )
+                continue
+
+            missing_fields = [
+                field
+                for field in (
+                    "id",
+                    "platform",
+                    "support_level",
+                    "projection_mode",
+                    "scope",
+                    "default_enabled",
+                )
+                if field not in entry
+            ]
+            if missing_fields:
+                for field in missing_fields:
+                    errors.append(
+                        f"runtime-projections.json asset_classes.{asset_class}[{idx}] missing field '{field}'."
+                    )
+                continue
+
+            entry_id = entry.get("id")
+            if not isinstance(entry_id, str) or not entry_id.strip():
+                errors.append(
+                    f"runtime-projections.json asset_classes.{asset_class}[{idx}].id must be a non-empty string."
+                )
+                continue
+            if entry_id in seen_ids:
+                errors.append(f"runtime-projections.json contains duplicate projection id '{entry_id}'.")
+            else:
+                seen_ids.add(entry_id)
+
+            support_level = entry.get("support_level")
+            if support_level not in _RUNTIME_PROJECTION_REQUIRED_SUPPORT_LEVELS:
+                errors.append(
+                    f"runtime-projections.json entry '{entry_id}' uses unsupported support_level '{support_level}'."
+                )
+
+            scope = entry.get("scope")
+            if scope not in _RUNTIME_PROJECTION_ALLOWED_SCOPES:
+                errors.append(
+                    f"runtime-projections.json entry '{entry_id}' uses unsupported scope '{scope}'."
+                )
+
+            default_enabled = entry.get("default_enabled")
+            if not isinstance(default_enabled, bool):
+                errors.append(
+                    f"runtime-projections.json entry '{entry_id}' default_enabled must be a boolean."
+                )
+
+            projection_mode = entry.get("projection_mode")
+            if projection_mode not in allowed_modes:
+                errors.append(
+                    f"runtime-projections.json entry '{entry_id}' uses unsupported projection_mode "
+                    f"'{projection_mode}' for asset class '{asset_class}'."
+                )
+                continue
+
+            if projection_mode in {
+                "child_directory_links",
+                "generated_cursor_rules_from_skills",
+                "generated_claude_commands_from_skills",
+                "directory_link",
+                "generated_claude_agents_from_subagents",
+            }:
+                source_root = entry.get("source_root")
+                target_root = entry.get("target_root")
+                if not isinstance(source_root, str) or not source_root.strip():
+                    errors.append(
+                        f"runtime-projections.json entry '{entry_id}' requires non-empty source_root."
+                    )
+                else:
+                    resolved_source_root = _resolve_runtime_projection_source(
+                        source_root, governance_root
+                    )
+                    if not resolved_source_root.is_dir():
+                        errors.append(
+                            f"runtime-projections.json entry '{entry_id}' source_root does not exist: "
+                            f"{resolved_source_root}"
+                        )
+                if not isinstance(target_root, str) or not target_root.strip():
+                    errors.append(
+                        f"runtime-projections.json entry '{entry_id}' requires non-empty target_root."
+                    )
+
+            if projection_mode == "mcp_file_link":
+                source_preference = entry.get("source_preference")
+                target_path = entry.get("target_path")
+                if not isinstance(source_preference, list) or not source_preference:
+                    errors.append(
+                        f"runtime-projections.json entry '{entry_id}' requires non-empty source_preference."
+                    )
+                else:
+                    resolved_candidates = [
+                        _resolve_runtime_projection_source(candidate, governance_root)
+                        for candidate in source_preference
+                        if isinstance(candidate, str) and candidate.strip()
+                    ]
+                    if len(resolved_candidates) != len(source_preference):
+                        errors.append(
+                            f"runtime-projections.json entry '{entry_id}' source_preference must contain only non-empty strings."
+                        )
+                    elif not any(candidate.is_file() for candidate in resolved_candidates):
+                        errors.append(
+                            f"runtime-projections.json entry '{entry_id}' source_preference does not resolve to an existing file."
+                        )
+                if not isinstance(target_path, str) or not target_path.strip():
+                    errors.append(
+                        f"runtime-projections.json entry '{entry_id}' requires non-empty target_path."
+                    )
+
+            if projection_mode == "settings_file_link":
+                source_path = entry.get("source_path")
+                target_path = entry.get("target_path")
+                if not isinstance(source_path, str) or not source_path.strip():
+                    errors.append(
+                        f"runtime-projections.json entry '{entry_id}' requires non-empty source_path."
+                    )
+                else:
+                    resolved_source_path = _resolve_runtime_projection_source(
+                        source_path, governance_root
+                    )
+                    if not resolved_source_path.is_file():
+                        errors.append(
+                            f"runtime-projections.json entry '{entry_id}' source_path does not exist: "
+                            f"{resolved_source_path}"
+                        )
+                    else:
+                        suffix = resolved_source_path.suffix.lower()
+                        try:
+                            if suffix == ".json":
+                                _load_json(resolved_source_path)
+                            elif suffix == ".toml":
+                                _load_toml(resolved_source_path)
+                            else:
+                                errors.append(
+                                    f"runtime-projections.json entry '{entry_id}' uses unsupported settings file extension '{suffix}'."
+                                )
+                        except TomlValidationUnavailable as exc:
+                            notes.append(str(exc))
+                        except RuntimeError as exc:
+                            errors.append(str(exc))
+                if not isinstance(target_path, str) or not target_path.strip():
+                    errors.append(
+                        f"runtime-projections.json entry '{entry_id}' requires non-empty target_path."
+                    )
+
+            if projection_mode == "skip":
+                reason = entry.get("reason")
+                if not isinstance(reason, str) or not reason.strip():
+                    errors.append(
+                        f"runtime-projections.json entry '{entry_id}' with projection_mode 'skip' requires a non-empty reason."
+                    )
+
+            if support_level in {"compatibility", "manual", "unsupported", "reserved"} and default_enabled:
+                errors.append(
+                    f"runtime-projections.json entry '{entry_id}' must not enable non-official projections by default."
+                )
+
+    if not errors:
+        notes.append(f"Runtime projection manifest checks passed: {manifest_path}")
+    return errors, notes
 
 
 def _record_is_governance_scoped(record: Dict[str, Any]) -> bool:
@@ -905,6 +1227,17 @@ def main(argv: Sequence[str]) -> int:
         total_errors += len(manifest_errors)
     else:
         logger.info("Agents manifest checks passed.")
+
+    runtime_projection_errors, runtime_projection_notes = _check_runtime_projection_manifest(
+        repo_root, governance_root
+    )
+    if runtime_projection_errors:
+        for issue in runtime_projection_errors:
+            logger.error("ERROR: %s", issue)
+        total_errors += len(runtime_projection_errors)
+    else:
+        for note in runtime_projection_notes:
+            logger.info(note)
 
     docs_errors, docs_warnings = _check_docs_ssot(repo_root, governance_root)
     if docs_errors:
