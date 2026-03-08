@@ -84,6 +84,17 @@ Mappings are aliases for discoverability; authority remains in `AGENTS.md` and e
 ### Skills
 - Skill standards: `docs/agents/skills/00-skill-standards.md`
 - Platform adapters: `docs/agents/skills/10-platform-adapters.md`
+- Nia setup guide (Claude Code, Cursor, Codex): `docs/agents/skills/nia/SETUP.md`
+- X API data-access skill: `docs/agents/skills/x-api-data-access/SKILL.md`
+
+### Platform assets
+- Platform runtime standards: `docs/agents/platforms/00-platform-runtime-standards.md`
+- Platform runtime docs index: `docs/agents/platforms/index.md`
+- Settings standards: `docs/agents/settings/00-settings-standards.md`
+- Subagent standards: `docs/agents/subagents/00-subagent-standards.md`
+- MCP standards: `docs/agents/mcp/00-mcp-standards.md`
+- ACP standards: `docs/agents/acp/00-acp-standards.md`
+- Integration notes index: `docs/agents/integrations/index.md`
 
 ### Automation
 - Overview: `docs/agents/automation/overview.md`
@@ -97,6 +108,7 @@ Mappings are aliases for discoverability; authority remains in `AGENTS.md` and e
 
 ## Checks
 
+- Platform asset bootstrap/repair smoke: `scripts/setup_repo_platform_assets.ps1`
 - Docs SSOT headers: `scripts/check_docs_ssot.ps1`
 - Agents manifest references: `scripts/check_agents_manifest.ps1`
 - Project docs exist + README linkage: `scripts/check_project_docs.ps1`

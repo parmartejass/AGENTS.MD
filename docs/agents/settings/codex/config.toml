@@ -1,0 +1,70 @@
+# Shared project-scoped Codex settings for this repository.
+# Keep user-global auth/history/preferences in ~/.codex/config.toml.
+
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+fast_mode = true
+
+[features]
+multi_agent = true
+
+[agents]
+max_threads = 6
+max_depth = 1
+
+[agents.authority-analyst]
+description = "Authority and SSOT alignment reviewer."
+config_file = "agents/authority-analyst.toml"
+
+[agents.debugger]
+description = "Root-cause and disconfirming-test reviewer."
+config_file = "agents/debugger.toml"
+
+[agents.change-contract-generator]
+description = "Change-contract and invariant witness drafter."
+config_file = "agents/change-contract-generator.toml"
+
+[agents.edge-case-scanner]
+description = "Boundary and adversarial edge-case reviewer."
+config_file = "agents/edge-case-scanner.toml"
+
+[agents.security-perf-auditor]
+description = "Security, resource-safety, and performance risk reviewer."
+config_file = "agents/security-perf-auditor.toml"
+
+[agents.ssot-reviewer]
+description = "Single-source-of-truth and duplication reviewer."
+config_file = "agents/ssot-reviewer.toml"
+
+[agents.docs-reviewer]
+description = "Documentation SSOT and reachability reviewer."
+config_file = "agents/docs-reviewer.toml"
+
+[agents.io-integrity-reviewer]
+description = "I/O integrity and deterministic file-processing reviewer."
+config_file = "agents/io-integrity-reviewer.toml"
+
+[agents.test-coverage-checker]
+description = "Test coverage and failure-path verification reviewer."
+config_file = "agents/test-coverage-checker.toml"
+
+[agents.governance-learner]
+description = "Governance learnings and policy-gap reviewer."
+config_file = "agents/governance-learner.toml"
+
+[agents.stuck-loop-detector]
+description = "Repeated-failure and contradiction detector."
+config_file = "agents/stuck-loop-detector.toml"
+
+[agents.excel-lifecycle]
+description = "Excel COM lifecycle and cleanup safety reviewer."
+config_file = "agents/excel-lifecycle.toml"
+
+[agents.gui-thread-checker]
+description = "GUI thread-safety and queue-drain reviewer."
+config_file = "agents/gui-thread-checker.toml"
+
+# Supermemory MCP uses OAuth by default. Keep API keys and per-user headers out
+# of the repo-owned project config.
+[mcp_servers.supermemory]
+url = "https://mcp.supermemory.ai/mcp"

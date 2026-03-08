@@ -45,10 +45,18 @@ Owner: exactly one place.
 Owner: `agents-manifest.yaml`
 - task signal → which supporting docs/playbooks to load alongside `AGENTS.md`
 
-## Skills (platform adapters + standards)
-Owner: `docs/agents/skills/00-skill-standards.md`
-- skill standards and compatibility expectations
-- platform-specific adapter guidance (no policy duplication)
+## Platform assets (skills, settings, subagents, MCP, ACP)
+Owner: `docs/agents/skills/00-skill-standards.md`, `docs/agents/settings/00-settings-standards.md`, `docs/agents/subagents/00-subagent-standards.md`, `docs/agents/mcp/00-mcp-standards.md`, `docs/agents/acp/00-acp-standards.md`
+- repo-owned reusable platform assets and compatibility expectations
+- runtime projection via `docs/agents/link_repo_assets.ps1`
+- platform-specific guidance without policy duplication
+
+## Concrete runtime path + support-level mapping
+Owner: `docs/agents/platforms/runtime-projections.json`
+- one concrete table for runtime targets, scope, support level, and projection mode
+- canonical source paths resolve from the governance root; runtime targets resolve from the project root
+- consumed by `docs/agents/link_repo_assets.ps1`
+- justified by dated notes under `docs/agents/platforms/`
 
 ## Excel COM lifecycle
 Owner: exactly one implementation.

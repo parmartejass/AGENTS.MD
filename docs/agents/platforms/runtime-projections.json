@@ -1,0 +1,207 @@
+{
+  "version": 1,
+  "ssot_owner": "docs/agents/platforms/runtime-projections.json",
+  "update_trigger": "official runtime paths, support levels, projection modes, or source/target path-resolution rules change",
+  "support_levels": [
+    "official",
+    "compatibility",
+    "manual",
+    "unsupported",
+    "reserved"
+  ],
+  "path_resolution": {
+    "source_root": "Resolve relative source_root values from governance root unless the path is already absolute.",
+    "source_path": "Resolve relative source_path values from governance root unless the path is already absolute.",
+    "source_preference": "Resolve relative source_preference values from governance root unless the path is already absolute.",
+    "target_root": "Resolve relative target_root values from project root after expanding {HOME}.",
+    "target_path": "Resolve relative target_path values from project root after expanding {HOME}."
+  },
+  "asset_classes": {
+    "skills": [
+      {
+        "id": "codex-project-skills",
+        "platform": "codex",
+        "support_level": "official",
+        "projection_mode": "child_directory_links",
+        "scope": "project",
+        "source_root": "docs/agents/skills",
+        "target_root": ".agents/skills",
+        "default_enabled": true
+      },
+      {
+        "id": "cursor-skill-rules",
+        "platform": "cursor",
+        "support_level": "compatibility",
+        "projection_mode": "generated_cursor_rules_from_skills",
+        "scope": "project",
+        "source_root": "docs/agents/skills",
+        "target_root": ".cursor/rules",
+        "default_enabled": false
+      },
+      {
+        "id": "claude-project-skills",
+        "platform": "claude-code",
+        "support_level": "official",
+        "projection_mode": "child_directory_links",
+        "scope": "project",
+        "source_root": "docs/agents/skills",
+        "target_root": ".claude/skills",
+        "default_enabled": true
+      },
+      {
+        "id": "codex-user-home-skills",
+        "platform": "codex",
+        "support_level": "manual",
+        "projection_mode": "skip",
+        "scope": "user",
+        "target_root": "{HOME}/.agents/skills",
+        "reason": "Codex officially supports user-scoped skills in $HOME/.agents/skills, but this repo defaults to project-scoped .agents/skills and does not auto-manage user-home paths.",
+        "default_enabled": false
+      },
+      {
+        "id": "legacy-cursor-skills",
+        "platform": "cursor",
+        "support_level": "compatibility",
+        "projection_mode": "child_directory_links",
+        "scope": "project",
+        "source_root": "docs/agents/skills",
+        "target_root": ".cursor/skills",
+        "default_enabled": false
+      },
+      {
+        "id": "legacy-claude-commands",
+        "platform": "claude-code",
+        "support_level": "compatibility",
+        "projection_mode": "generated_claude_commands_from_skills",
+        "scope": "project",
+        "source_root": "docs/agents/skills",
+        "target_root": ".claude/commands",
+        "default_enabled": false
+      }
+    ],
+    "subagents": [
+      {
+        "id": "claude-project-agents",
+        "platform": "claude-code",
+        "support_level": "official",
+        "projection_mode": "directory_link",
+        "scope": "project",
+        "source_root": "docs/agents/subagents/shared",
+        "target_root": ".claude/agents",
+        "default_enabled": true
+      },
+      {
+        "id": "legacy-cursor-agents",
+        "platform": "cursor",
+        "support_level": "compatibility",
+        "projection_mode": "directory_link",
+        "scope": "project",
+        "source_root": "docs/agents/subagents/shared",
+        "target_root": ".cursor/agents",
+        "preserve_existing_when_disabled": true,
+        "default_enabled": false
+      },
+      {
+        "id": "codex-subagents",
+        "platform": "codex",
+        "support_level": "official",
+        "projection_mode": "directory_link",
+        "scope": "project",
+        "source_root": "docs/agents/subagents/codex",
+        "source_file_glob": "*.toml",
+        "target_root": ".codex/agents",
+        "default_enabled": true
+      }
+    ],
+    "mcp": [
+      {
+        "id": "cursor-project-mcp",
+        "platform": "cursor",
+        "support_level": "official",
+        "projection_mode": "mcp_file_link",
+        "scope": "project",
+        "source_preference": [
+          "docs/agents/mcp/cursor/mcp.json",
+          "docs/agents/mcp/shared/mcp.json"
+        ],
+        "target_path": ".cursor/mcp.json",
+        "default_enabled": true
+      },
+      {
+        "id": "claude-project-mcp",
+        "platform": "claude-code",
+        "support_level": "official",
+        "projection_mode": "mcp_file_link",
+        "scope": "project",
+        "source_preference": [
+          "docs/agents/mcp/claude/mcp.json",
+          "docs/agents/mcp/shared/mcp.json"
+        ],
+        "target_path": ".mcp.json",
+        "default_enabled": true
+      },
+      {
+        "id": "codex-mcp",
+        "platform": "codex",
+        "support_level": "manual",
+        "projection_mode": "skip",
+        "scope": "project",
+        "reason": "Codex MCP lives in .codex/config.toml; keep repo snippets and docs authoritative, but do not overwrite mixed settings automatically.",
+        "default_enabled": false
+      }
+    ],
+    "settings": [
+      {
+        "id": "cursor-cli-config",
+        "platform": "cursor",
+        "support_level": "official",
+        "projection_mode": "settings_file_link",
+        "scope": "project",
+        "source_path": "docs/agents/settings/cursor/cli.json",
+        "target_path": ".cursor/cli.json",
+        "default_enabled": true
+      },
+      {
+        "id": "claude-shared-settings",
+        "platform": "claude-code",
+        "support_level": "official",
+        "projection_mode": "settings_file_link",
+        "scope": "project",
+        "source_path": "docs/agents/settings/claude-code/settings.json",
+        "target_path": ".claude/settings.json",
+        "default_enabled": true
+      },
+      {
+        "id": "claude-local-settings",
+        "platform": "claude-code",
+        "support_level": "manual",
+        "projection_mode": "skip",
+        "scope": "project",
+        "target_path": ".claude/settings.local.json",
+        "reason": "Claude local settings are machine-local overrides and must remain unmanaged.",
+        "default_enabled": false
+      },
+      {
+        "id": "codex-project-config",
+        "platform": "codex",
+        "support_level": "official",
+        "projection_mode": "settings_file_link",
+        "scope": "project",
+        "source_path": "docs/agents/settings/codex/config.toml",
+        "target_path": ".codex/config.toml",
+        "default_enabled": true
+      }
+    ],
+    "acp": [
+      {
+        "id": "acp-runtime-mapping",
+        "platform": "acp",
+        "support_level": "reserved",
+        "projection_mode": "skip",
+        "scope": "project",
+        "reason": "ACP runtime mapping is reserved until a verified platform contract is documented.",
+        "default_enabled": false
+      }
+    ]
+  }
+}

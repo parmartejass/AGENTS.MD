@@ -22,6 +22,34 @@ When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` an
 - Entry point: `docs/project/index.md` (goal/rules/architecture/learning)
 - Generated analyses: `docs/generated/` (non-authoritative, reproducible outputs)
 
+## Repo-owned agent assets
+
+- Canonical reusable platform assets live under `docs/agents/`.
+- Current repo-owned asset classes:
+  - Skills: `docs/agents/skills/`
+  - Settings: `docs/agents/settings/`
+  - Subagents: `docs/agents/subagents/`
+  - MCP configs: `docs/agents/mcp/`
+  - ACP placeholders: `docs/agents/acp/`
+- Platform runtime policy lives in `docs/agents/platforms/00-platform-runtime-standards.md`.
+- Concrete runtime path/support-level facts live in `docs/agents/platforms/runtime-projections.json`.
+- Dated platform/runtime evidence lives in `docs/agents/platforms/index.md`.
+- Integration notes for context/memory tools live in `docs/agents/integrations/index.md`.
+- Runtime projection sources resolve from the governance root; runtime targets resolve from the project root (or `{HOME}` when explicitly declared).
+- Use `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/setup_repo_platform_assets.ps1 -Force` to project supported assets into runtime locations for this repo.
+- Default setup preserves an existing `.cursor/agents/` compatibility surface for this repo, but does not create `.cursor/rules/`.
+- Use `-IncludeCompatibility` only when you explicitly want legacy or unverified compatibility projections.
+- Conflicting user-owned runtime files such as a non-link `.mcp.json` can cause setup to stop with an explicit error until you rename or remove the conflicting path.
+- When vendored as `.governance/`, the linker auto-targets the parent project root and also accepts `-RepoRoot` for an explicit override.
+- If the repo moves to a new filesystem path, rerun `scripts/setup_repo_platform_assets.ps1 -Force` so projections and generated adapters are rebuilt.
+
+## Nia in this repo
+
+- Nia is already connected for this repo through the projected Codex skill at `.agents/skills/nia`; the canonical bundle remains under `docs/agents/skills/nia/`.
+- For repository, documentation, package, and local-folder discovery tasks that match the Nia skill, use Nia before generic web fetch/search.
+- Do not treat a missing process `NIA_API_KEY` as proof that Nia is unavailable; this repo may keep the key in `.env`, and direct API verification is valid when shell wrappers are unavailable.
+- On Windows, Git Bash may exist outside `PATH`, and the bundled Nia shell scripts also require `jq`.
+
 ## Tool loader stubs
 
 - Cursor: `.cursorrules` (forces loading `AGENTS.md`)
@@ -82,9 +110,43 @@ When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` an
 |  |  |- automation/
 |  |  |  |- overview.md
 |  |  |  |- nightly-compound-loop.md
+|  |  |- acp/
+|  |  |  |- 00-acp-standards.md
+|  |  |- link_repo_assets.ps1
+|  |  |- mcp/
+|  |  |  |- 00-mcp-standards.md
+|  |  |  |- link_mcp.ps1
+|  |  |  |- shared/
+|  |  |     |- mcp.json
+|  |  |- settings/
+|  |  |  |- 00-settings-standards.md
+|  |  |  |- link_settings.ps1
+|  |  |  |- claude-code/
+|  |  |  |  |- settings.json
+|  |  |  |- codex/
+|  |  |  |  |- config.toml
+|  |  |  |- cursor/
+|  |  |     |- cli.json
+|  |  |- integrations/
+|  |  |  |- index.md
 |  |  |- skills/
 |  |  |  |- 00-skill-standards.md
 |  |  |  |- 10-platform-adapters.md
+|  |  |  |- link_skills.ps1
+|  |  |  |- platform-adapters/
+|  |  |  |  |- Codex CLI/
+|  |  |  |     |- llmjunky-last-30-days.md
+|  |  |  |- x-api-data-access/
+|  |  |     |- SKILL.md
+|  |  |     |- references/
+|  |  |- subagents/
+|  |  |  |- 00-subagent-standards.md
+|  |  |  |- link_subagents.ps1
+|  |  |  |- shared/
+|  |  |- platforms/
+|  |  |  |- 00-platform-runtime-standards.md
+|  |  |  |- index.md
+|  |  |  |- runtime-projections.json
 |  |  |- schemas/
 |  |  |  |- change-record.schema.json
 |  |  |- playbooks/
@@ -108,6 +170,7 @@ When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` an
 |  |- check_change_records.ps1
 |  |- check_governance_core.py
 |  |- check_python_safety.py
+|  |- setup_repo_platform_assets.ps1
 |  |- sync-governance.ps1
 |- templates/
 |  |- automation-loop/
@@ -312,6 +375,10 @@ Note: If `.governance/` folder is empty, run `git submodule update --init`.
 ## Checks
 
 This repo:
+- Platform asset bootstrap/repair smoke (writes the repo-owned runtime projections): `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/setup_repo_platform_assets.ps1 -Force`
+  - Default path witness: existing `.cursor/agents/` remains in place; `.cursor/rules/` is not created.
+  - If setup stops on a conflicting non-link runtime file such as `.mcp.json`, rename or remove that path and rerun.
+  - Include compatibility-only projections when explicitly needed: `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/setup_repo_platform_assets.ps1 -Force -IncludeCompatibility`
 - Docs SSOT header checks (all `docs/` except index pages): `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_docs_ssot.ps1`
 - Agents manifest checks: `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_agents_manifest.ps1`
 - Project docs checks (required files + README linkage): `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_project_docs.ps1`

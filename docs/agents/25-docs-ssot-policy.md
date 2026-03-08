@@ -27,7 +27,7 @@ Docs may describe:
 ## Required header template
 Every Markdown doc (`*.md`) under `docs/` (except index pages) must start with:
 
-Index pages are limited to `docs/index.md` and `docs/<section>/index.md`.
+Index pages are exempt at any nesting level (`index.md` or `*/index.md`).
 
 ```
 ---
@@ -38,6 +38,21 @@ update_trigger: <what change requires updating this doc>
 ```
 
 Generated docs must also use this header, set `doc_type: generated`, and live under `docs/generated/`.
+
+## Operational asset carveouts
+Operational agent assets under `docs/agents/` can coexist with governance docs when their runtime format is not the docs header schema.
+
+- Skills:
+  - Installable skill bundles under `docs/agents/skills/<skill-name>/` are operational artifacts.
+  - A skill bundle directory is identified by a local `SKILL.md`.
+  - `SKILL.md` frontmatter is owned by the skill runtime format, not the docs header schema.
+
+- Subagents:
+  - Runtime subagent files under `docs/agents/subagents/<platform>/` are operational artifacts.
+  - Their markdown frontmatter is owned by the target platform, not the docs header schema.
+
+- Repo checks exclude those operational asset paths from docs header enforcement.
+- Governance docs that describe these asset types still live directly under `docs/agents/<category>/*.md` and must keep the standard docs header.
 
 ## “Reference by identifier” convention
 When mentioning a value, prefer the SSOT identifier name, not the literal.

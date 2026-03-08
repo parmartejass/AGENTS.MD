@@ -1,0 +1,21 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/mcp@latest"
+      ],
+      "env": {}
+    },
+    "nia": {
+      "url": "https://apigcp.trynia.ai/mcp",
+      "headers": {
+        "Authorization": "Bearer ${env:NIA_API_KEY}"
+      }
+    },
+    "mcp-supermemory-ai": {
+      "url": "https://mcp.supermemory.ai/mcp"
+    }
+  }
+}
