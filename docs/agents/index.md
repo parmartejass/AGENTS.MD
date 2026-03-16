@@ -84,7 +84,6 @@ Mappings are aliases for discoverability; authority remains in `AGENTS.md` and e
 ### Skills
 - Skill standards: `docs/agents/skills/00-skill-standards.md`
 - Platform adapters: `docs/agents/skills/10-platform-adapters.md`
-- Nia setup guide (Claude Code, Cursor, Codex): `docs/agents/skills/nia/SETUP.md`
 - X API data-access skill: `docs/agents/skills/x-api-data-access/SKILL.md`
 
 ### Platform assets

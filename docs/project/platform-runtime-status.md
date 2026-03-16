@@ -27,7 +27,6 @@ Verified on: 2026-03-08
   - Local evidence note: `docs/agents/platforms/codex/2026-03-06-official-runtime.md`
 - Other verified references:
   - MCP: `docs/agents/platforms/mcp/2026-03-06-official-runtime.md`
-  - Nia: `docs/agents/integrations/nia/2026-03-06-official.md`
 
 ## Current repo status
 
@@ -60,7 +59,7 @@ Verified on: 2026-03-08
 
 - Status: connected and aligned with current official docs.
 - Verified surfaces:
-  - `.agents/skills/` exists with `nia/` and `x-api-data-access/`.
+  - `.agents/skills/` exists with projected skill bundles from `docs/agents/skills/`.
   - `.codex/agents/` points to `docs/agents/subagents/codex/`.
   - `.codex/config.toml` content matches `docs/agents/settings/codex/config.toml`, including `[features].multi_agent = true` and role-level `config_file` entries under `[agents.<role>]`.
 - Migration note:
