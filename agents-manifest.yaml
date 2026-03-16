@@ -469,8 +469,6 @@ profiles:
         - "setup script"
         - "bootstrap"
         - "persistent memory"
-        - "supermemory"
-        - "nia"
       code_patterns: []
       file_globs:
         - "docs/agents/subagents/*.md"

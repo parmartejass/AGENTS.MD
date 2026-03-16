@@ -63,8 +63,3 @@ config_file = "agents/excel-lifecycle.toml"
 [agents.gui-thread-checker]
 description = "GUI thread-safety and queue-drain reviewer."
 config_file = "agents/gui-thread-checker.toml"
-
-# Supermemory MCP uses OAuth by default. Keep API keys and per-user headers out
-# of the repo-owned project config.
-[mcp_servers.supermemory]
-url = "https://mcp.supermemory.ai/mcp"

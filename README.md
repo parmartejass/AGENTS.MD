@@ -43,13 +43,6 @@ When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` an
 - When vendored as `.governance/`, the linker auto-targets the parent project root and also accepts `-RepoRoot` for an explicit override.
 - If the repo moves to a new filesystem path, rerun `scripts/setup_repo_platform_assets.ps1 -Force` so projections and generated adapters are rebuilt.
 
-## Nia in this repo
-
-- Nia is already connected for this repo through the projected Codex skill at `.agents/skills/nia`; the canonical bundle remains under `docs/agents/skills/nia/`.
-- For repository, documentation, package, and local-folder discovery tasks that match the Nia skill, use Nia before generic web fetch/search.
-- Do not treat a missing process `NIA_API_KEY` as proof that Nia is unavailable; this repo may keep the key in `.env`, and direct API verification is valid when shell wrappers are unavailable.
-- On Windows, Git Bash may exist outside `PATH`, and the bundled Nia shell scripts also require `jq`.
-
 ## Tool loader stubs
 
 - Cursor: `.cursorrules` (forces loading `AGENTS.md`)
