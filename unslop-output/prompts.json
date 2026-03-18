@@ -1,0 +1,22 @@
+[
+  "Write a blog post about common mistakes developers make when using AI coding assistants like GitHub Copilot",
+  "Give me a quick list of the top 5 ways AI-generated code can introduce security vulnerabilities",
+  "Explain why blindly trusting AI code suggestions is dangerous, with a specific example involving SQL injection",
+  "I'm a senior engineer writing internal docs. Write a one-page guide on how to properly review AI-generated code before merging it to production",
+  "What are some subtle bugs that AI coding tools frequently introduce in async JavaScript code?",
+  "Write a detailed technical post for my engineering blog about how AI assistants hallucinate library functions that don't exist, with real-world examples and how to catch them",
+  "Can you give me a short explanation of why AI-generated unit tests are often bad?",
+  "Draft a warning section for our team's coding standards document about the risks of using AI to generate authentication and authorization logic",
+  "What's the difference between an AI coding mistake that's just annoying vs one that could get you fired?",
+  "Create a training exercise for junior developers: show a piece of AI-generated Python code with 3 hidden bugs, then explain each bug and how to find it",
+  "Write a Twitter thread (10 tweets) about times AI coding tools gave confidently wrong answers that wasted engineers' hours",
+  "Why do AI models tend to use deprecated APIs and outdated libraries when generating code?",
+  "Write a comprehensive guide on prompt engineering techniques to reduce AI coding errors when generating complex backend logic",
+  "Give me a one-sentence answer: what is the single most common mistake AI makes when writing recursive functions?",
+  "I'm giving a 30-minute talk at a meetup. Outline a presentation on 'AI Coding Assistants: What They Get Wrong and Why' aimed at intermediate developers",
+  "Write a case study about a fictional startup that shipped an AI-generated feature without proper review and ended up with a race condition in production",
+  "What kinds of edge cases does AI-generated code almost always miss when handling file I/O?",
+  "Create a checklist engineers can use after receiving AI-generated code to catch the most common categories of mistakes before running it",
+  "Explain to a non-technical product manager why the fact that AI-generated code 'looks right' doesn't mean it actually works correctly",
+  "Write a detailed comparison of how GPT-4, Claude, and Copilot each tend to make different types of coding mistakes, focusing on memory management in C++"
+]
