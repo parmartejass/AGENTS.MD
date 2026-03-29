@@ -28,6 +28,10 @@ update_trigger: release gates change
 - Queue + `after(...)` drain pattern enforced.
 - Shutdown/cancel event exists and is respected.
 
+## Rollback readiness
+- Confirm a rollback or revert path exists for the release (e.g., prior known-good commit, feature flag, or deploy revert command).
+- For behavior changes, verify rollback does not leave data in an inconsistent state.
+
 ## Docs + comments
 - Docs do not duplicate facts; they reference identifiers and owners.
 - Comments are "why-only" and do not restate logic/defaults.

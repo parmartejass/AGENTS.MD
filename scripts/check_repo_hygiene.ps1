@@ -27,6 +27,29 @@ function Add-Issue([System.Collections.Generic.List[string]]$issues, [string]$me
   $issues.Add($message)
 }
 
+function Test-TrackedSecretLikePath([string]$Path) {
+  $normalized = $Path.Replace('\', '/')
+  $lower = $normalized.ToLowerInvariant()
+
+  if ($lower -match '(^|/)\.env($|\.local$|\.dev$|\.prod$|\.test$)') {
+    return $true
+  }
+
+  if ($lower -match '(^|/)\.x_token\.json$') {
+    return $true
+  }
+
+  if ($normalized -like "X-Bookmarks Import/data/*") {
+    return $true
+  }
+
+  if ($lower -match '(^|/)[^/]*(token|secret|credential|credentials)[^/]*\.(json|txt|env|ini|toml|yaml|yml)$') {
+    return $true
+  }
+
+  return $false
+}
+
 $issues = New-Object System.Collections.Generic.List[string]
 
 try {
@@ -56,6 +79,11 @@ foreach ($path in $tracked) {
 
   if ($path -like "templates/python-dual-entry/tests/output/*" -and $path -ne "templates/python-dual-entry/tests/output/.gitkeep") {
     Add-Issue $issues "Tracked template output file (should be generated/ignored): $path"
+    continue
+  }
+
+  if (Test-TrackedSecretLikePath -Path $path) {
+    Add-Issue $issues "Tracked secret-like or workspace-local file: $path"
     continue
   }
 }

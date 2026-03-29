@@ -9,6 +9,7 @@ update_trigger: ACP runtime mappings or supported asset shapes change
 ## Definition
 - ACP-related reusable, non-secret assets may live under `docs/agents/acp/`.
 - This folder is reserved so ACP artifacts can travel with the repo once a verified runtime mapping is adopted.
+- Note: "ACP" in this repo refers to Agent Communication Protocol (agent-to-agent task delegation). It is distinct from the Agentic Commerce Protocol (OpenAI + Stripe, payment-focused) which shares the same acronym.
 
 ## Invariants
 - Do not store secrets, bearer tokens, client secrets, or local machine identities here.

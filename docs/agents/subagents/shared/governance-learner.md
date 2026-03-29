@@ -24,6 +24,7 @@ From AGENTS.md section "Governance Auto-Edit Gate (Hard Gate)":
 - New domain/technology encountered
 - Edge cases that should be documented
 - Workflow improvements discovered
+- Agent pitfalls from session analysis (repeated rework, skill coverage gaps, context drift)
 
 ### Governance Gaps Identified
 - Missing profile in `agents-manifest.yaml`

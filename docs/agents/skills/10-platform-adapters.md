@@ -27,6 +27,10 @@ update_trigger: platform adapter guidance changes OR new platform is added
 - Source-preserved example archive: `docs/agents/skills/platform-adapters/Codex CLI/llmjunky-last-30-days.md`
 - Keep the archive non-authoritative; `docs/agents/skills/00-skill-standards.md` remains the SSOT for adapter rules.
 
+## Scaling note
+- At high skill counts (approximately 160+), flat skill directories can exhaust the runtime context budget (see `docs/agents/skills/00-skill-standards.md` "Context Budget Constraint"). Hierarchical two-tier routing (e.g., skill-tree pattern) can reduce token overhead by up to 88%.
+- If a project exceeds the budget, evaluate per-platform clustering before adding more skills. Reference: skill-tree (github.com/danielbrodie/skill-tree).
+
 ## Current verified runtime stance
 - Codex official skill path: see `docs/agents/platforms/codex/2026-03-06-official-runtime.md`
 - Claude Code official skill/agent surfaces: see `docs/agents/platforms/claude-code/2026-03-06-official-runtime.md`

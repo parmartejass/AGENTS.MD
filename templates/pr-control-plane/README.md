@@ -10,6 +10,9 @@ This template provides a deterministic PR control-plane pattern:
 
 It is provider-agnostic at the contract boundary. A deterministic mock adapter is included.
 
+If wording here conflicts with `AGENTS.md`, `AGENTS.md` wins.
+This README is supporting guidance; the machine-readable contract and schema remain the policy SSOT.
+
 ## What Is Included
 - `control-plane.contract.json`: machine-readable policy contract.
 - `schemas/control-plane-contract.schema.json`: contract schema.
@@ -52,13 +55,8 @@ python3 -m unittest -v \
 If `python3` is unavailable, use `python`.
 
 ## Required Check Names
-The default high-tier required checks in `control-plane.contract.json` are:
-- `risk-policy-gate`
-- `harness-smoke`
-- `Browser Evidence`
-- `CI Pipeline`
-
-Ensure workflow/job names match these check names.
+The default high-tier required checks are the values under `mergePolicy.high.requiredChecks` in `control-plane.contract.json`.
+Ensure workflow/job names match that contract-owned list.
 
 ## Provider Swap
 To replace the mock adapter:

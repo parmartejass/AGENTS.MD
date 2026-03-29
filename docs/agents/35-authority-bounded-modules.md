@@ -31,7 +31,7 @@ If any wording conflicts with `AGENTS.md`, `AGENTS.md` wins.
 ## Decomposition trigger + guardrail
 - Use the decomposition decision flow in `docs/agents/playbooks/design-principles-checklist.md` before adding logic to authority entrypoints.
 - Distinct invariants/lifecycle/I/O/testability/change-cadence signals require extracting or extending child internal modules.
-- 300 lines per module file is a soft review trigger, not a standalone reason for unrelated refactors.
+- Follow the `400 LOC` hard gate in `AGENTS.md`; LOC alone is not a reason for unrelated refactors.
 
 ## Witnesses
 - Tests or runtime validation prove preconditions/postconditions.
@@ -48,6 +48,7 @@ If any wording conflicts with `AGENTS.md`, `AGENTS.md` wins.
 ## Where to record boundaries
 - Record the authority graph and module boundaries in `docs/project/architecture.md` (project root),
   or in the workflow registry when that is the repo's SSOT for entrypoints.
+- When a project adopts a cross-project governance authority decision, reference the governing decision ID from `docs/agents/22-ssot-authority-decisions.md`.
 - If `docs/project/architecture.md` is missing, create it before other changes.
 
 ## References (SSOT)

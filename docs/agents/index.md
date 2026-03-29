@@ -14,10 +14,8 @@ If any wording conflicts with `AGENTS.md`, `AGENTS.md` wins.
 4. `docs/agents/10-repo-discovery.md`
 
 ### Bugfix or regression
-1. `docs/agents/00-principles.md`
-2. `docs/agents/playbooks/bugfix-template.md`
-3. `docs/agents/playbooks/rca-methods-template.md`
-4. Domain-specific docs (`50/60/70/80` as applicable)
+1. See `agents-manifest.yaml` `bugfix` profile for the current injected docs.
+2. Add domain-specific docs (`50/60/70/80`) as applicable.
 
 ### New feature or behavior change
 1. `docs/agents/00-principles.md`
@@ -26,9 +24,10 @@ If any wording conflicts with `AGENTS.md`, `AGENTS.md` wins.
 4. Relevant task playbook (`excel/gui/io/perf/pdf`)
 
 ### Docs or governance updates
-1. `docs/agents/25-docs-ssot-policy.md`
-2. `docs/agents/playbooks/project-docs-template.md`
-3. `docs/agents/playbooks/governance-learnings-template.md` (when explicitly invoked)
+1. `docs/agents/22-ssot-authority-decisions.md`
+2. `docs/agents/25-docs-ssot-policy.md`
+3. `docs/agents/playbooks/project-docs-template.md`
+4. `docs/agents/playbooks/governance-learnings-template.md` (when explicitly invoked)
 
 ## Playbook Alias Map (Discoverability Only)
 
@@ -40,7 +39,7 @@ Mappings are aliases for discoverability; authority remains in `AGENTS.md` and e
 | `PB-DEBUG` | `bugfix` | `docs/agents/playbooks/bugfix-template.md`, `docs/agents/playbooks/rca-methods-template.md` |
 | `PB-PERF` | `perf_hotspots` | `docs/agents/playbooks/perf-hotspots-template.md` |
 | `PB-CONC` | `gui_task` | `docs/agents/playbooks/gui-task-template.md`, `docs/agents/60-gui-threading.md` |
-| `PB-SSOT` | `design_review`, `project_docs` | `docs/agents/20-sources-of-truth-map.md`, `docs/agents/25-docs-ssot-policy.md`, `docs/agents/playbooks/design-principles-checklist.md` |
+| `PB-SSOT` | `design_review`, `project_docs` | `docs/agents/20-sources-of-truth-map.md`, `docs/agents/22-ssot-authority-decisions.md`, `docs/agents/25-docs-ssot-policy.md`, `docs/agents/playbooks/design-principles-checklist.md` |
 | `PB-REF` | `design_review` | `docs/agents/playbooks/design-principles-checklist.md` |
 | `PB-DEPS` | `excel_automation` (Excel-specific) | `docs/agents/playbooks/excel-library-selection-playbook.md` |
 | `PB-CONSISTENCY` | `design_review`, `project_docs` | `docs/agents/20-sources-of-truth-map.md`, `docs/agents/playbooks/design-principles-checklist.md` |
@@ -55,6 +54,7 @@ Mappings are aliases for discoverability; authority remains in `AGENTS.md` and e
 - Repo discovery: `docs/agents/10-repo-discovery.md`
 - Stuck-loop restart prompt: `docs/agents/15-stuck-in-loop-generate-fresh-restart-prompt.md`
 - Sources of truth map: `docs/agents/20-sources-of-truth-map.md`
+- SSOT authority decisions: `docs/agents/22-ssot-authority-decisions.md`
 - Docs SSOT policy: `docs/agents/25-docs-ssot-policy.md`
 - Logging + errors: `docs/agents/30-logging-errors.md`
 - Authority-bounded modules: `docs/agents/35-authority-bounded-modules.md`
@@ -80,11 +80,14 @@ Mappings are aliases for discoverability; authority remains in `AGENTS.md` and e
 - PDF tasks: `docs/agents/playbooks/pdf-task-template.md`
 - Performance hotspots: `docs/agents/playbooks/perf-hotspots-template.md`
 - Bugfixes: `docs/agents/playbooks/bugfix-template.md`
+- Change contract: `docs/agents/playbooks/change-contract-template.md`
+- Log schema: `docs/agents/playbooks/log-schema-template.md`
 
 ### Skills
 - Skill standards: `docs/agents/skills/00-skill-standards.md`
 - Platform adapters: `docs/agents/skills/10-platform-adapters.md`
-- X API data-access skill: `docs/agents/skills/x-api-data-access/SKILL.md`
+- X API data-access skill (canonical): `docs/agents/skills/x-api-data-access/SKILL.md`
+- X workspace (non-authority data/research/scripts): `X-Bookmarks Import/`
 
 ### Platform assets
 - Platform runtime standards: `docs/agents/platforms/00-platform-runtime-standards.md`
@@ -107,13 +110,6 @@ Mappings are aliases for discoverability; authority remains in `AGENTS.md` and e
 
 ## Checks
 
-- Platform asset bootstrap/repair smoke: `scripts/setup_repo_platform_assets.ps1`
-- Docs SSOT headers: `scripts/check_docs_ssot.ps1`
-- Agents manifest references: `scripts/check_agents_manifest.ps1`
-- Project docs exist + README linkage: `scripts/check_project_docs.ps1`
-- Repo hygiene (no runtime/generated artifact noise tracked): `scripts/check_repo_hygiene.ps1`
-- Cross-platform core governance checks: `scripts/check_governance_core.py` (`--require-records`, `--fail-on-safety-warnings` optional strict flags)
-- Change record artifacts: `scripts/check_change_records.ps1`
-- Python safety baseline (print/except/timeout/file handles): `scripts/check_python_safety.py`
-
-When this pack is vendored under `.governance/`, invoke checks via `.governance/scripts/...` and pass `-RepoRoot .` for repo-scoped checks.
+Use `README.md` section "Checks" as the single verification-command SSOT.
+Do not copy command lists into this index.
+When this pack is vendored under `.governance/`, use the `.governance/scripts/...` variants listed in that README section.

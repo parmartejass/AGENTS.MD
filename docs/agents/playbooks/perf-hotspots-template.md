@@ -43,3 +43,4 @@ Use when:
 - Complexity reasoning (big-O + dominant constants) when benchmarks aren’t feasible.
 - Correctness witness: output equivalence/regression check on frozen representative fixtures.
 - Disconfirming check: one edge/adversarial case that could invalidate the optimization hypothesis.
+- Guard check: run full test suite (or smoke suite) after optimization to confirm no regressions outside the hotspot (verify metric improved + guard nothing else broke).

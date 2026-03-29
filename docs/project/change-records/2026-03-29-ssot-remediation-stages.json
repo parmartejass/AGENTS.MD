@@ -1,0 +1,149 @@
+{
+  "change_id": "CR-2026-03-29-ssot-remediation-stages",
+  "change_type": "docs",
+  "summary": "Resolve staged SSOT drift across platform/runtime ownership, checker parity, supporting docs, and the cross-platform runtime-linker path bug. Verification is complete, but the release gate remains on hold because the repo-wide strict safety baseline is still red outside this remediation slice.",
+  "verification_commands": [
+    "python3 scripts/check_governance_core.py",
+    "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/check_docs_ssot.ps1",
+    "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/check_agents_manifest.ps1",
+    "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/check_project_docs.ps1",
+    "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/check_change_records.ps1",
+    "python3 scripts/check_governance_core.py --fail-on-safety-warnings"
+  ],
+  "invariants": [
+    "INV-D-1: Context injection and bugfix discovery guidance must resolve through agents-manifest.yaml without parallel operator-facing routing drift.",
+    "INV-OBS-1: Governance checker outcomes must be consistent across Python and PowerShell for council summaries, manifest requirements, project-doc README references, and traceability_refs validation.",
+    "INV-D-2: README.md section 'Checks' remains the single verification-command SSOT; supporting docs and templates must point to it rather than duplicate command lists.",
+    "INV-LIF-1: Runtime projection docs must reference canonical owners rather than restating projected runtime-path or config-content facts.",
+    "INV-EDGE-1: Final closure requires both strict safety evidence and a deterministic runtime-linker failure-path witness."
+  ],
+  "witnesses": [
+    {
+      "invariant_id": "INV-D-1",
+      "signal": "Manifest and supporting docs align on repo discovery and bugfix inject behavior",
+      "record_location": "agents-manifest.yaml, docs/agents/index.md, and python3 scripts/check_governance_core.py stdout",
+      "pass_criteria": "default_inject includes docs/agents/10-repo-discovery.md, bugfix routing is manifest-referential, and governance core checks pass"
+    },
+    {
+      "invariant_id": "INV-OBS-1",
+      "signal": "Python and PowerShell governance checkers accept the same current tree",
+      "record_location": "python3 scripts/check_governance_core.py stdout; pwsh scripts/check_agents_manifest.ps1 stdout; pwsh scripts/check_project_docs.ps1 stdout; pwsh scripts/check_change_records.ps1 stdout",
+      "pass_criteria": "all four commands exit 0 on the remediated tree"
+    },
+    {
+      "invariant_id": "INV-D-2",
+      "signal": "Supporting docs redirect verification commands to README instead of enumerating their own lists",
+      "record_location": "docs/agents/index.md, docs/agents/playbooks/project-docs-template.md, docs/agents/automation/nightly-compound-loop.md",
+      "pass_criteria": "duplicate command lists are removed or replaced with explicit README 'Checks' pointers"
+    },
+    {
+      "invariant_id": "INV-LIF-1",
+      "signal": "Runtime/status docs point to canonical owners and runtime decision registry",
+      "record_location": "docs/project/platform-runtime-status.md, docs/project/rules.md, docs/agents/22-ssot-authority-decisions.md",
+      "pass_criteria": "runtime facts are referential and the runtime projection authority decision is present"
+    },
+    {
+      "invariant_id": "INV-EDGE-1",
+      "signal": "Strict safety and disposable runtime-linker witnesses are captured explicitly",
+      "record_location": "python3 scripts/check_governance_core.py --fail-on-safety-warnings stdout plus disposable 2026-03-29 linker runs for `-Include skills` and `-Include subagents -IncludeCompatibility`",
+      "pass_criteria": "portable skills projections create `../../docs/...` links on POSIX, the `.cursor/agents` conflict path fails closed, and any remaining strict-safety blockers are explicitly recorded with the release gate held"
+    }
+  ],
+  "ssot_owner_paths": [
+    "AGENTS.md",
+    "agents-manifest.yaml",
+    "docs/agents/index.md",
+    "docs/agents/playbooks/project-docs-template.md",
+    "docs/agents/automation/nightly-compound-loop.md",
+    "docs/agents/automation/pr-control-plane-loop.md",
+    "docs/agents/mcp/00-mcp-standards.md",
+    "docs/agents/22-ssot-authority-decisions.md",
+    "docs/agents/platforms/runtime-projections.json",
+    "docs/agents/link_repo_assets.ps1",
+    "docs/project/rules.md",
+    "docs/project/platform-runtime-status.md",
+    "templates/pr-control-plane/control-plane.contract.json",
+    "scripts/check_governance_core.py",
+    "scripts/check_agents_manifest.ps1",
+    "scripts/check_project_docs.ps1",
+    "scripts/check_change_records.ps1"
+  ],
+  "residual_risk": "The release gate remains on hold because strict safety checks still fail on pre-existing X-Bookmarks Import scripts. Runtime-linker witnesses now pass, but file hard-link validation in docs/agents/link_repo_assets.ps1 still treats same-content plain files as equivalent to links, and TOML validation is skipped in this environment because neither tomllib nor tomli is available.",
+  "council_summary": {
+    "council_run_id": "stage4-postchange-scan-2026-03-29",
+    "phase": "post_change",
+    "intent_coverage": [
+      "ssot_duplication",
+      "silent_error",
+      "edge_case",
+      "resource_security_perf"
+    ],
+    "reviewers": [
+      {
+        "id": "stage-1-council",
+        "role": "platform/runtime authority review",
+        "scope": "Codex config ownership, runtime decision record, linker fail-closed behavior"
+      },
+      {
+        "id": "stage-2-council",
+        "role": "checker parity review",
+        "scope": "Python/PowerShell council-summary, manifest, project-doc, and traceability validation parity"
+      },
+      {
+        "id": "stage-3-council",
+        "role": "docs and injection drift review",
+        "scope": "manifest routing, checks SSOT, template/runbook duplication, runtime-path literal cleanup"
+      },
+      {
+        "id": "stage-4-council",
+        "role": "closure evidence review",
+        "scope": "strict safety gate, failure-path witness, and release readiness"
+      },
+      {
+        "id": "stage-4-postchange-scan",
+        "role": "post-change independent scan",
+        "scope": "final linker fix coherence, witness alignment, and residual risk check"
+      }
+    ],
+    "findings": [
+      {
+        "severity": "HIGH",
+        "location": "python3 scripts/check_governance_core.py --fail-on-safety-warnings",
+        "issue": "Strict safety baseline remains red because of pre-existing X-Bookmarks Import findings outside this remediation slice.",
+        "recommendation": "Keep release gate on hold until those repo-wide safety violations are triaged or explicitly accepted."
+      },
+      {
+        "severity": "MEDIUM",
+        "location": "docs/agents/link_repo_assets.ps1",
+        "issue": "File hard-link validation remains content-based, so a same-content plain file can still be treated as an acceptable link outcome.",
+        "recommendation": "Tighten file-link validation in a follow-up change so hard-link acceptance uses filesystem identity rather than content hash equality."
+      }
+    ],
+    "conflicts": "One SSOT reviewer proposed broadening scripts/setup_repo_platform_assets.ps1 to aggregate per-asset failures. Deferred because the verified root cause and single-authority fix point were in docs/agents/link_repo_assets.ps1, and wrapper changes were not required to restore deterministic witnesses.",
+    "reconciliation_decision": "accepted the staged fixes for Stages 0-3 plus the linker authority fix for cross-platform relative-path handling, broken-link reporting, and missing-source cleanup logging; deferred wrapper aggregation, helper deduplication, and hard-link identity validation",
+    "residual_risks": "The strict safety gate is still failing outside the remediated files; file hard-link validation remains content-based; TOML validation is skipped in this environment because neither tomllib nor tomli is available.",
+    "go_no_go": "hold",
+    "verification_links": [
+      "README.md#checks",
+      "python3 scripts/check_governance_core.py",
+      "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/check_docs_ssot.ps1",
+      "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/check_agents_manifest.ps1",
+      "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/check_project_docs.ps1",
+      "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/check_change_records.ps1",
+      "python3 scripts/check_governance_core.py --fail-on-safety-warnings",
+      "bash disposable witness: pwsh -File docs/agents/link_repo_assets.ps1 -Include skills -Force -RepoRoot <temp-repo>",
+      "bash disposable witness: pwsh -File docs/agents/link_repo_assets.ps1 -Include subagents -IncludeCompatibility -RepoRoot <temp-repo>"
+    ]
+  },
+  "validation_context": {
+    "intended_environment": "AGENTS.MD governance source repo",
+    "evidence_plan": "Keep baseline governance checks green, capture strict-safety failure output, verify portable relative-skill links, and verify the `.cursor/agents` fail-closed conflict witness in a disposable repo.",
+    "release_gate_decision": "hold",
+    "traceability_refs": [
+      "README.md#checks",
+      "docs/project/master-todo.md",
+      "docs/project/index.md",
+      "docs/project/change-records/2026-02-23-governance-risk-closure.json"
+    ]
+  }
+}

@@ -8,6 +8,10 @@ update_trigger: docs governance rules change OR new doc categories are added
 
 Docs are permitted only if they do not become a second SSOT.
 
+## File/Folder Structure and Docs
+Follow the file/folder SSOT rule in `AGENTS.md`.
+This doc governs how documentation participates in that structure; it does not redefine the core SSOT rule.
+
 ## Rule: “Code owns facts; docs own intent”
 
 ### Code SSOT (authoritative)
@@ -23,6 +27,9 @@ Docs may describe:
 - contracts and interfaces (reference SSOT symbols/entrypoints)
 - runbooks/playbooks (reference workflow entrypoints + config keys by identifier)
 - decision records (ADR-style)
+
+Governance-level cross-project SSOT authority decisions live in `docs/agents/22-ssot-authority-decisions.md`.
+Project-local adoption of those decisions remains in `docs/project/architecture.md`.
 
 ## Required header template
 Every Markdown doc (`*.md`) under `docs/` (except index pages) must start with:
@@ -64,6 +71,7 @@ Context injection should reduce bloat and prevent “random docs” from becomin
 - Treat injected docs as supporting context only; verify behavior in code/config and with deterministic tools.
 - Create project-specific docs only for intent/runbooks, keep them minimal, and reference SSOT owners by identifier (do not re-encode constants/rules).
 - If a doc might drift, tighten its `update_trigger` and avoid adding it to broad/always-on injection.
+- When tooling supports it, anchor doc sections to source code locations so changes in the referenced code surface stale docs automatically (e.g., code-anchored linters).
 
 ## Generated docs (optional)
 Generated docs are allowed if:

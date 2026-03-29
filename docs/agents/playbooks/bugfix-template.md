@@ -65,6 +65,7 @@ This template is a prompting scaffold.
 - regression test:
 - disconfirming test:
 - failure-path check:
+- guard check (full suite or smoke suite confirming nothing else broke):
 - change record artifact (when enabled): `docs/project/change-records/<timestamp>-<slug>.json`
 - if behavior changed: shift-left prevention updates (tests/design/contracts/observability):
 - modularity decision (if new logic introduced; use the decomposition record in `design-principles-checklist.md`):

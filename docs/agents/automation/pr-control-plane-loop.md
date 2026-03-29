@@ -26,19 +26,8 @@ Provide a deterministic control-plane pattern for pull requests where:
 4. Merge remains blocked while actionable findings exist for the current head.
 
 ## Machine-readable contract
-Use a single contract file as policy SSOT:
-- `riskTierRules`
-- `mergePolicy`
-- `docsDriftRules`
-- `reviewPolicy`
-- `rerunPolicy`
-- `remediationPolicy`
-- `threadPolicy`
-- `browserEvidencePolicy`
-- `harnessGapPolicy`
-
-Default template path:
-- `templates/pr-control-plane/control-plane.contract.json`
+Use `templates/pr-control-plane/control-plane.contract.json` as the single policy SSOT.
+Keep this runbook referential; do not redefine contract keys or required-check literals here.
 
 ## Current-head SHA discipline
 - Review evidence is valid only for `pull_request.head.sha`.

@@ -9,13 +9,49 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-function Get-NormalizedPath {
+function Remove-TrailingDirectorySeparators {
     param(
         [Parameter(Mandatory = $true)]
         [string]$Path
     )
 
-    return (Resolve-Path -LiteralPath $Path).ProviderPath.TrimEnd("\")
+    $fullPath = [System.IO.Path]::GetFullPath($Path)
+    $pathRoot = [System.IO.Path]::GetPathRoot($fullPath)
+    if ($fullPath.Length -le $pathRoot.Length) {
+        return $fullPath
+    }
+
+    return $fullPath.TrimEnd([char[]]@([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar))
+}
+
+function Get-NormalizedPath {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path,
+        [switch]$AllowMissing
+    )
+
+    $fullPath = [System.IO.Path]::GetFullPath($Path)
+    if ((-not $AllowMissing) -or (Test-Path -LiteralPath $fullPath)) {
+        return Remove-TrailingDirectorySeparators -Path ((Resolve-Path -LiteralPath $fullPath).ProviderPath)
+    }
+
+    return Remove-TrailingDirectorySeparators -Path $fullPath
+}
+
+function Get-NormalizedChildPathPrefix {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path
+    )
+
+    $normalizedPath = Get-NormalizedPath -Path $Path
+    $pathRoot = [System.IO.Path]::GetPathRoot($normalizedPath)
+    if ($normalizedPath.Length -le $pathRoot.Length) {
+        return $normalizedPath
+    }
+
+    return $normalizedPath + [System.IO.Path]::DirectorySeparatorChar
 }
 
 function Ensure-Directory {
@@ -64,7 +100,7 @@ function Get-LinkResolvedTarget {
         $targetValue = Join-Path (Split-Path -Parent $LinkPath) $targetValue
     }
 
-    return Get-NormalizedPath -Path $targetValue
+    return Get-NormalizedPath -Path $targetValue -AllowMissing
 }
 
 function Get-RelativeLinkTarget {
@@ -75,9 +111,9 @@ function Get-RelativeLinkTarget {
         [string]$TargetPath
     )
 
-    $baseUri = New-Object System.Uri(((Get-NormalizedPath -Path $BaseDirectory).TrimEnd("\") + "\"))
-    $targetUri = New-Object System.Uri((Get-NormalizedPath -Path $TargetPath))
-    return [System.Uri]::UnescapeDataString($baseUri.MakeRelativeUri($targetUri).ToString()).Replace("/", "\")
+    $normalizedBase = Get-NormalizedPath -Path $BaseDirectory
+    $normalizedTarget = Get-NormalizedPath -Path $TargetPath
+    return [System.IO.Path]::GetRelativePath($normalizedBase, $normalizedTarget)
 }
 
 function Test-HardLinkMatch {
@@ -134,6 +170,7 @@ function Ensure-DirectoryLink {
     $existing = Get-Item -LiteralPath $LinkPath -Force -ErrorAction SilentlyContinue
 
     if ($null -ne $existing) {
+        $linkResolutionFailed = $false
         if (-not (Test-IsLink -Item $existing)) {
             if ($PreserveExistingNonLink) {
                 Write-Host "PRESERVED directory-link target '$LinkPath' as an existing non-link directory. The canonical source remains '$expectedResolved'."
@@ -147,6 +184,7 @@ function Ensure-DirectoryLink {
             $actualResolved = Get-LinkResolvedTarget -LinkPath $LinkPath
         } catch {
             $actualResolved = $null
+            $linkResolutionFailed = $true
         }
 
         if ($actualResolved -eq $expectedResolved) {
@@ -155,6 +193,9 @@ function Ensure-DirectoryLink {
         }
 
         if (-not $AllowReplace) {
+            if ($linkResolutionFailed) {
+                throw "Existing link '$LinkPath' is broken or unresolvable. Re-run with -Force to replace the link only."
+            }
             $existingTarget = ""
             if ($null -ne $existing.Target) {
                 $existingTarget = ($existing.Target -join ", ")
@@ -223,11 +264,13 @@ function Ensure-FileLink {
 
         $isExpectedLink = $false
         $isRepairablePlainFile = $false
+        $linkResolutionFailed = $false
         if (Test-IsLink -Item $existing) {
             try {
                 $isExpectedLink = ((Get-LinkResolvedTarget -LinkPath $LinkPath) -eq $expectedResolved)
             } catch {
                 $isExpectedLink = $false
+                $linkResolutionFailed = $true
             }
         } elseif (Test-HardLinkMatch -LinkPath $LinkPath -TargetPath $TargetPath) {
             $isExpectedLink = $true
@@ -249,6 +292,9 @@ function Ensure-FileLink {
         }
 
         if (-not $AllowReplace) {
+            if ($linkResolutionFailed) {
+                throw "Existing file link '$LinkPath' is broken or unresolvable. Re-run with -Force to replace the link only."
+            }
             throw "Existing file link '$LinkPath' points somewhere else. Re-run with -Force to replace the link only."
         }
 
@@ -435,8 +481,13 @@ function Remove-StaleChildDirectoryLinks {
         $null = $expected.Add([System.IO.Path]::GetFullPath($path))
     }
 
+    if (-not (Test-Path -LiteralPath $SourceRoot -PathType Container)) {
+        Write-Output "SKIPPED stale child directory link cleanup under '$TargetRoot' because canonical source '$SourceRoot' is missing."
+        return
+    }
+
     $normalizedSourceRoot = Get-NormalizedPath -Path $SourceRoot
-    $sourcePrefix = $normalizedSourceRoot + "\"
+    $sourcePrefix = Get-NormalizedChildPathPrefix -Path $normalizedSourceRoot
 
     foreach ($child in Get-ChildItem -LiteralPath $TargetRoot -Directory -Force -ErrorAction SilentlyContinue) {
         if (-not (Test-IsLink -Item $child)) {
@@ -455,6 +506,8 @@ function Remove-StaleChildDirectoryLinks {
                 Remove-LinkPath -Path $child.FullName
 
                 Write-Output "REMOVED stale broken directory link $($child.FullName)"
+            } else {
+                Write-Output "SKIPPED broken directory link $($child.FullName) because broken-link removal is disabled."
             }
             continue
         }
@@ -491,7 +544,17 @@ function Remove-StaleDirectoryLink {
     }
 
     $existing = Get-Item -LiteralPath $LinkPath -Force -ErrorAction SilentlyContinue
-    if ($null -eq $existing -or -not (Test-IsLink -Item $existing)) {
+    if ($null -eq $existing) {
+        return
+    }
+
+    if (-not (Test-IsLink -Item $existing)) {
+        Write-Output "PRESERVED non-link path $LinkPath during stale-link cleanup."
+        return
+    }
+
+    if (-not (Test-Path -LiteralPath $SourceRoot -PathType Container)) {
+        Write-Output "SKIPPED stale directory link cleanup for '$LinkPath' because canonical source '$SourceRoot' is missing."
         return
     }
 
@@ -501,6 +564,7 @@ function Remove-StaleDirectoryLink {
         $resolvedTarget = Get-LinkResolvedTarget -LinkPath $LinkPath
     } catch {
         if (-not $AllowBrokenLinkRemoval) {
+            Write-Output "SKIPPED broken directory link $LinkPath because broken-link removal is disabled."
             return
         }
 
@@ -530,7 +594,11 @@ function Test-DirectoryHasFiles {
         return $false
     }
 
-    return [bool](Get-ChildItem -LiteralPath $Path -Filter $Filter -File -ErrorAction SilentlyContinue | Select-Object -First 1)
+    try {
+        return [bool](Get-ChildItem -LiteralPath $Path -Filter $Filter -File -ErrorAction Stop | Select-Object -First 1)
+    } catch {
+        throw "Failed to enumerate files under '$Path' with filter '$Filter': $($_.Exception.Message)"
+    }
 }
 
 function Test-ValidMcpConfig {
@@ -640,14 +708,12 @@ function Get-RepoRelativeReferenceRoot {
         return ""
     }
 
-    $repoPrefix = $normalizedRepoRoot + "\"
+    $repoPrefix = Get-NormalizedChildPathPrefix -Path $normalizedRepoRoot
     if (-not $normalizedGovernanceRoot.StartsWith($repoPrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
         throw "Repo root '$normalizedRepoRoot' must contain the governance root '$normalizedGovernanceRoot' so generated adapters only point at canonical in-repo governance files."
     }
 
-    $baseUri = New-Object System.Uri(($normalizedRepoRoot.TrimEnd("\") + "\"))
-    $targetUri = New-Object System.Uri(($normalizedGovernanceRoot.TrimEnd("\") + "\"))
-    return [System.Uri]::UnescapeDataString($baseUri.MakeRelativeUri($targetUri).ToString()).TrimEnd("/")
+    return ([System.IO.Path]::GetRelativePath($normalizedRepoRoot, $normalizedGovernanceRoot)).Replace("\", "/")
 }
 
 function Join-MarkdownReferencePath {
@@ -739,11 +805,27 @@ function Test-EntryBooleanFlag {
         return $false
     }
 
-    try {
-        return [bool]$rawValue
-    } catch {
-        return $false
+    if ($rawValue -is [bool]) {
+        return $rawValue
     }
+
+    if ($rawValue -is [string]) {
+        switch ($rawValue.Trim().ToLowerInvariant()) {
+            "true" { return $true }
+            "false" { return $false }
+            default { return $false }
+        }
+    }
+
+    if ($rawValue -is [int] -or $rawValue -is [long]) {
+        switch ([int64]$rawValue) {
+            1 { return $true }
+            0 { return $false }
+            default { return $false }
+        }
+    }
+
+    return $false
 }
 
 function Preserve-DisabledProjectionIfRequested {
@@ -1167,6 +1249,7 @@ if (Should-Include -Name "skills") {
 if (Should-Include -Name "subagents") {
     $allSubagentEntries = @($manifest.asset_classes.subagents)
     $subagentEntries = Get-ProjectionEntries -Manifest $manifest -AssetClass "subagents"
+    $reconciledSubagentEntryIds = New-Object System.Collections.Generic.List[string]
     foreach ($entry in $subagentEntries) {
         $sourceRoot = Resolve-GovernancePath -PathSpec ([string]$entry.source_root)
 
@@ -1187,8 +1270,7 @@ if (Should-Include -Name "subagents") {
         switch ([string]$entry.projection_mode) {
             "directory_link" {
                 $useRelative = ([string]$entry.scope -eq "project")
-                $preserveExistingNonLink = Test-EntryBooleanFlag -Entry $entry -PropertyName "preserve_existing_when_disabled"
-                Ensure-DirectoryLink -LinkPath $targetRoot -TargetPath $sourceRoot -UseRelativeTarget:$useRelative -AllowReplace:$Force -PreserveExistingNonLink:$preserveExistingNonLink
+                Ensure-DirectoryLink -LinkPath $targetRoot -TargetPath $sourceRoot -UseRelativeTarget:$useRelative -AllowReplace:$Force
             }
             "generated_claude_agents_from_subagents" {
                 Sync-ClaudeAgentsFromSubagents -TargetRoot $targetRoot -SourceRoot $sourceRoot
@@ -1197,10 +1279,12 @@ if (Should-Include -Name "subagents") {
                 throw "Unsupported subagents projection_mode '$([string]$entry.projection_mode)' for entry '$($entry.id)'."
             }
         }
+
+        $reconciledSubagentEntryIds.Add([string]$entry.id)
     }
 
     $managedPrefix = "<!-- Managed by docs/agents/link_repo_assets.ps1;"
-    $selectedSubagentEntryIds = @($subagentEntries | ForEach-Object { [string]$_.id })
+    $selectedSubagentEntryIds = @($reconciledSubagentEntryIds)
     foreach ($entry in $allSubagentEntries) {
         if ($selectedSubagentEntryIds -contains [string]$entry.id) {
             continue

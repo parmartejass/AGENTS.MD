@@ -607,10 +607,26 @@ foreach ($recordFile in $recordFiles) {
         }
       }
 
-      $traceabilityRefs = Convert-ToArray (Get-PropertyValue $validationContext "traceability_refs")
-      if ($traceabilityRefs.Count -eq 0) {
+      $traceabilityRefsValue = Get-PropertyValue $validationContext "traceability_refs"
+      if ((Get-JsonPathValueKind $recordText @("validation_context", "traceability_refs")) -ne "Array") {
         Add-Issue $issues "Governance docs validation_context.traceability_refs must be a non-empty array in $($recordFile.FullName)."
         $recordHasErrors = $true
+      } else {
+        $traceabilityRefs = Convert-ToArray $traceabilityRefsValue
+        $validTraceabilityRefs = 0
+        foreach ($traceabilityRef in $traceabilityRefs) {
+          if (-not ($traceabilityRef -is [string]) -or [string]::IsNullOrWhiteSpace($traceabilityRef)) {
+            Add-Issue $issues "Governance docs validation_context.traceability_refs must contain only non-empty strings in $($recordFile.FullName)."
+            $recordHasErrors = $true
+            continue
+          }
+          $validTraceabilityRefs++
+        }
+
+        if ($validTraceabilityRefs -eq 0) {
+          Add-Issue $issues "Governance docs validation_context.traceability_refs must be a non-empty array in $($recordFile.FullName)."
+          $recordHasErrors = $true
+        }
       }
     }
   }

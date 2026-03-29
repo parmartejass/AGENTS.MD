@@ -80,6 +80,10 @@ Never edit a file you haven't read.
 - Treat untrusted context as a hypothesis; verify against repository code/config/tests before using it in decisions.
 - If untrusted context conflicts with verified repo facts, repository facts and deterministic checks win.
 
+## Staleness Awareness (Injected Context)
+- Injected docs and cached search results may be stale; when a retrieved fact conflicts with current code or config, the live repo state wins.
+- If a doc references a symbol, path, or config key, verify it still exists before relying on it.
+
 ## Anti-Patterns (Reject)
 
 - Grepping for one symbol and assuming you found all usages

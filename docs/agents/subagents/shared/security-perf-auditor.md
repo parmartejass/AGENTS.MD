@@ -33,6 +33,7 @@ From AGENTS.md section "Subagent Council (Hard Gate)" > "Intention-based roles":
 - [ ] No shell injection risks
 - [ ] No SQL injection risks
 - [ ] No template injection risks
+- [ ] No prompt injection risks (untrusted input rendered into LLM prompts)
 - [ ] Input validation present
 - [ ] Output encoding for untrusted data
 

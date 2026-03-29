@@ -44,6 +44,11 @@ update_trigger: verified platform runtime paths, support levels, setup flow, or 
 - Disabled compatibility mappings may declare `preserve_existing_when_disabled` in `docs/agents/platforms/runtime-projections.json` when the repo intentionally keeps an existing runtime surface; in that case setup must retain the existing target and log the preservation instead of deleting it.
 - Platform-doc snapshots are recorded evidence only; they justify mappings but do not replace the manifest or linker logic.
 
+## Multi-Agent Orchestration Runtimes
+- External orchestration runtimes (e.g., Paperclip) may consume the same repo-owned agent assets (skills, instructions, MCP configs) and project them across multiple backend runtimes (Claude Code, Codex, OpenClaw, etc.).
+- Orchestration runtimes are not projection targets; they are consumers of the canonical `docs/agents/` assets via their own import mechanism.
+- This repo does not auto-project into orchestration runtimes; their integration is manual and documented outside the projection manifest.
+
 ## Bootstrap Contract
 - One setup entrypoint owns runtime projection repair: `scripts/setup_repo_platform_assets.ps1`.
 - Fresh clone on a new machine is supported by rerunning the setup entrypoint; passive cross-device symlink portability is not assumed.

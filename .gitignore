@@ -26,8 +26,13 @@ Thumbs.db
 ~$*.xls
 ~$*.xlsb
 
-# Environment files
+# Environment files and tokens
 .env
+.x_token.json
+
+# X-Bookmarks data (PII, large JSON, OAuth tokens)
+X-Bookmarks Import/data/
+X-Bookmarks Import/.x_token.json
 
 # IDE settings
 .vscode/

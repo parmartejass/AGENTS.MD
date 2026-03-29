@@ -14,7 +14,7 @@ update_trigger: Codex runtime docs, skill paths, or config rules change
 
 ## Repo-relevant facts
 
-- Codex scans repository skills from `.agents/skills` between the current working directory and repo root, plus user `$HOME/.agents/skills` and admin `/etc/codex/skills`.
+- Codex scans repository skills from `.agents/skills` between the current working directory and repo root, plus user `$HOME/.agents/skills` and admin `/etc/codex/skills`. Some community tooling also scans `.codex/skills` and bare `skills/` as fallback paths.
 - The current repo should prefer the official project-local skills path because it is portable with the repo and does not leak repo-specific skills into unrelated projects.
 - Codex stores shared CLI/IDE configuration in `config.toml`; default user path is `~/.codex/config.toml`, and trusted projects can use `.codex/config.toml`.
 - Codex supports multi-agent role declarations in `config.toml` via `[agents]` and `[agents.<role>]` tables, and each role can load developer instructions from a relative `config_file` path.
