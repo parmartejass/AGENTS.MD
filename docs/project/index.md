@@ -9,3 +9,4 @@
 - Generated analyses: `docs/generated/`
   - Deep research normalization (2026-02-23): `docs/generated/2026-02-23-deep-research-report-normalized.md`
 - Change records (artifacts): `docs/project/change-records/`
+- Optional X bookmarks import tool (local): `X-Bookmarks Import/README.md` (repo root)

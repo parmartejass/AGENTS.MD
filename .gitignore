@@ -33,6 +33,8 @@ Thumbs.db
 # X-Bookmarks data (PII, large JSON, OAuth tokens)
 X-Bookmarks Import/data/
 X-Bookmarks Import/.x_token.json
+# Duplicate of docs/agents/skills/x-api-data-access/ — use canonical skill bundle only
+X-Bookmarks Import/skills/x-api-data-access/
 
 # IDE settings
 .vscode/
