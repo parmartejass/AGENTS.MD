@@ -16,9 +16,12 @@ update_trigger: MCP runtime paths, supported platforms, or config-shape rules ch
 - Validate MCP JSON before linking it into runtime locations.
 - Use one canonical repo file per runtime target; do not maintain parallel copies under project dot-folders.
 - Unsupported platforms must be skipped explicitly.
+- Repo-owned MCP server definitions must not grant implicit tool-execution permissions; each tool's permission scope is enforced by the consuming client runtime, not by the server definition.
 - Exact client/runtime mappings and support levels live in `docs/agents/platforms/runtime-projections.json`.
 
 ## Supported mappings
 - Cursor project MCP config: `docs/agents/mcp/{cursor|shared}/mcp.json` -> `.cursor/mcp.json`
 - Claude Code project MCP config: `docs/agents/mcp/{claude|shared}/mcp.json` -> `.mcp.json`
-- Codex MCP setup remains manual because the official surface is a mixed `config.toml` file rather than a pure repo-owned MCP JSON target.
+- Codex does not use a separate repo-owned MCP JSON target in this asset class.
+- Shared project-local Codex config, including any intentionally shared MCP settings, is owned through `docs/agents/settings/codex/config.toml` -> `.codex/config.toml`.
+- User-local or secret Codex state remains outside repo-owned MCP authority.

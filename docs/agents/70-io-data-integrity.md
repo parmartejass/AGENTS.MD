@@ -31,3 +31,6 @@ Every processed item should record:
 - outcome (`EXECUTED` / `SKIPPED` / `FAILED`)
 - reason (when skipped or failed)
 - produced artifacts/paths (if any)
+
+## References
+- `docs/agents/80-testing-real-files.md` (companion: I/O testing guidance for changes affecting file processing)

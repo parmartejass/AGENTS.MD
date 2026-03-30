@@ -7,6 +7,11 @@ update_trigger: responsibilities list changes OR repo adopts new SSOT layout
 # 20 — Sources of Truth Map (Concept → Owner)
 
 This is a conceptual map. In any given repo, the “owner” may be a module, package, or doc index.
+Use `docs/agents/22-ssot-authority-decisions.md` for governance-level authority decisions, migration contracts, and allowed non-owner locations when this conceptual map is not specific enough.
+
+## File/Folder Structure Rule
+This map follows the file/folder SSOT rule in `AGENTS.md`.
+Use the sections below to identify the current SSOT parent for a concept; keep the full policy and enforcement wording in `AGENTS.md`.
 
 ## Constants (literals)
 Owner: exactly one place.
@@ -45,6 +50,12 @@ Owner: exactly one place.
 Owner: `agents-manifest.yaml`
 - task signal → which supporting docs/playbooks to load alongside `AGENTS.md`
 
+## Cross-project SSOT authority decisions
+Owner: `docs/agents/22-ssot-authority-decisions.md`
+- governance-level authority choices that apply across repos using this pack
+- canonical owner + allowed non-owner locations + forbidden duplicates + coordinated migration or update set
+- project-local adoption details remain in `docs/project/architecture.md`
+
 ## Platform assets (skills, settings, subagents, MCP, ACP)
 Owner: `docs/agents/skills/00-skill-standards.md`, `docs/agents/settings/00-settings-standards.md`, `docs/agents/subagents/00-subagent-standards.md`, `docs/agents/mcp/00-mcp-standards.md`, `docs/agents/acp/00-acp-standards.md`
 - repo-owned reusable platform assets and compatibility expectations
@@ -66,6 +77,12 @@ Owner: exactly one implementation.
 Owner: exactly one implementation.
 - worker posts to queue; UI drains via `after(...)`
 - shutdown/cancel event enforced
+
+## Agent instructions / prompt configuration
+Owner: `AGENTS.md` + `agents-manifest.yaml`
+- agent behavioral rules, constraints, and execution loops
+- prompt/instruction content must not be scattered across ad-hoc files; consolidate in the governance root
+- context injection manifest is the single map from task signals to supporting docs
 
 ## Run outcomes / reporting
 Owner: exactly one place.

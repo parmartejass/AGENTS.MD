@@ -288,17 +288,26 @@ Scope:
 
 ## Non-Negotiables (Hard Gates)
 
-### 1) Single Source of Truth (SSOT)
+### 1) Single Source of Truth (SSOT) — The Foundational Rule
+**This is the most critical non-negotiable. Every other rule depends on it. Apply it to every action: code, docs, config, skills, scripts, data.**
+
 For every concept, there must be exactly one authoritative definition:
 - constants (sheet names, headers, statuses, folder names, prefixes/patterns)
 - config keys + defaults + schema
 - business rules / conditions / validation logic
 - workflow orchestration steps
+- skills, scripts, and tools for the same domain
 - Excel lifecycle management (open/close/quit/verify/kill)
 - GUI queue/drain + cancellation pattern
 
-If an SSOT already exists in the repo for a responsibility, **extend it**.
-Do not create parallel utilities/modules/docs for the same ownership.
+**File/folder structure IS SSOT enforcement.** Related artifacts sharing the same authority boundary MUST live under the same parent folder. Broader domains may contain multiple artifact-class roots only when a governance authority decision explicitly records one canonical owner plus any allowed non-owner workspace paths. When adding new files, find the existing SSOT parent first. When discovering scattered files that belong to the same authority boundary, refactor them into their SSOT parent before proceeding with other work.
+
+Hard rules:
+- If an SSOT already exists in the repo for a responsibility, **extend it** — do not create a parallel file/folder.
+- If related files are scattered across multiple locations, **consolidate them under one parent** as part of the current change.
+- Do not create parallel utilities/modules/docs/skills for the same ownership.
+- A non-owner workspace path is allowed only when a governance authority decision records the canonical owner, the allowed non-owner path, and the forbidden duplicates. This is hierarchical authority, not parallel authority.
+- Every new file must answer: "Which existing SSOT parent does this belong under?" If none exists, create one and move any related scattered files into it.
 
 ### 2) No Duplicates (Operational Meaning)
 Duplication includes:
@@ -387,9 +396,7 @@ GUI updates must occur on the main/UI thread only:
   - independent testability as a unit
   - independent change cadence from the authority entrypoint
   - If any signal is present, create/extend a child internal module and keep the authority entrypoint as orchestration + public contract only.
-- LOC guardrail (advisory, not standalone authority): use 300 lines per module file as a soft review trigger for decomposition.
-  - LOC alone MUST NOT force unrelated refactors.
-  - If LOC exceeds the guardrail, record a decomposition decision (extract now / defer with rationale) in the change evidence.
+- LOC hard gate (400 LOC): a file exceeding 400 LOC MUST be decomposed into proper file/folder structure before merging, unless it is a single-authority module with no decomposition signals (see module decomposition trigger above). If no signals are present, record explicit justification in the change evidence. LOC alone MUST NOT force unrelated refactors — only the file that exceeds the threshold is in scope.
 - SOLID at authority boundaries (mandatory):
   - SRP: keep authority entrypoints thin; extract distinct internal components instead of accreting in a single file.
   - OCP: add new implementations/modules only when a second variant is required; avoid speculative plugin systems.
@@ -407,130 +414,17 @@ GUI updates must occur on the main/UI thread only:
 ## Governance Templates (Required)
 
 ### Change Contract (Required for any change record)
-Use in PR description or commit message. When artifact-based verification is enabled for the repo, record the same evidence in `docs/project/change-records/*.json` and validate it against `docs/agents/schemas/change-record.schema.json`.
+Use in PR description or commit message. Full template: `docs/agents/playbooks/change-contract-template.md`.
 
-```md
-# Change Contract (Required)
-
-## A) Problem Statement (Observed vs Expected)
-- Observed:
-- Expected:
-- Scope: (rows/files/modules/users impacted)
-- Blast radius: (what else could be impacted by the fix/change)
-
-## B) Invariants (Semantic Truth: S)
-List invariants affected by this change. Use categories.
-
-### Data invariants
-- INV-D1:
-- INV-D2:
-
-### Ordering invariants
-- INV-O1:
-
-### Atomicity invariants (2PC / all-or-nothing)
-- INV-A1:
-
-### Idempotency invariants
-- INV-I1:
-
-### Lifecycle invariants (Excel/COM/resources)
-- INV-L1:
-
-### Observability invariants (outcome/log completeness)
-- INV-OBS1:
-
-## C) Witnesses (Runtime Evidence: R / Recorded Truth: D)
-For each invariant above, define a measurable witness.
-
-| Invariant ID | Witness signal (what is measured) | Where recorded (log field/report col) | Pass criteria |
-|---|---|---|---|
-| INV-L1 | Excel PID baseline before/after | log.excel_pid_before/after | after == before |
-| INV-A1 | No writes before validation complete | log.phase sequence | no write events before VALIDATED |
-
-## D) Authority Impact + Fix Placement (SSOT: D)
-Identify which authorities are touched and confirm no new competing authority exists.
-
-- Config authority impacted? (Y/N) If Y: where is canonical key defined?
-- Parser authority impacted? (Y/N)
-- Writer authority impacted? (Y/N)
-- Excel lifecycle authority impacted? (Y/N)
-- Logger/schema authority impacted? (Y/N)
-- Report ledger authority impacted? (Y/N)
-
-No-duplication proof (list any removed duplicated logic/files):
-- Removed:
-- Replaced by:
-
-### Authority-first fix analysis (if debugging)
-- Symptom location (where error manifested):
-- Authority fix point (where fix was applied):
-- Class of errors prevented by fixing at authority:
-- If patching at symptom, justify:
-- RCA method(s) used (Fishbone/Pareto/5 Whys/FMEA etc.):
-
-## E) Minimal Repro + Regression Fixture
-- Minimal repro description:
-- Fixture location (path):
-- Before fix (expected failure signal):
-- After fix (expected pass signal):
-
-## F) Disconfirming Tests (Anti-Premature-Closure)
-List tests designed to break your hypothesis.
-
-- Test 1 (edge/adversarial):
-- Test 2 (randomized/property):
-- Test 3 (real-file replay):
-
-## G) Rollout and Safety
-- Feature flag / mode switch? (Y/N) If Y: name:
-- Rollback plan:
-- Data safety: (atomic writes? backups? temp + rename?)
-
-## H) Verification Checklist (Expected Outcomes)
-- [ ] All invariants have witnesses
-- [ ] 2PC enforced (no writes before VALIDATED)
-- [ ] Every row/file ends with terminal outcome + reason
-- [ ] Cleanup baseline restored (Excel/process/temp files)
-- [ ] Fixture added + tests pass
-- [ ] Bugfixes include deterministic MRE + regression + disconfirming test evidence
-- [ ] Failure-path check executed where required by Verification Floors (bugfix and behavior-change work)
-- [ ] Root-cause fix is upstream/authority-first, or infeasibility is documented
-```
+When artifact-based verification is enabled for the repo, record the same evidence in `docs/project/change-records/*.json` and validate it against `docs/agents/schemas/change-record.schema.json`.
 
 ### Standard Log Schema (Required when logs are emitted)
-- Logging policy in "Logging + Explicit Failure" still applies (no print, module logger, explicit failures).
+Full schema: `docs/agents/playbooks/log-schema-template.md`.
+
+Rules (also enforced by Non-Negotiable #4):
+- No `print()`; use module-level logging.
 - The log schema is SSOT: define one owner and extend it; do not fork schemas.
-
-Run-level record (run_start, run_end):
-- ts (ISO8601)
-- event (run_start | run_end)
-- run_id
-- app, version, mode
-- inputs, outputs (objects)
-- result (SUCCESS | PARTIAL_SUCCESS | FAILURE)
-- summary (object): by_outcome {executed, skipped, failed}; failed_by_phase {validation, commit, cleanup}
-- timings_ms (object)
-- errors (array of {type, message, where, fatal})
-- resources (optional, when applicable): pids_before/after, handles_closed, quit_called, kill_fallback_used
-
-Phase transition record:
-- ts, event (phase_transition), run_id, phase, phase_seq, notes (optional)
-
-Item-level record (row_event or file_event) - emitted once per item at terminal state:
-- ts, event, run_id, phase
-- item_id (row id or file path)
-- outcome (EXECUTED | SKIPPED | FAILED)
-- final_phase (VALIDATED | COMMITTED | FAILED_VALIDATION | FAILED_COMMIT | FAILED_CLEANUP)
-- reason_code, reason_detail
-- evidence (object)
-- write_effects (object)
-- duration_ms
-
-Reason codes:
-- Maintain a single enum owner (module or config). Extend there only.
-- Example codes: MISSING_REQUIRED_HEADER, DUPLICATE_HEADER, MISSING_INPUT_FILE, INVALID_IDENTIFIER_FORMAT,
-  DUPLICATE_KEY_IN_INPUT, COM_WRITE_FAILED, SAVE_FAILED, EXCEL_QUIT_FAILED, PID_VALIDATION_FAILED.
+- Reason codes: maintain a single enum owner (module or config). Extend there only.
 
 ## Self‑Decision Procedure (Repo‑Agnostic)
 

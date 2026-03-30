@@ -22,7 +22,7 @@ This is a template and runbook. It is not a mandate to auto-edit governance.
 
 ## Where this runs
 - The loop runs inside a target repo (not inside the `.governance/` submodule).
-- Copy the template folder from `.governance/templates/automation-loop/` into the target repo.
+- In a vendored target repo, copy the template folder from `.governance/templates/automation-loop/` into the target repo.
 
 ## Minimal loop (two steps)
 ### Step A: Review (learning capture)
@@ -35,8 +35,13 @@ This is a template and runbook. It is not a mandate to auto-edit governance.
 - Create a feature branch and implement with the latest learnings.
 - Verify deterministically (tests or explicit manual checks).
 
+### Context reset between steps
+- Each step (A and B) should run as a separate agent session with a fresh context window.
+- This prevents context exhaustion in long-running loops and ensures each step starts with clean state.
+- The orchestrator script handles the reset; individual prompts must not assume state from the previous step.
+
 ## Template location (SSOT for files and scripts)
-- Canonical templates live in: `templates/automation-loop/`
+- In the governance source repo, canonical templates live in: `templates/automation-loop/`
 - Copy that folder into your target repo (example: `automation/`).
 - Do not run the scripts directly from `.governance/`.
 
@@ -98,6 +103,5 @@ Guidelines:
 
 ## Verification
 - If you modify docs under `docs/`, ensure required headers are present.
-- If your repo uses this governance pack, you can run:
-  - `.governance/scripts/check_docs_ssot.ps1 -RepoRoot .`
-  - `.governance/scripts/check_project_docs.ps1 -RepoRoot .`
+- Run the deterministic verification commands from `README.md` section "Checks".
+- In vendored repos, use the `.governance/scripts/...` variants listed there.

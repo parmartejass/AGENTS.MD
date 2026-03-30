@@ -37,8 +37,8 @@ Verified on: 2026-03-08
   - `.cursorrules` loader stub is present and routes back to `AGENTS.md`.
   - Existing `.cursor/agents/` content is retained by the default bootstrap path for this repo's compatibility workflow.
   - `.cursor/rules/` is compatibility-only and is not projected by the default bootstrap path.
-  - `.cursor/mcp.json` content matches `docs/agents/mcp/shared/mcp.json`.
-  - `.cursor/cli.json` content matches `docs/agents/settings/cursor/cli.json`.
+  - `.cursor/mcp.json` is managed by the Cursor MCP runtime projection defined in `docs/agents/platforms/runtime-projections.json`.
+  - `.cursor/cli.json` is managed by the shared settings projection from `docs/agents/settings/cursor/cli.json`.
 - Migration note:
   - `.cursorrules` is legacy in the official docs, but this repo keeps it as the default clean loader surface. Existing `.cursor/agents/` content is preserved when present, while `.cursor/rules/` remains compatibility-only and stays out of the default bootstrap path.
 
@@ -49,7 +49,7 @@ Verified on: 2026-03-08
   - `CLAUDE.md` loader stub is present and routes back to `AGENTS.md`.
   - `.claude/skills/` exists and projects the canonical bundles directly.
   - `.claude/agents/` points to `docs/agents/subagents/shared`.
-  - `.claude/settings.json` content matches `docs/agents/settings/claude-code/settings.json`.
+  - `.claude/settings.json` is managed by the shared settings projection from `docs/agents/settings/claude-code/settings.json`.
   - `.mcp.json` is the managed target path for the shared MCP config when no conflicting local non-link file is present.
   - `.claude/settings.local.json` is unmanaged and may be present locally.
 - Migration note:
@@ -61,7 +61,7 @@ Verified on: 2026-03-08
 - Verified surfaces:
   - `.agents/skills/` exists with projected skill bundles from `docs/agents/skills/`.
   - `.codex/agents/` points to `docs/agents/subagents/codex/`.
-  - `.codex/config.toml` content matches `docs/agents/settings/codex/config.toml`, including `[features].multi_agent = true` and role-level `config_file` entries under `[agents.<role>]`.
+  - `.codex/config.toml` is the managed project-local settings projection from `docs/agents/settings/codex/config.toml`.
 - Migration note:
   - Current official user-scope skills live in `$HOME/.agents/skills`. This repo keeps user-home Codex skill paths manual and project-local `.agents/skills` remains the default.
   - Codex subagent role adapters are platform-specific TOML projections; shared prompt intent remains canonical in `docs/agents/subagents/shared/`.

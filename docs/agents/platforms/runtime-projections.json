@@ -146,7 +146,7 @@
         "support_level": "manual",
         "projection_mode": "skip",
         "scope": "project",
-        "reason": "Codex MCP lives in .codex/config.toml; keep repo snippets and docs authoritative, but do not overwrite mixed settings automatically.",
+        "reason": "Codex has no separate repo-managed MCP JSON target in this asset class. Shared project-local Codex config is owned by docs/agents/settings/codex/config.toml -> .codex/config.toml, while user-local or secret state remains manual.",
         "default_enabled": false
       }
     ],

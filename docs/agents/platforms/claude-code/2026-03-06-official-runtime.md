@@ -21,6 +21,7 @@ update_trigger: Claude Code runtime docs, command/agent paths, or settings/MCP r
 - Claude project MCP config lives at `.mcp.json`.
 - Claude now documents official project skills at `.claude/skills/<skill-name>/SKILL.md`.
 - Existing `.claude/commands/*.md` files still work, but the current docs say skills are the recommended surface.
+- Claude Code auto mode uses built-in classifiers to make per-action permission decisions instead of prompting the user or skipping permissions entirely; repo settings may define allow/deny lists that auto mode respects.
 
 ## Repo decision
 

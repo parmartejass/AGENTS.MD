@@ -19,6 +19,6 @@ C) A docs index page listing workflows and entrypoints.
 
 ## Requirements
 - Each workflow has a stable ID/name.
-- Each workflow specifies: inputs, outputs/artifacts, and config keys used.
+- Each workflow specifies: inputs, outputs/artifacts, config keys used, and failure mode (what happens on error and how the caller is notified).
 - No workflow is “hidden” without an index entry.
 

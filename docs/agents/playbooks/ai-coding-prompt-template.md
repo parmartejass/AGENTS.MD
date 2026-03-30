@@ -58,7 +58,8 @@ Feature/behavior-change baseline (required when Task type = feature):
 - Shift-left prevention plan (tests/design failure analysis/contracts/observability):
 
 Verification:
-- Commands to run:
+- Verify command (did the target metric/behavior improve?):
+- Guard command (did anything else break? e.g., full test suite):
 - If no automated tests: deterministic manual check steps:
 - Commands must come from README.md "Checks" (SSOT); otherwise record manual checks per `AGENTS.md`.
 

@@ -15,6 +15,7 @@ update_trigger: subagent runtime paths, supported platforms, or linker behavior 
 - Keep one canonical repo copy per subagent file; runtime locations are linked projections only.
 - Preserve each platform's native file format; do not force shared schemas when platform contracts differ.
 - Exclude credentials, tokens, cookies, and other critical security material from subagent files.
+- When multiple subagents operate on the same codebase concurrently, each must target non-overlapping file scopes or use worktree isolation to prevent conflicting edits. Record scope boundaries in the subagent definition or orchestration config.
 - Unsupported or unverified runtime mappings must be skipped explicitly by the linker.
 - Exact runtime mappings and support levels live in `docs/agents/platforms/runtime-projections.json`.
 

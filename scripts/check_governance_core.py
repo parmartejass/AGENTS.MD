@@ -64,6 +64,7 @@ _WITNESS_REQUIRED_FIELDS = (
 _COUNCIL_FULL_REQUIRED_FIELDS = (
     "council_run_id",
     "phase",
+    "intent_coverage",
     "reviewers",
     "findings",
     "conflicts",
@@ -73,6 +74,7 @@ _COUNCIL_FULL_REQUIRED_FIELDS = (
     "verification_links",
 )
 _COUNCIL_ABBREVIATED_REQUIRED_FIELDS = (
+    "intent_coverage",
     "findings",
     "residual_risks",
     "go_no_go",
@@ -82,6 +84,12 @@ _COUNCIL_FULL_ONLY_FIELDS = tuple(
 )
 _COUNCIL_PHASE_ALLOWED = {"pre_change", "post_change"}
 _COUNCIL_GO_NO_GO_ALLOWED = {"go", "hold"}
+_COUNCIL_INTENT_REQUIRED = {
+    "ssot_duplication",
+    "silent_error",
+    "edge_case",
+    "resource_security_perf",
+}
 _GOVERNANCE_OWNER_PREFIXES = (
     "AGENTS.md",
     "agents-manifest.yaml",
@@ -116,6 +124,11 @@ _UNRESOLVED_CITATION_PATTERNS = (
     "cite",
     "entity",
     "image_group",
+)
+_TRACKED_SECRET_PATH_PATTERNS = (
+    re.compile(r"(^|/)\.env($|\.local$|\.dev$|\.prod$|\.test$)", re.IGNORECASE),
+    re.compile(r"(^|/)\.x_token\.json$", re.IGNORECASE),
+    re.compile(r"(^|/)[^/]*(token|secret|credential|credentials)[^/]*\.(json|txt|env|ini|toml|yaml|yml)$", re.IGNORECASE),
 )
 
 
@@ -276,6 +289,14 @@ def _check_agents_manifest(governance_root: Path) -> List[str]:
     elif "AGENTS.md" not in default_inject:
         errors.append("default_inject must include AGENTS.md")
 
+    governance_improvement_inject = paths_by_list.get("profiles.governance_improvement.inject")
+    if governance_improvement_inject is None:
+        errors.append("Missing profiles.governance_improvement.inject list in agents-manifest.yaml")
+    elif "docs/agents/22-ssot-authority-decisions.md" not in governance_improvement_inject:
+        errors.append(
+            "profiles.governance_improvement.inject must include docs/agents/22-ssot-authority-decisions.md"
+        )
+
     all_paths: Set[str] = set()
     for list_key, values in paths_by_list.items():
         seen: Set[str] = set()
@@ -379,6 +400,7 @@ def _check_project_docs(repo_root: Path, governance_rel_path: str) -> List[str]:
     readme = repo_root / "README.md"
     if readme.is_file():
         readme_text = readme.read_text(encoding="utf-8")
+        readme_text_lower = readme_text.lower()
         required_refs = [
             "docs/project/index.md",
             "AGENTS.md",
@@ -395,19 +417,20 @@ def _check_project_docs(repo_root: Path, governance_rel_path: str) -> List[str]:
             f"{governance_prefix}scripts/check_python_safety.py",
         ]
         for ref in required_refs:
-            if ref not in readme_text:
+            if ref.lower() not in readme_text_lower:
                 errors.append(f"README.md must reference: {ref}")
 
     proj_index = repo_root / "docs/project/index.md"
     if proj_index.is_file():
         index_text = proj_index.read_text(encoding="utf-8")
+        index_text_lower = index_text.lower()
         for ref in [
             "docs/project/goal.md",
             "docs/project/rules.md",
             "docs/project/architecture.md",
             "docs/project/learning.md",
         ]:
-            if ref not in index_text:
+            if ref.lower() not in index_text_lower:
                 errors.append(f"docs/project/index.md must reference {ref}")
 
     return errors
@@ -458,6 +481,14 @@ def _check_repo_hygiene(repo_root: Path) -> List[str]:
                 "Tracked template runtime output file (must be ignored; "
                 f"docs/generated/ governance artifacts are allowed): {path}"
             )
+            continue
+
+        if norm.startswith("X-Bookmarks Import/data/"):
+            errors.append(f"Tracked secret-like or workspace-local file: {path}")
+            continue
+
+        if any(pattern.search(norm) for pattern in _TRACKED_SECRET_PATH_PATTERNS):
+            errors.append(f"Tracked secret-like or workspace-local file: {path}")
 
     return errors
 
@@ -570,6 +601,44 @@ def _check_governance_playbook_hard_gates(governance_root: Path) -> List[str]:
             "Prompt pack Hard gates block does not match canonical Hard gates section in "
             "docs/agents/playbooks/governance-learnings-template.md."
         )
+    return errors
+
+
+def _check_governance_authority_decisions(governance_root: Path) -> List[str]:
+    errors: List[str] = []
+    concept_map_rel = "docs/agents/20-sources-of-truth-map.md"
+    registry_rel = "docs/agents/22-ssot-authority-decisions.md"
+    registry_path = governance_root / registry_rel
+    if not registry_path.is_file():
+        return [f"Missing governance authority decision registry: {registry_path}"]
+
+    agents_path = governance_root / "AGENTS.md"
+    if not agents_path.is_file():
+        errors.append(f"Missing required governance file for authority decision checks: {agents_path}")
+    else:
+        agents_text = agents_path.read_text(encoding="utf-8")
+        if concept_map_rel not in agents_text:
+            errors.append(f"AGENTS.md must reference {concept_map_rel}")
+
+    registry_text = registry_path.read_text(encoding="utf-8")
+    for marker in ("## Scope", "## Entry Contract", "## Active Decisions"):
+        if marker not in registry_text:
+            errors.append(
+                f"Governance authority decision registry missing required section '{marker}'."
+            )
+
+    required_refs = [
+        ("docs/agents/index.md", governance_root / "docs/agents/index.md"),
+        (concept_map_rel, governance_root / concept_map_rel),
+    ]
+    for label, path in required_refs:
+        if not path.is_file():
+            errors.append(f"Missing required governance file for authority decision checks: {path}")
+            continue
+        text = path.read_text(encoding="utf-8")
+        if registry_rel not in text:
+            errors.append(f"{label} must reference {registry_rel}")
+
     return errors
 
 
@@ -879,7 +948,7 @@ def _check_governance_specific_record_fields(
 ) -> bool:
     record_has_errors = False
     change_type = record.get("change_type")
-    if change_type != "docs":
+    if not isinstance(change_type, str) or change_type.strip().lower() != "docs":
         return record_has_errors
     if not _record_is_governance_scoped(record):
         return record_has_errors
@@ -965,8 +1034,34 @@ def _check_governance_specific_record_fields(
             )
             record_has_errors = True
 
+    intent_coverage = council.get("intent_coverage")
+    intent_values = intent_coverage if isinstance(intent_coverage, list) else None
+    if not intent_values or not _as_non_empty_list(intent_values):
+        errors.append(
+            f"Governance docs council_summary.intent_coverage must be a non-empty array in {path}."
+        )
+        record_has_errors = True
+    else:
+        normalized_intents: List[str] = []
+        for item in intent_values:
+            if not isinstance(item, str) or not item.strip():
+                errors.append(
+                    f"Governance docs council_summary.intent_coverage must contain only non-empty strings in {path}."
+                )
+                record_has_errors = True
+                continue
+            normalized_intents.append(item.strip())
+        if normalized_intents:
+            for required_intent in sorted(_COUNCIL_INTENT_REQUIRED):
+                if required_intent not in normalized_intents:
+                    errors.append(
+                        f"Governance docs council_summary.intent_coverage missing '{required_intent}' in {path}."
+                    )
+                    record_has_errors = True
+
     phase = council.get("phase")
-    if _is_non_empty(phase) and phase not in _COUNCIL_PHASE_ALLOWED:
+    phase_normalized = phase.strip().lower() if isinstance(phase, str) else phase
+    if _is_non_empty(phase) and phase_normalized not in _COUNCIL_PHASE_ALLOWED:
         errors.append(
             f"Governance docs council_summary.phase must be one of "
             f"{sorted(_COUNCIL_PHASE_ALLOWED)} in {path}."
@@ -974,7 +1069,8 @@ def _check_governance_specific_record_fields(
         record_has_errors = True
 
     go_no_go = council.get("go_no_go")
-    if _is_non_empty(go_no_go) and go_no_go not in _COUNCIL_GO_NO_GO_ALLOWED:
+    go_no_go_normalized = go_no_go.strip().lower() if isinstance(go_no_go, str) else go_no_go
+    if _is_non_empty(go_no_go) and go_no_go_normalized not in _COUNCIL_GO_NO_GO_ALLOWED:
         errors.append(
             f"Governance docs council_summary.go_no_go must be one of "
             f"{sorted(_COUNCIL_GO_NO_GO_ALLOWED)} in {path}."
@@ -999,6 +1095,21 @@ def _check_governance_specific_record_fields(
             f"Governance docs validation_context.traceability_refs must be a non-empty array in {path}."
         )
         record_has_errors = True
+    else:
+        valid_traceability_refs = 0
+        for item in traceability_refs:
+            if not isinstance(item, str) or not item.strip():
+                errors.append(
+                    f"Governance docs validation_context.traceability_refs must contain only non-empty strings in {path}."
+                )
+                record_has_errors = True
+                continue
+            valid_traceability_refs += 1
+        if valid_traceability_refs == 0:
+            errors.append(
+                f"Governance docs validation_context.traceability_refs must be a non-empty array in {path}."
+            )
+            record_has_errors = True
     return record_has_errors
 
 
@@ -1062,7 +1173,8 @@ def _check_change_records(
                 record_has_errors = True
 
         change_type = record.get("change_type")
-        if _is_non_empty(change_type) and change_type not in allowed_change_types:
+        normalized_change_type = change_type.strip().lower() if isinstance(change_type, str) else change_type
+        if _is_non_empty(change_type) and normalized_change_type not in allowed_change_types:
             errors.append(
                 f"Unknown change_type '{change_type}' in {record_file}. "
                 f"Allowed values: {', '.join(allowed_change_types)}."
@@ -1280,6 +1392,14 @@ def main(argv: Sequence[str]) -> int:
         total_errors += len(playbook_errors)
     else:
         logger.info("Governance playbook hard-gate parity checks passed.")
+
+    authority_decision_errors = _check_governance_authority_decisions(governance_root)
+    if authority_decision_errors:
+        for issue in authority_decision_errors:
+            logger.error("ERROR: %s", issue)
+        total_errors += len(authority_decision_errors)
+    else:
+        logger.info("Governance authority decision registry checks passed.")
 
     change_record_errors, change_record_notes = _check_change_records(
         repo_root, governance_root, require_records=args.require_records

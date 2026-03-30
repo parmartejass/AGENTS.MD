@@ -60,6 +60,12 @@ update_trigger: skill standards change OR new platform support requirements emer
 - Keep docs-header carveout details in `docs/agents/25-docs-ssot-policy.md`.
 - Keep linker implementation details in `docs/agents/link_repo_assets.ps1`.
 
+## Context Budget Constraint
+- All skill names are always loaded into the agent context, but descriptions are truncated to fit a character budget.
+- The budget scales dynamically at 1% of the context window, with a fallback of 8,000 characters when the window size is unknown.
+- Implication: keep `SKILL.md` descriptions concise. Front-load the trigger condition (when to use the skill) in the first sentence. Defer detail to referenced support files using progressive disclosure.
+- Source: Anthropic "Lessons from Building Claude Code: How We Use Skills" (March 2026).
+
 ## Verification Expectations
 - Every skill should include one deterministic smoke check or an explicit pointer to the platform-owned verification path.
 - When a platform or API limitation materially changes behavior, the skill should call that out explicitly rather than implying unsupported behavior works.

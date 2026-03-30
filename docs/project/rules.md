@@ -19,4 +19,4 @@ update_trigger: governance rules change OR new recurring maintenance pitfalls em
 - Don't add repo-generated artifacts to git (bytecode, caches, template outputs).
 - Don't expand docs into a second SSOT; reference owners by path/identifier instead.
 - Don't treat project docs or shared repo config as the authority for external service setup.
-- Don't edit runtime projection paths like `.agents/skills/*`, `.cursor/rules/*`, `.cursor/skills/*`, `.cursor/agents/*`, `.cursor/mcp.json`, `.cursor/cli.json`, `.claude/commands/*`, `.claude/skills/*`, `.claude/agents/*`, `.claude/settings.json`, `.codex/agents/*`, `.codex/config.toml`, or `.mcp.json` as standalone copies when they are repo-linked or generated views of `docs/agents/`.
+- Don't edit projected runtime paths declared in `docs/agents/platforms/runtime-projections.json` as standalone copies; update the canonical `docs/agents/` source owners and linker/setup flow instead.

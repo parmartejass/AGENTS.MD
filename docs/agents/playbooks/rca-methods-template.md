@@ -115,4 +115,7 @@ This template is a prompting scaffold. If any wording conflicts with policy, `AG
   - regression test:
   - disconfirming test:
   - failure-path check:
+- guard check (did anything else break?):
+  - guard command (e.g., full test suite or smoke suite):
+  - guard result (pass/fail):
 - change record artifact path (if enabled): `docs/project/change-records/<timestamp>-<slug>.json`

@@ -36,21 +36,7 @@ Ensure `README.md` contains (at minimum):
 - A link to `docs/project/index.md` (project docs entrypoint).
 - A link to `AGENTS.md` (governance SSOT).
 - A short "Checks" section listing the deterministic commands used to verify the repo.
-  - Source governance repo (this repo):
-    - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_agents_manifest.ps1`
-    - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_docs_ssot.ps1`
-    - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_project_docs.ps1`
-    - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_repo_hygiene.ps1`
-    - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_change_records.ps1`
-    - `python3 scripts/check_python_safety.py` (or `python` if `python3` is unavailable)
-  - Vendored target repo (`.governance/` present):
-    - `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_agents_manifest.ps1`
-    - `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_docs_ssot.ps1 -RepoRoot .`
-    - `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_project_docs.ps1 -RepoRoot .`
-    - `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_repo_hygiene.ps1 -RepoRoot .`
-    - `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_change_records.ps1 -RepoRoot .`
-      - enforce required records via `docs/project/change-records/.required` or by adding `-RequireRecords`
-    - `python3 .governance/scripts/check_python_safety.py --root .` (or `python` if `python3` is unavailable)
+- Verification commands are SSOT in `README.md` section "Checks"; keep this playbook referential and do not duplicate the command list here.
 
 ## Template files (copy/paste, then customize)
 
@@ -153,8 +139,9 @@ update_trigger: new operational learnings/pitfalls discovered in real runs
 
 Keep this focused on:
 - failure modes observed in real runs
-- environment/permission gotchas
+- environment/permission gotchas (the highest-signal content for any operational doc)
 - verification tips (how to reproduce/confirm outcomes)
+- common agent pitfalls (patterns that repeatedly cause rework or incorrect output)
 
 Avoid:
 - duplicating constants/defaults (reference the SSOT owner instead)

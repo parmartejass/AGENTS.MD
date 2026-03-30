@@ -6,6 +6,7 @@ This repository maintains a reusable, repo-agnostic governance pack for autonomo
 
 - Canonical policy: `AGENTS.md`
 - Context injection manifest: `agents-manifest.yaml`
+- Cross-project authority decisions: `docs/agents/22-ssot-authority-decisions.md`
 
 ## Read Order (Top-Down)
 
@@ -52,6 +53,7 @@ When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` an
 ## Supporting docs (non-authoritative)
 
 - Index: `docs/agents/index.md`
+- Authority decisions: `docs/agents/22-ssot-authority-decisions.md`
 - Docs are supporting material only; facts and behavior must stay in code/SSOT (see `docs/agents/25-docs-ssot-policy.md`).
 
 ## Templates (reference implementations)
@@ -89,6 +91,7 @@ When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` an
 |  |  |- 10-repo-discovery.md
 |  |  |- 15-stuck-in-loop-generate-fresh-restart-prompt.md
 |  |  |- 20-sources-of-truth-map.md
+|  |  |- 22-ssot-authority-decisions.md
 |  |  |- 25-docs-ssot-policy.md
 |  |  |- 30-logging-errors.md
 |  |  |- 35-authority-bounded-modules.md
@@ -376,7 +379,7 @@ This repo:
 - Agents manifest checks: `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_agents_manifest.ps1`
 - Project docs checks (required files + README linkage): `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_project_docs.ps1`
 - Repo hygiene checks (no runtime/generated artifact noise tracked): `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_repo_hygiene.ps1`
-- Cross-platform core governance checks (manifest + docs SSOT + project docs + hygiene + playbook parity + unresolved citation tokens + change records): `python3 scripts/check_governance_core.py` (use `python` if `python3` is unavailable)
+- Cross-platform core governance checks (manifest + docs SSOT + project docs + governance authority decisions + hygiene + playbook parity + unresolved citation tokens + change records): `python3 scripts/check_governance_core.py` (use `python` if `python3` is unavailable)
   - Require change records (or honor `.required` marker): `python3 scripts/check_governance_core.py --require-records`
   - Strict safety mode: `python3 scripts/check_governance_core.py --fail-on-safety-warnings`
 - Change record artifact checks (schema + required evidence fields): `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_change_records.ps1`

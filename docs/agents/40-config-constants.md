@@ -31,6 +31,7 @@ Rule: keys/defaults/schema must have a single owner; docs reference keys by iden
 ### Validation + fallback
 - Invalid config values are handled by the config SSOT (reject or coerce).
 - Runtime fallback must use the config SSOT default and log key + value + fallback.
+- Config drift detection: when config values can become stale relative to runtime conditions (e.g., thresholds, timeouts, external API parameters), the config owner should expose a staleness witness (last-updated timestamp or validation check) so drift is surfaced explicitly rather than causing silent misbehavior.
 
 ### Dependency boundaries
 - Config/constant owners must remain dependency-light; avoid importing runtime/UI modules.

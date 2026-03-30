@@ -26,14 +26,22 @@ Thumbs.db
 ~$*.xls
 ~$*.xlsb
 
-# Environment files
+# Environment files and tokens
 .env
+.x_token.json
+
+# X-Bookmarks data (PII, large JSON, OAuth tokens)
+X-Bookmarks Import/data/
+X-Bookmarks Import/.x_token.json
+# Duplicate of docs/agents/skills/x-api-data-access/ — use canonical skill bundle only
+X-Bookmarks Import/skills/x-api-data-access/
 
 # IDE settings
 .vscode/
 .idea/
 .codex/config.toml
-.codex/agents/
+# Project-local Codex agent roles: tracked symlinks -> docs/agents/subagents/codex/
+# (.codex/config.toml stays ignored: may contain machine-specific or secret-backed MCP config)
 .agents/skills/
 .cursor/skills/
 .cursor/agents/
@@ -41,10 +49,7 @@ Thumbs.db
 .cursor/rules/
 .cursor/mcp.json
 .cursor/cli.json
-.claude/skills/
-.claude/agents/
-.claude/commands/
-.claude/settings.json
+# Claude Code runtime adapters: tracked (clone-and-go); use repo-relative symlinks. Local overrides:
 .claude/settings.local.json
 .mcp.json
 
