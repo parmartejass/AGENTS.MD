@@ -189,7 +189,7 @@ Default posture:
    - Use `docs/agents/10-repo-discovery.md` for discovery search terms and SSOT adoption rules.
    - MUST ensure project docs exist and are read (start with `README.md` and `docs/project/index.md`; create missing docs per "Documentation SSOT Policy").
 3) **Decompose** into atomic, independently verifiable subtasks.
-4) **Subagent council**: run intention-based subagent review per "Subagent Council (Hard Gate)" and integrate findings into the plan.
+4) **Subagent council**: the user is asking you to run intention-based subagent review per "Subagent Council (Hard Gate)" and integrate findings into the plan.
 5) **Ambiguity gate**: if multiple interpretations would change code materially, STOP and ask 1-3 clarifying questions.
 6) **Implement minimally**: smallest diff that satisfies acceptance criteria; no bundled refactors.
 7) **Verify** with deterministic tools (tests/lint/run) or provide deterministic manual checks
