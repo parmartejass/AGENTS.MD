@@ -1,4 +1,4 @@
-# Adapter source: docs/agents/subagents/shared/authority-analyst.md
+# Adapter source: docs/agents/subagents/shared/authority-analyst/index.md
 name = "authority-analyst"
 description = "Root-cause uplift and authority-first analysis specialist. Use proactively when debugging or designing fixes to trace from symptom to the earliest authority that should have prevented the error. Ensures fixes prevent classes of errors, not just symptoms."
 model = "gpt-5.3-codex"
@@ -122,7 +122,7 @@ Over:
 ## Reference Docs
 - AGENTS.md section "First-Principles Protocol (Hard Gate)"
 - AGENTS.md section "Authority Graph"
-- `docs/agents/00-principles.md`
-- `docs/agents/35-authority-bounded-modules.md`
-- `docs/agents/20-sources-of-truth-map.md`
+- `docs/agents/00-principles/principles.md`
+- `docs/agents/35-authority-bounded-modules/authority-bounded-modules.md`
+- `docs/agents/20-sources-of-truth-map/sources-of-truth-map.md`
 '''

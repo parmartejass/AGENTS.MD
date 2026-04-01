@@ -38,10 +38,10 @@ When governance pack is present:
 - [ ] `README.md` - Links to `docs/project/index.md` and `AGENTS.md`
 - [ ] `README.md` - Has "Checks" section with verification commands
 - [ ] `docs/project/index.md` - Entrypoint
-- [ ] `docs/project/goal.md` - Objective + acceptance criteria
-- [ ] `docs/project/rules.md` - Project do/don't rules
-- [ ] `docs/project/architecture.md` - SSOT pointers
-- [ ] `docs/project/learning.md` - Operational learnings
+- [ ] `docs/project/goal/index.md` - Objective + acceptance criteria
+- [ ] `docs/project/rules/index.md` - Project do/don't rules
+- [ ] `docs/project/architecture/index.md` - SSOT pointers
+- [ ] `docs/project/learning/index.md` - Operational learnings
 
 ## Required Doc Header
 
@@ -107,5 +107,5 @@ Unreferenced helpers and "floating docs" are prohibited.
 - AGENTS.md section "Documentation SSOT Policy (Hard Gate)"
 - AGENTS.md section "Code Comment Policy (Hard Gate)"
 - AGENTS.md section "Non-Negotiables (Hard Gates)" > "#3 No Orphan Code / No Orphan Docs"
-- `docs/agents/25-docs-ssot-policy.md`
-- `docs/agents/playbooks/project-docs-template.md`
+- `docs/agents/25-docs-ssot-policy/index.md`
+- `docs/agents/playbooks/project-docs-template/index.md`

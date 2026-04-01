@@ -1,8 +1,6 @@
-# Project Docs Index (Template)
+# Project Branch Index
 
-This template keeps docs minimal and goal-focused:
-
-- Goal + acceptance: `docs/project/goal.md`
-- Do/Don't rules: `docs/project/rules.md`
-- Architecture (SSOT pointers): `docs/project/architecture.md`
-- Learning notes (optional): `docs/project/learning.md`
+- [goal/index.md](goal/index.md) - Goal and acceptance criteria branch. Required when: confirming the template's intended behavior or validating scope.
+- [rules/index.md](rules/index.md) - Template rules branch. Required when: checking template-local do/don't guidance before adapting it.
+- [architecture/index.md](architecture/index.md) - Architecture branch. Required when: locating folder contracts, owners, or execution flow.
+- [learning/index.md](learning/index.md) - Learning branch. Required when: reviewing optional pitfalls or follow-up notes captured for the template.

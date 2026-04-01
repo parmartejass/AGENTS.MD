@@ -57,7 +57,7 @@ jobs:
           HEAD_SHA: ${{ steps.ctx.outputs.head_sha }}
           COMMENTS_JSON: ${{ steps.ctx.outputs.comments_json }}
         run: |
-          python "${CONTROL_PLANE_ROOT}/scripts/request_rerun.py" \
+          python "${CONTROL_PLANE_ROOT}/scripts/main.py" request-rerun \
             --contract "${CONTROL_PLANE_ROOT}/control-plane.contract.json" \
             --head-sha "${HEAD_SHA}" \
             --comments-json "${COMMENTS_JSON}" \

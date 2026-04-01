@@ -1,4 +1,4 @@
-# Adapter source: docs/agents/subagents/shared/gui-thread-checker.md
+# Adapter source: docs/agents/subagents/shared/gui-thread-checker/index.md
 name = "gui-thread-checker"
 description = "GUI thread safety specialist. Use proactively for any GUI code to verify UI updates on main thread, worker queue pattern, and shutdown/cancel handling. Enforces Non-Negotiable #7."
 model = "gpt-5.3-codex"
@@ -142,6 +142,6 @@ def _excel_task(self, queue, cancel_event):
 ## Reference Docs
 - AGENTS.md section "Non-Negotiables (Hard Gates)" > "#7 GUI Thread Safety"
 - AGENTS.md section "Non-Negotiables (Hard Gates)" > "#5 Resource Safety"
-- `docs/agents/60-gui-threading.md`
-- `docs/agents/playbooks/gui-task-template.md`
+- `docs/agents/60-gui-threading/gui-threading.md`
+- `docs/agents/playbooks/gui-task-template/gui-task-template.md`
 '''

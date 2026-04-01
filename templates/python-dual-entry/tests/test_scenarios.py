@@ -5,7 +5,7 @@ from pathlib import Path
 
 from myapp.core.verification import compare_text_files
 from myapp.logging_config import setup_logging
-from myapp.runner import run_job
+from myapp.runner.main import run_job
 from myapp.scenarios import list_scenario_files, load_scenario
 
 

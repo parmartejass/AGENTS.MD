@@ -62,7 +62,7 @@ jobs:
           HEAD_SHA: ${{ steps.pr.outputs.head_sha }}
           CHANGED_FILES_JSON: ${{ steps.pr.outputs.files_json }}
         run: |
-          python "${CONTROL_PLANE_ROOT}/scripts/validate_browser_evidence.py" \
+          python "${CONTROL_PLANE_ROOT}/scripts/main.py" validate-browser-evidence \
             --contract "${CONTROL_PLANE_ROOT}/control-plane.contract.json" \
             --head-sha "${HEAD_SHA}" \
             --changed-files-json "${CHANGED_FILES_JSON}" \

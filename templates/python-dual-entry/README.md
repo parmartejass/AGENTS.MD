@@ -4,7 +4,7 @@ This folder is a copyable template for "dual-entry" automations:
 - **Users** run a GUI.
 - **Agents/Tests** run a CLI.
 
-Both entry points call the same orchestration function: `myapp.runner.run_job()`.
+Both flows converge through the same parent connector in `myapp/main.py`, which is the only folder allowed to wire the child contracts into `myapp.runner.main.run_job()`.
 
 ## Use it as inspiration (not a spec)
 
@@ -44,13 +44,16 @@ Each run emits:
 
 - Canonical entry wrapper: `myapp/main.py`
 - Package delegate for `python -m myapp`: `myapp/__main__.py`
-- CLI entry: `myapp/cli_app.py`
-- GUI entry: `myapp/gui_app.py`
-- Orchestration: `myapp/runner.py`
-- Workflow registry: `myapp/workflows.py`
+- CLI folder contract: `myapp/cli/main.py`
+- GUI folder contract: `myapp/gui/main.py`
+- Orchestration folder contract: `myapp/runner/main.py`
+- Parent-only wiring rule: `myapp/main.py` is the only connector between `cli`, `gui`, `core`, and `runner`
+- Runner-private workflow registry: `myapp/runner/workflows.py`
+- Runner-private validation: `myapp/runner/validation.py`
+- Runner-private text transform workflow: `myapp/runner/text_transform.py`
 - Structured event contract: `myapp/log_contract.py`
 - Structured event emitters: `myapp/observability.py`
 - Logging setup + JSONL sink: `myapp/logging_config.py`
-- Core business logic: `myapp/core/`
+- Core business logic folder: `myapp/core/` (public contract: `myapp/core/main.py`)
 - Scenarios (JSON): `tests/scenarios/`
 - Fixtures + expected outputs: `tests/fixtures/`, `tests/expected/`

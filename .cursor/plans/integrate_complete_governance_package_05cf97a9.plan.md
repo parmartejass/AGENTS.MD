@@ -12,7 +12,7 @@ todos:
     content: Create `docs/*.md` entrypoint/alias docs (ARCHITECTURE/SECURITY/TESTING/GIT-WORKFLOW/PLANNING/ANTI-PATTERNS) that link to canonical owners.
     status: pending
   - id: platform-adapters
-    content: Add `.claude/skills/*` wrappers and `.cursor/rules/project.mdc`; update `docs/agents/skills/10-platform-adapters.md` accordingly.
+    content: Add `.claude/skills/*` wrappers and `.cursor/rules/project.mdc`; update `docs/agents/skills/10-platform-adapters/index.md` accordingly.
     status: pending
   - id: context-injection
     content: Update `agents-manifest.yaml` with new profiles to inject the new docs only when relevant (keep default injection minimal).
@@ -40,15 +40,15 @@ isProject: false
   - `scripts/check_docs_ssot.ps1`
   - `scripts/check_project_docs.ps1`
   - `scripts/check_repo_hygiene.ps1`
-  - `scripts/check_python_safety.py`
+  - `scripts/check_python_safety/main.py`
 
 ## What exists already (extend, don’t duplicate)
 
 - **SSOT + hard gates**: `[AGENTS.md](AGENTS.md)`
-- **Docs anti-drift + headers**: `[docs/agents/25-docs-ssot-policy.md](docs/agents/25-docs-ssot-policy.md)` + `[scripts/check_docs_ssot.ps1](scripts/check_docs_ssot.ps1)`
-- **Planning + verification floors**: `[AGENTS.md](AGENTS.md)` (“Mandatory Execution Loop”, “Verification Floors”) + `[docs/agents/playbooks/ai-coding-prompt-template.md](docs/agents/playbooks/ai-coding-prompt-template.md)`
-- **Testing guidance (real files)**: `[docs/agents/80-testing-real-files.md](docs/agents/80-testing-real-files.md)`
-- **Release checklist**: `[docs/agents/90-release-checklist.md](docs/agents/90-release-checklist.md)`
+- **Docs anti-drift + headers**: `[docs/agents/25-docs-ssot-policy/index.md](docs/agents/25-docs-ssot-policy/index.md)` + `[scripts/check_docs_ssot.ps1](scripts/check_docs_ssot.ps1)`
+- **Planning + verification floors**: `[AGENTS.md](AGENTS.md)` (“Mandatory Execution Loop”, “Verification Floors”) + `[docs/agents/playbooks/ai-coding-prompt-template/index.md](docs/agents/playbooks/ai-coding-prompt-template/index.md)`
+- **Testing guidance (real files)**: `[docs/agents/80-testing-real-files/index.md](docs/agents/80-testing-real-files/index.md)`
+- **Release checklist**: `[docs/agents/90-release-checklist/index.md](docs/agents/90-release-checklist/index.md)`
 
 ## Add the “package docs” (standalone-friendly) as navigation aliases
 
@@ -76,7 +76,7 @@ Add new supporting docs (with YAML headers) to hold the *actual* content behind 
   - Add non-duplicative “how to apply” patterns (input validation checklist, secrets handling patterns, safe error handling examples).
   - Any quantitative claims must be either cited + reproducible or explicitly labeled `UNVERIFIED`.
 - **Testing governance**: `[docs/agents/75-testing-governance.md](docs/agents/75-testing-governance.md)`
-  - Pointer-first to `AGENTS.md` Verification Floors + `docs/agents/80-testing-real-files.md`.
+  - Pointer-first to `AGENTS.md` Verification Floors + `docs/agents/80-testing-real-files/index.md`.
   - Add TDD guidance and edge-case testing patterns *without* duplicating repo-specific commands.
 - **Git workflow**: `[docs/agents/92-git-workflow.md](docs/agents/92-git-workflow.md)` and/or a playbook `[docs/agents/playbooks/git-workflow-template.md](docs/agents/playbooks/git-workflow-template.md)`
   - Provide AI-safe conventions (atomic commits, PR size guidance, human review checklist).
@@ -102,7 +102,7 @@ Update navigation so none of these are orphan docs:
   - `[.cursor/rules/project.mdc](.cursor/rules/project.mdc)`
   - Keep it minimal and pointer-first (reference `AGENTS.md` + the new docs). Avoid restating hard gates.
 - Update platform adapter guidance:
-  - Extend `[docs/agents/skills/10-platform-adapters.md](docs/agents/skills/10-platform-adapters.md)` with sections documenting:
+  - Extend `[docs/agents/skills/10-platform-adapters/index.md](docs/agents/skills/10-platform-adapters/index.md)` with sections documenting:
     - where `.claude/skills` live and what they may/must not contain
     - how `.cursor/rules/*.mdc` should reference SSOT without duplicating policy
 

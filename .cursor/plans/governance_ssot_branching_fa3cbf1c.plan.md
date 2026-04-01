@@ -83,11 +83,11 @@ isProject: false
 ## Verified Baseline
 
 - `agents-manifest.yaml` still uses shallow governance globs such as `docs/agents/*.md`, `docs/agents/playbooks/*.md`, and `docs/agents/skills/*.md`.
-- `docs/agents/00-principles.md` and `docs/agents/skills/00-skill-standards.md` still describe flat `docs/agents/*.md` ownership.
-- `README.md` and `docs/project/architecture.md` do not currently document `.cursor/agents/` or `.cursor/plans/`, so repo-wide discoverability is incomplete.
-- `scripts/check_docs_ssot.ps1` and `scripts/check_governance_core.py` hardcode `docs/agents/25-docs-ssot-policy.md` and exempt only `index.md` plus one-level `*/index.md`.
+- `docs/agents/00-principles/index.md` and `docs/agents/skills/00-skill-standards/index.md` still describe flat `docs/agents/*.md` ownership.
+- `README.md` and `docs/project/architecture/index.md` do not currently document `.cursor/agents/` or `.cursor/plans/`, so repo-wide discoverability is incomplete.
+- `scripts/check_docs_ssot.ps1` and `scripts/check_governance_core/main.py` hardcode `docs/agents/25-docs-ssot-policy/index.md` and exempt only `index.md` plus one-level `*/index.md`.
 - `scripts/check_agents_manifest.ps1` currently proves only quoted path syntax + existence; it does not enforce leaf-only semantics, resolved containment, wildcard bans, or vendored-prefixed path bans.
-- `scripts/check_docs_ssot.ps1` and `scripts/check_governance_core.py` walk `RepoRoot/docs/**`, so a downstream repo can validate `docs/project/**` while missing problems in `.governance/docs/agents/**`.
+- `scripts/check_docs_ssot.ps1` and `scripts/check_governance_core/main.py` walk `RepoRoot/docs/**`, so a downstream repo can validate `docs/project/**` while missing problems in `.governance/docs/agents/**`.
 - `.cursor/agents/*.md` and `.cursor/plans/*.plan.md` already contain governance references to `AGENTS.md`, `agents-manifest.yaml`, and `docs/agents/**`, but no current repo doc claims those surfaces as discoverability owners.
 
 ## SSOT Map
@@ -95,18 +95,18 @@ isProject: false
 - `AGENTS.md`: canonical policy and hard gates.
 - `README.md`: repo-wide surface discoverability and top-level navigation only.
 - `docs/project/index.md`: project-docs entrypoint only.
-- `docs/project/architecture.md`: authority graph, tooling-surface map, and source-repo-only vs vendored classification.
+- `docs/project/architecture/index.md`: authority graph, tooling-surface map, and source-repo-only vs vendored classification.
 - `docs/agents/index.md`: governance-doc navigation only.
-- `docs/agents/25-docs-ssot-policy.md`: placement rubric, folder/index eligibility, pointer-stub contract, and doc-header/index rules.
-- `docs/agents/skills/10-platform-adapters.md`: platform-specific adapter surface documentation, including `.cursor/agents/`.
+- `docs/agents/25-docs-ssot-policy/index.md`: placement rubric, folder/index eligibility, pointer-stub contract, and doc-header/index rules.
+- `docs/agents/skills/10-platform-adapters/index.md`: platform-specific adapter surface documentation, including `.cursor/agents/`.
 - `agents-manifest.yaml`: machine-readable governance-doc routing and layout contract rooted at `GovernanceRoot`; it must not become the repo-wide surface map.
-- `.cursor/plans/*.plan.md`: non-authoritative planning artifacts whose lifecycle/classification is recorded in `docs/project/architecture.md`.
+- `.cursor/plans/*.plan.md`: non-authoritative planning artifacts whose lifecycle/classification is recorded in `docs/project/architecture/index.md`.
 
 ## Repo-Wide Discoverability Contract
 
 - `README.md` must expose every first-class repo surface, including source-repo-only hidden surfaces that materially affect governance work.
-- `docs/project/index.md` must stay the project-docs entrypoint and point readers to `docs/project/architecture.md` for tooling-surface ownership.
-- `docs/project/architecture.md` must classify each governed surface as `authoritative`, `supporting`, `adapter`, `planning-only`, `generated`, or `historical evidence`.
+- `docs/project/index.md` must stay the project-docs entrypoint and point readers to `docs/project/architecture/index.md` for tooling-surface ownership.
+- `docs/project/architecture/index.md` must classify each governed surface as `authoritative`, `supporting`, `adapter`, `planning-only`, `generated`, or `historical evidence`.
 - `docs/agents/index.md` is the governance-doc hub only; it is not the repo-wide discoverability owner.
 - Each non-index governance doc must have exactly one owning branch index; other indexes may cross-link it but must not co-own it.
 - Hidden source-repo-only surfaces must have reverse traceability to canonical owners, not standalone policy language.
@@ -169,8 +169,8 @@ Do not create all sub-branches up front. Create them only when the placement rub
 - Platform adapters -> `docs/agents/skills/...`
 - Automation loop runbooks -> `docs/agents/automation/...`
 - Schemas/contracts/artifact definitions -> `docs/agents/schemas/...`
-- Cursor prompt definitions -> `.cursor/agents/...` with ownership documented by `docs/agents/skills/10-platform-adapters.md`
-- Planning artifacts -> `.cursor/plans/...` with ownership/lifecycle documented by `docs/project/architecture.md`
+- Cursor prompt definitions -> `.cursor/agents/...` with ownership documented by `docs/agents/skills/10-platform-adapters/index.md`
+- Planning artifacts -> `.cursor/plans/...` with ownership/lifecycle documented by `docs/project/architecture/index.md`
 
 ### New Folder / Index Rules
 
@@ -211,7 +211,7 @@ Extend `agents-manifest.yaml` with a scoped governance layout section, for examp
 
 Contract rules:
 
-- `agents-manifest.yaml` may own machine-readable governance-doc routing and path metadata, but repo-wide surface ownership stays in `README.md` and `docs/project/architecture.md`.
+- `agents-manifest.yaml` may own machine-readable governance-doc routing and path metadata, but repo-wide surface ownership stays in `README.md` and `docs/project/architecture/index.md`.
 - `default_inject`, `fallback_inject`, `profiles.*.inject`, and `authority_paths` must use governance-root-relative POSIX-style leaf file paths only.
 - Reject `.` / `..`, leading slash/backslash, drive-letter paths, UNC paths, `.governance/`-prefixed values, wildcards, and non-leaf canonical targets.
 - Path containment must be checked after canonical resolution, not just via string matching.
@@ -225,13 +225,13 @@ Contract rules:
   - Classify each hit as `authority`, `governed consumer`, `historical artifact`, or `explicitly out of scope`.
   - Freeze that inventory before changing any paths.
 2. Lock the owner split and discoverability contracts.
-  - Update `README.md`, `docs/project/index.md`, `docs/project/architecture.md`, `docs/agents/index.md`, `docs/agents/25-docs-ssot-policy.md`, and `docs/agents/skills/10-platform-adapters.md`.
+  - Update `README.md`, `docs/project/index.md`, `docs/project/architecture/index.md`, `docs/agents/index.md`, `docs/agents/25-docs-ssot-policy/index.md`, and `docs/agents/skills/10-platform-adapters/index.md`.
   - Document `.cursor/agents/` and `.cursor/plans/` as source-repo-only surfaces with explicit owner/lifecycle rules.
 3. Add the machine-readable layout contract before moving docs.
   - Add `authority_paths`, `branch_indexes`, scan-scope rules, and temporary alias support to `agents-manifest.yaml`.
   - Do not change live doc locations yet.
 4. Harden validators before path moves.
-  - Refactor `scripts/check_agents_manifest.ps1`, `scripts/check_docs_ssot.ps1`, `scripts/check_governance_core.py`, and `scripts/check_change_records.ps1` to consume the contract.
+  - Refactor `scripts/check_agents_manifest.ps1`, `scripts/check_docs_ssot.ps1`, `scripts/check_governance_core/main.py`, and `scripts/check_change_records.ps1` to consume the contract.
   - Validate source-repo mode and vendored `.governance/` mode separately.
   - Add failure fixtures for path escapes, bad branch indexes, stale references, and hidden-surface orphaning before any cutover.
 5. Move docs and update references atomically.
@@ -249,7 +249,7 @@ Contract rules:
 - Governance graph completeness: every non-index governance doc is reachable from `docs/agents/index.md` through registered branch indexes.
 - Branch ownership: every non-index governance doc has exactly one owning branch index.
 - Branch-index presence: every registered branch folder has a local `index.md`.
-- Repo-surface completeness: every first-class repo surface is exposed by `README.md` or explicitly classified in `docs/project/architecture.md`.
+- Repo-surface completeness: every first-class repo surface is exposed by `README.md` or explicitly classified in `docs/project/architecture/index.md`.
 - Hidden-surface reverse traceability: `.cursor/agents/**` and live `.cursor/plans/**` point back to canonical owners and do not self-define policy.
 - Vendored governance docs coverage: downstream `.governance/docs/agents/**` is validated against the same rules as source-repo governance docs.
 - Stale-reference scan: governed Markdown/YAML/JSON/PowerShell/Python/`.cursor/**` files fail if they still point at retired flat paths.
@@ -263,7 +263,7 @@ Contract rules:
 - `INV-D1`: each governance authority resolves to exactly one canonical file in the machine-readable layout contract.
   - Witness: authority-path uniqueness + existence check passes in both validator stacks.
 - `INV-D2`: each first-class hidden source-repo surface has one owner and one lifecycle classification.
-  - Witness: `docs/project/architecture.md` surface-map check passes for `.cursor/agents` and `.cursor/plans`.
+  - Witness: `docs/project/architecture/index.md` surface-map check passes for `.cursor/agents` and `.cursor/plans`.
 - `INV-D3`: adapter prompts and live planning artifacts remain traceable to canonical owners instead of self-defining governance policy.
   - Witness: reverse-traceability scan passes for `.cursor/agents/**` and `.cursor/plans/**`.
 
@@ -307,11 +307,11 @@ Contract rules:
   - `security-perf-auditor`: reviewed path safety, scan scope, recursive glob precision, and validator rollout order
 - `findings`:
   - High: the prior plan was too narrow because it solved `docs/agents/` branching but not repo-wide discoverability for `.cursor/agents/`, `.cursor/plans/`, `README.md`, and `docs/project/*`
-  - High: the prior plan let `docs/agents/index.md`, `docs/project/architecture.md`, and docs-policy concerns drift toward co-owning the same branch-map responsibilities
+  - High: the prior plan let `docs/agents/index.md`, `docs/project/architecture/index.md`, and docs-policy concerns drift toward co-owning the same branch-map responsibilities
   - High: validator hardening must cover vendored `GovernanceRoot`, registered branch indexes, and resolved-path containment before any move
   - Medium: hidden source-repo-only surfaces need explicit owner docs and non-authoritative classification
   - Medium: compatibility stubs and historical artifacts need a declared policy so traceability checks do not create silent drift or false failures
-- `conflicts`: no blocking conflicts; one design tension was resolved by limiting `agents-manifest.yaml` to machine-readable governance-doc routing while `README.md` and `docs/project/architecture.md` stay the human repo-surface owners
+- `conflicts`: no blocking conflicts; one design tension was resolved by limiting `agents-manifest.yaml` to machine-readable governance-doc routing while `README.md` and `docs/project/architecture/index.md` stay the human repo-surface owners
 - `reconciliation_decision`: replace the docs-only branching refactor with this repo-wide discoverability + governance-branching phased plan; direct cutover remains blocked
 - `residual_risks`: validator churn across PowerShell/Python, stale references in archived artifacts, over-broad recursive globs, and hidden source-repo-only surfaces remaining undocumented
 - `go_no_go`: `go` for the phased contract-first plan above; `hold` for moving docs before inventory + validator hardening
@@ -321,7 +321,7 @@ Contract rules:
   - `scripts/check_docs_ssot.ps1`
   - `scripts/check_project_docs.ps1`
   - `scripts/check_change_records.ps1`
-  - `scripts/check_governance_core.py`
+  - `scripts/check_governance_core/main.py`
 
 ## Verification
 
@@ -331,12 +331,12 @@ Implementation-phase checks stay anchored to the repo SSOT in `README.md`:
 - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_docs_ssot.ps1`
 - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_project_docs.ps1`
 - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_change_records.ps1`
-- `python3 scripts/check_governance_core.py`
+- `python3 scripts/check_governance_core/main.py`
 
 Manual validation already performed for this plan update:
 
-- verified shallow manifest globs and flat-layout wording in `agents-manifest.yaml`, `docs/agents/00-principles.md`, and `docs/agents/skills/00-skill-standards.md`
-- verified `README.md` and `docs/project/architecture.md` do not currently document `.cursor/agents/` or `.cursor/plans/`
+- verified shallow manifest globs and flat-layout wording in `agents-manifest.yaml`, `docs/agents/00-principles/index.md`, and `docs/agents/skills/00-skill-standards/index.md`
+- verified `README.md` and `docs/project/architecture/index.md` do not currently document `.cursor/agents/` or `.cursor/plans/`
 - verified `.cursor/agents/*.md` and `.cursor/plans/*.plan.md` already reference canonical governance files but lack a documented discoverability owner
 - merged pre-change council findings into the rewritten plan above
 

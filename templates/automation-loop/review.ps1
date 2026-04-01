@@ -28,6 +28,7 @@ try {
   Invoke-Git -RepoRoot $repoRoot -GitArgs @("pull", $config.git.remote, $config.git.main_branch)
 
   $learningDoc = Resolve-RepoPath -RepoRoot $repoRoot -PathValue $config.paths.learning_doc
+  Assert-CanonicalNarrativeLeafPath -Path $learningDoc -Label "paths.learning_doc"
   $priorityReport = Resolve-RepoPath -RepoRoot $repoRoot -PathValue $config.paths.priority_report
   $governanceProposals = Resolve-RepoPath -RepoRoot $repoRoot -PathValue (Expand-DateToken -PathTemplate $config.paths.governance_proposals -DateToken $timestamp)
   $reviewReport = Resolve-RepoPath -RepoRoot $repoRoot -PathValue (Expand-DateToken -PathTemplate $config.paths.review_report -DateToken $timestamp)

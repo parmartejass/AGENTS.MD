@@ -1,4 +1,4 @@
-# Adapter source: docs/agents/subagents/shared/test-coverage-checker.md
+# Adapter source: docs/agents/subagents/shared/test-coverage-checker/index.md
 name = "test-coverage-checker"
 description = "Verification floors and test coverage specialist. Use proactively to ensure changes meet minimum verification requirements per change type. Validates fixtures, coverage thresholds, and failure-path tests."
 model = "gpt-5.3-codex-spark"
@@ -123,7 +123,7 @@ When enabled (`docs/project/change-records/.required` exists or `scripts/check_c
 ## Reference Docs
 - AGENTS.md section "Verification Floors (Hard Gate)"
 - AGENTS.md section "Verification Floors (Hard Gate)" > "Shift-left quality baseline"
-- `docs/agents/80-testing-real-files.md`
+- `docs/agents/80-testing-real-files/testing-real-files.md`
 - `docs/agents/schemas/change-record.schema.json`
-- `docs/agents/playbooks/bugfix-template.md`
+- `docs/agents/playbooks/bugfix-template/bugfix-template.md`
 '''

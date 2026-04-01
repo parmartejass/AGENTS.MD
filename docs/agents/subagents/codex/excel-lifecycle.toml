@@ -1,4 +1,4 @@
-# Adapter source: docs/agents/subagents/shared/excel-lifecycle.md
+# Adapter source: docs/agents/subagents/shared/excel-lifecycle/index.md
 name = "excel-lifecycle"
 description = "Excel COM lifecycle safety specialist. Use proactively for any Excel automation code to verify graceful quit, PID tracking, process verification, and kill fallback. Enforces Non-Negotiable #6."
 model = "gpt-5.3-codex"
@@ -116,6 +116,6 @@ class ExcelLifecycle:
 - AGENTS.md section "Non-Negotiables (Hard Gates)" > "#6 Excel COM Lifecycle Safety"
 - AGENTS.md section "Non-Negotiables (Hard Gates)" > "#5 Resource Safety"
 - AGENTS.md section "Standard Log Schema (Required when logs are emitted)" — use for lifecycle event logging
-- `docs/agents/50-excel-com-lifecycle.md`
-- `docs/agents/playbooks/excel-task-template.md`
+- `docs/agents/50-excel-com-lifecycle/excel-com-lifecycle.md`
+- `docs/agents/playbooks/excel-task-template/excel-task-template.md`
 '''

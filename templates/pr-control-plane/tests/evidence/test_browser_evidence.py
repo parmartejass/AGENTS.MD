@@ -8,10 +8,9 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / "scripts"))
+sys.path.insert(0, str(ROOT))
 
-from common import load_contract  # noqa: E402
-from validate_browser_evidence import evaluate_browser_evidence  # noqa: E402
+from scripts.main import evaluate_browser_evidence, load_contract  # noqa: E402
 
 
 FIXTURES = ROOT / "tests" / "fixtures"

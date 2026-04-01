@@ -49,7 +49,7 @@ jobs:
 
       - name: Generate harness-gap case
         run: |
-          python "${CONTROL_PLANE_ROOT}/scripts/harness_gap.py" \
+          python "${CONTROL_PLANE_ROOT}/scripts/main.py" harness-gap \
             --contract "${CONTROL_PLANE_ROOT}/control-plane.contract.json" \
             --incident-json incident.json \
             --case-output harness-gap-case.json \

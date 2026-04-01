@@ -114,5 +114,5 @@ class ExcelLifecycle:
 - AGENTS.md section "Non-Negotiables (Hard Gates)" > "#6 Excel COM Lifecycle Safety"
 - AGENTS.md section "Non-Negotiables (Hard Gates)" > "#5 Resource Safety"
 - AGENTS.md section "Standard Log Schema (Required when logs are emitted)" — use for lifecycle event logging
-- `docs/agents/50-excel-com-lifecycle.md`
-- `docs/agents/playbooks/excel-task-template.md`
+- `docs/agents/50-excel-com-lifecycle/excel-com-lifecycle.md`
+- `docs/agents/playbooks/excel-task-template/excel-task-template.md`

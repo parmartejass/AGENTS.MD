@@ -21,7 +21,7 @@ todos:
     content: Add conflict resolution process to Subagent Council section
     status: pending
   - id: observability-telemetry
-    content: Extend docs/agents/30-logging-errors.md with OpenTelemetry-compatible tracing
+    content: Extend docs/agents/30-logging-errors/index.md with OpenTelemetry-compatible tracing
     status: pending
   - id: observability-token-budget
     content: Create docs/agents/42-token-budget-management.md
@@ -39,10 +39,10 @@ todos:
     content: Add code examples to 35-authority-bounded-modules.md, 40-config-constants.md, 60-gui-threading.md
     status: pending
   - id: polish-testing
-    content: Expand docs/agents/80-testing-real-files.md with fixture patterns and CI guidance
+    content: Expand docs/agents/80-testing-real-files/index.md with fixture patterns and CI guidance
     status: pending
   - id: polish-release
-    content: Expand docs/agents/90-release-checklist.md with versioning and deployment
+    content: Expand docs/agents/90-release-checklist/index.md with versioning and deployment
     status: pending
 isProject: false
 ---
@@ -190,7 +190,7 @@ The AGENTS.MD framework already covers these areas well:
 - Tool usage, retries, latencies, costs per operation
 - Session replay capabilities
 
-**Recommendation**: Extend `docs/agents/30-logging-errors.md`:
+**Recommendation**: Extend `docs/agents/30-logging-errors/index.md`:
 
 - OpenTelemetry-compatible trace schema
 - Per-tool operation logging (input hash, output hash, duration, cost estimate)
@@ -321,13 +321,13 @@ These gaps were identified by the explore agents analyzing existing docs:
 
 **Recommendation**: Add example code blocks to:
 
-- [docs/agents/35-authority-bounded-modules.md](docs/agents/35-authority-bounded-modules.md): contract definition example
-- [docs/agents/40-config-constants.md](docs/agents/40-config-constants.md): config schema validation example
-- [docs/agents/60-gui-threading.md](docs/agents/60-gui-threading.md): queue/drain pattern example
+- [docs/agents/35-authority-bounded-modules/index.md](docs/agents/35-authority-bounded-modules/index.md): contract definition example
+- [docs/agents/40-config-constants/index.md](docs/agents/40-config-constants/index.md): config schema validation example
+- [docs/agents/60-gui-threading/index.md](docs/agents/60-gui-threading/index.md): queue/drain pattern example
 
 ### 6.2 Testing Guidance Depth
 
-**Gap**: [docs/agents/80-testing-real-files.md](docs/agents/80-testing-real-files.md) lacks test structure and fixture patterns.
+**Gap**: [docs/agents/80-testing-real-files/index.md](docs/agents/80-testing-real-files/index.md) lacks test structure and fixture patterns.
 
 **Recommendation**: Expand with:
 
@@ -340,7 +340,7 @@ These gaps were identified by the explore agents analyzing existing docs:
 
 **Gap**: GUI threading focuses on Tkinter only.
 
-**Recommendation**: Add framework notes to [docs/agents/60-gui-threading.md](docs/agents/60-gui-threading.md):
+**Recommendation**: Add framework notes to [docs/agents/60-gui-threading/index.md](docs/agents/60-gui-threading/index.md):
 
 - PyQt/PySide queue patterns
 - wxPython equivalent patterns
@@ -348,7 +348,7 @@ These gaps were identified by the explore agents analyzing existing docs:
 
 ### 6.4 Release Process
 
-**Gap**: [docs/agents/90-release-checklist.md](docs/agents/90-release-checklist.md) lacks versioning and deployment.
+**Gap**: [docs/agents/90-release-checklist/index.md](docs/agents/90-release-checklist/index.md) lacks versioning and deployment.
 
 **Recommendation**: Add sections for:
 

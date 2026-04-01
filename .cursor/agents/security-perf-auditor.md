@@ -109,6 +109,6 @@ For large refactors, verify:
 ## Reference Docs
 - AGENTS.md section "Non-Negotiables (Hard Gates)" > #5, #6, #7, #8, #10, #11
 - AGENTS.md section "Rewrite Risk Policy"
-- `docs/agents/35-authority-bounded-modules.md`
-- `docs/agents/50-excel-com-lifecycle.md`
-- `docs/agents/60-gui-threading.md`
+- `docs/agents/35-authority-bounded-modules/authority-bounded-modules.md`
+- `docs/agents/50-excel-com-lifecycle/excel-com-lifecycle.md`
+- `docs/agents/60-gui-threading/gui-threading.md`

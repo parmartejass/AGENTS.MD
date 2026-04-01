@@ -84,8 +84,8 @@ Before implementing, explicitly define:
 - **Shift-left quality** (mandatory for behavior changes/new features): convert reactive RCA learnings into proactive prevention via tests, design failure analysis, boundary contracts, static checks, and observability.
 
 Supporting references:
-- First principles patterns: `docs/agents/00-principles.md`
-- Concept -> owner map: `docs/agents/20-sources-of-truth-map.md`
+- First principles patterns: `docs/agents/00-principles/principles.md`
+- Concept -> owner map: `docs/agents/20-sources-of-truth-map/sources-of-truth-map.md`
 
 ## First-Principles + SSOT + Evidence Model (Hard Gate)
 
@@ -108,8 +108,8 @@ Implications:
 ### Authority Graph (Required for non-trivial systems)
 (Non-trivial: >1 workflow entrypoint, OR >1 SSOT owner, OR external resource dependencies such as COM/DB/network)
 - Maintain a single authoritative owner per decision-critical fact/state (see SSOT section).
-- If code is split into modules/packages, align module boundaries with authority boundaries and expose a single explicit public contract per authority (see `docs/agents/35-authority-bounded-modules.md`).
-- Record the authority graph in `docs/project/architecture.md` or the workflow registry; no orphan docs.
+- If code is split into modules/packages, align module boundaries with authority boundaries and expose a single explicit public contract per authority (see `docs/agents/35-authority-bounded-modules/authority-bounded-modules.md`).
+- Record the authority graph in `docs/project/architecture/architecture.md` or the workflow registry; no orphan docs.
 - All reads/writes must go through the authority; no shadow logic or one-off duplication.
 
 ### Workflow State Machine + Two-Phase Commit (When writes occur)
@@ -161,7 +161,7 @@ Confidence rule:
 - Minimums by change type (in addition to repo-specific checks):
   - Docs-only or formatting: run doc-related checks if present; otherwise record a deterministic manual check.
   - Behavior-neutral code change: run baseline checks relevant to the touched area plus at least one targeted smoke test if available; if none, record a deterministic manual check.
-  - Behavior change or new feature: baseline checks plus targeted tests covering the new behavior and at least one failure-path check (see I/O guidance in `docs/agents/80-testing-real-files.md` when applicable).
+  - Behavior change or new feature: baseline checks plus targeted tests covering the new behavior and at least one failure-path check (see I/O guidance in `docs/agents/80-testing-real-files/testing-real-files.md` when applicable).
   - Bugfix/regression: follow "Bias-Resistant Debugging" (no extra exceptions) and run applicable tests, including deterministic MRE witness, regression test, at least one disconfirming edge/adversarial test, and at least one failure-path check; when artifact-based verification is enabled, store evidence in `docs/project/change-records/*.json` using `docs/agents/schemas/change-record.schema.json`.
     Artifact-based verification is enabled when `docs/project/change-records/.required` exists or `scripts/check_change_records.ps1` is run with `-RequireRecords`.
 - Shift-left quality baseline (new features/behavior changes): before merge, encode prevention with tests (TDD/BDD where feasible), design pre-mortem or failure-mode review, relevant static checks, contract tests on module/service boundaries, and observability-by-design.
@@ -169,7 +169,7 @@ Confidence rule:
   - If coverage thresholds exist (CI/config/tooling), meet them and do not lower them.
   - If no coverage thresholds exist, require fixture-backed tests: regression fixture for bugfixes; representative scenario/fixture for new features when feasible.
   - Fixtures must be deterministic and sanitized (no secrets/PII/licensed data).
-- For changes affecting I/O or file processing, follow `docs/agents/80-testing-real-files.md` (supporting guidance).
+- For changes affecting I/O or file processing, follow `docs/agents/80-testing-real-files/testing-real-files.md` (supporting guidance).
 
 ### Rewrite Risk Policy
 Large rewrites are risk amplification unless all are true:
@@ -186,7 +186,7 @@ Default posture:
 1) **Restate goal + acceptance criteria** (1-5 bullets).
 2) **Discover** relevant files and existing SSOT owners (constants/config/rules/workflows/etc).
    - **MUST** consult `agents-manifest.yaml` and execute the Context Injection Procedure (see below).
-   - Use `docs/agents/10-repo-discovery.md` for discovery search terms and SSOT adoption rules.
+   - Use `docs/agents/10-repo-discovery/repo-discovery.md` for discovery search terms and SSOT adoption rules.
    - MUST ensure project docs exist and are read (start with `README.md` and `docs/project/index.md`; create missing docs per "Documentation SSOT Policy").
 3) **Decompose** into atomic, independently verifiable subtasks.
 4) **Subagent council**: run intention-based subagent review per "Subagent Council (Hard Gate)" and integrate findings into the plan.
@@ -206,10 +206,10 @@ Before reasoning or implementing, agents MUST:
    - `detect.code_patterns`: regex/substrings matched against code in scope.
    - `detect.file_globs`: match against files referenced and/or being edited.
    - `detect.signals`: explicit signals provided by the harness/user.
-   - If semantic search is available and a profile matches, start with `agents-manifest.yaml:semantic_queries.<profile>` when present (see `docs/agents/05-context-retrieval.md`).
+   - If semantic search is available and a profile matches, start with `agents-manifest.yaml:semantic_queries.<profile>` when present (see `docs/agents/05-context-retrieval/context-retrieval.md`).
 3) READ all files from `default_inject`.
 4) If one or more profiles match, READ the union of all matching profiles' `inject` lists (unless `agents-manifest.yaml:injection_mode` specifies otherwise). If no profiles match, READ `fallback_inject` (if defined).
-5) Follow context retrieval best practices in `docs/agents/05-context-retrieval.md`.
+5) Follow context retrieval best practices in `docs/agents/05-context-retrieval/context-retrieval.md`.
 
 If any referenced file is not accessible, STOP and ask the user to paste it.
 
@@ -366,64 +366,92 @@ GUI updates must occur on the main/UI thread only:
 ### 9) AI Stuck-Loop Reset (Hard Gate)
 - If the same failure repeats (e.g., 2 iterations with the same root cause) or verification contradicts claims,
   STOP and present a filled restart prompt (copy/paste), then restart fresh.
-- Follow: `docs/agents/15-stuck-in-loop-generate-fresh-restart-prompt.md`
+- Follow: `docs/agents/15-stuck-in-loop-generate-fresh-restart-prompt/stuck-in-loop-generate-fresh-restart-prompt.md`
 
 ### 10) Performance & Speed (When Relevant)
 - If speed/performance is an acceptance criterion or implied by scale, state a performance model and pick low-risk optimizations first (algorithmic wins, reduce I/O, avoid repeated scans).
 - Never trade away correctness, determinism, data integrity, edge-case safety, logging, or guaranteed cleanup for speed; keep concurrency bounded and cancellation-aware.
 - Verify claimed speedups with deterministic evidence (benchmark/timing) or complexity reasoning; avoid premature micro-optimizations.
 
-### 11) Mandatory Modularity + SOLID/DI (Authority Bloat Prevention)
-- Core principle (mandatory): high cohesion + low coupling.
-- Reusability checklist (required when adding/extending a reusable module):
-  - one responsibility with explicit boundary
-  - API-first contract (stable public interface, private internals)
-  - no cyclic dependencies (ADP)
-  - depend on abstractions/contracts, not concrete implementations (DIP)
-  - configurable via parameters/config, not global mutable state
-  - testable in isolation
-  - minimal transitive dependencies (CRP); avoid forcing unused dependencies on consumers
-  - if shared across repos/teams, declare versioned contract and change policy
-- Red flags (must trigger redesign or explicit exception rationale):
-  - shotgun surgery (one feature requires edits across many unrelated modules)
-  - deep cross-module call chains that expose internals (Law of Demeter violations)
-  - repeated scattered conditionals for same rule ("add this if-check here too")
-- Package/module graph hygiene (for shared modules):
-  - CCP: things that change together should live together
-  - SDP: dependencies should point toward more stable modules
-  - SAP: stable modules should prefer abstract/stable contracts over concrete details
-- Proactive modularization (decision at change time): before adding new logic to an authority entrypoint, you MUST evaluate decomposition signals and keep the entrypoint thin, per the module decomposition trigger below. This is internal modularization only: NOT a git submodule, repo split, or service boundary. Apply only to new logic in this change; do not refactor unrelated code.
-- Module decomposition trigger (mandatory): before adding logic to an existing authority module, evaluate whether the new logic has any of these boundary signals:
-  - distinct invariants or rules
-  - distinct lifecycle/state management
-  - distinct I/O boundary or side effects
-  - independent testability as a unit
-  - independent change cadence from the authority entrypoint
-  - If any signal is present, create/extend a child internal module and keep the authority entrypoint as orchestration + public contract only.
-- LOC hard gate (400 LOC): a file exceeding 400 LOC MUST be decomposed into proper file/folder structure before merging, unless it is a single-authority module with no decomposition signals (see module decomposition trigger above). If no signals are present, record explicit justification in the change evidence. LOC alone MUST NOT force unrelated refactors — only the file that exceeds the threshold is in scope.
-- SOLID at authority boundaries (mandatory):
-  - SRP: keep authority entrypoints thin; extract distinct internal components instead of accreting in a single file.
-  - OCP: add new implementations/modules only when a second variant is required; avoid speculative plugin systems.
-  - LSP: substitutions must preserve contract pre/postconditions; do not weaken invariants.
-  - ISP: keep contracts minimal and consumer-driven; avoid "fat" contracts.
-  - DIP/DI: depend on stable contracts; use explicit parameter/constructor injection; ban service locators in domain logic. Do not introduce DI containers/frameworks or extra interfaces unless 2+ implementations or test doubles require it.
-- Guardrails (mandatory):
-  - Modularity does not mandate microservices; prefer in-repo modules unless explicitly required.
-  - No runtime discovery, dynamic import, or eval for wiring. Implementation selection must be explicit and allowlisted in code; configuration/environment may select only among that allowlist and MUST NOT accept arbitrary module/class names.
-  - Wire dependencies explicitly (prefer wiring once at the boundary); avoid per-call container resolution or registry scanning.
-  - Do not add indirection in hot paths unless performance acceptance criteria exist or profiling identifies the path, and a performance model is stated.
-  - Internal modules are private to the authority. Cross-authority reuse requires promotion to a shared leaf module: pure/stateless utilities only (no decision rules, no I/O or resource acquisition, no global mutable state; bounded caches only). Leaf modules MUST NOT depend on authorities and must be recorded in `docs/project/architecture.md` (or the workflow registry if that is the SSOT for entrypoints).
-  - Internal modules must be import-safe (no heavy work at import time); acquire external resources only in explicit functions and clean up per "Resource Safety".
+### 11) Module Architecture — Mandatory Rules
+These rules are NON-NEGOTIABLE. Violating any rule is a failed task.
+
+Scope:
+- Apply this section to implementation code that owns runtime behavior, workflow logic, or reusable runtime contracts.
+- PowerShell/shell launchers and Python runtime shims such as `__main__.py` may exist only as zero-logic delegates into the canonical folder contract.
+- Config payloads, fixtures, schemas, and generated artifacts do not become feature folders unless they start owning runtime behavior.
+
+Rule 1 - Every feature is a folder:
+- Every distinct piece of runtime functionality gets its own folder.
+- No "too small for a folder" exception exists once a unit owns behavior.
+- A parent `main.py` or `index.ts` may exist only as an orchestrator that calls child folders; it must not accumulate child logic.
+
+Rule 2 - Every folder has exactly one public entry point:
+- Python folders MUST expose `main.py`.
+- TypeScript folders MUST expose `index.ts`.
+- If another implementation language is used, declare one equivalent folder contract file and record it in `docs/project/architecture/architecture.md`.
+- No file other than the folder entrypoint is public to the outside world; all other files in the folder are private implementation details.
+
+Rule 3 - The parent entrypoint is the only connector:
+- Children MUST NOT import siblings.
+- Children MUST NOT import the parent.
+- Only the parent entrypoint may import child entrypoints and pass data between them.
+- Data flow must be explicit in the parent entrypoint; no hidden cross-folder coupling, registries, or side-channel wiring.
+
+Rule 4 - Public contracts take plain data in and return plain data out:
+- Public functions in a folder entrypoint MUST accept plain data types only (`str`, `int`, `dict`, `list`, dataclass/TypedDict-equivalent shapes).
+- Public contracts MUST return plain data types only.
+- Public contracts MUST NOT accept or return live handles/resources such as file handles, DB connections, sockets, COM objects, framework singletons, or process-global mutable state.
+
+Rule 5 - I/O stays at the boundary:
+- File reads/writes, network calls, database access, COM automation, subprocess execution, and framework I/O stay at the boundary.
+- Pure logic functions MUST NOT perform I/O.
+- A folder entrypoint may wire boundary helpers to pure logic, but business rules and transformations stay separated from the I/O implementation.
+
+Rule 6 - No file exceeds 400 LOC:
+- A file approaching 400 LOC is doing too much and MUST be decomposed by responsibility.
+- Default split target: add private files inside the same folder first.
+- Create a new child folder only when the responsibility becomes independently owned behavior.
+
+Rule 7 - `shared/` is a dictionary, not a connector:
+- `shared/` is optional.
+- `shared/` may contain only data shapes and pure/stateless utility functions.
+- `shared/` MUST NOT contain business rules, workflow orchestration, I/O, stateful services, singletons, or decision-making logic.
+- Do not create `shared/` preemptively. Extract to `shared/` only when the exact same pure shape/utility is duplicated across 3+ folders.
+
+Rule 8 - Deletion test:
+- Before marking the task complete, ask: "Can I delete any single feature folder and the only file that breaks is its parent entrypoint?"
+- If deleting one folder causes errors in any sibling folder, there is a coupling violation that MUST be fixed before completion.
+
+Rule 9 - Depth when necessary, not flat by default:
+- If a child folder grows multiple sub-responsibilities, apply these same rules recursively inside that child.
+- There is no depth limit, but every level MUST keep one folder entrypoint, private internals, parent-only wiring, and a passing deletion test.
+
+Rule 10 - Contract changes require explicit approval:
+- Before changing a folder entrypoint contract, state:
+  - the current contract
+  - the proposed new contract
+  - every parent entrypoint that calls it
+- Get explicit user approval before changing entrypoint parameters, return types, or names.
+- Internal files that are not the folder entrypoint may change freely as long as the public contract remains stable.
+
+Supporting design constraints (mandatory):
+- Keep high cohesion + low coupling.
+- Apply DRY, KISS, YAGNI, Separation of Concerns, and Law of Demeter inside the folder-contract model.
+- Use explicit parameter/constructor injection instead of service locators.
+- No runtime discovery, dynamic import, or eval for wiring.
+- Shared leaf modules remain pure/stateless and authority-neutral.
+- Keep folder entrypoints thin, import-safe, and orchestration-only; private internals hold the detailed logic.
 
 ## Governance Templates (Required)
 
 ### Change Contract (Required for any change record)
-Use in PR description or commit message. Full template: `docs/agents/playbooks/change-contract-template.md`.
+Use in PR description or commit message. Full template: `docs/agents/playbooks/change-contract-template/change-contract-template.md`.
 
 When artifact-based verification is enabled for the repo, record the same evidence in `docs/project/change-records/*.json` and validate it against `docs/agents/schemas/change-record.schema.json`.
 
 ### Standard Log Schema (Required when logs are emitted)
-Full schema: `docs/agents/playbooks/log-schema-template.md`.
+Full schema: `docs/agents/playbooks/log-schema-template/log-schema-template.md`.
 
 Rules (also enforced by Non-Negotiable #4):
 - No `print()`; use module-level logging.
@@ -462,19 +490,35 @@ Hard gate:
 - The project `README.md` MUST include a short "Checks" section listing the deterministic verification commands for the repo.
 
 Project docs are the SSOT for intent/runbooks (not for code facts):
-- `docs/project/index.md` (entrypoint; linked from README)
-- `docs/project/goal.md` (objective + acceptance criteria)
-- `docs/project/rules.md` (project do/don't rules)
-- `docs/project/architecture.md` (SSOT pointers: entrypoints/modules/workflows)
-- `docs/project/learning.md` (operational learnings and pitfalls)
+- `docs/project/index.md` (entrypoint/router; linked from README)
+- `docs/project/goal/goal.md` (objective + acceptance criteria; router at `docs/project/goal/index.md`)
+- `docs/project/rules/rules.md` (project do/don't rules; router at `docs/project/rules/index.md`)
+- `docs/project/architecture/architecture.md` (SSOT pointers: entrypoints/modules/workflows; router at `docs/project/architecture/index.md`)
+- `docs/project/learning/learning.md` (operational learnings and pitfalls; router at `docs/project/learning/index.md`)
 
-Structure SSOT: `docs/agents/playbooks/project-docs-template.md`
+Structure SSOT: `docs/agents/playbooks/project-docs-template/project-docs-template.md`
 
 All project docs must:
 - Follow the required doc header (except index pages).
 - Reference SSOT owners by identifier (code/config/workflow entrypoints) rather than duplicating literals/rules.
 - Stay minimal and precise (prefer short bullet lists; avoid long prose).
 - Avoid duplicating governance rules: reference `AGENTS.md` instead of copying its requirements.
+
+### Docs Branching Architecture (Hard Gate)
+- Every directory under `docs/` MUST contain an `index.md`.
+- `index.md` is the required public routing contract for a docs folder.
+- `index.md` MUST be routing-only; it MUST NOT be the canonical narrative content doc for a migrated folder.
+- Each docs-folder `index.md` MUST catalog its direct children only.
+- Narrative leaf folders MUST contain exactly one canonical non-`index.md` markdown file.
+- Each child entry in a folder index MUST include:
+  - the child path/link
+  - its role/purpose
+  - a `Required when:` routing statement
+- Direct references to actual narrative content MUST point to the canonical leaf doc, not to `index.md`.
+- During staged migration, untouched legacy content-bearing `index.md` files may remain only in folders that have not yet been migrated to the router-plus-leaf pattern. Once a docs folder is touched for structure work, migrate it.
+- Parent indexes route downward; they MUST NOT restate the child doc's rules, literals, or contracts in full.
+- Flat markdown docs under `docs/` should be promoted into branch folders when they start accumulating multiple subtopics or repeated edits.
+- Payload/artifact folders under `docs/` (schemas, generated docs, settings payloads, change records, runtime assets) still require an `index.md` so the tree stays navigable and auditable.
 
 ### Docs MAY contain
 - intent (“why”), invariants, and safety constraints
@@ -493,7 +537,7 @@ Each doc (except indexes) must declare:
 - `ssot_owner`
 - `update_trigger`
 
-See `docs/agents/25-docs-ssot-policy.md`.
+See `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`.
 
 ## Code Comment Policy (Hard Gate)
 
