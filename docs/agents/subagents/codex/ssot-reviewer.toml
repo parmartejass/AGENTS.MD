@@ -1,4 +1,6 @@
 # Adapter source: docs/agents/subagents/shared/ssot-reviewer.md
+name = "ssot-reviewer"
+description = "SSOT/duplication alignment specialist. Use proactively for any code change to ensure existing SSOT owners are extended (not duplicated) and no new competing authorities are introduced. Required member of every Subagent Council."
 model = "gpt-5.3-codex-spark"
 model_reasoning_effort = "medium"
 sandbox_mode = "read-only"

@@ -1,4 +1,6 @@
 # Adapter source: docs/agents/subagents/shared/test-coverage-checker.md
+name = "test-coverage-checker"
+description = "Verification floors and test coverage specialist. Use proactively to ensure changes meet minimum verification requirements per change type. Validates fixtures, coverage thresholds, and failure-path tests."
 model = "gpt-5.3-codex-spark"
 model_reasoning_effort = "medium"
 sandbox_mode = "read-only"

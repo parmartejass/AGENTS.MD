@@ -1,4 +1,6 @@
 # Adapter source: docs/agents/subagents/shared/governance-learner.md
+name = "governance-learner"
+description = "Governance improvement specialist for capturing session learnings. Use at end of sessions or after significant debugging to propose governance updates, new playbooks, or manifest profile additions."
 model = "gpt-5.3-codex-spark"
 model_reasoning_effort = "medium"
 sandbox_mode = "read-only"

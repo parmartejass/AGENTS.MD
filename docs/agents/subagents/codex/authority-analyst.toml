@@ -1,4 +1,6 @@
 # Adapter source: docs/agents/subagents/shared/authority-analyst.md
+name = "authority-analyst"
+description = "Root-cause uplift and authority-first analysis specialist. Use proactively when debugging or designing fixes to trace from symptom to the earliest authority that should have prevented the error. Ensures fixes prevent classes of errors, not just symptoms."
 model = "gpt-5.3-codex"
 model_reasoning_effort = "high"
 sandbox_mode = "read-only"

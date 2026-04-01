@@ -1,4 +1,6 @@
 # Adapter source: docs/agents/subagents/shared/docs-reviewer.md
+name = "docs-reviewer"
+description = "Documentation SSOT policy compliance specialist. Use proactively when creating or editing documentation to ensure docs reference SSOT owners, avoid duplication, and follow required structure."
 model = "gpt-5.3-codex-spark"
 model_reasoning_effort = "medium"
 sandbox_mode = "read-only"

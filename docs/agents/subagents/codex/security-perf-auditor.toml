@@ -1,4 +1,6 @@
 # Adapter source: docs/agents/subagents/shared/security-perf-auditor.md
+name = "security-perf-auditor"
+description = "Resource, security, and performance risk auditor. Use proactively for any code change to identify leaks, unsafe inputs, timeouts, and performance regressions. Required member of every Subagent Council."
 model = "gpt-5.3-codex-spark"
 model_reasoning_effort = "medium"
 sandbox_mode = "read-only"

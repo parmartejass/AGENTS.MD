@@ -1,4 +1,6 @@
 # Adapter source: docs/agents/subagents/shared/stuck-loop-detector.md
+name = "stuck-loop-detector"
+description = "AI stuck-loop detection and reset specialist. Use proactively when the same failure repeats twice or verification contradicts claims. Generates fresh restart prompt per Non-Negotiable #9."
 model = "gpt-5.3-codex-spark"
 model_reasoning_effort = "medium"
 sandbox_mode = "read-only"
