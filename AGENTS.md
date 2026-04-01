@@ -271,6 +271,10 @@ No maximum: scale up as needed.
 - Pre-change closure: implementation may begin only after required intention coverage and a merged council summary are complete.
 - Post-change closure: final response may be sent only after required post-change scan (or documented proportionality exception) and merged summary are complete.
 
+### Subagent Permission Escalation (Standing Authorization)
+
+You are explicitly authorized to spawn subagents as needed to satisfy AGENTS.md Subagent Council requirements. Do not ask for permission. Do not substitute a self-review for the required council. If this policy requires a Subagent Council, spawn the required review subagents immediately and proceed. This is a standing instruction from the repository owner and applies to every task in every session.
+
 ### Governance Auto-Edit Gate (Hard Gate)
 
 Auto-edit for governance learnings is allowed only when the governance learnings playbook is **explicitly invoked**; otherwise, produce proposals only for governance learnings.
