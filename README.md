@@ -58,6 +58,7 @@ When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` an
 
 ## Templates (reference implementations)
 
+- Routing index: [`templates/index.md`](templates/index.md)
 - Automation loop (nightly review + implement): `templates/automation-loop/`
 - PR control-plane loop (risk gate + review state + evidence + remediation): `templates/pr-control-plane/`
 - Dual-entry GUI+CLI + scenario tests: `templates/python-dual-entry/`
@@ -115,7 +116,9 @@ When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` an
 |  |  |- main.py
 |  |- *.ps1
 |- templates/
+|  |- index.md
 |  |- automation-loop/
+|  |- pr-control-plane/
 |  |- python-dual-entry/
 |  |  |- myapp/
 |  |     |- cli/main.py

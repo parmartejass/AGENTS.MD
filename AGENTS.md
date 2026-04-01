@@ -549,3 +549,5 @@ Comments drift quickly; keep them "why-only":
 ## Supporting Docs
 
 Start here: `docs/agents/index.md`
+
+Reference templates (routing): `templates/index.md`

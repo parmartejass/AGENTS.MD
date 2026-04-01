@@ -267,7 +267,8 @@ profiles:
       code_patterns:
         - "run_job("
         - "python -m"
-      file_globs: []
+      file_globs:
+        - "templates/python-dual-entry/**"
     inject:
       - "docs/agents/85-dual-entry-template/dual-entry-template.md"
       - "docs/agents/workflow-registry/workflow-registry.md"

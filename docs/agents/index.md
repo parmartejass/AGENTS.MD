@@ -28,4 +28,5 @@
 - [settings/index.md](settings/index.md) - Shared settings branch. Required when: repo-owned settings payloads or settings projections change.
 - [skills/index.md](skills/index.md) - Skill branch. Required when: repo-owned reusable skill bundles or platform adapters change.
 - [subagents/index.md](subagents/index.md) - Subagent branch. Required when: repo-owned subagent source docs or runtime payloads change.
+- [../../templates/index.md](../../templates/index.md) - Reference implementations under `templates/`. Required when: copying or extending automation-loop, pr-control-plane, or python-dual-entry bundles (patterns only; follow `AGENTS.md` adoption rules).
 - [workflow-registry/index.md](workflow-registry/index.md) - Workflow indexing standard. Required when: defining how workflows are named, surfaced, and cataloged.
