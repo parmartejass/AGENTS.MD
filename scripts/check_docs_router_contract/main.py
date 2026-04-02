@@ -67,8 +67,9 @@ def _write_router_map(governance_root: Path) -> None:
     )
 
 
-def _route_line(target: str, description: str) -> str:
-    return f"- [{target}]({target}) - {description}. Required when: {description}."
+def _route_line(target: str, description: str, *, when: str | None = None) -> str:
+    trigger = when or f"you need {target}"
+    return f"- [{target}]({target}) - {description}. Required when: {trigger}."
 
 
 def _write_index(path: Path, title: str, route_lines: list[str]) -> None:
@@ -93,7 +94,11 @@ def _write_parent_chain(repo_root: Path, rel_dir: str) -> None:
         parent_index = docs_root / "/".join(chain) / "index.md" if chain else docs_root / "index.md"
         title = "Docs Branch Index" if not chain else f"{chain[-1].title()} Branch Index"
         target = f"{part}/index.md"
-        _write_index(parent_index, title, [_route_line(target, f"route into {part}")])
+        _write_index(
+            parent_index,
+            title,
+            [_route_line(target, f"route into {part}", when=f"navigating into the {part} branch")],
+        )
         chain.append(part)
 
 
@@ -121,6 +126,7 @@ def _write_router_fixture(
         _route_line(
             router_target or leaf_name,
             "canonical narrative leaf",
+            when="reviewing the canonical narrative content",
         )
     )
     _write_index(final_dir / "index.md", f"{rel_dir.split('/')[-1].title()} Branch Index", router_lines)

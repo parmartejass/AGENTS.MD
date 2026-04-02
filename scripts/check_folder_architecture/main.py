@@ -201,13 +201,13 @@ def _iter_repo_python_files(root: Path) -> list[Path]:
     return sorted(paths)
 
 
-def _check_python_scope(repo_root: Path, governance_root: Path, issues: list[Issue]) -> None:
+def _check_python_scope(validation_root: Path, governance_root: Path, issues: list[Issue]) -> None:
     scope_roots = _load_scope_manifest(governance_root, issues)
     if not scope_roots:
         return
 
-    for file_path in _iter_repo_python_files(repo_root):
-        rel_path = file_path.relative_to(repo_root).as_posix()
+    for file_path in _iter_repo_python_files(validation_root):
+        rel_path = file_path.relative_to(validation_root).as_posix()
         if any(_is_path_within(rel_path, entry.path) for entry in scope_roots):
             continue
         issues.append(
@@ -416,23 +416,18 @@ def _check_scope_manifest_reference(root: Path, issues: list[Issue]) -> None:
     )
 
 
-def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Validate repo folder-architecture hard-gate invariants.")
-    parser.add_argument("--root", default=".", help="Repository root to validate.")
-    args = parser.parse_args(argv)
+def _governance_validation_root(repo_root: Path, governance_root: Path) -> Path:
+    return governance_root if repo_root != governance_root else repo_root
 
-    _configure_logging()
 
-    repo_root = Path(args.root).resolve()
-    governance_root = Path(__file__).resolve().parents[2]
-    issues: list[Issue] = []
-
-    _check_python_scope(repo_root, governance_root, issues)
-    _check_scripts_root(repo_root, issues)
-    _check_dual_entry_template(repo_root, issues)
-    _check_pr_control_plane_template(repo_root, issues)
+def _check_governance_owned_contracts(repo_root: Path, governance_root: Path, issues: list[Issue]) -> None:
+    validation_root = _governance_validation_root(repo_root, governance_root)
+    _check_python_scope(validation_root, governance_root, issues)
+    _check_scripts_root(validation_root, issues)
+    _check_dual_entry_template(validation_root, issues)
+    _check_pr_control_plane_template(validation_root, issues)
     _check_parent_only_imports(
-        repo_root,
+        validation_root,
         TreeSpec(
             tree_root="templates/python-dual-entry/myapp",
             parent_main="templates/python-dual-entry/myapp/main.py",
@@ -442,7 +437,7 @@ def main(argv: list[str] | None = None) -> int:
         issues,
     )
     _check_parent_only_imports(
-        repo_root,
+        validation_root,
         TreeSpec(
             tree_root="templates/pr-control-plane/scripts",
             parent_main="templates/pr-control-plane/scripts/main.py",
@@ -459,7 +454,22 @@ def main(argv: list[str] | None = None) -> int:
         ),
         issues,
     )
-    _check_scope_manifest_reference(repo_root, issues)
+    if repo_root == governance_root:
+        _check_scope_manifest_reference(repo_root, issues)
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Validate repo folder-architecture hard-gate invariants.")
+    parser.add_argument("--root", default=".", help="Repository root to validate.")
+    args = parser.parse_args(argv)
+
+    _configure_logging()
+
+    repo_root = Path(args.root).resolve()
+    governance_root = Path(__file__).resolve().parents[2]
+    issues: list[Issue] = []
+
+    _check_governance_owned_contracts(repo_root, governance_root, issues)
 
     if issues:
         for issue in issues:
