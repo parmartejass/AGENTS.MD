@@ -69,6 +69,22 @@ def _read_json_list(path_or_json: str, field_name: str) -> list[Any]:
     return value
 
 
+def _read_json_list_or_object_list(
+    path_or_json: str,
+    field_name: str,
+    *,
+    object_list_field: str,
+) -> list[Any]:
+    value = read_json(path_or_json)
+    if isinstance(value, list):
+        return value
+    if isinstance(value, dict) and isinstance(value.get(object_list_field), list):
+        return value[object_list_field]
+    raise ValueError(
+        f"{field_name} must resolve to a JSON list or an object with a '{object_list_field}' list"
+    )
+
+
 def _read_json_object(path_or_json: str, field_name: str) -> dict[str, Any]:
     value = read_json(path_or_json)
     if not isinstance(value, dict):
@@ -98,7 +114,11 @@ def evaluate_browser_evidence(
 def _run_check_review_state(args: argparse.Namespace) -> int:
     contract = load_contract(args.contract)
     evaluate_review_state_impl, select_latest_review_run = _evaluate_review_state_fn()
-    review_runs = _read_json_list(args.review_runs_json, "review-runs-json")
+    review_runs = _read_json_list_or_object_list(
+        args.review_runs_json,
+        "review-runs-json",
+        object_list_field="check_runs",
+    )
     findings = _read_json_list(args.findings_json, "findings-json")
     review_run = select_latest_review_run(
         review_runs=[entry for entry in review_runs if isinstance(entry, dict)],

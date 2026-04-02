@@ -40,6 +40,25 @@ class MainCliTests(unittest.TestCase):
         payload = json.loads(result.stdout)
         self.assertEqual(payload["result"], "SUCCESS")
 
+    def test_check_review_state_accepts_object_form_review_runs(self) -> None:
+        result = _run_cli(
+            "check-review-state",
+            "--contract",
+            "control-plane.contract.json",
+            "--head-sha",
+            "abc123",
+            "--review-runs-json",
+            '{"check_runs":[{"name":"Code Review Agent","head_sha":"abc123","status":"completed","conclusion":"success","summary":"clean"}]}',
+            "--findings-json",
+            "tests/fixtures/findings_clean.json",
+            "--output-json",
+            "-",
+        )
+        self.assertEqual(result.returncode, 0, msg=result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["result"], "SUCCESS")
+        self.assertEqual(payload["reviewRun"]["head_sha"], "abc123")
+
     def test_risk_policy_gate_requires_head_sha_when_check_runs_are_supplied(self) -> None:
         result = _run_cli(
             "risk-policy-gate",

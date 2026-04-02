@@ -343,6 +343,7 @@ This repo:
 - Change record artifact checks (schema + required evidence fields): `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_change_records.ps1`
   - Enforce required records by creating `docs/project/change-records/.required` or running with `-RequireRecords`.
 - Python safety baseline checks: `python3 scripts/check_python_safety/main.py` (add `--fail-on-warnings` to enforce warnings; use `python` if `python3` is unavailable)
+- PR control-plane parent CLI policy tests: `cd templates/pr-control-plane && python3 -m unittest -v tests.policy.test_main_cli` (use `python -m unittest -v ...` if `python3` is unavailable)
 - Template structured logging contract tests: `cd templates/python-dual-entry && python3 -m unittest -v tests.test_logging_contract` (use `python` if `python3` is unavailable)
 
 Target repo (submodule under `.governance/`):
