@@ -140,5 +140,5 @@ def _excel_task(self, queue, cancel_event):
 ## Reference Docs
 - AGENTS.md section "Non-Negotiables (Hard Gates)" > "#7 GUI Thread Safety"
 - AGENTS.md section "Non-Negotiables (Hard Gates)" > "#5 Resource Safety"
-- `docs/agents/60-gui-threading.md`
-- `docs/agents/playbooks/gui-task-template.md`
+- `docs/agents/60-gui-threading/gui-threading.md`
+- `docs/agents/playbooks/gui-task-template/gui-task-template.md`

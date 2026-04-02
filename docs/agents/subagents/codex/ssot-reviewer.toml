@@ -1,4 +1,4 @@
-# Adapter source: docs/agents/subagents/shared/ssot-reviewer.md
+# Adapter source: docs/agents/subagents/shared/ssot-reviewer/index.md
 name = "ssot-reviewer"
 description = "SSOT/duplication alignment specialist. Use proactively for any code change to ensure existing SSOT owners are extended (not duplicated) and no new competing authorities are introduced. Required member of every Subagent Council."
 model = "gpt-5.3-codex-spark"
@@ -74,8 +74,8 @@ For non-trivial systems, verify:
 ```
 
 ## Reference Docs
-- `docs/agents/20-sources-of-truth-map.md` — Concept -> owner map
-- `docs/agents/35-authority-bounded-modules.md` — Module boundary alignment
+- `docs/agents/20-sources-of-truth-map/sources-of-truth-map.md` — Concept -> owner map
+- `docs/agents/35-authority-bounded-modules/authority-bounded-modules.md` — Module boundary alignment
 - AGENTS.md section "Non-Negotiables (Hard Gates)" > #1, #2, #3, #11
 - AGENTS.md section "Mandatory Modularity + SOLID/DI" > "Module decomposition trigger"
 '''

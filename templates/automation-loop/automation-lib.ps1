@@ -44,6 +44,18 @@ function Resolve-RepoPath {
   return (Join-Path $RepoRoot $PathValue)
 }
 
+function Assert-CanonicalNarrativeLeafPath {
+  param(
+    [Parameter(Mandatory = $true)][string]$Path,
+    [Parameter(Mandatory = $true)][string]$Label
+  )
+
+  $leaf = [System.IO.Path]::GetFileName($Path)
+  if ($leaf -ieq "index.md") {
+    throw "$Label must point to a canonical leaf markdown doc, not index.md: $Path"
+  }
+}
+
 function Resolve-AutomationPath {
   param(
     [Parameter(Mandatory = $true)][string]$AutomationRoot,

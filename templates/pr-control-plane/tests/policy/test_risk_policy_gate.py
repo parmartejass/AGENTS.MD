@@ -7,10 +7,9 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / "scripts"))
+sys.path.insert(0, str(ROOT))
 
-from common import load_contract  # noqa: E402
-from risk_policy_gate import evaluate_policy  # noqa: E402
+from scripts.main import evaluate_policy, load_contract  # noqa: E402
 
 
 FIXTURES = ROOT / "tests" / "fixtures"
@@ -44,10 +43,20 @@ class RiskPolicyGateTests(unittest.TestCase):
         self.assertEqual(result["result"], "FAILURE")
         self.assertTrue(any(item["code"] == "MISSING_REQUIRED_CHECK" for item in result["failures"]))
 
+    def test_head_sha_is_required_when_check_runs_are_validated(self) -> None:
+        result = evaluate_policy(
+            contract=self.contract,
+            changed_files=_load_fixture("changed_files_high.json"),
+            check_runs=_load_fixture("check_runs_success.json"),
+            head_sha=None,
+        )
+        self.assertEqual(result["result"], "FAILURE")
+        self.assertTrue(any(item["code"] == "HEAD_SHA_REQUIRED" for item in result["failures"]))
+
     def test_docs_drift_rule_fails_when_required_docs_missing(self) -> None:
         changed_files = [
             ".github/workflows/risk-policy-gate.yml",
-            "automation/pr-control-plane/scripts/risk_policy_gate.py",
+            "automation/pr-control-plane/scripts/risk_policy_gate/main.py",
         ]
         result = evaluate_policy(
             contract=self.contract,

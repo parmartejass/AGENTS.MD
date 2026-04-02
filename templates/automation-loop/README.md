@@ -17,7 +17,7 @@ This is supporting template guidance. If any wording conflicts with `AGENTS.md`,
 - The config file is the SSOT for paths and settings. Avoid duplicating literals elsewhere.
 - If your repo uses `.governance/`, do not edit `.governance/` from the parent repo. Write governance proposals to the report file instead.
 - Add the log directory to your repo `.gitignore` (default: `logs/`) to keep the worktree clean.
-- Step A (review) and Step B (implement) must run as separate agent sessions; see `docs/agents/automation/nightly-compound-loop.md` for the runbook semantics.
+- Step A (review) and Step B (implement) must run as separate agent sessions; see `docs/agents/automation/nightly-compound-loop/nightly-compound-loop.md` for the runbook semantics.
 
 ## Files
 - `automation.config.json` - SSOT config for paths and runner settings.

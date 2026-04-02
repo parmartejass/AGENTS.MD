@@ -32,6 +32,7 @@ try {
   Write-Log "Created branch: $branchName"
 
   $learningDoc = Resolve-RepoPath -RepoRoot $repoRoot -PathValue $config.paths.learning_doc
+  Assert-CanonicalNarrativeLeafPath -Path $learningDoc -Label "paths.learning_doc"
   $priorityReport = Resolve-RepoPath -RepoRoot $repoRoot -PathValue $config.paths.priority_report
 
   $governanceTemplate = $config.paths.governance_proposals

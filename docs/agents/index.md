@@ -1,115 +1,32 @@
-# Agents Docs Index (Supporting Material)
+# Agents Branch Index
 
-Canonical policy: `AGENTS.md`
-Context injection manifest: `agents-manifest.yaml`
 
-If any wording conflicts with `AGENTS.md`, `AGENTS.md` wins.
-
-## Read Order by Task Type
-
-### Always
-1. `AGENTS.md`
-2. `agents-manifest.yaml`
-3. `docs/agents/05-context-retrieval.md`
-4. `docs/agents/10-repo-discovery.md`
-
-### Bugfix or regression
-1. See `agents-manifest.yaml` `bugfix` profile for the current injected docs.
-2. Add domain-specific docs (`50/60/70/80`) as applicable.
-
-### New feature or behavior change
-1. `docs/agents/00-principles.md`
-2. `docs/agents/35-authority-bounded-modules.md`
-3. `docs/agents/playbooks/design-principles-checklist.md`
-4. Relevant task playbook (`excel/gui/io/perf/pdf`)
-
-### Docs or governance updates
-1. `docs/agents/22-ssot-authority-decisions.md`
-2. `docs/agents/25-docs-ssot-policy.md`
-3. `docs/agents/playbooks/project-docs-template.md`
-4. `docs/agents/playbooks/governance-learnings-template.md` (when explicitly invoked)
-
-## Playbook Alias Map (Discoverability Only)
-
-Use these as search/invocation aliases to find existing owners quickly.
-Mappings are aliases for discoverability; authority remains in `AGENTS.md` and existing playbooks.
-
-| Alias category | Existing manifest profile(s) | Existing playbook(s) / owner docs |
-|---|---|---|
-| `PB-DEBUG` | `bugfix` | `docs/agents/playbooks/bugfix-template.md`, `docs/agents/playbooks/rca-methods-template.md` |
-| `PB-PERF` | `perf_hotspots` | `docs/agents/playbooks/perf-hotspots-template.md` |
-| `PB-CONC` | `gui_task` | `docs/agents/playbooks/gui-task-template.md`, `docs/agents/60-gui-threading.md` |
-| `PB-SSOT` | `design_review`, `project_docs` | `docs/agents/20-sources-of-truth-map.md`, `docs/agents/22-ssot-authority-decisions.md`, `docs/agents/25-docs-ssot-policy.md`, `docs/agents/playbooks/design-principles-checklist.md` |
-| `PB-REF` | `design_review` | `docs/agents/playbooks/design-principles-checklist.md` |
-| `PB-DEPS` | `excel_automation` (Excel-specific) | `docs/agents/playbooks/excel-library-selection-playbook.md` |
-| `PB-CONSISTENCY` | `design_review`, `project_docs` | `docs/agents/20-sources-of-truth-map.md`, `docs/agents/playbooks/design-principles-checklist.md` |
-| `PB-REQ` | n/a (procedure in `AGENTS.md`) | `docs/agents/playbooks/ai-coding-prompt-template.md` |
-| `PB-MIG` | n/a (no dedicated profile in this pack) | Use `AGENTS.md` First-Principles + Verification Floors + relevant domain playbook |
-
-## Branches (Top -> Down)
-
-### Core governance branches
-- Principles: `docs/agents/00-principles.md`
-- Context retrieval: `docs/agents/05-context-retrieval.md`
-- Repo discovery: `docs/agents/10-repo-discovery.md`
-- Stuck-loop restart prompt: `docs/agents/15-stuck-in-loop-generate-fresh-restart-prompt.md`
-- Sources of truth map: `docs/agents/20-sources-of-truth-map.md`
-- SSOT authority decisions: `docs/agents/22-ssot-authority-decisions.md`
-- Docs SSOT policy: `docs/agents/25-docs-ssot-policy.md`
-- Logging + errors: `docs/agents/30-logging-errors.md`
-- Authority-bounded modules: `docs/agents/35-authority-bounded-modules.md`
-- Config + constants: `docs/agents/40-config-constants.md`
-- Excel COM lifecycle: `docs/agents/50-excel-com-lifecycle.md`
-- GUI threading: `docs/agents/60-gui-threading.md`
-- I/O + data integrity: `docs/agents/70-io-data-integrity.md`
-- Testing with real files: `docs/agents/80-testing-real-files.md`
-- Dual-entry template (GUI+CLI): `docs/agents/85-dual-entry-template.md`
-- Release checklist: `docs/agents/90-release-checklist.md`
-- Workflow registry standard: `docs/agents/workflow-registry.md`
-
-### Playbooks (copy/paste task templates)
-- AI prompt template: `docs/agents/playbooks/ai-coding-prompt-template.md`
-- Project docs (minimal): `docs/agents/playbooks/project-docs-template.md`
-- Governance learnings: `docs/agents/playbooks/governance-learnings-template.md`
-- RCA methods: `docs/agents/playbooks/rca-methods-template.md`
-- Design principles checklist: `docs/agents/playbooks/design-principles-checklist.md`
-- Excel tasks: `docs/agents/playbooks/excel-task-template.md`
-- Excel library selection: `docs/agents/playbooks/excel-library-selection-playbook.md`
-- GUI tasks: `docs/agents/playbooks/gui-task-template.md`
-- High I/O / batch processing: `docs/agents/playbooks/io-batch-task-template.md`
-- PDF tasks: `docs/agents/playbooks/pdf-task-template.md`
-- Performance hotspots: `docs/agents/playbooks/perf-hotspots-template.md`
-- Bugfixes: `docs/agents/playbooks/bugfix-template.md`
-- Change contract: `docs/agents/playbooks/change-contract-template.md`
-- Log schema: `docs/agents/playbooks/log-schema-template.md`
-
-### Skills
-- Skill standards: `docs/agents/skills/00-skill-standards.md`
-- Platform adapters: `docs/agents/skills/10-platform-adapters.md`
-- X API data-access skill (canonical): `docs/agents/skills/x-api-data-access/SKILL.md`
-- X workspace (non-authority data/research/scripts): `X-Bookmarks Import/`
-
-### Platform assets
-- Platform runtime standards: `docs/agents/platforms/00-platform-runtime-standards.md`
-- Platform runtime docs index: `docs/agents/platforms/index.md`
-- Settings standards: `docs/agents/settings/00-settings-standards.md`
-- Subagent standards: `docs/agents/subagents/00-subagent-standards.md`
-- MCP standards: `docs/agents/mcp/00-mcp-standards.md`
-- ACP standards: `docs/agents/acp/00-acp-standards.md`
-- Integration notes index: `docs/agents/integrations/index.md`
-
-### Automation
-- Overview: `docs/agents/automation/overview.md`
-- Nightly compound loop: `docs/agents/automation/nightly-compound-loop.md`
-- PR control-plane loop: `docs/agents/automation/pr-control-plane-loop.md`
-- Templates: `templates/automation-loop/`
-- Templates: `templates/pr-control-plane/`
-
-### Schemas
-- Change record artifact schema: `docs/agents/schemas/change-record.schema.json`
-
-## Checks
-
-Use `README.md` section "Checks" as the single verification-command SSOT.
-Do not copy command lists into this index.
-When this pack is vendored under `.governance/`, use the `.governance/scripts/...` variants listed in that README section.
+- [00-principles/index.md](00-principles/index.md) - First-principles operating guidance. Required when: modeling a task, defining invariants, or planning verification.
+- [05-context-retrieval/index.md](05-context-retrieval/index.md) - Context retrieval guidance. Required when: choosing what files to read and how to keep discovery precise.
+- [10-repo-discovery/index.md](10-repo-discovery/index.md) - Repo discovery guidance. Required when: locating SSOT owners before implementation.
+- [15-stuck-in-loop-generate-fresh-restart-prompt/index.md](15-stuck-in-loop-generate-fresh-restart-prompt/index.md) - Restart prompt playbook. Required when: the same failure repeats twice or verification contradicts claims.
+- [20-sources-of-truth-map/index.md](20-sources-of-truth-map/index.md) - Concept-to-owner routing map. Required when: identifying which authority owns a concept.
+- [docs/agents/22-ssot-authority-decisions/index.md](22-ssot-authority-decisions/index.md) - Cross-project authority decisions. Required when: a mixed-owner or migration decision needs a canonical decision record.
+- [25-docs-ssot-policy/index.md](25-docs-ssot-policy/index.md) - Docs structure and drift-prevention policy. Required when: changing docs layout, headers, or doc routing rules.
+- [30-logging-errors/index.md](30-logging-errors/index.md) - Logging and explicit-failure policy. Required when: changing logging, error handling, or skip/failure reporting.
+- [35-authority-bounded-modules/index.md](35-authority-bounded-modules/index.md) - Folder-centered module architecture policy. Required when: adding or refactoring feature-folder structure.
+- [40-config-constants/index.md](40-config-constants/index.md) - Config/constants ownership policy. Required when: adding or changing repeated literals, config keys, or defaults.
+- [50-excel-com-lifecycle/index.md](50-excel-com-lifecycle/index.md) - Excel COM lifecycle policy. Required when: Excel COM automation is in scope.
+- [60-gui-threading/index.md](60-gui-threading/index.md) - GUI threading policy. Required when: GUI or main-thread updates are involved.
+- [70-io-data-integrity/index.md](70-io-data-integrity/index.md) - I/O integrity policy. Required when: file processing or batch writes are changed.
+- [80-testing-real-files/index.md](80-testing-real-files/index.md) - Real-file testing guidance. Required when: I/O changes need fixture-backed verification.
+- [85-dual-entry-template/index.md](85-dual-entry-template/index.md) - Dual-entry reference template guidance. Required when: copying or adapting the GUI+CLI template.
+- [90-release-checklist/index.md](90-release-checklist/index.md) - Final release/merge checklist. Required when: doing the last verification pass before merge.
+- [acp/index.md](acp/index.md) - ACP asset branch. Required when: ACP source assets or runtime projections change.
+- [automation/index.md](automation/index.md) - Automation runbook branch. Required when: implementing or auditing recurring automation flows.
+- [integrations/index.md](integrations/index.md) - Integration notes branch. Required when: checking dated external integration notes for context.
+- [`link_repo_assets.ps1`](link_repo_assets.ps1) - Repo-owned asset linker. Required when: projecting skills, subagents, settings, MCP, or ACP assets into runtime locations.
+- [mcp/index.md](mcp/index.md) - MCP asset branch. Required when: repo-owned MCP config assets change.
+- [platforms/index.md](platforms/index.md) - Platform runtime notes branch. Required when: runtime support levels, dated platform evidence, or projection rules change.
+- [playbooks/index.md](playbooks/index.md) - Playbook branch. Required when: a task needs a structured scaffold or template.
+- [schemas/index.md](schemas/index.md) - Schema branch. Required when: validating or extending structured governance artifacts.
+- [settings/index.md](settings/index.md) - Shared settings branch. Required when: repo-owned settings payloads or settings projections change.
+- [skills/index.md](skills/index.md) - Skill branch. Required when: repo-owned reusable skill bundles or platform adapters change.
+- [subagents/index.md](subagents/index.md) - Subagent branch. Required when: repo-owned subagent source docs or runtime payloads change.
+- [../../templates/index.md](../../templates/index.md) - Reference implementations under `templates/`. Required when: copying or extending automation-loop, pr-control-plane, or python-dual-entry bundles (patterns only; follow `AGENTS.md` adoption rules).
+- [workflow-registry/index.md](workflow-registry/index.md) - Workflow indexing standard. Required when: defining how workflows are named, surfaced, and cataloged.

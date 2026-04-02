@@ -72,7 +72,7 @@ For non-trivial systems, verify:
 ```
 
 ## Reference Docs
-- `docs/agents/20-sources-of-truth-map.md` — Concept -> owner map
-- `docs/agents/35-authority-bounded-modules.md` — Module boundary alignment
+- `docs/agents/20-sources-of-truth-map/sources-of-truth-map.md` — Concept -> owner map
+- `docs/agents/35-authority-bounded-modules/authority-bounded-modules.md` — Module boundary alignment
 - AGENTS.md section "Non-Negotiables (Hard Gates)" > #1, #2, #3, #11
 - AGENTS.md section "Mandatory Modularity + SOLID/DI" > "Module decomposition trigger"

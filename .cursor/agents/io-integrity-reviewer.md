@@ -135,6 +135,6 @@ When enabled (`docs/project/change-records/.required` exists), store evidence in
 - AGENTS.md section "Workflow State Machine + Two-Phase Commit (When writes occur)"
 - AGENTS.md section "Rewrite Risk Policy"
 - AGENTS.md section "Non-Negotiables (Hard Gates)" > "#5 Resource Safety"
-- `docs/agents/70-io-data-integrity.md`
-- `docs/agents/80-testing-real-files.md`
-- `docs/agents/playbooks/io-batch-task-template.md`
+- `docs/agents/70-io-data-integrity/io-data-integrity.md`
+- `docs/agents/80-testing-real-files/testing-real-files.md`
+- `docs/agents/playbooks/io-batch-task-template/io-batch-task-template.md`

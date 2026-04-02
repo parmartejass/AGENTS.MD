@@ -1,0 +1,2 @@
+"""GUI folder contract package."""
+

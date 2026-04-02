@@ -119,4 +119,4 @@ Copy the above prompt and start a new conversation.
 ## Reference Docs
 - AGENTS.md section "Non-Negotiables (Hard Gates)" > "#9 AI Stuck-Loop Reset"
 - AGENTS.md section "Bias-Resistant Debugging (Hard Gate)"
-- `docs/agents/15-stuck-in-loop-generate-fresh-restart-prompt.md`
+- `docs/agents/15-stuck-in-loop-generate-fresh-restart-prompt/stuck-in-loop-generate-fresh-restart-prompt.md`

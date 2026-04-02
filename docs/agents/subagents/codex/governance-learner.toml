@@ -1,4 +1,4 @@
-# Adapter source: docs/agents/subagents/shared/governance-learner.md
+# Adapter source: docs/agents/subagents/shared/governance-learner/index.md
 name = "governance-learner"
 description = "Governance improvement specialist for capturing session learnings. Use at end of sessions or after significant debugging to propose governance updates, new playbooks, or manifest profile additions."
 model = "gpt-5.3-codex-spark"
@@ -119,7 +119,7 @@ From AGENTS.md section "Governance Auto-Edit Gate (Hard Gate)" > "Confirmation g
 
 ## Reference Docs
 - AGENTS.md section "Governance Auto-Edit Gate (Hard Gate)"
-- `docs/agents/05-context-retrieval.md`
-- `docs/agents/playbooks/governance-learnings-template.md`
+- `docs/agents/05-context-retrieval/context-retrieval.md`
+- `docs/agents/playbooks/governance-learnings-template/governance-learnings-template.md`
 - `agents-manifest.yaml`
 '''

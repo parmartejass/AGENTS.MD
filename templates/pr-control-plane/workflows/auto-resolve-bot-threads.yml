@@ -88,7 +88,7 @@ jobs:
         env:
           THREADS_JSON: ${{ steps.threads.outputs.threads_json }}
         run: |
-          python "${CONTROL_PLANE_ROOT}/scripts/resolve_bot_threads.py" \
+          python "${CONTROL_PLANE_ROOT}/scripts/main.py" resolve-bot-threads \
             --contract "${CONTROL_PLANE_ROOT}/control-plane.contract.json" \
             --threads-json "${THREADS_JSON}" \
             --clean-rerun \

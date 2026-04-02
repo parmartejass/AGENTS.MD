@@ -1,4 +1,4 @@
-# Adapter source: docs/agents/subagents/shared/io-integrity-reviewer.md
+# Adapter source: docs/agents/subagents/shared/io-integrity-reviewer/index.md
 name = "io-integrity-reviewer"
 description = "Data integrity specialist for file I/O and batch processing. Use proactively for any code that reads/writes files, processes batches, or handles data transformations. Ensures atomic writes, validation, and integrity checks."
 model = "gpt-5.3-codex-spark"
@@ -137,7 +137,7 @@ When enabled (`docs/project/change-records/.required` exists), store evidence in
 - AGENTS.md section "Workflow State Machine + Two-Phase Commit (When writes occur)"
 - AGENTS.md section "Rewrite Risk Policy"
 - AGENTS.md section "Non-Negotiables (Hard Gates)" > "#5 Resource Safety"
-- `docs/agents/70-io-data-integrity.md`
-- `docs/agents/80-testing-real-files.md`
-- `docs/agents/playbooks/io-batch-task-template.md`
+- `docs/agents/70-io-data-integrity/io-data-integrity.md`
+- `docs/agents/80-testing-real-files/testing-real-files.md`
+- `docs/agents/playbooks/io-batch-task-template/io-batch-task-template.md`
 '''

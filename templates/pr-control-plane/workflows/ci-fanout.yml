@@ -54,7 +54,7 @@ jobs:
 
       - name: Run harness-gap smoke case
         run: |
-          python "${CONTROL_PLANE_ROOT}/scripts/harness_gap.py" \
+          python "${CONTROL_PLANE_ROOT}/scripts/main.py" harness-gap \
             --contract "${CONTROL_PLANE_ROOT}/control-plane.contract.json" \
             --incident-json "${CONTROL_PLANE_ROOT}/tests/fixtures/incident_regression.json" \
             --case-output /tmp/harness-gap-case.json \

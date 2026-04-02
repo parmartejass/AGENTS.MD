@@ -1,7 +1,7 @@
 {
   "version": 1,
   "paths": {
-    "learning_doc": "docs/project/learning.md",
+    "learning_doc": "docs/project/learning/learning.md",
     "priority_report": "reports/priorities.md",
     "governance_proposals": "reports/governance-proposals-{date}.md",
     "review_report": "reports/compound-review-{date}.md",

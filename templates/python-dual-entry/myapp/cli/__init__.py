@@ -1,0 +1,2 @@
+"""CLI folder contract package."""
+

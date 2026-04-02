@@ -117,6 +117,6 @@ From AGENTS.md section "Governance Auto-Edit Gate (Hard Gate)" > "Confirmation g
 
 ## Reference Docs
 - AGENTS.md section "Governance Auto-Edit Gate (Hard Gate)"
-- `docs/agents/05-context-retrieval.md`
-- `docs/agents/playbooks/governance-learnings-template.md`
+- `docs/agents/05-context-retrieval/context-retrieval.md`
+- `docs/agents/playbooks/governance-learnings-template/governance-learnings-template.md`
 - `agents-manifest.yaml`

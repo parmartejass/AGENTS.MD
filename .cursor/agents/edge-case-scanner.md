@@ -95,6 +95,6 @@ Flag any code that:
 - AGENTS.md section "Non-Negotiables (Hard Gates)" > "#4 Logging + Explicit Failure"
 - AGENTS.md section "Invariants + Witnesses (Required)"
 - AGENTS.md section "Workflow State Machine + Two-Phase Commit"
-- `docs/agents/30-logging-errors.md`
-- `docs/agents/40-config-constants.md`
-- `docs/agents/70-io-data-integrity.md`
+- `docs/agents/30-logging-errors/logging-errors.md`
+- `docs/agents/40-config-constants/config-constants.md`
+- `docs/agents/70-io-data-integrity/io-data-integrity.md`

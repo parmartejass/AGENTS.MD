@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "python_roots": [
+    {
+      "path": "scripts",
+      "enforcement_mode": "enforce",
+      "owner": "scripts/check_folder_architecture/main.py"
+    },
+    {
+      "path": "templates/python-dual-entry/myapp",
+      "enforcement_mode": "enforce",
+      "owner": "scripts/check_folder_architecture/main.py"
+    },
+    {
+      "path": "templates/python-dual-entry/tests",
+      "enforcement_mode": "support",
+      "owner": "templates/python-dual-entry/README.md"
+    },
+    {
+      "path": "templates/pr-control-plane/scripts",
+      "enforcement_mode": "enforce",
+      "owner": "scripts/check_folder_architecture/main.py"
+    },
+    {
+      "path": "templates/pr-control-plane/tests",
+      "enforcement_mode": "support",
+      "owner": "templates/pr-control-plane/README.md"
+    },
+    {
+      "path": "templates/pr-control-plane/adapters",
+      "enforcement_mode": "support",
+      "owner": "templates/pr-control-plane/README.md"
+    },
+    {
+      "path": "X-Bookmarks Import",
+      "enforcement_mode": "allow_non_owner",
+      "owner": "docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md#SSOT-DEC-001"
+    }
+  ]
+}

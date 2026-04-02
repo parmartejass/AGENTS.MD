@@ -138,6 +138,6 @@ Never declare a fix complete without:
 ## Reference Docs
 - AGENTS.md section "Bias-Resistant Debugging (Hard Gate)"
 - AGENTS.md section "First-Principles Protocol (Hard Gate)" > "Defect vocabulary"
-- `docs/agents/playbooks/bugfix-template.md`
-- `docs/agents/playbooks/rca-methods-template.md`
-- `docs/agents/15-stuck-in-loop-generate-fresh-restart-prompt.md`
+- `docs/agents/playbooks/bugfix-template/bugfix-template.md`
+- `docs/agents/playbooks/rca-methods-template/rca-methods-template.md`
+- `docs/agents/15-stuck-in-loop-generate-fresh-restart-prompt/stuck-in-loop-generate-fresh-restart-prompt.md`

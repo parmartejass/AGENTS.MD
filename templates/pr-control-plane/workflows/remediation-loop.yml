@@ -73,7 +73,7 @@ jobs:
           HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
           ATTEMPT_HISTORY_JSON: ${{ steps.attempts.outputs.attempt_history_json }}
         run: |
-          python "${CONTROL_PLANE_ROOT}/scripts/remediation_loop.py" \
+          python "${CONTROL_PLANE_ROOT}/scripts/main.py" remediation-loop \
             --contract "${CONTROL_PLANE_ROOT}/control-plane.contract.json" \
             --head-sha "${HEAD_SHA}" \
             --findings-json remediation-findings.json \

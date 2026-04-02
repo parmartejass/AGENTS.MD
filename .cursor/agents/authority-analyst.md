@@ -120,6 +120,6 @@ Over:
 ## Reference Docs
 - AGENTS.md section "First-Principles Protocol (Hard Gate)"
 - AGENTS.md section "Authority Graph"
-- `docs/agents/00-principles.md`
-- `docs/agents/35-authority-bounded-modules.md`
-- `docs/agents/20-sources-of-truth-map.md`
+- `docs/agents/00-principles/principles.md`
+- `docs/agents/35-authority-bounded-modules/authority-bounded-modules.md`
+- `docs/agents/20-sources-of-truth-map/sources-of-truth-map.md`

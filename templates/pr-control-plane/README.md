@@ -17,7 +17,8 @@ This README is supporting guidance; the machine-readable contract and schema rem
 - `control-plane.contract.json`: machine-readable policy contract.
 - `schemas/control-plane-contract.schema.json`: contract schema.
 - `workflows/*.yml`: copyable workflow templates.
-- `scripts/*.py`: deterministic policy/evidence/check logic.
+- `scripts/main.py`: parent contract and CLI boundary for deterministic policy/evidence/check logic.
+- `scripts/<feature>/main.py`: child feature contracts called only by `scripts/main.py`.
 - `adapters/review_adapter_contract.md`: provider-agnostic adapter contract.
 - `adapters/mock/adapter.py`: mock adapter reference.
 - `tests/`: fixture-backed contract/policy/evidence tests.
@@ -63,3 +64,8 @@ To replace the mock adapter:
 1. Keep normalized output shape and invariants from `adapters/review_adapter_contract.md`.
 2. Preserve current-head SHA strictness and actionable finding semantics.
 3. Keep rerun dedupe and thread-cleanup semantics unchanged.
+
+## Script Architecture
+- `scripts/main.py` is the only public connector for the script subtree.
+- Each child feature lives in its own folder, such as `scripts/risk_policy_gate/main.py` or `scripts/check_review_state/main.py`.
+- All file and JSON I/O stays in `scripts/main.py`; child feature contracts take plain data in and return plain data out.

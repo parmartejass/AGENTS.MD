@@ -161,8 +161,8 @@ if (-not $pathsByList.ContainsKey("default_inject")) {
 if (-not $pathsByList.ContainsKey("profiles.governance_improvement.inject")) {
   Write-Host "ERROR: Missing profiles.governance_improvement.inject list in agents-manifest.yaml"
   $issues++
-} elseif (-not $pathsByList["profiles.governance_improvement.inject"].Contains("docs/agents/22-ssot-authority-decisions.md")) {
-  Write-Host "ERROR: profiles.governance_improvement.inject must include docs/agents/22-ssot-authority-decisions.md"
+} elseif (-not $pathsByList["profiles.governance_improvement.inject"].Contains("docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md")) {
+  Write-Host "ERROR: profiles.governance_improvement.inject must include docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md"
   $issues++
 }
 

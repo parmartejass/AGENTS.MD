@@ -121,6 +121,6 @@ When enabled (`docs/project/change-records/.required` exists or `scripts/check_c
 ## Reference Docs
 - AGENTS.md section "Verification Floors (Hard Gate)"
 - AGENTS.md section "Verification Floors (Hard Gate)" > "Shift-left quality baseline"
-- `docs/agents/80-testing-real-files.md`
+- `docs/agents/80-testing-real-files/testing-real-files.md`
 - `docs/agents/schemas/change-record.schema.json`
-- `docs/agents/playbooks/bugfix-template.md`
+- `docs/agents/playbooks/bugfix-template/bugfix-template.md`

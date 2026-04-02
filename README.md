@@ -6,7 +6,7 @@ This repository maintains a reusable, repo-agnostic governance pack for autonomo
 
 - Canonical policy: `AGENTS.md`
 - Context injection manifest: `agents-manifest.yaml`
-- Cross-project authority decisions: `docs/agents/22-ssot-authority-decisions.md`
+- Cross-project authority decisions: `docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md`
 
 ## Read Order (Top-Down)
 
@@ -32,7 +32,7 @@ When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` an
   - Subagents: `docs/agents/subagents/`
   - MCP configs: `docs/agents/mcp/`
   - ACP placeholders: `docs/agents/acp/`
-- Platform runtime policy lives in `docs/agents/platforms/00-platform-runtime-standards.md`.
+- Platform runtime policy lives in `docs/agents/platforms/00-platform-runtime-standards/platform-runtime-standards.md`.
 - Concrete runtime path/support-level facts live in `docs/agents/platforms/runtime-projections.json`.
 - Dated platform/runtime evidence lives in `docs/agents/platforms/index.md`.
 - Integration notes for context/memory tools live in `docs/agents/integrations/index.md`.
@@ -53,11 +53,12 @@ When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` an
 ## Supporting docs (non-authoritative)
 
 - Index: `docs/agents/index.md`
-- Authority decisions: `docs/agents/22-ssot-authority-decisions.md`
-- Docs are supporting material only; facts and behavior must stay in code/SSOT (see `docs/agents/25-docs-ssot-policy.md`).
+- Authority decisions: `docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md`
+- Docs are supporting material only; facts and behavior must stay in code/SSOT (see `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`).
 
 ## Templates (reference implementations)
 
+- Routing index: [`templates/index.md`](templates/index.md)
 - Automation loop (nightly review + implement): `templates/automation-loop/`
 - PR control-plane loop (risk gate + review state + evidence + remediation): `templates/pr-control-plane/`
 - Dual-entry GUI+CLI + scenario tests: `templates/python-dual-entry/`
@@ -72,106 +73,60 @@ When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` an
 .
 |- AGENTS.md
 |- agents-manifest.yaml
-|- CLAUDE.md
-|- .cursorrules
-|- .github/
-|  |- copilot-instructions.md
 |- docs/
-|  |- project/
-|  |  |- index.md
-|  |  |- goal.md
-|  |  |- rules.md
-|  |  |- architecture.md
-|  |  |- learning.md
-|  |- generated/
+|  |- index.md
 |  |- agents/
 |  |  |- index.md
-|  |  |- 00-principles.md
-|  |  |- 05-context-retrieval.md
-|  |  |- 10-repo-discovery.md
-|  |  |- 15-stuck-in-loop-generate-fresh-restart-prompt.md
-|  |  |- 20-sources-of-truth-map.md
-|  |  |- 22-ssot-authority-decisions.md
-|  |  |- 25-docs-ssot-policy.md
-|  |  |- 30-logging-errors.md
-|  |  |- 35-authority-bounded-modules.md
-|  |  |- 40-config-constants.md
-|  |  |- 50-excel-com-lifecycle.md
-|  |  |- 60-gui-threading.md
-|  |  |- 70-io-data-integrity.md
-|  |  |- 80-testing-real-files.md
-|  |  |- 85-dual-entry-template.md
-|  |  |- 90-release-checklist.md
-|  |  |- workflow-registry.md
-|  |  |- automation/
-|  |  |  |- overview.md
-|  |  |  |- nightly-compound-loop.md
-|  |  |- acp/
-|  |  |  |- 00-acp-standards.md
-|  |  |- link_repo_assets.ps1
-|  |  |- mcp/
-|  |  |  |- 00-mcp-standards.md
-|  |  |  |- link_mcp.ps1
-|  |  |  |- shared/
-|  |  |     |- mcp.json
+|  |  |- 00-principles/
+|  |  |  |- index.md
+|  |  |- 35-authority-bounded-modules/
+|  |  |  |- index.md
+|  |  |- playbooks/
+|  |  |  |- index.md
+|  |  |  |- design-principles-checklist/
+|  |  |  |  |- index.md
+|  |  |- platforms/
+|  |  |  |- index.md
+|  |  |  |- 00-platform-runtime-standards/
+|  |  |  |  |- index.md
 |  |  |- settings/
-|  |  |  |- 00-settings-standards.md
-|  |  |  |- link_settings.ps1
-|  |  |  |- claude-code/
-|  |  |  |  |- settings.json
-|  |  |  |- codex/
-|  |  |  |  |- config.toml
-|  |  |  |- cursor/
-|  |  |     |- cli.json
-|  |  |- integrations/
 |  |  |  |- index.md
 |  |  |- skills/
-|  |  |  |- 00-skill-standards.md
-|  |  |  |- 10-platform-adapters.md
-|  |  |  |- link_skills.ps1
-|  |  |  |- platform-adapters/
-|  |  |  |  |- Codex CLI/
-|  |  |  |     |- llmjunky-last-30-days.md
-|  |  |  |- x-api-data-access/
-|  |  |     |- SKILL.md
-|  |  |     |- references/
-|  |  |- subagents/
-|  |  |  |- 00-subagent-standards.md
-|  |  |  |- link_subagents.ps1
-|  |  |  |- shared/
-|  |  |- platforms/
-|  |  |  |- 00-platform-runtime-standards.md
 |  |  |  |- index.md
-|  |  |  |- runtime-projections.json
+|  |  |- subagents/
+|  |  |  |- index.md
+|  |  |- automation/
+|  |  |  |- index.md
 |  |  |- schemas/
-|  |  |  |- change-record.schema.json
-|  |  |- playbooks/
-|  |     |- ai-coding-prompt-template.md
-|  |     |- bugfix-template.md
-|  |     |- design-principles-checklist.md
-|  |     |- excel-task-template.md
-|  |     |- governance-learnings-template.md
-|  |     |- gui-task-template.md
-|  |     |- io-batch-task-template.md
-|  |     |- pdf-task-template.md
-|  |     |- perf-hotspots-template.md
-|  |     |- project-docs-template.md
-|  |     |- rca-methods-template.md
+|  |     |- index.md
+|  |- generated/
+|  |  |- index.md
+|  |- project/
+|     |- index.md
+|     |- architecture/
+|     |  |- index.md
+|     |- change-records/
+|        |- index.md
 |- scripts/
-|  |- _governance_paths.ps1
-|  |- check_docs_ssot.ps1
-|  |- check_agents_manifest.ps1
-|  |- check_project_docs.ps1
-|  |- check_repo_hygiene.ps1
-|  |- check_change_records.ps1
-|  |- check_governance_core.py
-|  |- check_python_safety.py
-|  |- setup_repo_platform_assets.ps1
-|  |- sync-governance.ps1
+|  |- check_folder_architecture/
+|  |  |- main.py
+|  |- check_governance_core/
+|  |  |- main.py
+|  |- check_python_safety/
+|  |  |- main.py
+|  |- *.ps1
 |- templates/
+|  |- index.md
 |  |- automation-loop/
+|  |- pr-control-plane/
 |  |- python-dual-entry/
-|- .editorconfig
+|  |  |- myapp/
+|  |     |- cli/main.py
+|  |     |- core/main.py
+|  |     |- gui/main.py
+|  |     |- main.py
+|  |     |- runner/main.py
+|  |     |- runner/workflows.py
 ```
 
 ## Use in other repos (submodule)
@@ -376,25 +331,31 @@ This repo:
   - If setup stops on a conflicting non-link runtime file such as `.mcp.json`, rename or remove that path and rerun.
   - Include compatibility-only projections when explicitly needed: `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/setup_repo_platform_assets.ps1 -Force -IncludeCompatibility`
 - Docs SSOT header checks (all `docs/` except index pages): `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_docs_ssot.ps1`
+- Docs router contract regression test: `python3 scripts/check_docs_router_contract/main.py` (use `python` if `python3` is unavailable)
 - Agents manifest checks: `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_agents_manifest.ps1`
 - Project docs checks (required files + README linkage): `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_project_docs.ps1`
 - Repo hygiene checks (no runtime/generated artifact noise tracked): `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_repo_hygiene.ps1`
-- Cross-platform core governance checks (manifest + docs SSOT + project docs + governance authority decisions + hygiene + playbook parity + unresolved citation tokens + change records): `python3 scripts/check_governance_core.py` (use `python` if `python3` is unavailable)
-  - Require change records (or honor `.required` marker): `python3 scripts/check_governance_core.py --require-records`
-  - Strict safety mode: `python3 scripts/check_governance_core.py --fail-on-safety-warnings`
+- Folder architecture checks (declared Python roots, explicit workspace exceptions, and repo-owned/template folder contracts): `python3 scripts/check_folder_architecture/main.py` (use `python` if `python3` is unavailable)
+- Folder architecture regression tests (vendored governance boundary + scope): `python3 -m unittest -v scripts/check_folder_architecture/test_main.py` (use `python -m unittest -v ...` if `python3` is unavailable)
+- Cross-platform core governance checks (manifest + docs SSOT + project docs + governance authority decisions + hygiene + playbook parity + unresolved citation tokens + change records): `python3 scripts/check_governance_core/main.py` (use `python` if `python3` is unavailable)
+  - Require change records (or honor `.required` marker): `python3 scripts/check_governance_core/main.py --require-records`
+  - Strict safety mode: `python3 scripts/check_governance_core/main.py --fail-on-safety-warnings`
 - Change record artifact checks (schema + required evidence fields): `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_change_records.ps1`
   - Enforce required records by creating `docs/project/change-records/.required` or running with `-RequireRecords`.
-- Python safety baseline checks: `python3 scripts/check_python_safety.py` (add `--fail-on-warnings` to enforce warnings; use `python` if `python3` is unavailable)
+- Python safety baseline checks: `python3 scripts/check_python_safety/main.py` (add `--fail-on-warnings` to enforce warnings; use `python` if `python3` is unavailable)
+- PR control-plane parent CLI policy tests: `cd templates/pr-control-plane && python3 -m unittest -v tests.policy.test_main_cli` (use `python -m unittest -v ...` if `python3` is unavailable)
 - Template structured logging contract tests: `cd templates/python-dual-entry && python3 -m unittest -v tests.test_logging_contract` (use `python` if `python3` is unavailable)
 
 Target repo (submodule under `.governance/`):
 - Docs SSOT header checks: `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_docs_ssot.ps1 -RepoRoot .`
+- Docs router contract regression test: `python3 .governance/scripts/check_docs_router_contract/main.py` (use `python` if `python3` is unavailable)
 - Agents manifest checks: `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_agents_manifest.ps1`
 - Project docs checks: `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_project_docs.ps1 -RepoRoot .`
 - Repo hygiene checks: `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_repo_hygiene.ps1 -RepoRoot .`
-- Cross-platform core governance checks: `python3 .governance/scripts/check_governance_core.py --repo-root .` (use `python` if `python3` is unavailable)
-  - Require change records: `python3 .governance/scripts/check_governance_core.py --repo-root . --require-records`
-  - Strict safety mode: `python3 .governance/scripts/check_governance_core.py --repo-root . --fail-on-safety-warnings`
+- Folder architecture checks: `python3 .governance/scripts/check_folder_architecture/main.py --root .` (use `python` if `python3` is unavailable)
+- Cross-platform core governance checks: `python3 .governance/scripts/check_governance_core/main.py --repo-root .` (use `python` if `python3` is unavailable)
+  - Require change records: `python3 .governance/scripts/check_governance_core/main.py --repo-root . --require-records`
+  - Strict safety mode: `python3 .governance/scripts/check_governance_core/main.py --repo-root . --fail-on-safety-warnings`
 - Change record artifact checks: `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_change_records.ps1 -RepoRoot .`
   - Enforce required records by creating `docs/project/change-records/.required` or running with `-RequireRecords`.
-- Python safety baseline checks: `python3 .governance/scripts/check_python_safety.py --root .` (add `--fail-on-warnings` to enforce warnings; use `python` if `python3` is unavailable)
+- Python safety baseline checks: `python3 .governance/scripts/check_python_safety/main.py --root .` (add `--fail-on-warnings` to enforce warnings; use `python` if `python3` is unavailable)

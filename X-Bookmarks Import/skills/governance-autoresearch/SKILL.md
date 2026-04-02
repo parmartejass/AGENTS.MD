@@ -91,7 +91,7 @@ Before applying, check:
 
 Run validation if available:
 ```bash
-python3 scripts/check_governance_core.py
+python3 scripts/check_governance_core/main.py
 ```
 
 ### Step 5: Apply or Discard
@@ -125,7 +125,7 @@ python3 "X-Bookmarks Import/skills/governance-autoresearch/scripts/governance_re
 
 3. After all files, run full validation:
 ```bash
-python3 scripts/check_governance_core.py
+python3 scripts/check_governance_core/main.py
 ```
 
 ## Scoring (How to Judge Quality)
