@@ -35,13 +35,13 @@ From AGENTS.md section "Documentation SSOT Policy (Hard Gate)":
 ## Required Project Docs
 
 When governance pack is present:
-- [ ] `README.md` - Links to `docs/project/index.md` and `AGENTS.md`
+- [ ] `README.md` - Links to `docs/project/project_index.md` and `AGENTS.md`
 - [ ] `README.md` - Has "Checks" section with verification commands
-- [ ] `docs/project/index.md` - Entrypoint
-- [ ] `docs/project/goal/index.md` - Objective + acceptance criteria
-- [ ] `docs/project/rules/index.md` - Project do/don't rules
-- [ ] `docs/project/architecture/index.md` - SSOT pointers
-- [ ] `docs/project/learning/index.md` - Operational learnings
+- [ ] `docs/project/project_index.md` - Entrypoint
+- [ ] `docs/project/goal/goal_index.md` - Objective + acceptance criteria
+- [ ] `docs/project/rules/rules_index.md` - Project do/don't rules
+- [ ] `docs/project/architecture/architecture_index.md` - SSOT pointers
+- [ ] `docs/project/learning/learning_index.md` - Operational learnings
 
 ## Required Doc Header
 
@@ -49,7 +49,7 @@ Each doc under `docs/` (except indexes) must declare:
 
 ```markdown
 ---
-doc_type: [guide | playbook | reference | adr]
+doc_type: one of [policy | reference | runbook | playbook | decision | generated]
 ssot_owner: [module/file that owns this topic]
 update_trigger: [when this doc should be updated]
 ---
@@ -69,7 +69,7 @@ From AGENTS.md section "Non-Negotiables (Hard Gates)" > "#3":
 New code must be reachable from a workflow entrypoint/dispatcher/registry or a clearly documented entrypoint.
 
 New docs must be reachable from:
-- A docs index (`docs/agents/index.md` or equivalent)
+- A docs index (`docs/agents/agents_index.md` or equivalent)
 - The repo `README.md`
 
 Unreferenced helpers and "floating docs" are prohibited.
@@ -107,5 +107,5 @@ Unreferenced helpers and "floating docs" are prohibited.
 - AGENTS.md section "Documentation SSOT Policy (Hard Gate)"
 - AGENTS.md section "Code Comment Policy (Hard Gate)"
 - AGENTS.md section "Non-Negotiables (Hard Gates)" > "#3 No Orphan Code / No Orphan Docs"
-- `docs/agents/25-docs-ssot-policy/index.md`
-- `docs/agents/playbooks/project-docs-template/index.md`
+- `docs/agents/25-docs-ssot-policy/docs-ssot-policy_index.md`
+- `docs/agents/playbooks/project-docs-template/project-docs-template_index.md`

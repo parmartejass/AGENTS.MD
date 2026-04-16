@@ -36,7 +36,7 @@ This protocol is supporting guidance only (non-normative) and is intended to pre
 
 ## Where to encode guidance
 - Core docs (`docs/agents/*.md`): principle-level policy and runbooks; avoid platform/tool specifics.
-- Playbooks (`docs/agents/playbooks/index.md` and child branches): copy/paste templates and checklists.
+- Playbooks (`docs/agents/playbooks/playbooks_index.md` and child branches): copy/paste templates and checklists.
 - Platform assets (`docs/agents/skills/00-skill-standards/skill-standards.md`, `docs/agents/subagents/00-subagent-standards/subagent-standards.md`, `docs/agents/mcp/00-mcp-standards/mcp-standards.md`, `docs/agents/acp/00-acp-standards/acp-standards.md`): repo-owned runtime assets and standards; reference core policy, do not duplicate it.
 
 ## Resource + speed discipline (reduce risk and time)

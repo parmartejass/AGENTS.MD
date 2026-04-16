@@ -49,9 +49,9 @@ isProject: false
 ## Authority map (single-owner design)
 
 - Canonical semantics + precedence + inheritance: [AGENTS.md](AGENTS.md)
-- Docs-policy pointer only (no duplicate semantics): [docs/agents/25-docs-ssot-policy/index.md](docs/agents/25-docs-ssot-policy/index.md)
-- Prompt/playbook application examples: [docs/agents/playbooks/governance-learnings-template/index.md](docs/agents/playbooks/governance-learnings-template/index.md), [docs/agents/playbooks/ai-coding-prompt-template/index.md](docs/agents/playbooks/ai-coding-prompt-template/index.md), [docs/agents/playbooks/project-docs-template/index.md](docs/agents/playbooks/project-docs-template/index.md)
-- Deterministic enforcement engine: [scripts/check_governance_core/main.py](scripts/check_governance_core/main.py)
+- Docs-policy pointer only (no duplicate semantics): [docs/agents/25-docs-ssot-policy/docs-ssot-policy.md](docs/agents/25-docs-ssot-policy/docs-ssot-policy.md)
+- Prompt/playbook application examples: [docs/agents/playbooks/governance-learnings-template/governance-learnings-template_index.md](docs/agents/playbooks/governance-learnings-template/governance-learnings-template_index.md), [docs/agents/playbooks/ai-coding-prompt-template/ai-coding-prompt-template_index.md](docs/agents/playbooks/ai-coding-prompt-template/ai-coding-prompt-template_index.md), [docs/agents/playbooks/project-docs-template/project-docs-template_index.md](docs/agents/playbooks/project-docs-template/project-docs-template_index.md)
+- Deterministic enforcement engine: [scripts/check_governance_core/check_governance_core_main.py](scripts/check_governance_core/check_governance_core_main.py)
 - Operator command SSOT: [README.md](README.md)
 
 ## Enforcement architecture
@@ -83,7 +83,7 @@ flowchart TD
 
 ### Phase 2: Immediate repo-wide checker enforcement
 
-- Extend [scripts/check_governance_core/main.py](scripts/check_governance_core/main.py) with a dedicated wording-taxonomy check stage.
+- Extend [scripts/check_governance_core/check_governance_core_main.py](scripts/check_governance_core/check_governance_core_main.py) with a dedicated wording-taxonomy check stage.
 - Scan all repo markdown docs (repo-wide), with deterministic exclusions for non-authoritative/generated areas where appropriate.
 - Enforce blocking rules:
   - hard-gate terms outside authorized zones,
@@ -95,16 +95,16 @@ flowchart TD
 ### Phase 3: Normalize high-impact docs and templates
 
 - Align wording to canonical taxonomy in:
-  - [docs/agents/playbooks/governance-learnings-template/index.md](docs/agents/playbooks/governance-learnings-template/index.md)
-  - [docs/agents/playbooks/ai-coding-prompt-template/index.md](docs/agents/playbooks/ai-coding-prompt-template/index.md)
-  - [docs/agents/playbooks/project-docs-template/index.md](docs/agents/playbooks/project-docs-template/index.md)
-  - [docs/agents/index.md](docs/agents/index.md)
-  - [docs/agents/25-docs-ssot-policy/index.md](docs/agents/25-docs-ssot-policy/index.md)
+  - [docs/agents/playbooks/governance-learnings-template/governance-learnings-template_index.md](docs/agents/playbooks/governance-learnings-template/governance-learnings-template_index.md)
+  - [docs/agents/playbooks/ai-coding-prompt-template/ai-coding-prompt-template_index.md](docs/agents/playbooks/ai-coding-prompt-template/ai-coding-prompt-template_index.md)
+  - [docs/agents/playbooks/project-docs-template/project-docs-template_index.md](docs/agents/playbooks/project-docs-template/project-docs-template_index.md)
+  - [docs/agents/agents_index.md](docs/agents/agents_index.md)
+  - [docs/agents/25-docs-ssot-policy/docs-ssot-policy_index.md](docs/agents/25-docs-ssot-policy/docs-ssot-policy_index.md)
 - Remove or convert any local semantic definitions so only [AGENTS.md](AGENTS.md) defines levels.
 
 ### Phase 4: Promotion workflow (recommendation -> mandatory -> hard gate)
 
-- Add explicit promotion criteria in [AGENTS.md](AGENTS.md) and wire to governance learning workflow in [docs/agents/playbooks/governance-learnings-template/index.md](docs/agents/playbooks/governance-learnings-template/index.md).
+- Add explicit promotion criteria in [AGENTS.md](AGENTS.md) and wire to governance learning workflow in [docs/agents/playbooks/governance-learnings-template/governance-learnings-template_index.md](docs/agents/playbooks/governance-learnings-template/governance-learnings-template_index.md).
 - Promotion gates:
   - recommendation -> mandatory: evidence of repeatable risk + deterministic witness.
   - mandatory -> hard gate: explicit user confirmation + enforcement witness + council `go_no_go = go`.
@@ -113,7 +113,7 @@ flowchart TD
 ### Phase 5: Verification and release gating
 
 - Update [README.md](README.md) `Checks` to include any new deterministic wording-enforcement invocation before using it.
-- Run baseline checks from README plus wording-enforcement checks via [scripts/check_governance_core/main.py](scripts/check_governance_core/main.py).
+- Run baseline checks from README plus wording-enforcement checks via [scripts/check_governance_core/check_governance_core_main.py](scripts/check_governance_core/check_governance_core_main.py).
 - Execute at least one failure-path witness (intentional bad wording fixture or controlled malformed sample) to prove blocking behavior.
 
 ## Invariants and witnesses
@@ -123,7 +123,7 @@ flowchart TD
 - Observability invariant: checker emits explicit file-level violations and blocking result.
 - Idempotency invariant: re-running checker without content changes yields identical results.
 - Witnesses:
-  - checker pass/fail logs from [scripts/check_governance_core/main.py](scripts/check_governance_core/main.py),
+  - checker pass/fail logs from [scripts/check_governance_core/check_governance_core_main.py](scripts/check_governance_core/check_governance_core_main.py),
   - README check list includes the new enforcement command,
   - at least one deliberate failure-path demonstration captured in verification notes.
 

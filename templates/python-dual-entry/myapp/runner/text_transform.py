@@ -1,4 +1,4 @@
-"""Private text transformation logic owned by runner/main.py."""
+"""Private text transformation logic owned by runner/runner_main.py."""
 
 from __future__ import annotations
 

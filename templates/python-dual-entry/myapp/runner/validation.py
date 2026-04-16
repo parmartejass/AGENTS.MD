@@ -1,4 +1,4 @@
-"""Private validation logic owned by runner/main.py."""
+"""Private validation logic owned by runner/runner_main.py."""
 
 from __future__ import annotations
 

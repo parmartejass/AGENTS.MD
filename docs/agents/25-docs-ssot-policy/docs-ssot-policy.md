@@ -13,14 +13,15 @@ Follow the file/folder SSOT rule in `AGENTS.md`.
 This doc governs how documentation participates in that structure; it does not redefine the core SSOT rule.
 
 ## Docs branch rule
-- Every directory under `docs/` must contain an `index.md`.
-- `index.md` is the folder's public routing contract and must remain routing-only.
-- Router indexes must catalog direct children only and include a `Required when:` statement for each child.
-- Narrative leaf folders must contain exactly one canonical non-`index.md` markdown file.
-- Direct references to actual narrative content must target the canonical leaf doc, not the folder router.
-- Parent indexes route to child authorities; they do not duplicate the child doc's full rules or facts.
-- Artifact or payload directories under `docs/` are not exempt; they still need an index so the branch remains navigable.
-- During the staged migration, legacy content-bearing `index.md` files are tolerated only in folders that have not yet been migrated to the router-plus-leaf pattern. Once a folder is touched for docs structure work, migrate it.
+- The machine-readable filename contract lives in `scripts/entrypoint_contracts.json`; this doc owns the docs-family behavior that the registry encodes.
+- Every directory under `docs/` must contain the canonical router file resolved from `scripts/entrypoint_contracts.json`.
+- Docs routers follow the folder-owned pattern `<authority>_index.md` and must remain routing-only.
+- Router files must catalog direct children only and include a `Required when:` statement for each child.
+- Docs folders with narrative content must expose one-or-more router-linked public leaf markdown files in the same folder authority.
+- The registry-resolved primary public leaf must exist whenever a docs folder exposes narrative content.
+- Direct references to actual narrative content may target a router-linked public leaf doc; external navigation into a docs branch should enter through the folder router.
+- Parent routers route to child authorities; they do not duplicate the child doc's full rules or facts.
+- Artifact-first or payload directories under `docs/` are not exempt; they still need the canonical router file so the branch remains navigable.
 
 ## Rule: “Code owns facts; docs own intent”
 
@@ -44,7 +45,7 @@ Project-local adoption of those decisions remains in `docs/project/architecture/
 ## Required header template
 Every Markdown doc (`*.md`) under `docs/` except router indexes must start with:
 
-Router indexes are exempt at any nesting level (`index.md` or `*/index.md`).
+Router files are exempt at any nesting level (for example `goal_index.md`, `principles_index.md`, or `evidence_index.md`).
 
 ```
 ---
@@ -60,6 +61,7 @@ Generated docs must also use this header, set `doc_type: generated`, and live un
 - Project docs should use the folder purpose as the filename (`goal.md`, `rules.md`, `architecture.md`, `learning.md`).
 - Numbered governance folders should use the semantic slug without the numeric prefix (`principles.md`, `docs-ssot-policy.md`, `release-checklist.md`).
 - Dated evidence folders should use `evidence.md` when they need a canonical narrative leaf.
+- Additional public leaf docs may coexist in the same folder authority when the router exposes them explicitly and they do not compete with the registry-resolved primary leaf.
 - Artifact-first folders may remain router-only when they only catalog payload or dated-child evidence.
 
 ## Operational asset carveouts

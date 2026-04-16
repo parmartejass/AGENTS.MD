@@ -1,4 +1,4 @@
-# Adapter source: docs/agents/subagents/shared/io-integrity-reviewer/index.md
+# Adapter source: docs/agents/subagents/shared/io-integrity-reviewer/io-integrity-reviewer_index.md
 name = "io-integrity-reviewer"
 description = "Data integrity specialist for file I/O and batch processing. Use proactively for any code that reads/writes files, processes batches, or handles data transformations. Ensures atomic writes, validation, and integrity checks."
 model = "gpt-5.3-codex-spark"

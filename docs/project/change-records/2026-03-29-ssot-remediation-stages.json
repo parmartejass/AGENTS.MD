@@ -21,7 +21,7 @@
     {
       "invariant_id": "INV-D-1",
       "signal": "Manifest and supporting docs align on repo discovery and bugfix inject behavior",
-      "record_location": "agents-manifest.yaml, docs/agents/index.md, and python3 scripts/check_governance_core.py stdout",
+      "record_location": "agents-manifest.yaml, docs/agents/agents_index.md, and python3 scripts/check_governance_core.py stdout",
       "pass_criteria": "default_inject includes docs/agents/10-repo-discovery.md, bugfix routing is manifest-referential, and governance core checks pass"
     },
     {
@@ -33,7 +33,7 @@
     {
       "invariant_id": "INV-D-2",
       "signal": "Supporting docs redirect verification commands to README instead of enumerating their own lists",
-      "record_location": "docs/agents/index.md, docs/agents/playbooks/project-docs-template.md, docs/agents/automation/nightly-compound-loop.md",
+      "record_location": "docs/agents/agents_index.md, docs/agents/playbooks/project-docs-template.md, docs/agents/automation/nightly-compound-loop.md",
       "pass_criteria": "duplicate command lists are removed or replaced with explicit README 'Checks' pointers"
     },
     {
@@ -52,7 +52,7 @@
   "ssot_owner_paths": [
     "AGENTS.md",
     "agents-manifest.yaml",
-    "docs/agents/index.md",
+    "docs/agents/agents_index.md",
     "docs/agents/playbooks/project-docs-template.md",
     "docs/agents/automation/nightly-compound-loop.md",
     "docs/agents/automation/pr-control-plane-loop.md",
@@ -142,7 +142,7 @@
     "traceability_refs": [
       "README.md#checks",
       "docs/project/master-todo.md",
-      "docs/project/index.md",
+      "docs/project/project_index.md",
       "docs/project/change-records/2026-02-23-governance-risk-closure.json"
     ]
   }

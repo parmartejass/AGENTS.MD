@@ -15,7 +15,7 @@ from myapp.config import JobConfig
 from myapp.log_contract import validate_event_payload
 from myapp.log_redaction import sanitize_for_logging
 from myapp.logging_config import setup_logging
-from myapp.runner.main import run_job
+from myapp.runner.runner_main import run_job
 from myapp.scenarios import load_scenario
 
 
@@ -96,7 +96,7 @@ class LoggingContractTests(unittest.TestCase):
             def run(self, *_args, **_kwargs):  # noqa: ANN001
                 raise RuntimeError("boom")
 
-        with mock.patch("myapp.runner.main.get_workflow", return_value=_BrokenWorkflow()):
+        with mock.patch("myapp.runner.runner_main.get_workflow", return_value=_BrokenWorkflow()):
             result = run_job(scenario.job, mode="test")
 
         self.assertFalse(result.success)
@@ -165,7 +165,7 @@ class LoggingContractTests(unittest.TestCase):
                 },
             )
 
-            with self.assertLogs("myapp.runner.main", level="DEBUG") as captured:
+            with self.assertLogs("myapp.runner.runner_main", level="DEBUG") as captured:
                 result = run_job(config, mode="test")
 
             self.assertTrue(result.success)

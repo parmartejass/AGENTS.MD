@@ -1,4 +1,4 @@
-# Adapter source: docs/agents/subagents/shared/change-contract-generator/index.md
+# Adapter source: docs/agents/subagents/shared/change-contract-generator/change-contract-generator_index.md
 name = "change-contract-generator"
 description = "Change Contract generator for PR descriptions and commit messages. Use proactively when preparing to commit or create a PR to generate the required governance template with invariants, witnesses, and verification checklist."
 model = "gpt-5.3-codex"

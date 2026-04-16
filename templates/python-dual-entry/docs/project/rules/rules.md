@@ -8,7 +8,7 @@ update_trigger: repo governance rules change
 
 ## Do
 
-- Keep GUI/CLI thin; let `myapp/main.py` be the only connector that wires child folder contracts into `myapp.runner.main.run_job()`.
+- Keep GUI/CLI thin; let `myapp/myapp_main.py` be the only connector that wires child folder contracts into `myapp.runner.runner_main.run_job()`.
 - Centralize shared literals and JSON keys (SSOT) in one owner (example: `myapp/config_keys.py`).
 - Add scenarios as JSON + real fixtures + expected outputs; ensure the harness runs them all.
 - Log workflow boundaries and explicit failures (no silent skips).

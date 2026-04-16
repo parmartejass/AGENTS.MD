@@ -19,7 +19,7 @@ update_trigger:
 - Why: governance reviews require README checks and project learning context.
 
 2. Enforce change-record evidence in cross-platform core checks.
-- Authority owner: `scripts/check_governance_core/main.py`.
+- Authority owner: `scripts/check_governance_core/check_governance_core_main.py`.
 - Why: core governance check previously omitted change-record validation.
 
 3. Prevent prompt-pack drift in governance learnings playbook.
@@ -27,7 +27,7 @@ update_trigger:
 - Why: hard-gate duplication can diverge silently without parity checks.
 
 4. Treat unresolved citation placeholders as invalid in governed docs.
-- Authority owner: `scripts/check_governance_core/main.py` docs checks.
+- Authority owner: `scripts/check_governance_core/check_governance_core_main.py` docs checks.
 - Why: placeholders are non-auditable recorded truth.
 
 ## Deliberately not adopted as new authority
@@ -36,6 +36,6 @@ update_trigger:
 - No new governance SSOT owner was created.
 
 ## Verification witnesses
-- `python3 scripts/check_governance_core/main.py`
-- `python3 scripts/check_governance_core/main.py --require-records`
-- `python3 scripts/check_governance_core/main.py --fail-on-safety-warnings`
+- `python3 scripts/check_governance_core/check_governance_core_main.py`
+- `python3 scripts/check_governance_core/check_governance_core_main.py --require-records`
+- `python3 scripts/check_governance_core/check_governance_core_main.py --fail-on-safety-warnings`

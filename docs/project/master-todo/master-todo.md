@@ -40,7 +40,7 @@ update_trigger: remediation scope, sequencing, or verification evidence changes
 
 ### Stage 2 - Checker authority consolidation
 - Status: completed
-- Align `scripts/check_governance_core/main.py` with `scripts/check_change_records.ps1` for governance council-summary validation, including `intent_coverage`.
+- Align `scripts/check_governance_core/check_governance_core_main.py` with `scripts/check_change_records.ps1` for governance council-summary validation, including `intent_coverage`.
 - Remove drift between Python and PowerShell enforcement for:
   - manifest rules
   - project-doc README-reference rules
@@ -48,7 +48,7 @@ update_trigger: remediation scope, sequencing, or verification evidence changes
 
 ### Stage 3 - Injection and docs de-duplication
 - Status: completed
-- Reconcile `agents-manifest.yaml`, `AGENTS.md`, and `docs/agents/index.md` for discovery and bugfix routing.
+- Reconcile `agents-manifest.yaml`, `AGENTS.md`, and `docs/agents/agents_index.md` for discovery and bugfix routing.
 - Replace parallel checks lists with references to `README.md` "Checks".
 - Remove duplicated literals from:
   - `docs/project/rules/rules.md`
@@ -81,8 +81,8 @@ update_trigger: remediation scope, sequencing, or verification evidence changes
   - tokenless `--help` / `--list` modes where safe
   - controlled CLI integer parsing errors
 - Verification outcome:
-  - `python3 scripts/check_python_safety/main.py` now reports `0 error(s), 0 warning(s)`
-  - `python3 scripts/check_governance_core/main.py --fail-on-safety-warnings` now passes
+  - `python3 scripts/check_python_safety/check_python_safety_main.py` now reports `0 error(s), 0 warning(s)`
+  - `python3 scripts/check_governance_core/check_governance_core_main.py --fail-on-safety-warnings` now passes
 
 ## Council checkpoints
 - Use the `AGENTS.md` "Subagent Council (Hard Gate)" section as the governing procedure for each stage.

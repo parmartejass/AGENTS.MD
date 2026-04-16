@@ -1,44 +1,32 @@
 from __future__ import annotations
 
-import json
 import re
 from pathlib import Path
-from typing import Dict, List, Set, Tuple
+from typing import Dict, List, Sequence, Tuple
+from urllib.parse import unquote
 
+try:
+    from ._entrypoint_contracts import (
+        docs_contract_from_payload,
+        load_entrypoint_contracts,
+        resolve_docs_router_filename,
+        resolve_primary_leaf_filename,
+        validate_registry_paths,
+    )
+except ImportError:  # pragma: no cover - script-path execution fallback
+    import sys
 
-def _load_migrated_router_leaves(governance_root: Path) -> Tuple[Dict[str, str], List[str]]:
-    errors: List[str] = []
-    mapping_path = governance_root / "scripts/migrated_router_leaves.json"
-    if not mapping_path.is_file():
-        return {}, [f"Missing migrated router-leaf map: {mapping_path}"]
+    CURRENT_DIR = Path(__file__).resolve().parent
+    if str(CURRENT_DIR) not in sys.path:
+        sys.path.insert(0, str(CURRENT_DIR))
 
-    try:
-        payload = json.loads(mapping_path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError as exc:
-        return {}, [f"Invalid JSON in {mapping_path}: {exc}"]
-
-    raw_map = payload.get("migrated_router_leaves")
-    if not isinstance(raw_map, dict):
-        return {}, [f"Expected object key 'migrated_router_leaves' in {mapping_path}"]
-
-    normalized: Dict[str, str] = {}
-    for raw_key, raw_value in sorted(raw_map.items()):
-        if not isinstance(raw_key, str) or not raw_key.strip():
-            errors.append(f"Invalid migrated router key in {mapping_path}: {raw_key!r}")
-            continue
-        if not isinstance(raw_value, str) or not raw_value.strip():
-            errors.append(f"Invalid migrated router leaf value for {raw_key!r} in {mapping_path}")
-            continue
-        key = raw_key.strip().strip("/")
-        leaf = raw_value.strip()
-        if "/" in leaf or leaf.endswith("/"):
-            errors.append(
-                f"Invalid migrated router leaf '{leaf}' for {key}; expected direct-child markdown filename."
-            )
-            continue
-        normalized[key] = leaf
-
-    return normalized, errors
+    from _entrypoint_contracts import (
+        docs_contract_from_payload,
+        load_entrypoint_contracts,
+        resolve_docs_router_filename,
+        resolve_primary_leaf_filename,
+        validate_registry_paths,
+    )
 
 
 def check_agents_manifest(governance_root: Path) -> List[str]:
@@ -141,18 +129,15 @@ def check_agents_manifest(governance_root: Path) -> List[str]:
     governance_inject = paths_by_list.get("profiles.governance_improvement.inject")
     if governance_inject is None:
         errors.append("Missing profiles.governance_improvement.inject list in agents-manifest.yaml")
-    elif (
-        "docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md"
-        not in governance_inject
-    ):
+    elif "docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md" not in governance_inject:
         errors.append(
             "profiles.governance_improvement.inject must include "
             "docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md"
         )
 
-    all_paths: Set[str] = set()
+    all_paths = set()
     for list_key, values in paths_by_list.items():
-        seen: Set[str] = set()
+        seen = set()
         for value in values:
             if value in seen:
                 errors.append(f"Duplicate path in {list_key}: {value}")
@@ -168,7 +153,7 @@ def check_agents_manifest(governance_root: Path) -> List[str]:
 
 
 def _normalize_link_target(raw_target: str) -> str:
-    target = raw_target.strip()
+    target = unquote(raw_target.strip())
     if not target:
         return ""
     if re.match(r"^[A-Za-z][A-Za-z0-9+.-]*:", target) or target.startswith("//"):
@@ -190,41 +175,49 @@ def _normalize_link_target(raw_target: str) -> str:
     return "/".join(parts)
 
 
-def _extract_markdown_link_targets(text: str) -> List[str]:
-    normalized_targets: List[str] = []
-    for match in re.findall(r"\[[^\]]+\]\(([^)]+)\)", text):
-        normalized = _normalize_link_target(match)
-        if normalized:
-            normalized_targets.append(normalized)
-    return normalized_targets
+def _extract_route_targets(router_text: str) -> Tuple[List[str], List[str]]:
+    errors: List[str] = []
+    targets: List[str] = []
+    lines = [line.rstrip() for line in router_text.splitlines() if line.strip()]
+    if not lines:
+        return targets, ["Router file is empty."]
+    if not lines[0].startswith("# "):
+        return targets, ["Router file must begin with a markdown heading."]
+
+    for line in lines[1:]:
+        stripped = line.strip()
+        if not stripped.startswith("- "):
+            errors.append("Router files must remain routing-only (title plus route bullets only).")
+            continue
+        if "Required when:" not in stripped:
+            errors.append("Router bullet is missing 'Required when:'.")
+        match = re.search(r"\[[^\]]+\]\(([^)]+)\)", stripped)
+        if match is None:
+            errors.append("Router bullet is missing a markdown link target.")
+            continue
+        normalized = _normalize_link_target(match.group(1))
+        if not normalized:
+            errors.append(f"Router bullet uses an invalid or out-of-bounds link target: {match.group(1)!r}")
+            continue
+        targets.append(normalized)
+    return targets, errors
 
 
-def _index_targets_child(link_targets: List[str], child: Path) -> bool:
+def _targets_child(targets: Sequence[str], child: Path, *, child_router_filename: str) -> bool:
     child_name = child.name
     if child.is_dir():
-        allowed_targets = {child_name, f"{child_name}/index.md"}
+        allowed = {child_name, f"{child_name}/{child_router_filename}"}
     else:
-        allowed_targets = {child_name}
-    return any(target in allowed_targets for target in link_targets)
+        allowed = {child_name}
+    return any(target in allowed for target in targets)
 
 
-def _is_docs_router_exempt(docs_root: Path, dir_path: Path) -> bool:
-    rel = dir_path.relative_to(docs_root).as_posix()
-    if rel.startswith("agents/subagents/shared"):
+def _is_header_exempt_markdown(rel: str) -> bool:
+    if rel.endswith("/SKILL.md"):
         return True
-    skill_match = re.match(r"^agents/skills/([^/]+)$", rel)
-    if skill_match and (dir_path / "SKILL.md").is_file():
+    if rel.startswith("agents/subagents/") and rel.endswith(".md"):
         return True
     return False
-
-
-def _router_looks_routing_only(index_text: str) -> bool:
-    lines = [line.strip() for line in index_text.splitlines() if line.strip()]
-    if not lines:
-        return False
-    if not lines[0].startswith("# "):
-        return False
-    return all(line.startswith("- ") for line in lines[1:])
 
 
 def check_docs_ssot(repo_root: Path, governance_root: Path) -> Tuple[List[str], List[str]]:
@@ -233,7 +226,7 @@ def check_docs_ssot(repo_root: Path, governance_root: Path) -> Tuple[List[str], 
 
     docs_root = repo_root / "docs"
     if not docs_root.is_dir():
-        return errors, ["No docs/ folder found. Skipping docs SSOT checks."]
+        return [f"Missing required docs/ folder: {docs_root}"], warnings
 
     policy_doc_rel = "docs/agents/25-docs-ssot-policy/docs-ssot-policy.md"
     policy_path = governance_root / policy_doc_rel
@@ -241,85 +234,93 @@ def check_docs_ssot(repo_root: Path, governance_root: Path) -> Tuple[List[str], 
         return ([f"{policy_doc_rel} missing in governance root: {policy_path}"], warnings)
 
     policy_lines = policy_path.read_text(encoding="utf-8").splitlines()
-    enum_line = next((line for line in policy_lines if re.match(r"^doc_type:\s*.+\|.+", line)), None)
+    enum_line = None
+    in_code_block = False
+    for line in policy_lines:
+        stripped = line.strip()
+        if stripped.startswith("```"):
+            in_code_block = not in_code_block
+            continue
+        if in_code_block and re.match(r"^doc_type:\s*.+\|.+", stripped):
+            enum_line = stripped
+            break
     if not enum_line:
         return (
-            [f"Doc header enum not found in {policy_doc_rel} (expected 'doc_type: ...|...')."],
+            [
+                f"Doc header enum template not found in {policy_doc_rel} "
+                "(expected 'doc_type: ...|...' inside a fenced code block)."
+            ],
             warnings,
         )
-
     allowed_doc_types = {
         part.strip() for part in re.sub(r"^doc_type:\s*", "", enum_line).split("|") if part.strip()
     }
-    migrated_router_leaves, map_errors = _load_migrated_router_leaves(governance_root)
-    errors.extend(map_errors)
 
+    payload, registry_errors = load_entrypoint_contracts(governance_root)
+    errors.extend(registry_errors)
+    errors.extend(validate_registry_paths(payload) if payload else [])
+    if errors:
+        return errors, warnings
+
+    docs_contract = docs_contract_from_payload(payload)
     doc_dirs = [docs_root]
     doc_dirs.extend(sorted((path for path in docs_root.rglob("*") if path.is_dir()), key=lambda p: p.as_posix()))
 
     for dir_path in doc_dirs:
-        index_path = dir_path / "index.md"
-        if not index_path.is_file():
-            errors.append(f"Missing folder index: {index_path}")
+        router_name = resolve_docs_router_filename(dir_path.name, docs_contract)
+        router_path = dir_path / router_name
+        if not router_path.is_file():
+            errors.append(f"Missing folder router: {router_path}")
             continue
 
-        index_text = index_path.read_text(encoding="utf-8", errors="replace")
+        router_text = router_path.read_text(encoding="utf-8", errors="replace")
+        route_targets, route_errors = _extract_route_targets(router_text)
+        rel_dir = dir_path.relative_to(docs_root).as_posix()
+        for issue in route_errors:
+            errors.append(f"{router_path}: {issue}")
+
         direct_children = [
             child
             for child in sorted(dir_path.iterdir(), key=lambda path: path.name.lower())
-            if child.name != "index.md" and not child.name.startswith(".")
+            if child.name != router_name and not child.name.startswith(".")
         ]
-        rel_dir = dir_path.relative_to(docs_root).as_posix()
-        is_router_exempt = _is_docs_router_exempt(docs_root, dir_path)
-        direct_markdown_children = [
-            child for child in direct_children if child.is_file() and child.suffix.lower() == ".md"
+        public_markdown_children = [
+            child
+            for child in direct_children
+            if child.is_file()
+            and child.suffix.lower() == ".md"
+            and child.name not in docs_contract.identity_files
         ]
+        expected_primary_leaf = resolve_primary_leaf_filename(dir_path.name, docs_contract)
+        artifact_first = len(public_markdown_children) == 0
 
-        if not is_router_exempt and not _router_looks_routing_only(index_text):
-            errors.append(
-                "Docs folder index must remain routing-only (title plus bullet links only): "
-                f"{index_path}"
-            )
-
-        if not is_router_exempt and len(direct_markdown_children) > 1:
-            errors.append(
-                "Docs narrative folders must contain at most one canonical non-index markdown doc: "
-                f"{dir_path}"
-            )
-
-        expected_leaf = migrated_router_leaves.get(rel_dir)
-        if expected_leaf is not None:
-            if len(direct_markdown_children) != 1 or direct_markdown_children[0].name != expected_leaf:
-                errors.append(
-                    f"Migrated narrative folder must contain canonical leaf '{expected_leaf}': {dir_path}"
-                )
-
-        if not direct_children:
-            continue
-
-        link_targets = _extract_markdown_link_targets(index_text)
-        if index_text.count("Required when:") < len(direct_children):
-            errors.append(
-                "Folder index must include a 'Required when:' route for each direct child: "
-                f"{index_path}"
-            )
+        if not artifact_first:
+            if len(public_markdown_children) < docs_contract.minimum_public_leaf_count:
+                errors.append(f"{dir_path}: expected at least {docs_contract.minimum_public_leaf_count} public leaf doc(s).")
+            public_leaf_names = {child.name for child in public_markdown_children}
+            if expected_primary_leaf not in public_leaf_names:
+                errors.append(f"{dir_path}: missing canonical public leaf '{expected_primary_leaf}'.")
 
         for child in direct_children:
-            if not _index_targets_child(link_targets, child):
-                errors.append(
-                    f"Folder index is missing a markdown link to direct child '{child.name}': {index_path}"
-                )
+            child_router = resolve_docs_router_filename(child.name, docs_contract) if child.is_dir() else ""
+            if not _targets_child(route_targets, child, child_router_filename=child_router):
+                errors.append(f"{router_path}: missing route for direct child '{child.name}'.")
+
+        if artifact_first and any(target.endswith(".md") for target in route_targets):
+            leaf_targets = [
+                target
+                for target in route_targets
+                if target.endswith(".md") and "/" not in target and target not in docs_contract.identity_files
+            ]
+            if leaf_targets:
+                errors.append(f"{router_path}: router-only folders must not expose public leaf markdown targets.")
 
     for md_file in docs_root.rglob("*.md"):
         rel = md_file.relative_to(docs_root).as_posix()
-        skill_match = re.match(r"^agents/skills/([^/]+)/", rel)
-        if skill_match:
-            skill_root = docs_root / "agents" / "skills" / skill_match.group(1)
-            if (skill_root / "SKILL.md").is_file():
-                continue
-        if re.match(r"^agents/subagents/[^/]+/", rel):
+        router_name = resolve_docs_router_filename(md_file.parent.name, docs_contract)
+        if md_file.name == router_name:
             continue
-        if rel == "index.md" or rel.endswith("/index.md"):
+        if _is_header_exempt_markdown(rel):
             continue
 
         head = md_file.read_text(encoding="utf-8").splitlines()[:25]
@@ -355,16 +356,23 @@ def check_docs_ssot(repo_root: Path, governance_root: Path) -> Tuple[List[str], 
 
 def check_project_docs(repo_root: Path, governance_rel_path: str, governance_root: Path) -> List[str]:
     errors: List[str] = []
+    payload, registry_errors = load_entrypoint_contracts(governance_root)
+    errors.extend(registry_errors)
+    errors.extend(validate_registry_paths(payload) if payload else [])
+    if errors:
+        return errors
+
+    docs_contract = docs_contract_from_payload(payload)
     required_files = [
         "README.md",
-        "docs/project/index.md",
-        "docs/project/goal/index.md",
+        "docs/project/project_index.md",
+        "docs/project/goal/goal_index.md",
         "docs/project/goal/goal.md",
-        "docs/project/rules/index.md",
+        "docs/project/rules/rules_index.md",
         "docs/project/rules/rules.md",
-        "docs/project/architecture/index.md",
+        "docs/project/architecture/architecture_index.md",
         "docs/project/architecture/architecture.md",
-        "docs/project/learning/index.md",
+        "docs/project/learning/learning_index.md",
         "docs/project/learning/learning.md",
     ]
     for rel in required_files:
@@ -372,58 +380,53 @@ def check_project_docs(repo_root: Path, governance_rel_path: str, governance_roo
             errors.append(f"Missing required file: {rel}")
 
     governance_prefix = f"{governance_rel_path.rstrip('/')}/" if governance_rel_path else ""
-
     readme = repo_root / "README.md"
     if readme.is_file():
         readme_text = readme.read_text(encoding="utf-8")
         readme_text_lower = readme_text.lower()
         required_refs = [
-            "docs/project/index.md",
+            "docs/project/project_index.md",
             "AGENTS.md",
             f"{governance_prefix}docs/agents/platforms/00-platform-runtime-standards/platform-runtime-standards.md",
-            f"{governance_prefix}docs/agents/platforms/index.md",
+            f"{governance_prefix}docs/agents/platforms/platforms_index.md",
             f"{governance_prefix}docs/agents/platforms/runtime-projections.json",
-            f"{governance_prefix}docs/agents/integrations/index.md",
+            f"{governance_prefix}docs/agents/integrations/integrations_index.md",
             f"{governance_prefix}scripts/setup_repo_platform_assets.ps1",
             f"{governance_prefix}scripts/check_docs_ssot.ps1",
-            f"{governance_prefix}scripts/check_docs_router_contract/main.py",
+            f"{governance_prefix}scripts/check_docs_router_contract/check_docs_router_contract_main.py",
             f"{governance_prefix}scripts/check_agents_manifest.ps1",
             f"{governance_prefix}scripts/check_project_docs.ps1",
             f"{governance_prefix}scripts/check_repo_hygiene.ps1",
             f"{governance_prefix}scripts/check_change_records.ps1",
-            f"{governance_prefix}scripts/check_folder_architecture/main.py",
-            f"{governance_prefix}scripts/check_python_safety/main.py",
+            f"{governance_prefix}scripts/check_folder_architecture/check_folder_architecture_main.py",
+            f"{governance_prefix}scripts/check_python_safety/check_python_safety_main.py",
         ]
         for ref in required_refs:
             if ref.lower() not in readme_text_lower:
                 errors.append(f"README.md must reference: {ref}")
 
-    proj_index = repo_root / "docs/project/index.md"
-    if proj_index.is_file():
-        index_text_lower = proj_index.read_text(encoding="utf-8").lower()
-        for ref in [
-            "docs/project/goal/index.md",
-            "docs/project/rules/index.md",
-            "docs/project/architecture/index.md",
-            "docs/project/learning/index.md",
-        ]:
-            if ref.lower() not in index_text_lower:
-                errors.append(f"docs/project/index.md must reference {ref}")
+    project_router = repo_root / "docs/project/project_index.md"
+    if project_router.is_file():
+        project_targets, route_errors = _extract_route_targets(project_router.read_text(encoding="utf-8"))
+        for issue in route_errors:
+            errors.append(f"{project_router}: {issue}")
+        for child in ("goal", "rules", "architecture", "learning"):
+            expected = f"{child}/{resolve_docs_router_filename(child, docs_contract)}"
+            if expected not in project_targets:
+                errors.append(f"docs/project/project_index.md must reference {expected}")
 
-    migrated_router_leaves, map_errors = _load_migrated_router_leaves(governance_root)
-    errors.extend(map_errors)
-    required_router_leaf_refs = {
-        f"docs/{router_rel}/index.md": leaf
-        for router_rel, leaf in migrated_router_leaves.items()
-        if router_rel.startswith("project/")
-    }
-    for router_rel, leaf_ref in required_router_leaf_refs.items():
-        router_path = repo_root / router_rel
+    for folder_name in ("goal", "rules", "architecture", "learning"):
+        dir_path = repo_root / "docs/project" / folder_name
+        router_name = resolve_docs_router_filename(folder_name, docs_contract)
+        router_path = dir_path / router_name
         if not router_path.is_file():
+            errors.append(f"Missing required file: {router_path.relative_to(repo_root).as_posix()}")
             continue
-        router_text = router_path.read_text(encoding="utf-8")
-        link_targets = _extract_markdown_link_targets(router_text)
-        if leaf_ref not in link_targets:
-            errors.append(f"{router_rel} must reference {leaf_ref}")
+        route_targets, route_errors = _extract_route_targets(router_path.read_text(encoding="utf-8"))
+        for issue in route_errors:
+            errors.append(f"{router_path.relative_to(repo_root).as_posix()}: {issue}")
+        expected_leaf = resolve_primary_leaf_filename(folder_name, docs_contract)
+        if expected_leaf not in route_targets:
+            errors.append(f"{router_path.relative_to(repo_root).as_posix()} must reference {expected_leaf}")
 
     return errors

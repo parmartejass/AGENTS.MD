@@ -13,8 +13,9 @@ If any wording conflicts with `AGENTS.md`, `AGENTS.md` wins.
 ## Core rules (authority alignment)
 - One authority per decision-critical responsibility.
 - The authority boundary is represented by a feature folder with exactly one public entrypoint file.
-- Python authorities expose `main.py`; TypeScript authorities expose `index.ts`.
-- If another language is used, the equivalent public contract file must be recorded in `docs/project/architecture/architecture.md`.
+- Runtime public contract filenames are resolved by `scripts/entrypoint_contracts.json`.
+- Python executable authorities therefore expose `<authority>_main.py`; TypeScript executable authorities therefore expose `<authority>_index.ts`.
+- If another language is used, add the family/artifact contract to `scripts/entrypoint_contracts.json` and record the adopted public contract file in `docs/project/architecture/architecture.md`.
 - Internal files or child folders are allowed inside the feature folder, but they must not expose public contracts directly.
 - Each authority exposes a single explicit public contract; consumers use the folder contract only.
 - UI/presentation layers are consumers; they do not own business rules, constants, or config.

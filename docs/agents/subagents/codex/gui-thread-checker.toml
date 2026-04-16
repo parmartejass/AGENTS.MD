@@ -1,4 +1,4 @@
-# Adapter source: docs/agents/subagents/shared/gui-thread-checker/index.md
+# Adapter source: docs/agents/subagents/shared/gui-thread-checker/gui-thread-checker_index.md
 name = "gui-thread-checker"
 description = "GUI thread safety specialist. Use proactively for any GUI code to verify UI updates on main thread, worker queue pattern, and shutdown/cancel handling. Enforces Non-Negotiable #7."
 model = "gpt-5.3-codex"

@@ -14,17 +14,17 @@ Use when:
 Goal: create a minimal docs set that captures intent/runbooks without duplicating code facts (constants, rules, defaults).
 
 ## Hard gates (required outputs)
-- `docs/project/index.md` (index only; no header required)
-- `docs/project/goal/index.md` and `docs/project/goal/goal.md`
-- `docs/project/rules/index.md` and `docs/project/rules/rules.md`
-- `docs/project/architecture/index.md` and `docs/project/architecture/architecture.md`
-- `docs/project/learning/index.md` and `docs/project/learning/learning.md`
+- `docs/project/project_index.md` (router only; no header required)
+- `docs/project/goal/goal_index.md` and `docs/project/goal/goal.md`
+- `docs/project/rules/rules_index.md` and `docs/project/rules/rules.md`
+- `docs/project/architecture/architecture_index.md` and `docs/project/architecture/architecture.md`
+- `docs/project/learning/learning_index.md` and `docs/project/learning/learning.md`
 
 Also required:
-- Add a README link to `docs/project/index.md` so docs are reachable (no orphan docs).
+- Add a README link to `docs/project/project_index.md` so docs are reachable (no orphan docs).
 - Keep `docs/project/rules/rules.md` project-specific: do not copy governance rules; reference `AGENTS.md`.
-- Ensure every directory under `docs/` has an `index.md`; project docs must participate in the repo-wide branched docs tree.
-- Keep each leaf folder on the permanent router-plus-leaf pattern: `index.md` routes, the descriptive sibling file owns the content.
+- Ensure every directory under `docs/` has the canonical router file resolved from `scripts/entrypoint_contracts.json`; project docs must participate in the repo-wide branched docs tree.
+- Keep each leaf folder on the permanent router-plus-leaf pattern: `<authority>_index.md` routes, and router-linked descriptive sibling docs own the content.
 
 ## Minimalism rules (prevent docs bloat)
 - Prefer short bullet lists; avoid long prose.
@@ -32,30 +32,30 @@ Also required:
 - Never copy constants/defaults/rules into docs; reference the SSOT owner by identifier/path.
 - Use `docs/agents/20-sources-of-truth-map/sources-of-truth-map.md` when filling SSOT pointers to avoid parallel ownership.
 - When a change impacts goal/verification/entrypoints/owners, update the affected doc in the same change.
-- Keep parent indexes routing-only: each `index.md` should list direct children and include a `Required when:` trigger instead of restating the child doc in full.
+- Keep parent routers routing-only: each `<authority>_index.md` should list direct children and include a `Required when:` trigger instead of restating the child doc in full.
 
 ## README linkage (required)
 Ensure `README.md` contains (at minimum):
-- A link to `docs/project/index.md` (project docs entrypoint).
+- A link to `docs/project/project_index.md` (project docs entrypoint).
 - A link to `AGENTS.md` (governance SSOT).
 - A short "Checks" section listing the deterministic commands used to verify the repo.
 - Verification commands are SSOT in `README.md` section "Checks"; keep this playbook referential and do not duplicate the command list here.
 
 ## Template files (copy/paste, then customize)
 
-### `docs/project/index.md`
+### `docs/project/project_index.md`
 ```md
 # Project Docs
 
 - Governance SSOT: `AGENTS.md`
-- Goal branch: `docs/project/goal/index.md`
-- Rules branch: `docs/project/rules/index.md`
-- Architecture branch: `docs/project/architecture/index.md`
-- Learning branch: `docs/project/learning/index.md`
+- Goal branch: `docs/project/goal/goal_index.md`
+- Rules branch: `docs/project/rules/rules_index.md`
+- Architecture branch: `docs/project/architecture/architecture_index.md`
+- Learning branch: `docs/project/learning/learning_index.md`
 - Change records (artifacts): `docs/project/change-records/`
 ```
 
-### `docs/project/goal/index.md`
+### `docs/project/goal/goal_index.md`
 ```md
 # Goal Branch Index
 
@@ -86,7 +86,7 @@ update_trigger: requirements/acceptance criteria change OR workflow behavior cha
 - If no tests: <deterministic manual check steps>
 ```
 
-### `docs/project/rules/index.md`
+### `docs/project/rules/rules_index.md`
 ```md
 # Rules Branch Index
 
@@ -111,10 +111,10 @@ update_trigger: governance rules change OR new recurring pitfalls emerge
 
 ## Don't
 - Don't copy constants/defaults/rules into docs; reference SSOT owners instead.
-- Don't add orphan docs; keep docs linked from `docs/project/index.md` and README.
+- Don't add orphan docs; keep docs linked from `docs/project/project_index.md` and README.
 ```
 
-### `docs/project/architecture/index.md`
+### `docs/project/architecture/architecture_index.md`
 ```md
 # Architecture Branch Index
 
@@ -151,7 +151,7 @@ update_trigger: entrypoints/modules/workflows layout changes
 - <owner -> dependents>
 ```
 
-### `docs/project/learning/index.md`
+### `docs/project/learning/learning_index.md`
 ```md
 # Learning Branch Index
 
@@ -180,7 +180,7 @@ Avoid:
 ```
 
 ## Final linkage checklist
-- `docs/project/index.md` exists and links to the project branches.
-- Each migrated project-doc branch has both a router `index.md` and a canonical narrative leaf doc.
-- README links to `docs/project/index.md`.
-- Each non-index doc under `docs/` has the required header (`doc_type`, `ssot_owner`, `update_trigger`).
+- `docs/project/project_index.md` exists and links to the project branches.
+- Each migrated project-doc branch has both a router `<authority>_index.md` and a canonical primary narrative leaf doc.
+- README links to `docs/project/project_index.md`.
+- Each non-router doc under `docs/` has the required header (`doc_type`, `ssot_owner`, `update_trigger`).

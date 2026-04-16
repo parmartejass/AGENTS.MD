@@ -918,7 +918,7 @@ function New-CursorGovernanceRuleContent {
     )
 
     $agentsPath = Join-MarkdownReferencePath -BasePath $GovernanceReferenceRoot -RelativePath "AGENTS.md"
-    $platformIndexPath = Join-MarkdownReferencePath -BasePath $GovernanceReferenceRoot -RelativePath "docs/agents/platforms/index.md"
+    $platformIndexPath = Join-MarkdownReferencePath -BasePath $GovernanceReferenceRoot -RelativePath "docs/agents/platforms/platforms_index.md"
     $skillsRootPath = Join-MarkdownReferencePath -BasePath $GovernanceReferenceRoot -RelativePath "docs/agents/skills"
     $tick = [char]96
     $agentsCode = "$tick$agentsPath$tick"
@@ -999,7 +999,7 @@ function New-ClaudeGovernanceCommandContent {
     )
 
     $agentsPath = Join-MarkdownReferencePath -BasePath $GovernanceReferenceRoot -RelativePath "AGENTS.md"
-    $platformIndexPath = Join-MarkdownReferencePath -BasePath $GovernanceReferenceRoot -RelativePath "docs/agents/platforms/index.md"
+    $platformIndexPath = Join-MarkdownReferencePath -BasePath $GovernanceReferenceRoot -RelativePath "docs/agents/platforms/platforms_index.md"
     $skillsRootPath = Join-MarkdownReferencePath -BasePath $GovernanceReferenceRoot -RelativePath "docs/agents/skills"
     $tick = [char]96
     $agentsCode = "$tick$agentsPath$tick"

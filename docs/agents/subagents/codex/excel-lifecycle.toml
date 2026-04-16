@@ -1,4 +1,4 @@
-# Adapter source: docs/agents/subagents/shared/excel-lifecycle/index.md
+# Adapter source: docs/agents/subagents/shared/excel-lifecycle/excel-lifecycle_index.md
 name = "excel-lifecycle"
 description = "Excel COM lifecycle safety specialist. Use proactively for any Excel automation code to verify graceful quit, PID tracking, process verification, and kill fallback. Enforces Non-Negotiable #6."
 model = "gpt-5.3-codex"

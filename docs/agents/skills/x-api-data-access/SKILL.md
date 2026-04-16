@@ -21,10 +21,10 @@ Use this skill to turn a vague X data request into a correct retrieval plan befo
    - Use app-only bearer auth for public-read endpoints when the docs explicitly allow it.
    - Use OAuth 2.0 Authorization Code with PKCE for user-context reads or writes that require scopes.
    - Use OAuth 1.0a only when an endpoint still documents it as required or supported.
-   - Check the official auth mapping first, then read [references/auth-and-scopes/index.md](references/auth-and-scopes/index.md) before assuming bookmarks, likes, follows, lists, or DMs will work with app-only auth.
+   - Check the official auth mapping first, then read [references/auth-and-scopes/auth-and-scopes_index.md](references/auth-and-scopes/auth-and-scopes_index.md) before assuming bookmarks, likes, follows, lists, or DMs will work with app-only auth.
 
 3. Map the user need to a capability family.
-   - Read [references/capabilities/index.md](references/capabilities/index.md) for the fastest route from "I need X data" to endpoint families, auth expectations, and official docs.
+   - Read [references/capabilities/capabilities_index.md](references/capabilities/capabilities_index.md) for the fastest route from "I need X data" to endpoint families, auth expectations, and official docs.
 
 4. Shape the request correctly.
    - Request only the fields you need.
@@ -34,13 +34,13 @@ Use this skill to turn a vague X data request into a correct retrieval plan befo
 
 5. Check limitations before implementing.
    - Search windows, DM retention, private-data rules, plan gating, and usage caps change outcomes materially.
-   - Read [references/limitations-and-gotchas/index.md](references/limitations-and-gotchas/index.md) before claiming an endpoint can return data you have not verified.
+   - Read [references/limitations-and-gotchas/limitations-and-gotchas_index.md](references/limitations-and-gotchas/limitations-and-gotchas_index.md) before claiming an endpoint can return data you have not verified.
 
 ## Fast Routing
 
-- Need posts by ID, quotes, replies, reposts, search, timelines, or bookmarks: start with [references/capabilities/index.md](references/capabilities/index.md).
-- Need to know whether app-only auth is enough: start with [references/auth-and-scopes/index.md](references/auth-and-scopes/index.md).
-- Need to know why an endpoint is failing or returning less data than expected: start with [references/limitations-and-gotchas/index.md](references/limitations-and-gotchas/index.md).
+- Need posts by ID, quotes, replies, reposts, search, timelines, or bookmarks: start with [references/capabilities/capabilities_index.md](references/capabilities/capabilities_index.md).
+- Need to know whether app-only auth is enough: start with [references/auth-and-scopes/auth-and-scopes_index.md](references/auth-and-scopes/auth-and-scopes_index.md).
+- Need to know why an endpoint is failing or returning less data than expected: start with [references/limitations-and-gotchas/limitations-and-gotchas_index.md](references/limitations-and-gotchas/limitations-and-gotchas_index.md).
 
 ## Operating Rules
 
@@ -54,6 +54,6 @@ Use this skill to turn a vague X data request into a correct retrieval plan befo
 ## References
 
 - Official auth mapping: `https://docs.x.com/fundamentals/authentication/guides/v2-authentication-mapping`
-- [references/capabilities/index.md](references/capabilities/index.md)
-- [references/auth-and-scopes/index.md](references/auth-and-scopes/index.md)
-- [references/limitations-and-gotchas/index.md](references/limitations-and-gotchas/index.md)
+- [references/capabilities/capabilities_index.md](references/capabilities/capabilities_index.md)
+- [references/auth-and-scopes/auth-and-scopes_index.md](references/auth-and-scopes/auth-and-scopes_index.md)
+- [references/limitations-and-gotchas/limitations-and-gotchas_index.md](references/limitations-and-gotchas/limitations-and-gotchas_index.md)

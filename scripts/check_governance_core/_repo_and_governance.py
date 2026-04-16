@@ -181,7 +181,7 @@ def check_governance_playbook_hard_gates(governance_root: Path) -> List[str]:
 def check_governance_authority_decisions(governance_root: Path) -> List[str]:
     errors: List[str] = []
     concept_map_rel = "docs/agents/20-sources-of-truth-map/sources-of-truth-map.md"
-    registry_entry_rel = "docs/agents/22-ssot-authority-decisions/index.md"
+    registry_entry_rel = "docs/agents/22-ssot-authority-decisions/ssot-authority-decisions_index.md"
     registry_doc_rel = "docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md"
     registry_path = governance_root / registry_doc_rel
     if not registry_path.is_file():
@@ -201,7 +201,7 @@ def check_governance_authority_decisions(governance_root: Path) -> List[str]:
             errors.append(f"Governance authority decision registry missing required section '{marker}'.")
 
     required_refs = [
-        ("docs/agents/index.md", governance_root / "docs/agents/index.md", registry_entry_rel),
+        ("docs/agents/agents_index.md", governance_root / "docs/agents/agents_index.md", registry_entry_rel),
         (concept_map_rel, governance_root / concept_map_rel, registry_doc_rel),
     ]
     for label, path, required_ref in required_refs:

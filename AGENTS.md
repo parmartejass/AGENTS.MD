@@ -187,7 +187,7 @@ Default posture:
 2) **Discover** relevant files and existing SSOT owners (constants/config/rules/workflows/etc).
    - **MUST** consult `agents-manifest.yaml` and execute the Context Injection Procedure (see below).
    - Use `docs/agents/10-repo-discovery/repo-discovery.md` for discovery search terms and SSOT adoption rules.
-   - MUST ensure project docs exist and are read (start with `README.md` and `docs/project/index.md`; create missing docs per "Documentation SSOT Policy").
+   - MUST ensure project docs exist and are read (start with `README.md` and `docs/project/project_index.md`; create missing docs per "Documentation SSOT Policy").
 3) **Decompose** into atomic, independently verifiable subtasks.
 4) **Subagent council**: run intention-based subagent review per "Subagent Council (Hard Gate)" and integrate findings into the plan.
 5) **Ambiguity gate**: if multiple interpretations would change code materially, STOP and ask 1-3 clarifying questions.
@@ -327,7 +327,7 @@ New code must be reachable from:
 - a clearly documented entrypoint used by the repo
 
 New docs must be reachable from:
-- a docs index (e.g., `docs/agents/index.md`) or the repo `README.md`
+- a docs index (e.g., `docs/agents/agents_index.md`) or the repo `README.md`
 
 Unreferenced helpers and "floating docs" are prohibited.
 
@@ -384,12 +384,13 @@ Scope:
 Rule 1 - Every feature is a folder:
 - Every distinct piece of runtime functionality gets its own folder.
 - No "too small for a folder" exception exists once a unit owns behavior.
-- A parent `main.py` or `index.ts` may exist only as an orchestrator that calls child folders; it must not accumulate child logic.
+- A parent public entrypoint file resolved from `scripts/entrypoint_contracts.json` (for example `billing_main.py` or `billing_index.ts`) may exist only as an orchestrator that calls child folders; it must not accumulate child logic.
 
 Rule 2 - Every folder has exactly one public entry point:
-- Python folders MUST expose `main.py`.
-- TypeScript folders MUST expose `index.ts`.
-- If another implementation language is used, declare one equivalent folder contract file and record it in `docs/project/architecture/architecture.md`.
+- Folder-owned runtime public contract filenames MUST resolve from `scripts/entrypoint_contracts.json`.
+- Python executable authorities therefore expose `<authority>_main.py`.
+- TypeScript executable authorities therefore expose `<authority>_index.ts`.
+- If another implementation language is used, declare the contract family/artifact kind in `scripts/entrypoint_contracts.json` and record the adopted public contract file in `docs/project/architecture/architecture.md`.
 - No file other than the folder entrypoint is public to the outside world; all other files in the folder are private implementation details.
 
 Rule 3 - The parent entrypoint is the only connector:
@@ -486,39 +487,41 @@ When this governance pack is present in a repo, the agent MUST ensure a **minima
 
 Hard gate:
 - If any required project doc is missing, CREATE it before making other changes.
-- The project `README.md` MUST link to `docs/project/index.md` (project docs entrypoint) and to `AGENTS.md` (governance).
+- The project `README.md` MUST link to `docs/project/project_index.md` (project docs entrypoint) and to `AGENTS.md` (governance).
 - The project `README.md` MUST include a short "Checks" section listing the deterministic verification commands for the repo.
 
 Project docs are the SSOT for intent/runbooks (not for code facts):
-- `docs/project/index.md` (entrypoint/router; linked from README)
-- `docs/project/goal/goal.md` (objective + acceptance criteria; router at `docs/project/goal/index.md`)
-- `docs/project/rules/rules.md` (project do/don't rules; router at `docs/project/rules/index.md`)
-- `docs/project/architecture/architecture.md` (SSOT pointers: entrypoints/modules/workflows; router at `docs/project/architecture/index.md`)
-- `docs/project/learning/learning.md` (operational learnings and pitfalls; router at `docs/project/learning/index.md`)
+- `docs/project/project_index.md` (entrypoint/router; linked from README)
+- `docs/project/goal/goal.md` (objective + acceptance criteria; router at `docs/project/goal/goal_index.md`)
+- `docs/project/rules/rules.md` (project do/don't rules; router at `docs/project/rules/rules_index.md`)
+- `docs/project/architecture/architecture.md` (SSOT pointers: entrypoints/modules/workflows; router at `docs/project/architecture/architecture_index.md`)
+- `docs/project/learning/learning.md` (operational learnings and pitfalls; router at `docs/project/learning/learning_index.md`)
 
 Structure SSOT: `docs/agents/playbooks/project-docs-template/project-docs-template.md`
 
 All project docs must:
-- Follow the required doc header (except index pages).
+- Follow the required doc header (except router files resolved from `scripts/entrypoint_contracts.json`).
 - Reference SSOT owners by identifier (code/config/workflow entrypoints) rather than duplicating literals/rules.
 - Stay minimal and precise (prefer short bullet lists; avoid long prose).
 - Avoid duplicating governance rules: reference `AGENTS.md` instead of copying its requirements.
 
 ### Docs Branching Architecture (Hard Gate)
-- Every directory under `docs/` MUST contain an `index.md`.
-- `index.md` is the required public routing contract for a docs folder.
-- `index.md` MUST be routing-only; it MUST NOT be the canonical narrative content doc for a migrated folder.
-- Each docs-folder `index.md` MUST catalog its direct children only.
-- Narrative leaf folders MUST contain exactly one canonical non-`index.md` markdown file.
-- Each child entry in a folder index MUST include:
+- Every directory under `docs/` MUST contain the canonical router file resolved from `scripts/entrypoint_contracts.json`.
+- Docs routers therefore follow the folder-owned pattern `<authority>_index.md`.
+- The router file is the required public routing contract for a docs folder.
+- The router file MUST be routing-only; it MUST NOT be the canonical narrative content doc for the folder.
+- Each docs-folder router MUST catalog its direct children only.
+- Docs folders with narrative content MUST expose one-or-more router-linked public leaf markdown files inside the same folder authority.
+- The registry-resolved primary public leaf MUST exist when a docs folder exposes narrative content.
+- Each child entry in a folder router MUST include:
   - the child path/link
   - its role/purpose
   - a `Required when:` routing statement
-- Direct references to actual narrative content MUST point to the canonical leaf doc, not to `index.md`.
-- During staged migration, untouched legacy content-bearing `index.md` files may remain only in folders that have not yet been migrated to the router-plus-leaf pattern. Once a docs folder is touched for structure work, migrate it.
-- Parent indexes route downward; they MUST NOT restate the child doc's rules, literals, or contracts in full.
+- Direct references to actual narrative content MAY point to a router-linked public leaf doc; external navigation into a docs branch should enter through the router file.
+- Artifact-first folders may remain router-only when they only catalog payload children or dated evidence folders and expose no public narrative leaf docs.
+- Parent routers route downward; they MUST NOT restate the child doc's rules, literals, or contracts in full.
 - Flat markdown docs under `docs/` should be promoted into branch folders when they start accumulating multiple subtopics or repeated edits.
-- Payload/artifact folders under `docs/` (schemas, generated docs, settings payloads, change records, runtime assets) still require an `index.md` so the tree stays navigable and auditable.
+- Payload/artifact folders under `docs/` (schemas, generated docs, settings payloads, change records, runtime assets) still require the canonical router file so the tree stays navigable and auditable.
 
 ### Docs MAY contain
 - intent (“why”), invariants, and safety constraints
@@ -532,7 +535,7 @@ All project docs must:
 - manually-maintained code blocks that mirror production code
 
 ### Required doc header (for Markdown files under `docs/`)
-Each doc (except indexes) must declare:
+Each doc (except router files) must declare:
 - `doc_type`
 - `ssot_owner`
 - `update_trigger`
@@ -548,6 +551,6 @@ Comments drift quickly; keep them "why-only":
 
 ## Supporting Docs
 
-Start here: `docs/agents/index.md`
+Start here: `docs/agents/agents_index.md`
 
-Reference templates (routing): `templates/index.md`
+Reference templates (routing): `templates/templates_index.md`

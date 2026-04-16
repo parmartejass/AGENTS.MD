@@ -51,8 +51,8 @@ function Assert-CanonicalNarrativeLeafPath {
   )
 
   $leaf = [System.IO.Path]::GetFileName($Path)
-  if ($leaf -ieq "index.md") {
-    throw "$Label must point to a canonical leaf markdown doc, not index.md: $Path"
+  if ($leaf -match '_index\.md$') {
+    throw "$Label must point to a canonical leaf markdown doc, not a router file: $Path"
   }
 }
 

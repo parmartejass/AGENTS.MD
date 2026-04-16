@@ -8,7 +8,7 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Generic, TypeVar
 
-from myapp.gui.main import UiResult, _poll_queue_once
+from myapp.gui.gui_main import UiResult, _poll_queue_once
 
 
 FIXTURES_DIR = Path(__file__).resolve().parent / "fixtures"

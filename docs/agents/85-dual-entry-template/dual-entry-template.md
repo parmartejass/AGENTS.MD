@@ -1,6 +1,6 @@
 ---
 doc_type: reference
-ssot_owner: templates/python-dual-entry/myapp/runner/main.py
+ssot_owner: templates/python-dual-entry/myapp/runner/runner_main.py
 update_trigger: template project layout or scenario format changes
 ---
 
@@ -13,13 +13,13 @@ This template is **not a spec**. It exists so agents can copy *patterns* while s
 ## SSOT (reference implementation)
 
 - Template root: `templates/python-dual-entry/`
-- Parent folder contract: `templates/python-dual-entry/myapp/main.py`
+- Parent folder contract: `templates/python-dual-entry/myapp/myapp_main.py`
 - Runtime shim: `templates/python-dual-entry/myapp/__main__.py`
-- CLI child entry (thin): `templates/python-dual-entry/myapp/cli/main.py`
-- GUI child entry (thin): `templates/python-dual-entry/myapp/gui/main.py`
-- Orchestration SSOT: `templates/python-dual-entry/myapp/runner/main.py`
+- CLI child entry (thin): `templates/python-dual-entry/myapp/cli/cli_main.py`
+- GUI child entry (thin): `templates/python-dual-entry/myapp/gui/gui_main.py`
+- Orchestration SSOT: `templates/python-dual-entry/myapp/runner/runner_main.py`
 - Runner private workflow registry: `templates/python-dual-entry/myapp/runner/workflows.py`
-- Core logic SSOT: `templates/python-dual-entry/myapp/core/main.py`
+- Core logic SSOT: `templates/python-dual-entry/myapp/core/core_main.py`
 - Scenario schema keys SSOT: `templates/python-dual-entry/myapp/config_keys.py`
 
 ## How to use it (avoid blind copying)
@@ -42,7 +42,7 @@ This template is **not a spec**. It exists so agents can copy *patterns* while s
 ## Minimal project docs set (copy, then customize)
 
 For the recommended minimal project docs set, see `AGENTS.md` "Documentation SSOT Policy (Hard Gate)".
-This template provides an example implementation under `templates/python-dual-entry/docs/project/index.md`.
+This template provides an example implementation under `templates/python-dual-entry/docs/project/project_index.md`.
 
 ## Deterministic verification (copy/paste)
 

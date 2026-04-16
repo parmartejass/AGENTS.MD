@@ -1,4 +1,4 @@
-# Adapter source: docs/agents/subagents/shared/docs-reviewer/index.md
+# Adapter source: docs/agents/subagents/shared/docs-reviewer/docs-reviewer_index.md
 name = "docs-reviewer"
 description = "Documentation SSOT policy compliance specialist. Use proactively when creating or editing documentation to ensure docs reference SSOT owners, avoid duplication, and follow required structure."
 model = "gpt-5.3-codex-spark"
@@ -37,9 +37,9 @@ From AGENTS.md section "Documentation SSOT Policy (Hard Gate)":
 ## Required Project Docs
 
 When governance pack is present:
-- [ ] `README.md` - Links to `docs/project/index.md` and `AGENTS.md`
+- [ ] `README.md` - Links to `docs/project/project_index.md` and `AGENTS.md`
 - [ ] `README.md` - Has "Checks" section with verification commands
-- [ ] `docs/project/index.md` - Entrypoint
+- [ ] `docs/project/project_index.md` - Entrypoint
 - [ ] `docs/project/goal/goal.md` - Objective + acceptance criteria
 - [ ] `docs/project/rules/rules.md` - Project do/don't rules
 - [ ] `docs/project/architecture/architecture.md` - SSOT pointers
@@ -71,7 +71,7 @@ From AGENTS.md section "Non-Negotiables (Hard Gates)" > "#3":
 New code must be reachable from a workflow entrypoint/dispatcher/registry or a clearly documented entrypoint.
 
 New docs must be reachable from:
-- A docs index (`docs/agents/index.md` or equivalent)
+- A docs index (`docs/agents/agents_index.md` or equivalent)
 - The repo `README.md`
 
 Unreferenced helpers and "floating docs" are prohibited.

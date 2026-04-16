@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 def _run_cli(*args: str) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
-        [sys.executable, "scripts/main.py", *args],
+        [sys.executable, "scripts/scripts_main.py", *args],
         cwd=ROOT,
         check=False,
         capture_output=True,

@@ -14,7 +14,7 @@ There must be a single predictable place to find:
 
 ## Allowed implementations (choose one)
 A) A `WORKFLOWS` registry dictionary in a central module.
-B) A parent folder entrypoint (`main.py` / `index.ts`) listing workflows and composing child feature folders.
+B) A parent folder entrypoint resolved from `scripts/entrypoint_contracts.json` (for example `billing_main.py` or `billing_index.ts`) listing workflows and composing child feature folders.
 C) A docs index page listing workflows and entrypoints.
 
 ## Requirements
