@@ -9,7 +9,7 @@ update_trigger: platform adapter guidance changes OR new platform is added
 ## Purpose
 - Map the skill standards into platform-specific implementations without duplicating core policy.
 - Keep exact runtime-path/support-level facts in `docs/agents/platforms/runtime-projections.json`.
-- Keep dated official evidence in `docs/agents/platforms/index.md`.
+- Keep dated official evidence in `docs/agents/platforms/platforms_index.md`.
 
 ## Adapter expectations
 - Start from `docs/agents/skills/00-skill-standards/skill-standards.md` and keep core rules referenced, not redefined.

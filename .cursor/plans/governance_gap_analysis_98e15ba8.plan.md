@@ -39,10 +39,10 @@ todos:
     content: Add code examples to 35-authority-bounded-modules.md, 40-config-constants.md, 60-gui-threading.md
     status: pending
   - id: polish-testing
-    content: Expand docs/agents/80-testing-real-files/index.md with fixture patterns and CI guidance
+    content: Expand docs/agents/80-testing-real-files/testing-real-files.md with fixture patterns and CI guidance
     status: pending
   - id: polish-release
-    content: Expand docs/agents/90-release-checklist/index.md with versioning and deployment
+    content: Expand docs/agents/90-release-checklist/release-checklist.md with versioning and deployment
     status: pending
 isProject: false
 ---
@@ -321,13 +321,13 @@ These gaps were identified by the explore agents analyzing existing docs:
 
 **Recommendation**: Add example code blocks to:
 
-- [docs/agents/35-authority-bounded-modules/index.md](docs/agents/35-authority-bounded-modules/index.md): contract definition example
-- [docs/agents/40-config-constants/index.md](docs/agents/40-config-constants/index.md): config schema validation example
+- [docs/agents/35-authority-bounded-modules/authority-bounded-modules.md](docs/agents/35-authority-bounded-modules/authority-bounded-modules.md): contract definition example
+- [docs/agents/40-config-constants/config-constants.md](docs/agents/40-config-constants/config-constants.md): config schema validation example
 - [docs/agents/60-gui-threading/index.md](docs/agents/60-gui-threading/index.md): queue/drain pattern example
 
 ### 6.2 Testing Guidance Depth
 
-**Gap**: [docs/agents/80-testing-real-files/index.md](docs/agents/80-testing-real-files/index.md) lacks test structure and fixture patterns.
+**Gap**: [docs/agents/80-testing-real-files/testing-real-files.md](docs/agents/80-testing-real-files/testing-real-files.md) lacks test structure and fixture patterns.
 
 **Recommendation**: Expand with:
 
@@ -348,7 +348,7 @@ These gaps were identified by the explore agents analyzing existing docs:
 
 ### 6.4 Release Process
 
-**Gap**: [docs/agents/90-release-checklist/index.md](docs/agents/90-release-checklist/index.md) lacks versioning and deployment.
+**Gap**: [docs/agents/90-release-checklist/release-checklist.md](docs/agents/90-release-checklist/release-checklist.md) lacks versioning and deployment.
 
 **Recommendation**: Add sections for:
 
@@ -389,4 +389,3 @@ These gaps were identified by the explore agents analyzing existing docs:
 3. **Phase 3 (Observability)**: Items 3.1-3.3 - Improve monitoring and cost control
 4. **Phase 4 (Quality)**: Items 4.1-4.2 - Add evaluation and reproducibility
 5. **Phase 5 (Polish)**: Items 5.1-5.2, 6.1-6.4 - Integration standards and doc completeness
-

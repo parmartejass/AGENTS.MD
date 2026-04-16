@@ -1,4 +1,4 @@
-"""Private workflow registry owned by runner/main.py."""
+"""Private workflow registry owned by runner/runner_main.py."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-# Adapter source: docs/agents/subagents/shared/authority-analyst/index.md
+# Adapter source: docs/agents/subagents/shared/authority-analyst/authority-analyst_index.md
 name = "authority-analyst"
 description = "Root-cause uplift and authority-first analysis specialist. Use proactively when debugging or designing fixes to trace from symptom to the earliest authority that should have prevented the error. Ensures fixes prevent classes of errors, not just symptoms."
 model = "gpt-5.3-codex"

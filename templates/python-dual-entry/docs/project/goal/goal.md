@@ -1,6 +1,6 @@
 ---
 doc_type: reference
-ssot_owner: myapp/runner/main.py
+ssot_owner: myapp/runner/runner_main.py
 update_trigger: workflow behavior or scope changes
 ---
 
@@ -12,7 +12,7 @@ Provide a dual-entry automation where:
 - users can run a GUI, and
 - agents/tests can run a CLI,
 
-while **both** call the same orchestration entrypoint: `myapp.runner.main.run_job()`.
+while **both** call the same orchestration entrypoint: `myapp.runner.runner_main.run_job()`.
 
 ## Acceptance criteria (minimum)
 

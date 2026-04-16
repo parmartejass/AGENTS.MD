@@ -1,3 +1,9 @@
+---
+doc_type: reference
+ssot_owner: docs/agents/skills/x-api-data-access/SKILL.md
+update_trigger: X API limitations guidance changes OR X API skill routing changes
+---
+
 # X API Limitations and Gotchas
 
 ## Contents

@@ -26,7 +26,7 @@ Use this playbook to have an AI assistant review a work session and extract repe
 1. Confirm required context is accessible:
    - `AGENTS.md`
    - `agents-manifest.yaml`
-   - `docs/agents/index.md`
+   - `docs/agents/agents_index.md`
    - `docs/agents/20-sources-of-truth-map/sources-of-truth-map.md`
    - `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`
    - `docs/project/learning/learning.md`
@@ -40,7 +40,7 @@ Use this playbook to have an AI assistant review a work session and extract repe
 - Auto-edit is allowed only when this playbook is explicitly invoked (see `AGENTS.md` "Governance Auto-Edit Gate").
 - Before any edit: run the Council Review step and apply the confirmation gate from `AGENTS.md`.
 - Follow `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md` (docs cannot become a second SSOT).
-- When proposing docs changes, preserve the branched docs tree: every affected `docs/` directory keeps an `index.md`, and parent indexes remain routing-only.
+- When proposing docs changes, preserve the branched docs tree: every affected `docs/` directory keeps the registry-resolved router file (for example `<authority>_index.md`), and parent routers remain routing-only.
 
 ## Language discipline
 - Use `MUST` / `Hard Gate` only when quoting requirements explicitly hard-gated in `AGENTS.md`.
@@ -83,7 +83,7 @@ Hard gates:
 - Auto-edit is allowed only when this playbook is explicitly invoked (see `AGENTS.md` "Governance Auto-Edit Gate").
 - Before any edit: run the Council Review step and apply the confirmation gate from `AGENTS.md`.
 - Follow `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md` (docs cannot become a second SSOT).
-- When proposing docs changes, preserve the branched docs tree: every affected `docs/` directory keeps an `index.md`, and parent indexes remain routing-only.
+- When proposing docs changes, preserve the branched docs tree: every affected `docs/` directory keeps the registry-resolved router file (for example `<authority>_index.md`), and parent routers remain routing-only.
 
 Task type: governance_improvement
 
@@ -119,7 +119,7 @@ If you cannot see the full session history:
 Required repo context (read at minimum):
 - `AGENTS.md`
 - `agents-manifest.yaml`
-- `docs/agents/index.md`
+- `docs/agents/agents_index.md`
 - `docs/agents/20-sources-of-truth-map/sources-of-truth-map.md`
 - `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`
 - `docs/project/learning/learning.md`
@@ -249,7 +249,7 @@ Record the exact `rg` search terms used in candidate evidence notes when practic
 - Target location: `docs/agents/playbooks/governance-learnings-template/governance-learnings-template.md`
 - Draft delta (for `MISSING`/`PARTIAL`) or coverage citation (for `ALREADY_COVERED`): Replace prompt skeleton with a self-contained prompt pack that inlines hard gates and preflight checks.
 - Change Contract alignment: `AGENTS.md` template sections B (invariants), C (witnesses), D (authority impact), H (verification checklist).
-- Witness/verification: `python3 scripts/check_governance_core/main.py` passes; manual witness confirms prompt pack contains hard gates inline and no external copy dependency.
+- Witness/verification: `python3 scripts/check_governance_core/check_governance_core_main.py` passes; manual witness confirms prompt pack contains hard gates inline and no external copy dependency.
 - Risk if not addressed: Repeated governance drift and skipped council/confirmation gate steps.
 - Modularity/structure decision: Keep playbook as single authority document; avoid creating parallel prompt docs.
 - Priority + confidence (`P1`|`P2`|`P3` + `VERIFIED`|`UNVERIFIED`): P1 + VERIFIED

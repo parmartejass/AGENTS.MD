@@ -9,7 +9,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-from scripts.main import evaluate_policy, load_contract  # noqa: E402
+from scripts.scripts_main import evaluate_policy, load_contract  # noqa: E402
 
 
 FIXTURES = ROOT / "tests" / "fixtures"
@@ -56,7 +56,7 @@ class RiskPolicyGateTests(unittest.TestCase):
     def test_docs_drift_rule_fails_when_required_docs_missing(self) -> None:
         changed_files = [
             ".github/workflows/risk-policy-gate.yml",
-            "automation/pr-control-plane/scripts/risk_policy_gate/main.py",
+            "automation/pr-control-plane/scripts/risk_policy_gate/risk_policy_gate_main.py",
         ]
         result = evaluate_policy(
             contract=self.contract,

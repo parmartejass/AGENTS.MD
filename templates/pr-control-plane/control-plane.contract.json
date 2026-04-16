@@ -53,8 +53,8 @@
       "automation/pr-control-plane/adapters/**"
     ],
     "requiredDocs": [
-      "docs/project/architecture/index.md",
-      "docs/project/learning/index.md"
+      "docs/project/architecture/architecture_index.md",
+      "docs/project/learning/learning_index.md"
     ]
   },
   "reviewPolicy": {

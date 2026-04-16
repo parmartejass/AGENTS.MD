@@ -106,7 +106,7 @@ jobs:
           CHECK_RUNS_JSON: ${{ steps.checks.outputs.check_runs_json }}
           HEAD_SHA: ${{ steps.pr.outputs.head_sha }}
         run: |
-          python "${CONTROL_PLANE_ROOT}/scripts/main.py" risk-policy-gate \
+          python "${CONTROL_PLANE_ROOT}/scripts/scripts_main.py" risk-policy-gate \
             --contract "${CONTROL_PLANE_ROOT}/control-plane.contract.json" \
             --changed-files-json "${CHANGED_FILES_JSON}" \
             --check-runs-json "${CHECK_RUNS_JSON}" \
@@ -118,7 +118,7 @@ jobs:
           CHECK_RUNS_JSON: ${{ steps.checks.outputs.check_runs_json }}
           HEAD_SHA: ${{ steps.pr.outputs.head_sha }}
         run: |
-          python "${CONTROL_PLANE_ROOT}/scripts/main.py" check-review-state \
+          python "${CONTROL_PLANE_ROOT}/scripts/scripts_main.py" check-review-state \
             --contract "${CONTROL_PLANE_ROOT}/control-plane.contract.json" \
             --head-sha "${HEAD_SHA}" \
             --review-runs-json "${CHECK_RUNS_JSON}" \

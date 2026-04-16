@@ -23,7 +23,7 @@ This checklist is a prompting scaffold.
 
 ## Folder contract checks
 - One feature, one folder.
-- Exactly one public folder entrypoint (`main.py` or `index.ts`, or one documented equivalent for another language).
+- Exactly one public folder entrypoint resolved from `scripts/entrypoint_contracts.json` (for example `<authority>_main.py` or `<authority>_index.ts`, or one documented equivalent for another language).
 - Parent entrypoint is the only connector between children.
 - Public entrypoints take plain data in and return plain data out.
 - Pure logic stays free of I/O; entrypoints wire I/O to logic.
@@ -80,10 +80,10 @@ This checklist is a prompting scaffold.
 - if Y: user approval recorded before edit:
 
 ### Example pattern (feature-centered)
-- `speed-mode/main.py` (authority/public contract)
-- `speed-mode/criteria_fast.py` (private logic)
-- `speed-mode/criteria_balanced.py` (private logic)
-- `speed-mode/criteria_safe.py` (private logic)
+- `speed_mode/speed_mode_main.py` (authority/public contract)
+- `speed_mode/criteria_fast.py` (private logic)
+- `speed_mode/criteria_balanced.py` (private logic)
+- `speed_mode/criteria_safe.py` (private logic)
 - `shared/speed_math.py` (pure reusable leaf utility)
 
 ## Evidence to record

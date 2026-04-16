@@ -40,7 +40,9 @@ X-Bookmarks Import/skills/x-api-data-access/
 .vscode/
 .idea/
 .codex/config.toml
-# Project-local Codex agent roles: tracked symlinks -> docs/agents/subagents/codex/
+# Project-local Codex agent mirrors (copy or junction from docs/agents/subagents/codex/).
+# Do not commit a symlink-stub file named `.codex/agents` — on Windows it is a regular file and breaks Codex CLI (os error 267).
+.codex/agents/
 # (.codex/config.toml stays ignored: may contain machine-specific or secret-backed MCP config)
 .agents/skills/
 .cursor/skills/

@@ -7,7 +7,7 @@ update_trigger: new operational learnings/pitfalls discovered in real use
 # Learning Notes
 
 ## Common pitfalls
-- Python may not be runnable on some machines (Windows Store app aliases). Ensure `python` resolves correctly so `scripts/check_python_safety/main.py` can run.
+- Python may not be runnable on some machines (Windows Store app aliases). Ensure `python` resolves correctly so `scripts/check_python_safety/check_python_safety_main.py` can run.
 - Generated artifacts (e.g., `__pycache__/`, `*.pyc`, template outputs) must not be committed.
 
 ## Deep research synthesis (2026-02-23)
@@ -15,9 +15,9 @@ update_trigger: new operational learnings/pitfalls discovered in real use
   `docs/generated/2026-02-23-deep-research-report-normalized/evidence.md`.
 - Only SSOT-aligned deltas were adopted:
   - strengthen `governance_improvement` context injection in `agents-manifest.yaml`
-  - enforce change-record checks in `scripts/check_governance_core/main.py`
-  - add governance learnings hard-gate parity checks in `scripts/check_governance_core/main.py`
-  - reject unresolved citation placeholder tokens in `docs/` via `scripts/check_governance_core/main.py`
+  - enforce change-record checks in `scripts/check_governance_core/check_governance_core_main.py`
+  - add governance learnings hard-gate parity checks in `scripts/check_governance_core/check_governance_core_main.py`
+  - reject unresolved citation placeholder tokens in `docs/` via `scripts/check_governance_core/check_governance_core_main.py`
 - Generic framework content was not promoted to policy authority; existing owners in `AGENTS.md` remain canonical.
 
 ## Verification tips

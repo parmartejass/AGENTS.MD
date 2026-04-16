@@ -1,0 +1,84 @@
+{
+  "version": 1,
+  "ssot_owner": {
+    "runtime_code": "docs/agents/35-authority-bounded-modules/authority-bounded-modules.md",
+    "docs": "docs/agents/25-docs-ssot-policy/docs-ssot-policy.md"
+  },
+  "runtime_code": {
+    "filename_pattern": "<authority>_<entrypoint_token>.<extension>",
+    "languages": {
+      "python": {
+        "artifact_kinds": {
+          "executable": {
+            "entrypoint_token": "main",
+            "extension": "py"
+          }
+        }
+      },
+      "go": {
+        "artifact_kinds": {
+          "executable": {
+            "entrypoint_token": "main",
+            "extension": "go"
+          }
+        }
+      },
+      "rust": {
+        "artifact_kinds": {
+          "binary": {
+            "entrypoint_token": "main",
+            "extension": "rs"
+          },
+          "library": {
+            "entrypoint_token": "lib",
+            "extension": "rs"
+          }
+        }
+      },
+      "typescript": {
+        "artifact_kinds": {
+          "executable": {
+            "entrypoint_token": "index",
+            "extension": "ts"
+          }
+        }
+      },
+      "javascript": {
+        "artifact_kinds": {
+          "executable": {
+            "entrypoint_token": "index",
+            "extension": "js"
+          }
+        }
+      }
+    }
+  },
+  "docs": {
+    "router_pattern": "<authority>_index.md",
+    "authority_resolution": {
+      "numbered_governance_folder_regex": "^[0-9]{2}-(?P<authority>.+)$",
+      "dated_evidence_folder_regex": "^[0-9]{4}-[0-9]{2}-[0-9]{2}-.+$",
+      "dated_evidence_authority": "evidence"
+    },
+    "public_leaf_model": {
+      "default": "one_or_more",
+      "minimum_public_leaf_count": 1,
+      "router_only_exception_kind": "artifact_first"
+    },
+    "public_leaf_patterns": {
+      "plain_folder_default": "<authority>.md",
+      "numbered_governance_folder": "<authority>.md",
+      "dated_evidence_folder": "evidence.md"
+    },
+    "public_leaf_exposure": {
+      "source_of_truth": "router_links",
+      "require_distilled_route_line": true
+    },
+    "explicit_family_exceptions": {
+      "identity_files": [
+        "SKILL.md",
+        "mcp.json"
+      ]
+    }
+  }
+}

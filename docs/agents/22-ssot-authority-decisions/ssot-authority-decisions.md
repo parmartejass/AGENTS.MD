@@ -56,13 +56,13 @@ Each active decision record must include:
   - `docs/agents/skills/10-platform-adapters/platform-adapters.md`
   - `docs/agents/platforms/runtime-projections.json`
   - `docs/agents/link_repo_assets.ps1`
-  - `docs/agents/index.md`
+  - `docs/agents/agents_index.md`
   - `README.md`
   - `agents-manifest.yaml`
-  - `scripts/check_governance_core/main.py`
+  - `scripts/check_governance_core/check_governance_core_main.py`
 - Verification witness:
-  - `python3 scripts/check_governance_core/main.py` passes.
-  - `docs/agents/index.md`, `README.md`, and runtime projection tooling all reference `docs/agents/skills/` as the canonical reusable skill root.
+  - `python3 scripts/check_governance_core/check_governance_core_main.py` passes.
+  - `docs/agents/agents_index.md`, `README.md`, and runtime projection tooling all reference `docs/agents/skills/` as the canonical reusable skill root.
   - The tracked canonical X API skill bundle exists under `docs/agents/skills/x-api-data-access/`.
 - Review trigger:
   - Any proposal to move canonical X skill ownership away from `docs/agents/skills/`.
@@ -104,40 +104,45 @@ Each active decision record must include:
 
 ### SSOT-DEC-003 - Docs router authority vs canonical narrative leaf docs
 - Status: active
-- Scope: documentation folders under `docs/` that carry narrative governance or project content
+- Scope: folder-owned public contract naming for runtime code and docs, with docs-specific router and public-leaf behavior under `docs/`
 - Canonical owner:
-  - Folder routing contract: `<folder>/index.md`
-  - Canonical narrative content: exactly one descriptive non-`index.md` markdown file inside the same folder
+  - Human-readable policy owner for docs-family behavior: `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`
+  - Human-readable policy owner for runtime-code family behavior: `docs/agents/35-authority-bounded-modules/authority-bounded-modules.md`
+  - Machine-readable filename registry for contract families: `scripts/entrypoint_contracts.json`
 - Allowed non-owner locations:
-  - Legacy content-bearing `index.md` files in folders not yet migrated to the router-plus-leaf pattern during the staged rollout
-  - Router indexes may remain the only markdown contract in artifact-first folders that only catalog payload children such as JSON, TOML, generated outputs, or dated evidence subfolders
+  - Router-linked public leaf markdown docs inside the same docs folder authority
+  - Router-only docs folders that are artifact-first and only catalog payload children such as JSON, TOML, generated outputs, or dated evidence subfolders
+  - Deeper runtime identity contracts such as `SKILL.md` and `mcp.json`, which remain owned by their existing authorities and are out of scope for this naming contract
 - Forbidden duplicates:
-  - Do not keep the same narrative content both in `index.md` and the canonical leaf doc after a folder is migrated
-  - Do not treat router indexes as the authority for narrative content when a canonical leaf doc exists
-  - Do not create multiple competing narrative leaf docs in the same migrated folder
+  - Do not reintroduce `index.md` as the universal docs router contract after the registry-backed cutover
+  - Do not keep `scripts/migrated_router_leaves.json` or any replacement leaf-name registry once filename derivation is handled by `scripts/entrypoint_contracts.json`
+  - Do not hardcode runtime or docs contract filenames independently in validators, README guidance, templates, or policy docs
+  - Do not create competing public contract files inside one folder authority unless an explicit contract-family exception already owns them
 - Coordinated update set:
   - `AGENTS.md`
   - `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`
+  - `docs/agents/35-authority-bounded-modules/authority-bounded-modules.md`
   - `docs/agents/playbooks/project-docs-template/project-docs-template.md`
-  - `docs/project/goal/`
-  - `docs/project/rules/`
-  - `docs/project/architecture/`
-  - `docs/project/learning/`
+  - `docs/agents/playbooks/design-principles-checklist/design-principles-checklist.md`
+  - `docs/agents/workflow-registry/workflow-registry.md`
+  - `docs/project/architecture/architecture.md`
   - `agents-manifest.yaml`
   - `README.md`
-  - `scripts/migrated_router_leaves.json`
+  - `scripts/entrypoint_contracts.json`
   - `scripts/check_docs_ssot.ps1`
   - `scripts/check_project_docs.ps1`
-  - `scripts/check_agents_manifest.ps1`
+  - `scripts/check_docs_router_contract/check_docs_router_contract_main.py`
   - `scripts/check_governance_core/_manifest_and_docs.py`
-  - `scripts/check_governance_core/_repo_and_governance.py`
+  - `scripts/check_folder_architecture/check_folder_architecture_main.py`
+  - `templates/pr-control-plane/README.md`
+  - `templates/python-dual-entry/README.md`
 - Verification witness:
   - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_docs_ssot.ps1` passes
   - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_project_docs.ps1` passes
-  - `scripts/migrated_router_leaves.json` maps every migrated narrative folder that uses an explicit canonical leaf filename
-  - `python3 scripts/check_governance_core/main.py` passes
-  - `python3 scripts/check_docs_router_contract/main.py` passes, including the negative case where a router points to a missing canonical leaf doc
+  - `python3 scripts/check_folder_architecture/check_folder_architecture_main.py` passes
+  - `python3 scripts/check_governance_core/check_governance_core_main.py` passes
+  - `python3 scripts/check_docs_router_contract/check_docs_router_contract_main.py` passes, including the negative cases where a router points to a missing primary leaf doc or contains non-routing content
 - Review trigger:
-  - Any proposal to put canonical narrative content back into `index.md`
-  - Any proposal to remove `index.md` from a `docs/` directory
-  - Any proposal to add multiple narrative leaf docs to a migrated folder
+  - Any proposal to change a contract-family filename pattern without updating `scripts/entrypoint_contracts.json`
+  - Any proposal to reintroduce `index.md` as the universal docs router contract
+  - Any proposal to rename or repurpose `SKILL.md` or `mcp.json` under this contract family

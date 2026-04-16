@@ -391,7 +391,7 @@ profiles:
         - "scripts/setup_repo_platform_assets.ps1"
     inject:
       - "README.md"
-      - "docs/agents/index.md"
+      - "docs/agents/agents_index.md"
       - "docs/agents/00-principles/principles.md"
       - "docs/agents/20-sources-of-truth-map/sources-of-truth-map.md"
       - "docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md"
@@ -399,14 +399,14 @@ profiles:
       - "docs/agents/35-authority-bounded-modules/authority-bounded-modules.md"
       - "docs/agents/05-context-retrieval/context-retrieval.md"
       - "docs/agents/platforms/00-platform-runtime-standards/platform-runtime-standards.md"
-      - "docs/agents/platforms/index.md"
+      - "docs/agents/platforms/platforms_index.md"
       - "docs/agents/settings/00-settings-standards/settings-standards.md"
-      - "docs/agents/integrations/index.md"
+      - "docs/agents/integrations/integrations_index.md"
       - "docs/agents/15-stuck-in-loop-generate-fresh-restart-prompt/stuck-in-loop-generate-fresh-restart-prompt.md"
       - "docs/agents/playbooks/governance-learnings-template/governance-learnings-template.md"
       - "docs/agents/playbooks/design-principles-checklist/design-principles-checklist.md"
       - "docs/agents/playbooks/rca-methods-template/rca-methods-template.md"
-      - "docs/project/index.md"
+      - "docs/project/project_index.md"
       - "docs/project/learning/learning.md"
 
   design_review:
@@ -487,14 +487,14 @@ profiles:
         - "scripts/setup_repo_platform_assets.ps1"
     inject:
       - "docs/agents/platforms/00-platform-runtime-standards/platform-runtime-standards.md"
-      - "docs/agents/platforms/index.md"
+      - "docs/agents/platforms/platforms_index.md"
       - "docs/agents/platforms/runtime-projections.json"
       - "docs/agents/settings/00-settings-standards/settings-standards.md"
       - "docs/agents/link_repo_assets.ps1"
       - "docs/agents/subagents/00-subagent-standards/subagent-standards.md"
       - "docs/agents/mcp/00-mcp-standards/mcp-standards.md"
       - "docs/agents/acp/00-acp-standards/acp-standards.md"
-      - "docs/agents/integrations/index.md"
+      - "docs/agents/integrations/integrations_index.md"
 
   stuck_loop_reset:
     detect:

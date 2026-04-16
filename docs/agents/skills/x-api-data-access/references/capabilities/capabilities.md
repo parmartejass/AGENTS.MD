@@ -1,3 +1,9 @@
+---
+doc_type: reference
+ssot_owner: docs/agents/skills/x-api-data-access/SKILL.md
+update_trigger: X endpoint capability guidance changes OR X API skill routing changes
+---
+
 # X API Capabilities
 
 ## Contents

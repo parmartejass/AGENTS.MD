@@ -7,20 +7,21 @@ This repository maintains a reusable, repo-agnostic governance pack for autonomo
 - Canonical policy: `AGENTS.md`
 - Context injection manifest: `agents-manifest.yaml`
 - Cross-project authority decisions: `docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md`
+- Folder-owned public contract filename registry: `scripts/entrypoint_contracts.json`
 
 ## Read Order (Top-Down)
 
 1. `AGENTS.md` (authoritative rules and hard gates)
 2. `agents-manifest.yaml` (context injection and profile routing)
-3. `docs/agents/index.md` (supporting branch map and when-to-read guidance)
+3. `docs/agents/agents_index.md` (supporting branch map and when-to-read guidance)
 4. Task-specific supporting docs/playbooks under `docs/agents/`
-5. Project docs entrypoint: `docs/project/index.md`
+5. Project docs entrypoint: `docs/project/project_index.md`
 
 When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` and `.governance/agents-manifest.yaml`.
 
 ## Project docs (this repo)
 
-- Entry point: `docs/project/index.md` (goal/rules/architecture/learning)
+- Entry point: `docs/project/project_index.md` (goal/rules/architecture/learning)
 - Generated analyses: `docs/generated/` (non-authoritative, reproducible outputs)
 
 ## Repo-owned agent assets
@@ -34,8 +35,8 @@ When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` an
   - ACP placeholders: `docs/agents/acp/`
 - Platform runtime policy lives in `docs/agents/platforms/00-platform-runtime-standards/platform-runtime-standards.md`.
 - Concrete runtime path/support-level facts live in `docs/agents/platforms/runtime-projections.json`.
-- Dated platform/runtime evidence lives in `docs/agents/platforms/index.md`.
-- Integration notes for context/memory tools live in `docs/agents/integrations/index.md`.
+- Dated platform/runtime evidence lives in `docs/agents/platforms/platforms_index.md`.
+- Integration notes for context/memory tools live in `docs/agents/integrations/integrations_index.md`.
 - Runtime projection sources resolve from the governance root; runtime targets resolve from the project root (or `{HOME}` when explicitly declared).
 - Use `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/setup_repo_platform_assets.ps1 -Force` to project supported assets into runtime locations for this repo.
 - Default setup preserves an existing `.cursor/agents/` compatibility surface for this repo, but does not create `.cursor/rules/`.
@@ -52,13 +53,13 @@ When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` an
 
 ## Supporting docs (non-authoritative)
 
-- Index: `docs/agents/index.md`
+- Index: `docs/agents/agents_index.md`
 - Authority decisions: `docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md`
 - Docs are supporting material only; facts and behavior must stay in code/SSOT (see `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`).
 
 ## Templates (reference implementations)
 
-- Routing index: [`templates/index.md`](templates/index.md)
+- Routing index: [`templates/templates_index.md`](templates/templates_index.md)
 - Automation loop (nightly review + implement): `templates/automation-loop/`
 - PR control-plane loop (risk gate + review state + evidence + remediation): `templates/pr-control-plane/`
 - Dual-entry GUI+CLI + scenario tests: `templates/python-dual-entry/`
@@ -74,58 +75,58 @@ When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` an
 |- AGENTS.md
 |- agents-manifest.yaml
 |- docs/
-|  |- index.md
+|  |- docs_index.md
 |  |- agents/
-|  |  |- index.md
+|  |  |- agents_index.md
 |  |  |- 00-principles/
-|  |  |  |- index.md
+|  |  |  |- principles_index.md
 |  |  |- 35-authority-bounded-modules/
-|  |  |  |- index.md
+|  |  |  |- authority-bounded-modules_index.md
 |  |  |- playbooks/
-|  |  |  |- index.md
+|  |  |  |- playbooks_index.md
 |  |  |  |- design-principles-checklist/
-|  |  |  |  |- index.md
+|  |  |  |  |- design-principles-checklist_index.md
 |  |  |- platforms/
-|  |  |  |- index.md
+|  |  |  |- platforms_index.md
 |  |  |  |- 00-platform-runtime-standards/
-|  |  |  |  |- index.md
+|  |  |  |  |- platform-runtime-standards_index.md
 |  |  |- settings/
-|  |  |  |- index.md
+|  |  |  |- settings_index.md
 |  |  |- skills/
-|  |  |  |- index.md
+|  |  |  |- skills_index.md
 |  |  |- subagents/
-|  |  |  |- index.md
+|  |  |  |- subagents_index.md
 |  |  |- automation/
-|  |  |  |- index.md
+|  |  |  |- automation_index.md
 |  |  |- schemas/
-|  |     |- index.md
+|  |     |- schemas_index.md
 |  |- generated/
-|  |  |- index.md
+|  |  |- generated_index.md
 |  |- project/
-|     |- index.md
+|     |- project_index.md
 |     |- architecture/
-|     |  |- index.md
+|     |  |- architecture_index.md
 |     |- change-records/
-|        |- index.md
+|        |- change-records_index.md
 |- scripts/
 |  |- check_folder_architecture/
-|  |  |- main.py
+|  |  |- check_folder_architecture_main.py
 |  |- check_governance_core/
-|  |  |- main.py
+|  |  |- check_governance_core_main.py
 |  |- check_python_safety/
-|  |  |- main.py
+|  |  |- check_python_safety_main.py
 |  |- *.ps1
 |- templates/
-|  |- index.md
+|  |- templates_index.md
 |  |- automation-loop/
 |  |- pr-control-plane/
 |  |- python-dual-entry/
 |  |  |- myapp/
-|  |     |- cli/main.py
-|  |     |- core/main.py
-|  |     |- gui/main.py
-|  |     |- main.py
-|  |     |- runner/main.py
+|  |     |- cli/cli_main.py
+|  |     |- core/core_main.py
+|  |     |- gui/gui_main.py
+|  |     |- myapp_main.py
+|  |     |- runner/runner_main.py
 |  |     |- runner/workflows.py
 ```
 
@@ -331,31 +332,31 @@ This repo:
   - If setup stops on a conflicting non-link runtime file such as `.mcp.json`, rename or remove that path and rerun.
   - Include compatibility-only projections when explicitly needed: `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/setup_repo_platform_assets.ps1 -Force -IncludeCompatibility`
 - Docs SSOT header checks (all `docs/` except index pages): `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_docs_ssot.ps1`
-- Docs router contract regression test: `python3 scripts/check_docs_router_contract/main.py` (use `python` if `python3` is unavailable)
+- Docs router contract regression test: `python3 scripts/check_docs_router_contract/check_docs_router_contract_main.py` (use `python` if `python3` is unavailable)
 - Agents manifest checks: `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_agents_manifest.ps1`
 - Project docs checks (required files + README linkage): `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_project_docs.ps1`
 - Repo hygiene checks (no runtime/generated artifact noise tracked): `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_repo_hygiene.ps1`
-- Folder architecture checks (declared Python roots, explicit workspace exceptions, and repo-owned/template folder contracts): `python3 scripts/check_folder_architecture/main.py` (use `python` if `python3` is unavailable)
+- Folder architecture checks (declared Python roots, explicit workspace exceptions, and repo-owned/template folder contracts): `python3 scripts/check_folder_architecture/check_folder_architecture_main.py` (use `python` if `python3` is unavailable)
 - Folder architecture regression tests (vendored governance boundary + scope): `python3 -m unittest -v scripts/check_folder_architecture/test_main.py` (use `python -m unittest -v ...` if `python3` is unavailable)
-- Cross-platform core governance checks (manifest + docs SSOT + project docs + governance authority decisions + hygiene + playbook parity + unresolved citation tokens + change records): `python3 scripts/check_governance_core/main.py` (use `python` if `python3` is unavailable)
-  - Require change records (or honor `.required` marker): `python3 scripts/check_governance_core/main.py --require-records`
-  - Strict safety mode: `python3 scripts/check_governance_core/main.py --fail-on-safety-warnings`
+- Cross-platform core governance checks (manifest + docs SSOT + project docs + governance authority decisions + hygiene + playbook parity + unresolved citation tokens + change records): `python3 scripts/check_governance_core/check_governance_core_main.py` (use `python` if `python3` is unavailable)
+  - Require change records (or honor `.required` marker): `python3 scripts/check_governance_core/check_governance_core_main.py --require-records`
+  - Strict safety mode: `python3 scripts/check_governance_core/check_governance_core_main.py --fail-on-safety-warnings`
 - Change record artifact checks (schema + required evidence fields): `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_change_records.ps1`
   - Enforce required records by creating `docs/project/change-records/.required` or running with `-RequireRecords`.
-- Python safety baseline checks: `python3 scripts/check_python_safety/main.py` (add `--fail-on-warnings` to enforce warnings; use `python` if `python3` is unavailable)
+- Python safety baseline checks: `python3 scripts/check_python_safety/check_python_safety_main.py` (add `--fail-on-warnings` to enforce warnings; use `python` if `python3` is unavailable)
 - PR control-plane parent CLI policy tests: `cd templates/pr-control-plane && python3 -m unittest -v tests.policy.test_main_cli` (use `python -m unittest -v ...` if `python3` is unavailable)
 - Template structured logging contract tests: `cd templates/python-dual-entry && python3 -m unittest -v tests.test_logging_contract` (use `python` if `python3` is unavailable)
 
 Target repo (submodule under `.governance/`):
 - Docs SSOT header checks: `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_docs_ssot.ps1 -RepoRoot .`
-- Docs router contract regression test: `python3 .governance/scripts/check_docs_router_contract/main.py` (use `python` if `python3` is unavailable)
+- Docs router contract regression test: `python3 .governance/scripts/check_docs_router_contract/check_docs_router_contract_main.py` (use `python` if `python3` is unavailable)
 - Agents manifest checks: `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_agents_manifest.ps1`
 - Project docs checks: `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_project_docs.ps1 -RepoRoot .`
 - Repo hygiene checks: `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_repo_hygiene.ps1 -RepoRoot .`
-- Folder architecture checks: `python3 .governance/scripts/check_folder_architecture/main.py --root .` (use `python` if `python3` is unavailable)
-- Cross-platform core governance checks: `python3 .governance/scripts/check_governance_core/main.py --repo-root .` (use `python` if `python3` is unavailable)
-  - Require change records: `python3 .governance/scripts/check_governance_core/main.py --repo-root . --require-records`
-  - Strict safety mode: `python3 .governance/scripts/check_governance_core/main.py --repo-root . --fail-on-safety-warnings`
+- Folder architecture checks: `python3 .governance/scripts/check_folder_architecture/check_folder_architecture_main.py --root .` (use `python` if `python3` is unavailable)
+- Cross-platform core governance checks: `python3 .governance/scripts/check_governance_core/check_governance_core_main.py --repo-root .` (use `python` if `python3` is unavailable)
+  - Require change records: `python3 .governance/scripts/check_governance_core/check_governance_core_main.py --repo-root . --require-records`
+  - Strict safety mode: `python3 .governance/scripts/check_governance_core/check_governance_core_main.py --repo-root . --fail-on-safety-warnings`
 - Change record artifact checks: `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_change_records.ps1 -RepoRoot .`
   - Enforce required records by creating `docs/project/change-records/.required` or running with `-RequireRecords`.
-- Python safety baseline checks: `python3 .governance/scripts/check_python_safety/main.py --root .` (add `--fail-on-warnings` to enforce warnings; use `python` if `python3` is unavailable)
+- Python safety baseline checks: `python3 .governance/scripts/check_python_safety/check_python_safety_main.py --root .` (add `--fail-on-warnings` to enforce warnings; use `python` if `python3` is unavailable)

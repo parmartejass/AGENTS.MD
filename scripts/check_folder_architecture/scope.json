@@ -4,12 +4,12 @@
     {
       "path": "scripts",
       "enforcement_mode": "enforce",
-      "owner": "scripts/check_folder_architecture/main.py"
+      "owner": "scripts/check_folder_architecture/check_folder_architecture_main.py"
     },
     {
       "path": "templates/python-dual-entry/myapp",
       "enforcement_mode": "enforce",
-      "owner": "scripts/check_folder_architecture/main.py"
+      "owner": "scripts/check_folder_architecture/check_folder_architecture_main.py"
     },
     {
       "path": "templates/python-dual-entry/tests",
@@ -19,7 +19,7 @@
     {
       "path": "templates/pr-control-plane/scripts",
       "enforcement_mode": "enforce",
-      "owner": "scripts/check_folder_architecture/main.py"
+      "owner": "scripts/check_folder_architecture/check_folder_architecture_main.py"
     },
     {
       "path": "templates/pr-control-plane/tests",

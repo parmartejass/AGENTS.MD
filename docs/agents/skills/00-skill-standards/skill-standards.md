@@ -13,7 +13,7 @@ update_trigger: skill standards change OR new platform support requirements emer
 - Keep platform-specific installation paths, runtime quirks, and capability differences in `docs/agents/skills/10-platform-adapters/platform-adapters.md`.
 
 ## Bundle identity
-- Governance skill docs live under the skill branch rooted at `docs/agents/skills/index.md`.
+- Governance skill docs live under the skill branch rooted at `docs/agents/skills/skills_index.md`.
 - Installable skill bundles live exactly one directory below that authority at `docs/agents/skills/<skill-name>/`; nested bundle roots are not supported.
 - `SKILL.md` is the identity file for a skill bundle.
 - A directory without `SKILL.md` is not a skill bundle and must be treated as non-skill content by tooling.
@@ -56,7 +56,7 @@ update_trigger: skill standards change OR new platform support requirements emer
 
 ## Operating Rules
 - Edit the canonical repo bundle first. Regenerate runtime projections through `docs/agents/link_repo_assets.ps1` or `docs/agents/skills/link_skills.ps1` instead of editing projected runtime paths directly.
-- If a skill change affects runtime projection behavior, bundle identity, or supported platform behavior, update this file, `docs/agents/skills/10-platform-adapters/platform-adapters.md`, `docs/agents/platforms/runtime-projections.json`, `docs/agents/index.md`, and `docs/agents/link_repo_assets.ps1` together.
+- If a skill change affects runtime projection behavior, bundle identity, or supported platform behavior, update this file, `docs/agents/skills/10-platform-adapters/platform-adapters.md`, `docs/agents/platforms/runtime-projections.json`, `docs/agents/agents_index.md`, and `docs/agents/link_repo_assets.ps1` together.
 - Keep docs-header carveout details in `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`.
 - Keep linker implementation details in `docs/agents/link_repo_assets.ps1`.
 
@@ -73,6 +73,6 @@ update_trigger: skill standards change OR new platform support requirements emer
 
 ## Codification Targets
 - Cross-platform principles -> `docs/agents/*.md`
-- Copy/paste templates -> `docs/agents/playbooks/index.md`
-- Skill governance docs -> `docs/agents/skills/index.md`
+- Copy/paste templates -> `docs/agents/playbooks/playbooks_index.md`
+- Skill governance docs -> `docs/agents/skills/skills_index.md`
 - Installable skill bundles -> `docs/agents/skills/<skill-name>/`
