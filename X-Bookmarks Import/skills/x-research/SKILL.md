@@ -1,6 +1,6 @@
 ---
 name: x-research
-description: Research any topic on X (Twitter) using the last 7 days of public posts. Use when the user asks to research, explore, or find what people are saying about a topic on X/Twitter. Triggers on phrases like "what's trending", "search X for", "what are people saying about", "research on X".
+description: "Search and analyze recent X (Twitter) posts on any topic. Fetches public posts from the last 7 days, ranks by engagement, identifies trending themes, and surfaces most-shared links. Use when the user asks to research, explore, or find what people are saying about a topic on X/Twitter. Triggers on phrases like 'what is trending', 'search X for', 'what are people saying about', 'research on X', 'Twitter search', 'X discourse'."
 ---
 
 # X Research Skill
@@ -66,18 +66,9 @@ python3 "X-Bookmarks Import/skills/x-research/scripts/x_search.py" "from:anthrop
 - Machine-readable full dataset
 - All tweets with enriched author/media data
 
-## Scoring Algorithm
+## Scoring
 
-Posts are ranked by a composite engagement score:
-
-```
-engagement = likes + (RTs * 2) + (replies * 1.5) + (quotes * 3) + (bookmarks * 2)
-velocity   = engagement / views * 1000
-recency    = 1.5 decaying to 0.5 over 7 days
-score      = (engagement * 0.6 + velocity * 100 * 0.4) * recency
-```
-
-This surfaces high-signal posts (viral + high engagement-to-view ratio) with recency bias.
+Posts are ranked by composite engagement score (likes, RTs, replies, quotes, bookmarks) weighted by velocity and recency. See [REFERENCE.md](REFERENCE.md) for the full formula.
 
 ## Limitations
 
@@ -88,19 +79,14 @@ This surfaces high-signal posts (viral + high engagement-to-view ratio) with rec
 
 ## Query Operators
 
-The topic string supports X search operators:
+The topic string supports X search operators (`from:`, `to:`, `has:media`, `has:links`, `url:`, `-is:retweet`, `"exact phrase"`, boolean `OR`). See [REFERENCE.md](REFERENCE.md) for the full operator table.
 
-| Operator | Example | Purpose |
-|----------|---------|---------|
-| `from:user` | `from:AnthropicAI` | Posts by specific account |
-| `to:user` | `to:ClaudeCode` | Replies to specific account |
-| `has:media` | `AI agents has:media` | Posts with images/video |
-| `has:links` | `Claude Code has:links` | Posts with URLs |
-| `url:"domain"` | `url:"github.com"` | Posts linking to specific domain |
-| `-is:retweet` | auto via `--no-retweets` | Exclude retweets |
-| `is:reply` / `-is:reply` | | Include/exclude replies |
-| `"exact phrase"` | `"Claude Code skills"` | Exact match |
-| `(A OR B)` | `(Claude OR Codex) skills` | Boolean OR |
+## Error Handling
+
+- **Rate limited (429)**: Wait for the duration in the `x-rate-limit-reset` header, then retry. The script handles pagination within rate limits, but multi-topic sessions may exceed 180 requests/15 minutes.
+- **Invalid token (401/403)**: Verify `X_BEARER_TOKEN` in `.env` is a valid app-only bearer token from the X Developer Portal.
+- **Quota exhausted**: Check monthly usage at the X Developer Portal. Basic plan allows 10,000 tweets/month. Use `--limit` with lower values to conserve quota.
+- **Empty results**: Broaden the query — remove restrictive operators, shorten exact phrases, or try alternate terminology.
 
 ## Integration with Other Skills
 

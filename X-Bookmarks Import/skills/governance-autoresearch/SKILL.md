@@ -1,6 +1,6 @@
 ---
 name: governance-autoresearch
-description: Autoresearch loop for governance files. Researches latest X discourse on each governance topic, proposes ONE atomic improvement per file, validates it, keeps or discards. Use when the user asks to improve, update, or evolve the governance framework using latest community insights.
+description: "Autoresearch loop for governance files. Researches latest X/Twitter discourse on each governance topic, proposes ONE atomic improvement per file, validates it, keeps or discards. Use when the user asks to improve, update, or evolve the governance framework using latest community insights, social media research, community feedback, or Twitter discussions."
 ---
 
 # Governance Autoresearch Skill
@@ -81,13 +81,16 @@ Based on research findings, propose exactly ONE change. Types of valid changes:
 
 ### Step 4: Validate
 
-Before applying, check:
+Before applying, verify ALL of:
 
 1. **Structure preserved** — YAML frontmatter intact, heading hierarchy maintained
 2. **SSOT consistency** — no contradictions with AGENTS.md or other governance files
 3. **No duplication** — content doesn't exist elsewhere in the governance pack
-4. **Evidence-backed** — change is supported by X research or bookmarks data
+4. **Evidence-backed** — supported by 2+ X/Twitter posts or 1 high-engagement post (>100 likes)
 5. **Minimal diff** — smallest change that captures the insight
+6. **Genuinely new** — adds information not derivable from existing docs
+7. **Scope-appropriate** — fits the file's existing scope and doc_type
+8. **Non-destructive** — does not weaken existing rules
 
 Run validation if available:
 ```bash
@@ -127,15 +130,6 @@ python3 "X-Bookmarks Import/skills/governance-autoresearch/scripts/governance_re
 ```bash
 python3 scripts/check_governance_core/main.py
 ```
-
-## Scoring (How to Judge Quality)
-
-A change is worth keeping if it meets ALL of:
-- [ ] Adds genuinely new information not derivable from existing docs
-- [ ] Supported by 2+ X posts or 1 high-engagement post (>100 likes)
-- [ ] Fits the file's existing scope and doc_type
-- [ ] Does not weaken existing rules
-- [ ] Passes structural validation
 
 ## Rate Limit Awareness
 

@@ -32,6 +32,17 @@ Use this skill to turn a vague X data request into a correct retrieval plan befo
    - Set `max_results` deliberately and loop on `next_token`.
    - Keep retries bounded and inspect rate-limit headers instead of hammering the endpoint.
 
+   Example — fetch a user's recent tweets with author and media data:
+   ```
+   GET https://api.x.com/2/users/:id/tweets
+     ?max_results=10
+     &tweet.fields=created_at,public_metrics
+     &expansions=author_id,attachments.media_keys
+     &user.fields=name,username
+     &media.fields=url,preview_image_url
+   ```
+   On 429 responses, read `x-rate-limit-remaining` and `x-rate-limit-reset` headers to calculate wait time before retrying.
+
 5. Check limitations before implementing.
    - Search windows, DM retention, private-data rules, plan gating, and usage caps change outcomes materially.
    - Read [references/limitations-and-gotchas/limitations-and-gotchas_index.md](references/limitations-and-gotchas/limitations-and-gotchas_index.md) before claiming an endpoint can return data you have not verified.
