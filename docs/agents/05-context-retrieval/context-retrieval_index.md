@@ -1,3 +1,3 @@
-# 05 - Context Retrieval Best Practices Branch Index
+# 05 - Context Retrieval Branch Index
 
-- [context-retrieval.md](context-retrieval.md) - Canonical runbook guidance. Required when: you need the full 05 - context retrieval best practices content.
+- [context-retrieval.md](context-retrieval.md) - Canonical context retrieval runbook. Required when: choosing what files to read and how to keep discovery precise.

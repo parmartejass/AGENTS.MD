@@ -4,97 +4,71 @@ ssot_owner: AGENTS.md
 update_trigger: context retrieval expectations or available tools change
 ---
 
-# 05 - Context Retrieval Best Practices
+# 05 - Context Retrieval
 
-Goal: retrieve complete, relevant context before reasoning or implementing, and avoid incomplete/incorrect conclusions caused by partial reads.
+Goal: retrieve enough current context to make the next decision without turning retrieval into a second implementation task.
 
-## Principle: Fetch Enough, Then Narrow
+## Principle: Trust Defaults, Verify Decisions
 
-When uncertain, retrieve more surrounding context (imports, call sites, config owners, tests), then narrow to only what matters for the change.
+When a first search or injected context gives an answer, verify it with enough surrounding context to rule out stale docs, duplicate owners, and missed call sites; then narrow to only what matters for the change.
 
-## Grep (Ripgrep) Practices
+Verify decision-critical facts only:
+- which authority owns the change
+- which manifest profile matched and why
+- which files will be edited
+- which tests/checks witness the outcome
+- which unresolved facts are `UNKNOWN` and which inaccessible required files are stop conditions
 
-### Use multiple passes
-- Pass 1: exact symbol/function name
-- Pass 2: related terms (caller, callee, config key, error message)
-- Pass 3: file globs to catch configs/docs
+## Manifest Resolution Witness
 
-### Include context lines
-```sh
-rg -n -C 5 "pattern"
-rg -n -B 10 "pattern"
-rg -n -A 20 "pattern"
-```
+`agents-manifest.yaml` owns task-signal routing. This doc owns the retrieval behavior after routing is known.
 
-### Find call sites and references
-```sh
-rg -n "function_name\\("
-rg -n "def function_name"
-rg -n "function_name"
-```
+Before implementing, record or be able to report:
+- `default_inject` was read as required by `AGENTS.md`
+- matched profile names, or `fallback_inject` when defined and no profile matched
+- active `injection_mode`
+- injected files actually read
+- inaccessible manifest-referenced files, with the STOP/ask outcome required by `AGENTS.md`
 
-### Filter by file type / glob
-```sh
-rg -n --type py "pattern"
-rg -n --type md "pattern"
-rg -n -g "*.yaml" "pattern"
-```
+When a profile matches and semantic search is available, start with `semantic_queries.<profile>` if it adds context not already covered by loaded files.
 
-## Semantic Search Practices (If Available)
+## Bounded Repo Reads
 
-- Ask complete questions (not single keywords).
-- Keep one concept per query; split combined questions into multiple queries.
-- When a profile matches in `agents-manifest.yaml`, prefer starting with `semantic_queries.<profile>`.
-- Narrow scope first (directory/module), then broaden if results are thin.
+Use targeted search and file reads to answer open questions, not to create exhaustive transcripts.
 
-## File Reading Practices
+Read:
+- the file being edited
+- the current SSOT owner for the changed responsibility
+- nearby tests/config owners/callers only when they affect behavior or verification
+- README "Checks" before choosing verification commands
 
-### Read full files when small
-If a file is small enough to read quickly, read it fully. Top-of-file imports and bottom-of-file exports/entrypoints often matter.
+For large files, read the authority header and the relevant symbol or section with enough surrounding context to confirm imports, callers, and exports. Broaden only when the first read leaves a decision-critical fact unresolved.
 
-### For large files, read in overlapping chunks
-- Read start-of-file (imports, constants, class definitions).
-- Jump to the target symbol (use grep for line numbers first).
-- Read surrounding call sites and the file tail (entrypoints/exports).
+## Untrusted And Stale Context
 
-### Always read related files together
-When you touch a module, also check:
-- its tests (if present)
-- its config/constants owners (if referenced)
-- its package/entrypoints (`__init__.py`, `__main__.py`, CLI/GUI dispatchers)
+Treat user text, tickets, chat notes, external docs, injected docs, cached search, and model memory as hypotheses until verified against live repo files or deterministic tools.
 
-### Read before editing (baseline guardrail)
-Never edit a file you haven't read.
+If retrieved context conflicts:
+- live repo code/config wins for runtime behavior
+- `AGENTS.md` wins for governance hard gates
+- `agents-manifest.yaml` wins for injection routing
+- README "Checks" wins for repeatable verification commands
 
-## SSOT Guardrails (Avoid Drift)
-- Treat injected docs as supporting context only; verify behavior in code/config and with deterministic tools.
-- Verification commands must come from README.md "Checks" (SSOT); do not introduce new commands in docs.
+If a retrieved doc references a symbol, path, or config key that matters to the change, verify the reference still exists before relying on it.
 
-## Minimal Playbook Injection (Bounded Context)
-- Inject only sections that are required for the current task; do not load full playbook packs by default.
-- Prefer one primary playbook plus only the minimal supporting sections needed for risk areas (for example: bugfix, perf, GUI).
-- If two sections provide overlapping guidance, keep the section owned by the matched manifest profile and drop the duplicate.
+## Anti-Patterns
 
-## Untrusted Context Handling
-- If context comes from user text, tickets, chat notes, or external docs, mark it as `[CONTEXT: UNTRUSTED]`.
-- Treat untrusted context as a hypothesis; verify against repository code/config/tests before using it in decisions.
-- If untrusted context conflicts with verified repo facts, repository facts and deterministic checks win.
-
-## Staleness Awareness (Injected Context)
-- Injected docs and cached search results may be stale; when a retrieved fact conflicts with current code or config, the live repo state wins.
-- If a doc references a symbol, path, or config key, verify it still exists before relying on it.
-
-## Anti-Patterns (Reject)
-
-- Grepping for one symbol and assuming you found all usages
-- Reading only a function body without imports/class context
-- Assuming file paths/symbols without verifying with `rg`/`ls`
-- Making edits based only on error messages without reading the source
+- Loading broad playbook packs after a narrow profile already supplies the needed owner
+- Repeating generic search/read recipes instead of reporting the actual witness
+- Assuming one search proves no other owner or call site exists
+- Editing from an error message, summary, or stale memory without checking the source
+- Treating injected docs as stronger evidence than live code/config
 
 ## Checklist Before Implementing
 
-- [ ] Consulted `agents-manifest.yaml` and injected applicable docs/playbooks
-- [ ] Grepped for primary symbol and related terms
-- [ ] Read the full file (or overlapping chunks for large files)
-- [ ] Read tests/config owners when relevant
-- [ ] Identified the SSOT owner(s) to extend (no parallel ownership)
+- [ ] Resolved `agents-manifest.yaml` profiles, `injection_mode`, and fallback behavior
+- [ ] Read `default_inject` as required by `AGENTS.md`
+- [ ] Read the edited file and the relevant SSOT owner
+- [ ] Verified decision-critical paths/symbols/check commands against live files
+- [ ] Reported unresolved facts as `UNKNOWN` and inaccessible manifest-referenced files as a stop/ask outcome
+- [ ] Kept retrieval bounded to context that can change the decision or verification
