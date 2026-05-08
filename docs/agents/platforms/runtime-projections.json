@@ -36,6 +36,7 @@
         "scope": "project",
         "source_root": "docs/agents/skills",
         "target_root": ".cursor/rules",
+        "preserve_existing_when_disabled": true,
         "default_enabled": false
       },
       {
@@ -76,41 +77,8 @@
         "scope": "project",
         "source_root": "docs/agents/skills",
         "target_root": ".claude/commands",
-        "default_enabled": false
-      }
-    ],
-    "subagents": [
-      {
-        "id": "claude-project-agents",
-        "platform": "claude-code",
-        "support_level": "official",
-        "projection_mode": "directory_link",
-        "scope": "project",
-        "source_root": "docs/agents/subagents/shared",
-        "target_root": ".claude/agents",
-        "default_enabled": true
-      },
-      {
-        "id": "legacy-cursor-agents",
-        "platform": "cursor",
-        "support_level": "compatibility",
-        "projection_mode": "directory_link",
-        "scope": "project",
-        "source_root": "docs/agents/subagents/shared",
-        "target_root": ".cursor/agents",
         "preserve_existing_when_disabled": true,
         "default_enabled": false
-      },
-      {
-        "id": "codex-subagents",
-        "platform": "codex",
-        "support_level": "official",
-        "projection_mode": "directory_link",
-        "scope": "project",
-        "source_root": "docs/agents/subagents/codex",
-        "source_file_glob": "*.toml",
-        "target_root": ".codex/agents",
-        "default_enabled": true
       }
     ],
     "mcp": [

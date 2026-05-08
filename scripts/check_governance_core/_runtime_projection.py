@@ -23,14 +23,13 @@ RUNTIME_PROJECTION_ALLOWED_MODES_BY_ASSET_CLASS = {
         "generated_claude_commands_from_skills",
         "skip",
     },
-    "subagents": {
-        "directory_link",
-        "generated_claude_agents_from_subagents",
-        "skip",
-    },
     "mcp": {"mcp_file_link", "skip"},
     "settings": {"settings_file_link", "skip"},
     "acp": {"skip"},
+}
+ENTRY_OPTIONAL_BOOLEAN_FIELDS = {
+    "preserve_existing_when_disabled",
+    "preserve_existing_non_link",
 }
 
 
@@ -152,6 +151,14 @@ def _validate_settings_source(
     return errors, notes
 
 
+def _validate_optional_boolean_fields(entry_id: str, entry: Dict[str, object]) -> List[str]:
+    errors: List[str] = []
+    for field in ENTRY_OPTIONAL_BOOLEAN_FIELDS:
+        if field in entry and not isinstance(entry[field], bool):
+            errors.append(f"runtime-projections.json entry '{entry_id}' {field} must be a boolean.")
+    return errors
+
+
 def _validate_entry(
     asset_class: str,
     idx: int,
@@ -189,6 +196,8 @@ def _validate_entry(
     else:
         seen_ids.add(entry_id)
 
+    errors.extend(_validate_optional_boolean_fields(entry_id, entry))
+
     support_level = entry.get("support_level")
     if support_level not in RUNTIME_PROJECTION_REQUIRED_SUPPORT_LEVELS:
         errors.append(
@@ -219,8 +228,6 @@ def _validate_entry(
         "child_directory_links",
         "generated_cursor_rules_from_skills",
         "generated_claude_commands_from_skills",
-        "directory_link",
-        "generated_claude_agents_from_subagents",
     }:
         source_root = entry.get("source_root")
         target_root = entry.get("target_root")

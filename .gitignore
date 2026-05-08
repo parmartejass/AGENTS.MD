@@ -40,17 +40,10 @@ X-Bookmarks Import/skills/x-api-data-access/
 .vscode/
 .idea/
 .codex/config.toml
-# Project-local Codex agent mirrors (copy or junction from docs/agents/subagents/codex/).
+# Project-local Codex agent configs are local runtime state, not repo-owned projections.
 # Do not commit a symlink-stub file named `.codex/agents` — on Windows it is a regular file and breaks Codex CLI (os error 267).
 .codex/agents/
-# (.codex/config.toml stays ignored: may contain machine-specific or secret-backed MCP config)
 .agents/skills/
-.cursor/skills/
-.cursor/agents/
-.cursor/plans/
-.cursor/rules/
-.cursor/mcp.json
-.cursor/cli.json
 # Claude Code runtime adapters: tracked (clone-and-go); use repo-relative symlinks. Local overrides:
 .claude/settings.local.json
 .mcp.json
@@ -63,3 +56,5 @@ X-Bookmarks Import/skills/x-api-data-access/
 
 # Session-analysis scratch context
 .temp*/
+scripts/check_folder_architecture/.tmp-test-workspaces/
+scripts/check_docs_router_contract/.tmp-test-workspaces/

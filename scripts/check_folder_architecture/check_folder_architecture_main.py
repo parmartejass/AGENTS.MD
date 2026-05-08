@@ -392,58 +392,6 @@ def _check_dual_entry_template(root: Path, issues: list[Issue]) -> None:
     )
 
 
-def _check_pr_control_plane_template(root: Path, issues: list[Issue]) -> None:
-    required_paths = (
-        "templates/pr-control-plane/scripts/scripts_main.py",
-        "templates/pr-control-plane/scripts/check_review_state/check_review_state_main.py",
-        "templates/pr-control-plane/scripts/harness_gap/harness_gap_main.py",
-        "templates/pr-control-plane/scripts/remediation_loop/remediation_loop_main.py",
-        "templates/pr-control-plane/scripts/request_rerun/request_rerun_main.py",
-        "templates/pr-control-plane/scripts/resolve_bot_threads/resolve_bot_threads_main.py",
-        "templates/pr-control-plane/scripts/risk_policy_gate/risk_policy_gate_main.py",
-        "templates/pr-control-plane/scripts/validate_browser_evidence/validate_browser_evidence_main.py",
-    )
-    for rel_path in required_paths:
-        _check_exists(root, rel_path, issues)
-
-    for legacy in (
-        "templates/pr-control-plane/scripts/main.py",
-        "templates/pr-control-plane/scripts/check_review_state/main.py",
-        "templates/pr-control-plane/scripts/harness_gap/main.py",
-        "templates/pr-control-plane/scripts/remediation_loop/main.py",
-        "templates/pr-control-plane/scripts/request_rerun/main.py",
-        "templates/pr-control-plane/scripts/resolve_bot_threads/main.py",
-        "templates/pr-control-plane/scripts/risk_policy_gate/main.py",
-        "templates/pr-control-plane/scripts/validate_browser_evidence/main.py",
-        "templates/pr-control-plane/scripts/check_review_state.py",
-        "templates/pr-control-plane/scripts/common.py",
-        "templates/pr-control-plane/scripts/harness_gap.py",
-        "templates/pr-control-plane/scripts/remediation_loop.py",
-        "templates/pr-control-plane/scripts/request_rerun.py",
-        "templates/pr-control-plane/scripts/resolve_bot_threads.py",
-        "templates/pr-control-plane/scripts/risk_policy_gate.py",
-        "templates/pr-control-plane/scripts/validate_browser_evidence.py",
-    ):
-        _check_absent(root, legacy, issues)
-
-    _check_text_contains(
-        root,
-        "templates/pr-control-plane/scripts/scripts_main.py",
-        required=[
-            'def _load_child_module(child_name: str):',
-            '_load_child_module("check_review_state")',
-            '_load_child_module("risk_policy_gate")',
-            'subparsers.add_parser("risk-policy-gate"',
-        ],
-        forbidden=[
-            "from common import",
-            "from check_review_state.check_review_state_main import",
-            "from risk_policy_gate.risk_policy_gate_main import",
-        ],
-        issues=issues,
-    )
-
-
 def _parse_python_module(root: Path, path: Path, issues: list[Issue]) -> ast.Module | None:
     rel_path = path.relative_to(root).as_posix()
     raw = _read_text_file(path, rel_path, issues)
@@ -545,7 +493,6 @@ def _check_governance_owned_contracts(repo_root: Path, governance_root: Path, is
     _check_python_scope(validation_root, governance_root, issues)
     _check_scripts_root(validation_root, governance_root, issues)
     _check_dual_entry_template(validation_root, issues)
-    _check_pr_control_plane_template(validation_root, issues)
     _check_parent_only_imports(
         validation_root,
         TreeSpec(
@@ -553,24 +500,6 @@ def _check_governance_owned_contracts(repo_root: Path, governance_root: Path, is
             parent_main="templates/python-dual-entry/myapp/myapp_main.py",
             module_prefix="myapp",
             child_dirs=("cli", "core", "gui", "runner"),
-        ),
-        issues,
-    )
-    _check_parent_only_imports(
-        validation_root,
-        TreeSpec(
-            tree_root="templates/pr-control-plane/scripts",
-            parent_main="templates/pr-control-plane/scripts/scripts_main.py",
-            module_prefix="scripts",
-            child_dirs=(
-                "check_review_state",
-                "harness_gap",
-                "remediation_loop",
-                "request_rerun",
-                "resolve_bot_threads",
-                "risk_policy_gate",
-                "validate_browser_evidence",
-            ),
         ),
         issues,
     )

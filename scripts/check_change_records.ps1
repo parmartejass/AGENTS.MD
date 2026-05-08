@@ -260,6 +260,46 @@ $councilFullOnlyFields = @($councilFullRequired | Where-Object { $councilAbbrevi
 $councilPhasesAllowed = @("pre_change", "post_change")
 $councilGoNoGoAllowed = @("go", "hold")
 $councilIntentRequired = @("ssot_duplication", "silent_error", "edge_case", "resource_security_perf")
+$retiredReferencePrefix = "retired:"
+$vendoredGovernancePrefix = ".governance/"
+$retiredReferencePatterns = @(
+  "docs/agents/acp/",
+  "docs/agents/automation/",
+  "docs/agents/integrations/",
+  "docs/generated/",
+  "templates/automation-loop/",
+  "templates/pr-control-plane/"
+)
+
+function Remove-ReferencePrefixes([string]$Reference) {
+  $normalized = $Reference.Trim().Replace('\', '/')
+  if ($normalized.StartsWith($retiredReferencePrefix)) {
+    $normalized = $normalized.Substring($retiredReferencePrefix.Length)
+  }
+  if ($normalized.StartsWith($vendoredGovernancePrefix)) {
+    $normalized = $normalized.Substring($vendoredGovernancePrefix.Length)
+  }
+  return $normalized
+}
+
+function Find-UnprefixedRetiredReferences([string]$Text) {
+  $matches = @()
+  $normalized = $Text.Replace('\', '/')
+  foreach ($pattern in $retiredReferencePatterns) {
+    $index = $normalized.IndexOf($pattern, [System.StringComparison]::Ordinal)
+    while ($index -ge 0) {
+      $prefixStart = $index - $retiredReferencePrefix.Length
+      $hasRetiredPrefix = $prefixStart -ge 0 -and $normalized.Substring($prefixStart, $retiredReferencePrefix.Length) -eq $retiredReferencePrefix
+      if (-not $hasRetiredPrefix) {
+        $matches += $pattern
+        break
+      }
+      $nextStart = $index + $pattern.Length
+      $index = $normalized.IndexOf($pattern, $nextStart, [System.StringComparison]::Ordinal)
+    }
+  }
+  return $matches
+}
 
 function Test-IsGovernanceScopedRecord([object]$record) {
   $owners = Get-PropertyValue $record "ssot_owner_paths"
@@ -268,7 +308,7 @@ function Test-IsGovernanceScopedRecord([object]$record) {
   $ownerPaths = Convert-ToArray $owners
   foreach ($ownerPath in $ownerPaths) {
     if (-not ($ownerPath -is [string])) { continue }
-    $norm = $ownerPath.Trim().Replace("\\", "/")
+    $norm = Remove-ReferencePrefixes $ownerPath
     if ($norm -eq "AGENTS.md" -or
         $norm -eq "agents-manifest.yaml" -or
         $norm.StartsWith("docs/agents/") -or
@@ -278,6 +318,20 @@ function Test-IsGovernanceScopedRecord([object]$record) {
   }
 
   return $false
+}
+
+function Test-TraceabilityReferenceExists([string]$Reference) {
+  if ($Reference.Trim().Replace('\', '/').StartsWith($retiredReferencePrefix)) { return $true }
+  $normalized = Remove-ReferencePrefixes $Reference
+  if ([string]::IsNullOrWhiteSpace($normalized)) { return $false }
+  if ($normalized -match '^[A-Za-z][A-Za-z0-9+.-]*://') { return $true }
+
+  $target = ($normalized -split '#', 2)[0]
+  $target = ($target -split '\?', 2)[0]
+  if ([string]::IsNullOrWhiteSpace($target)) { return $true }
+  if ($target.StartsWith("/") -or $target -match '(^|/)\.\.?(/|$)') { return $false }
+
+  return (Test-Path -LiteralPath (Join-Path $repoRootPath $target))
 }
 
 $issues = New-Object System.Collections.Generic.List[string]
@@ -439,6 +493,11 @@ foreach ($recordFile in $recordFiles) {
   }
 
   if ($changeType -eq "docs" -and (Test-IsGovernanceScopedRecord $record)) {
+    foreach ($retiredReference in (Find-UnprefixedRetiredReferences $recordText)) {
+      Add-Issue $issues "Governance docs change record contains unprefixed retired reference '$retiredReference' in $($recordFile.FullName). Prefix historical references with '$retiredReferencePrefix'."
+      $recordHasErrors = $true
+    }
+
     $council = Get-PropertyValue $record "council_summary"
     if (-not $council -or -not ($council -is [pscustomobject])) {
       Add-Issue $issues "Governance docs change record missing object field 'council_summary' in $($recordFile.FullName)."
@@ -617,6 +676,11 @@ foreach ($recordFile in $recordFiles) {
         foreach ($traceabilityRef in $traceabilityRefs) {
           if (-not ($traceabilityRef -is [string]) -or [string]::IsNullOrWhiteSpace($traceabilityRef)) {
             Add-Issue $issues "Governance docs validation_context.traceability_refs must contain only non-empty strings in $($recordFile.FullName)."
+            $recordHasErrors = $true
+            continue
+          }
+          if (-not (Test-TraceabilityReferenceExists -Reference $traceabilityRef)) {
+            Add-Issue $issues "Governance docs validation_context.traceability_refs contains missing active reference '$traceabilityRef' in $($recordFile.FullName). Prefix retired historical references with 'retired:'."
             $recordHasErrors = $true
             continue
           }

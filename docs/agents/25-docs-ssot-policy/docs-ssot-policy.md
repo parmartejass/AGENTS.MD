@@ -55,8 +55,6 @@ update_trigger: <what change requires updating this doc>
 ---
 ```
 
-Generated docs must also use this header, set `doc_type: generated`, and live under `docs/generated/`.
-
 ## Canonical narrative leaf naming
 - Project docs should use the folder purpose as the filename (`goal.md`, `rules.md`, `architecture.md`, `learning.md`).
 - Numbered governance folders should use the semantic slug without the numeric prefix (`principles.md`, `docs-ssot-policy.md`, `release-checklist.md`).
@@ -72,10 +70,6 @@ Operational agent assets under `docs/agents/` can coexist with governance docs w
   - A skill bundle directory is identified by a local `SKILL.md`.
   - `SKILL.md` frontmatter is owned by the skill runtime format, not the docs header schema.
 
-- Subagents:
-  - Runtime subagent files under `docs/agents/subagents/<platform>/` are operational artifacts.
-  - Their markdown frontmatter is owned by the target platform, not the docs header schema.
-
 - Repo checks exclude those operational asset paths from docs header enforcement.
 - Governance docs that describe these asset types still live directly under `docs/agents/<category>/` and must keep the standard docs header in the canonical leaf doc.
 
@@ -90,11 +84,3 @@ Context injection should reduce bloat and prevent “random docs” from becomin
 - Create project-specific docs only for intent/runbooks, keep them minimal, and reference SSOT owners by identifier (do not re-encode constants/rules).
 - If a doc might drift, tighten its `update_trigger` and avoid adding it to broad/always-on injection.
 - When tooling supports it, anchor doc sections to source code locations so changes in the referenced code surface stale docs automatically (e.g., code-anchored linters).
-
-## Generated docs (optional)
-Generated docs are allowed if:
-- clearly marked `doc_type: generated`
-- not edited manually
-- regenerated from the code SSOT
-
-Keep generated output in `docs/generated/` and do not accept manual edits there.

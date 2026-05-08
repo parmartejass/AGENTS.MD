@@ -23,6 +23,14 @@ UNRESOLVED_CITATION_PATTERNS = (
     "entity",
     "image_group",
 )
+RETIRED_ACTIVE_REFERENCE_PATTERNS = (
+    "docs/agents/acp/",
+    "docs/agents/automation/",
+    "docs/agents/integrations/",
+    "docs/generated/",
+    "templates/automation-loop/",
+    "templates/pr-control-plane/",
+)
 
 
 def check_repo_hygiene(repo_root: Path) -> List[str]:
@@ -74,6 +82,7 @@ def check_repo_hygiene(repo_root: Path) -> List[str]:
             continue
         if any(pattern.search(norm) for pattern in TRACKED_SECRET_PATH_PATTERNS):
             errors.append(f"Tracked secret-like or workspace-local file: {path}")
+            continue
 
     return errors
 
@@ -99,6 +108,33 @@ def check_docs_for_unresolved_citations(repo_root: Path) -> List[str]:
                     "Replace `cite`/`entity`/`image_group` markers with resolvable references."
                 )
 
+    return errors
+
+
+def check_docs_for_retired_active_references(repo_root: Path) -> List[str]:
+    errors: List[str] = []
+    docs_root = repo_root / "docs"
+    if not docs_root.is_dir():
+        return errors
+
+    for doc_file in docs_root.rglob("*"):
+        if not doc_file.is_file():
+            continue
+        rel_under_docs = doc_file.relative_to(docs_root)
+        if "change-records" in rel_under_docs.parts:
+            continue
+        rel_path = doc_file.relative_to(repo_root).as_posix()
+        try:
+            text = doc_file.read_text(encoding="utf-8", errors="replace")
+        except OSError as exc:
+            errors.append(f"Failed to read docs file for retired-reference checks: {rel_path} ({exc})")
+            continue
+        for pattern in RETIRED_ACTIVE_REFERENCE_PATTERNS:
+            if pattern in text:
+                errors.append(
+                    f"Retired path reference in active docs: {rel_path} contains {pattern}. "
+                    "Move historical references to change records with the 'retired:' prefix."
+                )
     return errors
 
 

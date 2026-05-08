@@ -4,7 +4,7 @@ ssot_owner: docs/agents/platforms/runtime-projections.json
 update_trigger: Codex runtime docs, skill paths, or config rules change
 ---
 
-# Codex Runtime Contract (Retrieved 2026-03-06, re-verified 2026-03-08)
+# Codex Runtime Contract (Retrieved 2026-03-06, repo decision re-verified 2026-05-08)
 
 ## Sources
 
@@ -25,5 +25,5 @@ update_trigger: Codex runtime docs, skill paths, or config rules change
 
 - Auto-project official project-local Codex skills into `.agents/skills/`.
 - Auto-project a repo-owned project `.codex/config.toml` only for explicitly shared, non-secret project settings.
-- Auto-project official project-local Codex subagent TOML role adapters from `docs/agents/subagents/codex/` into `.codex/agents/`, with `multi_agent` enabled in project config.
+- Do not auto-project Codex subagent TOML role adapters; canonical agent instructions remain in `AGENTS.md` and context routing remains in `agents-manifest.yaml`.
 - Do not auto-project user-home Codex skills by default; current official docs use `$HOME/.agents/skills` for user-scoped skills, but this repo keeps user-home paths manual.

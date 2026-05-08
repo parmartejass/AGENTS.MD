@@ -54,15 +54,13 @@ Each active decision record must include:
 - Coordinated update set:
   - `docs/agents/skills/00-skill-standards/skill-standards.md`
   - `docs/agents/skills/10-platform-adapters/platform-adapters.md`
-  - `docs/agents/platforms/runtime-projections.json`
-  - `docs/agents/link_repo_assets.ps1`
   - `docs/agents/agents_index.md`
   - `README.md`
   - `agents-manifest.yaml`
   - `scripts/check_governance_core/check_governance_core_main.py`
 - Verification witness:
   - `python3 scripts/check_governance_core/check_governance_core_main.py` passes.
-  - `docs/agents/agents_index.md`, `README.md`, and runtime projection tooling all reference `docs/agents/skills/` as the canonical reusable skill root.
+  - `docs/agents/agents_index.md` and `README.md` reference `docs/agents/skills/` as the canonical reusable skill root.
   - The tracked canonical X API skill bundle exists under `docs/agents/skills/x-api-data-access/`.
 - Review trigger:
   - Any proposal to move canonical X skill ownership away from `docs/agents/skills/`.
@@ -73,34 +71,46 @@ Each active decision record must include:
 - Scope: repo-owned agent assets projected into project-local or explicitly declared user-home runtime paths
 - Canonical owner:
   - Concrete runtime target mapping: `docs/agents/platforms/runtime-projections.json`
-  - Canonical source asset roots: `docs/agents/skills/`, `docs/agents/settings/`, `docs/agents/subagents/`, `docs/agents/mcp/`, `docs/agents/acp/`
+  - Canonical source asset roots: `docs/agents/skills/`, `docs/agents/settings/`, `docs/agents/mcp/`
 - Allowed non-owner locations:
-  - Runtime targets declared in `docs/agents/platforms/runtime-projections.json`, including project dotpaths such as `.agents/skills/`, `.codex/config.toml`, `.codex/agents/`, `.claude/agents/`, `.claude/settings.json`, `.cursor/mcp.json`, `.cursor/cli.json`, and `.mcp.json`
+  - Runtime targets declared in `docs/agents/platforms/runtime-projections.json`, including project dotpaths such as `.agents/skills/`, `.codex/config.toml`, `.claude/settings.json`, `.cursor/mcp.json`, `.cursor/cli.json`, and `.mcp.json`
   - Explicit user-home targets declared in `docs/agents/platforms/runtime-projections.json`, such as `{HOME}/.agents/skills`
   - Generated or linked runtime projections created by `docs/agents/link_repo_assets.ps1` or `scripts/setup_repo_platform_assets.ps1`
+  - Legacy local subagent runtime paths such as `.claude/agents/` and `.codex/agents/` may exist only as non-authoritative local/platform surfaces; they are not repo-owned projections and stale copies must be removed or managed outside this runtime-projection authority.
+  - `.cursor/plans/` may contain tracked Cursor planning records for this governance source repo; it is not a runtime projection target and is not governed by `runtime-projections.json`.
+- Retired scope:
+  - ACP placeholders, automation runbooks, integration note branches, generated analyses, and PR-control-plane templates are retired in this cleanup and may appear in change records only with `retired:`.
+  - Repo-owned subagent source docs and runtime adapters under `docs/agents/subagents/` are retired; canonical agent instructions remain in `AGENTS.md` and context routing remains in `agents-manifest.yaml`.
 - Forbidden duplicates:
-  - Do not treat projected runtime files or folders as canonical owners for platform settings, MCP definitions, skills, subagents, or ACP assets
-  - Do not restate concrete runtime mapping facts in `README.md` or `docs/project/platform-runtime-status/platform-runtime-status.md` as parallel authorities
-  - Do not create second canonical asset roots outside the `docs/agents/` source owners listed above
+  - Do not treat projected runtime files or folders as canonical owners for platform settings, MCP definitions, or skills.
+  - Do not restate concrete runtime mapping facts in `README.md` or `docs/project/platform-runtime-status/platform-runtime-status.md` as parallel authorities.
+  - Do not create second canonical asset roots outside the `docs/agents/` source owners listed above.
 - Coordinated update set:
+  - `README.md`
+  - `agents-manifest.yaml`
+  - `docs/agents/agents_index.md`
+  - `docs/agents/20-sources-of-truth-map/sources-of-truth-map.md`
+  - `docs/agents/skills/00-skill-standards/skill-standards.md`
   - `docs/agents/platforms/runtime-projections.json`
   - `docs/agents/platforms/00-platform-runtime-standards/platform-runtime-standards.md`
   - `docs/agents/mcp/00-mcp-standards/mcp-standards.md`
   - `docs/agents/settings/00-settings-standards/settings-standards.md`
-  - `docs/agents/subagents/00-subagent-standards/subagent-standards.md`
+  - `docs/agents/settings/codex/config.toml`
   - `docs/agents/link_repo_assets.ps1`
   - `scripts/setup_repo_platform_assets.ps1`
   - `docs/project/platform-runtime-status/platform-runtime-status.md`
   - `docs/project/architecture/architecture.md`
-  - `README.md`
+  - `scripts/check_repo_hygiene.ps1`
+  - `scripts/check_governance_core/check_governance_core_main.py`
 - Verification witness:
-  - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/setup_repo_platform_assets.ps1 -Force` completes for supported defaults
-  - `docs/project/platform-runtime-status/platform-runtime-status.md` references runtime projections and source owners rather than restating concrete mapping facts as SSOT
-  - Projected runtime paths continue to resolve from the source owners declared in `docs/agents/platforms/runtime-projections.json`
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/setup_repo_platform_assets.ps1 -Force` completes for supported defaults.
+  - `docs/project/platform-runtime-status/platform-runtime-status.md` references runtime projections and source owners rather than restating concrete mapping facts as SSOT.
+  - Projected runtime paths continue to resolve from the source owners declared in `docs/agents/platforms/runtime-projections.json`.
+  - Retired `.claude/agents/` and `.codex/agents/` runtime paths are documented as local-only legacy surfaces, not canonical source roots or projection targets.
 - Review trigger:
-  - Any proposal to add or remove a projected runtime target
-  - Any proposal to move a runtime surface between project-local, user-home, compatibility, manual, or official support levels
-  - Any proposal to treat a projected runtime path as a canonical owner rather than a non-owner projection
+  - Any proposal to add or remove a projected runtime target.
+  - Any proposal to move a runtime surface between project-local, user-home, compatibility, manual, or official support levels.
+  - Any proposal to treat a projected runtime path as a canonical owner rather than a non-owner projection.
 
 ### SSOT-DEC-003 - Docs router authority vs canonical narrative leaf docs
 - Status: active
@@ -134,7 +144,6 @@ Each active decision record must include:
   - `scripts/check_docs_router_contract/check_docs_router_contract_main.py`
   - `scripts/check_governance_core/_manifest_and_docs.py`
   - `scripts/check_folder_architecture/check_folder_architecture_main.py`
-  - `templates/pr-control-plane/README.md`
   - `templates/python-dual-entry/README.md`
 - Verification witness:
   - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_docs_ssot.ps1` passes

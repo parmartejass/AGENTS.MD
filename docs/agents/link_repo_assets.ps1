@@ -3,11 +3,16 @@ param(
     [switch]$Force,
     [switch]$IncludeCompatibility,
     [string]$RepoRoot,
-    [string[]]$Include = @("skills", "subagents", "mcp", "settings", "acp")
+    [string[]]$Include = @("skills", "mcp", "settings", "acp"),
+    [switch]$RepairPlainDirectoryStubs
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
+
+$IsWindowsRuntime = [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform(
+    [System.Runtime.InteropServices.OSPlatform]::Windows
+)
 
 function Remove-TrailingDirectorySeparators {
     param(
@@ -80,6 +85,45 @@ function Test-IsLink {
     return (($Item.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0)
 }
 
+function Test-IsHardLink {
+    param(
+        [Parameter(Mandatory = $true)]
+        [System.IO.FileSystemInfo]$Item,
+        [Parameter(Mandatory = $true)]
+        [string]$TargetPath
+    )
+
+    if ($Item.PSIsContainer) {
+        return $false
+    }
+
+    if (-not ($Item.PSObject.Properties.Name -contains "LinkType")) {
+        return $false
+    }
+
+    $linkType = [string]$Item.LinkType
+    if (-not $linkType.Equals("HardLink", [System.StringComparison]::OrdinalIgnoreCase)) {
+        return $false
+    }
+
+    $expectedResolved = Get-NormalizedPath -Path $TargetPath
+    foreach ($candidate in @($Item.Target)) {
+        if ([string]::IsNullOrWhiteSpace([string]$candidate)) {
+            continue
+        }
+        try {
+            $normalizedCandidate = Get-NormalizedPath -Path ([string]$candidate) -AllowMissing
+        } catch {
+            continue
+        }
+        if ($normalizedCandidate -eq $expectedResolved) {
+            return $true
+        }
+    }
+
+    return $false
+}
+
 function Get-LinkResolvedTarget {
     param(
         [Parameter(Mandatory = $true)]
@@ -113,18 +157,100 @@ function Get-RelativeLinkTarget {
 
     $normalizedBase = Get-NormalizedPath -Path $BaseDirectory
     $normalizedTarget = Get-NormalizedPath -Path $TargetPath
-    return [System.IO.Path]::GetRelativePath($normalizedBase, $normalizedTarget)
+    if ([System.IO.Path].GetMethod("GetRelativePath", [type[]]@([string], [string]))) {
+        return [System.IO.Path]::GetRelativePath($normalizedBase, $normalizedTarget)
+    }
+
+    $baseWithSeparator = $normalizedBase
+    if (-not $baseWithSeparator.EndsWith([System.IO.Path]::DirectorySeparatorChar)) {
+        $baseWithSeparator += [System.IO.Path]::DirectorySeparatorChar
+    }
+    $baseUri = [System.Uri]::new($baseWithSeparator)
+    $targetUri = [System.Uri]::new($normalizedTarget)
+    $relativeUri = $baseUri.MakeRelativeUri($targetUri).ToString()
+    return [System.Uri]::UnescapeDataString($relativeUri).Replace("/", [System.IO.Path]::DirectorySeparatorChar)
 }
 
-function Test-HardLinkMatch {
+function Resolve-PlainTextLinkStubTarget {
     param(
+        [Parameter(Mandatory = $true)]
+        [string]$LinkPath
+    )
+
+    try {
+        $stubText = (Get-Content -Raw -LiteralPath $LinkPath -ErrorAction Stop).Trim().TrimStart([char]0xFEFF)
+    } catch {
+        return $null
+    }
+
+    if ([string]::IsNullOrWhiteSpace($stubText) -or $stubText -match "[`r`n]") {
+        return $null
+    }
+
+    $isRooted = $false
+    try {
+        $isRooted = [System.IO.Path]::IsPathRooted($stubText)
+    } catch {
+        return $null
+    }
+
+    if (-not $isRooted) {
+        try {
+            $stubText = Join-Path (Split-Path -Parent $LinkPath) $stubText
+        } catch {
+            return $null
+        }
+    }
+
+    try {
+        return Get-NormalizedPath -Path $stubText -AllowMissing
+    } catch {
+        return $null
+    }
+}
+
+function Test-PlainTextDirectoryLinkStub {
+    param(
+        [Parameter(Mandatory = $true)]
+        [System.IO.FileSystemInfo]$Item,
         [Parameter(Mandatory = $true)]
         [string]$LinkPath,
         [Parameter(Mandatory = $true)]
         [string]$TargetPath
     )
 
-    return (Test-FileContentMatch -FirstPath $LinkPath -SecondPath $TargetPath)
+    if ($Item.PSIsContainer) {
+        return $false
+    }
+
+    $resolvedStubTarget = Resolve-PlainTextLinkStubTarget -LinkPath $LinkPath
+    if ($null -eq $resolvedStubTarget) {
+        return $false
+    }
+
+    return ($resolvedStubTarget -eq (Get-NormalizedPath -Path $TargetPath))
+}
+
+function Test-PlainTextFileLinkStub {
+    param(
+        [Parameter(Mandatory = $true)]
+        [System.IO.FileSystemInfo]$Item,
+        [Parameter(Mandatory = $true)]
+        [string]$LinkPath,
+        [Parameter(Mandatory = $true)]
+        [string]$TargetPath
+    )
+
+    if ($Item.PSIsContainer) {
+        return $false
+    }
+
+    $resolvedStubTarget = Resolve-PlainTextLinkStubTarget -LinkPath $LinkPath
+    if ($null -eq $resolvedStubTarget) {
+        return $false
+    }
+
+    return ($resolvedStubTarget -eq (Get-NormalizedPath -Path $TargetPath))
 }
 
 function Remove-LinkPath {
@@ -134,6 +260,12 @@ function Remove-LinkPath {
     )
 
     if (-not (Test-Path -LiteralPath $Path)) {
+        return
+    }
+
+    $item = Get-Item -LiteralPath $Path -Force
+    if ($item.PSIsContainer -and (Test-IsLink -Item $item)) {
+        [System.IO.Directory]::Delete($Path, $false)
         return
     }
 
@@ -163,7 +295,8 @@ function Ensure-DirectoryLink {
         [string]$TargetPath,
         [switch]$UseRelativeTarget,
         [switch]$AllowReplace,
-        [switch]$PreserveExistingNonLink
+        [switch]$PreserveExistingNonLink,
+        [switch]$RepairPlainStubs
     )
 
     $expectedResolved = Get-NormalizedPath -Path $TargetPath
@@ -172,41 +305,57 @@ function Ensure-DirectoryLink {
     if ($null -ne $existing) {
         $linkResolutionFailed = $false
         if (-not (Test-IsLink -Item $existing)) {
-            if ($PreserveExistingNonLink) {
+            if ($PreserveExistingNonLink -and $existing.PSIsContainer) {
                 Write-Host "PRESERVED directory-link target '$LinkPath' as an existing non-link directory. The canonical source remains '$expectedResolved'."
                 return
             }
+            if (Test-PlainTextDirectoryLinkStub -Item $existing -LinkPath $LinkPath -TargetPath $TargetPath) {
+                if ((-not $AllowReplace) -or (-not $RepairPlainStubs)) {
+                    throw "Existing plain-file link stub '$LinkPath' points to canonical source but is not a directory link. Re-run with -Force -RepairPlainDirectoryStubs to convert it, or remove/rename it manually."
+                }
+                Remove-LinkPath -Path $LinkPath
+                $existing = $null
+            } else {
+                throw "Refusing to replace non-link path '$LinkPath'. Remove or rename it manually."
+            }
+        }
+
+        if ($null -eq $existing) {
+            $linkResolutionFailed = $false
+        } elseif (-not (Test-IsLink -Item $existing)) {
             throw "Refusing to replace non-link path '$LinkPath'. Remove or rename it manually."
         }
 
-        $actualResolved = $null
-        try {
-            $actualResolved = Get-LinkResolvedTarget -LinkPath $LinkPath
-        } catch {
+        if ($null -ne $existing) {
             $actualResolved = $null
-            $linkResolutionFailed = $true
-        }
-
-        if ($actualResolved -eq $expectedResolved) {
-            Write-Output "OK     $LinkPath -> $expectedResolved"
-            return
-        }
-
-        if (-not $AllowReplace) {
-            if ($linkResolutionFailed) {
-                throw "Existing link '$LinkPath' is broken or unresolvable. Re-run with -Force to replace the link only."
+            try {
+                $actualResolved = Get-LinkResolvedTarget -LinkPath $LinkPath
+            } catch {
+                $actualResolved = $null
+                $linkResolutionFailed = $true
             }
-            $existingTarget = ""
-            if ($null -ne $existing.Target) {
-                $existingTarget = ($existing.Target -join ", ")
-            }
-            throw "Existing link '$LinkPath' points somewhere else ('$existingTarget'). Re-run with -Force to replace the link only."
-        }
 
-        try {
-            Remove-LinkPath -Path $LinkPath
-        } catch {
-            throw "Failed to remove existing link directory '$LinkPath'. $($_.Exception.Message)"
+            if ($actualResolved -eq $expectedResolved) {
+                Write-Output "OK     $LinkPath -> $expectedResolved"
+                return
+            }
+
+            if (-not $AllowReplace) {
+                if ($linkResolutionFailed) {
+                    throw "Existing link '$LinkPath' is broken or unresolvable. Re-run with -Force to replace the link only."
+                }
+                $existingTarget = ""
+                if ($null -ne $existing.Target) {
+                    $existingTarget = ($existing.Target -join ", ")
+                }
+                throw "Existing link '$LinkPath' points somewhere else ('$existingTarget'). Re-run with -Force to replace the link only."
+            }
+
+            try {
+                Remove-LinkPath -Path $LinkPath
+            } catch {
+                throw "Failed to remove existing link directory '$LinkPath'. $($_.Exception.Message)"
+            }
         }
     }
 
@@ -224,7 +373,7 @@ function Ensure-DirectoryLink {
         New-Item -ItemType SymbolicLink -Path $LinkPath -Target $linkTarget | Out-Null
     } catch {
         $symlinkError = $_.Exception.Message
-        if ($IsWindows) {
+        if ($IsWindowsRuntime) {
             try {
                 New-Item -ItemType Junction -Path $LinkPath -Target $TargetPath | Out-Null
                 $linkKind = "junction"
@@ -272,8 +421,10 @@ function Ensure-FileLink {
                 $isExpectedLink = $false
                 $linkResolutionFailed = $true
             }
-        } elseif (Test-HardLinkMatch -LinkPath $LinkPath -TargetPath $TargetPath) {
+        } elseif (Test-IsHardLink -Item $existing -TargetPath $TargetPath) {
             $isExpectedLink = $true
+        } elseif (Test-PlainTextFileLinkStub -Item $existing -LinkPath $LinkPath -TargetPath $TargetPath) {
+            $isRepairablePlainFile = $true
         } elseif (Test-FileContentMatch -FirstPath $LinkPath -SecondPath $TargetPath) {
             $isRepairablePlainFile = $true
         }
@@ -287,7 +438,7 @@ function Ensure-FileLink {
             throw "Existing plain file '$LinkPath' matches canonical content but is not linked. Re-run with -Force to repair the link."
         }
 
-        if ((-not (Test-IsLink -Item $existing)) -and (-not (Test-HardLinkMatch -LinkPath $LinkPath -TargetPath $TargetPath)) -and (-not $isRepairablePlainFile)) {
+        if ((-not (Test-IsLink -Item $existing)) -and (-not $isRepairablePlainFile)) {
             throw "Refusing to replace non-link file '$LinkPath'. Remove or rename it manually."
         }
 
@@ -327,8 +478,10 @@ function Ensure-FileLink {
     $newItem = Get-Item -LiteralPath $LinkPath -Force
     if (Test-IsLink -Item $newItem) {
         $verified = ((Get-LinkResolvedTarget -LinkPath $LinkPath) -eq $expectedResolved)
+    } elseif (Test-IsHardLink -Item $newItem -TargetPath $TargetPath) {
+        $verified = $true
     } else {
-        $verified = (Test-FileContentMatch -FirstPath $LinkPath -SecondPath $TargetPath)
+        $verified = $false
     }
 
     if (-not $verified) {
@@ -646,13 +799,39 @@ function Test-ValidTomlFile {
     }
 
     $validationScript = "import pathlib, sys, tomllib; tomllib.loads(pathlib.Path(sys.argv[1]).read_text(encoding='utf-8'))"
-    $validationOutput = & $pythonCmd.Source -c $validationScript $Path 2>&1
-    if ($LASTEXITCODE -ne 0) {
-        $detail = @($validationOutput | ForEach-Object { $_.ToString().Trim() } | Where-Object { $_ }) -join " "
-        if ([string]::IsNullOrWhiteSpace($detail)) {
-            $detail = "python exited with code $LASTEXITCODE."
+    $startInfo = New-Object System.Diagnostics.ProcessStartInfo
+    $startInfo.FileName = $pythonCmd.Source
+    $escapedScript = $validationScript.Replace('"', '\"')
+    $escapedPath = $Path.Replace('"', '\"')
+    $startInfo.Arguments = "-c `"$escapedScript`" `"$escapedPath`""
+    $startInfo.RedirectStandardOutput = $true
+    $startInfo.RedirectStandardError = $true
+    $startInfo.UseShellExecute = $false
+
+    $process = New-Object System.Diagnostics.Process
+    $process.StartInfo = $startInfo
+    try {
+        [void]$process.Start()
+        if (-not $process.WaitForExit(10000)) {
+            try {
+                $process.Kill()
+            } catch {
+                Write-Host "SKIPPED killing timed-out TOML validator process because it already exited."
+            }
+            throw "TOML validation timed out after 10 seconds for '$Path'."
         }
-        throw "Invalid TOML at '$Path': $detail"
+
+        if ($process.ExitCode -ne 0) {
+            $detail = (@($process.StandardOutput.ReadToEnd(), $process.StandardError.ReadToEnd()) |
+                ForEach-Object { $_.ToString().Trim() } |
+                Where-Object { $_ }) -join " "
+            if ([string]::IsNullOrWhiteSpace($detail)) {
+                $detail = "python exited with code $($process.ExitCode)."
+            }
+            throw "Invalid TOML at '$Path': $detail"
+        }
+    } finally {
+        $process.Dispose()
     }
 }
 
@@ -713,7 +892,7 @@ function Get-RepoRelativeReferenceRoot {
         throw "Repo root '$normalizedRepoRoot' must contain the governance root '$normalizedGovernanceRoot' so generated adapters only point at canonical in-repo governance files."
     }
 
-    return ([System.IO.Path]::GetRelativePath($normalizedRepoRoot, $normalizedGovernanceRoot)).Replace("\", "/")
+    return (Get-RelativeLinkTarget -BaseDirectory $normalizedRepoRoot -TargetPath $normalizedGovernanceRoot).Replace("\", "/")
 }
 
 function Join-MarkdownReferencePath {
@@ -1037,54 +1216,6 @@ This command is a Claude adapter only; the SSOT remains the canonical repo-owned
 "@
 }
 
-function Convert-ToClaudeAgentContent {
-    param(
-        [Parameter(Mandatory = $true)]
-        [string]$ManagedPrefix,
-        [Parameter(Mandatory = $true)]
-        [string]$SourcePath,
-        [Parameter(Mandatory = $true)]
-        [string]$SourceRoot
-    )
-
-    $raw = Get-Content -LiteralPath $SourcePath -Raw
-    $lines = $raw -split "`r?`n"
-    if ($lines.Length -lt 3 -or $lines[0].Trim() -ne "---") {
-        throw "Expected frontmatter in subagent source '$SourcePath'."
-    }
-
-    $closingIndex = -1
-    for ($i = 1; $i -lt $lines.Length; $i++) {
-        if ($lines[$i].Trim() -eq "---") {
-            $closingIndex = $i
-            break
-        }
-    }
-
-    if ($closingIndex -lt 0) {
-        throw "Unterminated frontmatter in subagent source '$SourcePath'."
-    }
-
-    $frontmatter = @(
-        $lines[1..($closingIndex - 1)] |
-        Where-Object { $_ -notmatch '^\s*model:\s*' }
-    )
-
-    $body = @()
-    if ($closingIndex + 1 -lt $lines.Length) {
-        $body = $lines[($closingIndex + 1)..($lines.Length - 1)]
-    }
-
-    $relativeSource = [System.IO.Path]::GetRelativePath($SourceRoot, $SourcePath).Replace("\", "/")
-    $contentLines = @("---")
-    $contentLines += $frontmatter
-    $contentLines += "---"
-    $contentLines += "$ManagedPrefix source: $relativeSource -->"
-    $contentLines += ""
-    $contentLines += $body
-    return ($contentLines -join "`r`n")
-}
-
 function Sync-ClaudeSkillCommands {
     param(
         [Parameter(Mandatory = $true)]
@@ -1110,29 +1241,7 @@ function Sync-ClaudeSkillCommands {
     Remove-StaleManagedFiles -RootPath $TargetRoot -ExpectedPaths $expectedPaths.ToArray() -ManagedPrefix $managedPrefix
 }
 
-function Sync-ClaudeAgentsFromSubagents {
-    param(
-        [Parameter(Mandatory = $true)]
-        [string]$TargetRoot,
-        [Parameter(Mandatory = $true)]
-        [string]$SourceRoot
-    )
-
-    $managedPrefix = "<!-- Managed by docs/agents/link_repo_assets.ps1;"
-    $expectedPaths = New-Object System.Collections.Generic.List[string]
-    $sourceFiles = @(Get-ChildItem -LiteralPath $SourceRoot -File -Filter "*.md" | Sort-Object Name)
-
-    foreach ($sourceFile in $sourceFiles) {
-        $targetPath = Join-Path $TargetRoot $sourceFile.Name
-        $content = Convert-ToClaudeAgentContent -ManagedPrefix $managedPrefix -SourcePath $sourceFile.FullName -SourceRoot $SourceRoot
-        Ensure-ManagedTextFile -Path $targetPath -Content $content -ManagedPrefix $managedPrefix
-        $expectedPaths.Add([System.IO.Path]::GetFullPath($targetPath))
-    }
-
-    Remove-StaleManagedFiles -RootPath $TargetRoot -ExpectedPaths $expectedPaths.ToArray() -ManagedPrefix $managedPrefix
-}
-
-$allowedIncludes = @("skills", "subagents", "mcp", "settings", "acp")
+$allowedIncludes = @("skills", "mcp", "settings", "acp")
 $normalizedInclude = @($Include | ForEach-Object { $_.ToLowerInvariant() } | Select-Object -Unique)
 $invalidIncludes = @($normalizedInclude | Where-Object { $allowedIncludes -notcontains $_ })
 if ($invalidIncludes) {
@@ -1183,7 +1292,7 @@ if (Should-Include -Name "skills") {
                         foreach ($skillDir in $skillDirs) {
                             $linkPath = Join-Path $targetRoot $skillDir.Name
                             $useRelative = ([string]$entry.scope -eq "project")
-                            Ensure-DirectoryLink -LinkPath $linkPath -TargetPath $skillDir.FullName -UseRelativeTarget:$useRelative -AllowReplace:$Force
+                            Ensure-DirectoryLink -LinkPath $linkPath -TargetPath $skillDir.FullName -UseRelativeTarget:$useRelative -AllowReplace:$Force -RepairPlainStubs:$RepairPlainDirectoryStubs
                             $expectedLinkPaths.Add([System.IO.Path]::GetFullPath($linkPath))
                         }
                         $allowBrokenLinkRemoval = ([string]$entry.scope -eq "project")
@@ -1241,77 +1350,6 @@ if (Should-Include -Name "skills") {
                 $targetRoot = Resolve-TargetPath -PathSpec ([string]$entry.target_root)
                 $allowBrokenLinkRemoval = ([string]$entry.scope -eq "project")
                 Remove-StaleChildDirectoryLinks -TargetRoot $targetRoot -ExpectedLinkPaths @() -SourceRoot $sourceRoot -AllowBrokenLinkRemoval:$allowBrokenLinkRemoval
-            }
-        }
-    }
-}
-
-if (Should-Include -Name "subagents") {
-    $allSubagentEntries = @($manifest.asset_classes.subagents)
-    $subagentEntries = Get-ProjectionEntries -Manifest $manifest -AssetClass "subagents"
-    $reconciledSubagentEntryIds = New-Object System.Collections.Generic.List[string]
-    foreach ($entry in $subagentEntries) {
-        $sourceRoot = Resolve-GovernancePath -PathSpec ([string]$entry.source_root)
-
-        $sourceFileFilter = "*.md"
-        if ($entry.PSObject.Properties.Name -contains "source_file_glob") {
-            $candidateSourceFileFilter = [string]$entry.source_file_glob
-            if (-not [string]::IsNullOrWhiteSpace($candidateSourceFileFilter)) {
-                $sourceFileFilter = $candidateSourceFileFilter
-            }
-        }
-
-        if (-not (Test-DirectoryHasFiles -Path $sourceRoot -Filter $sourceFileFilter)) {
-            Write-Output "SKIPPED subagents $($entry.platform) no canonical subagent files matching '$sourceFileFilter' were found under '$sourceRoot'."
-            continue
-        }
-
-        $targetRoot = Resolve-TargetPath -PathSpec ([string]$entry.target_root)
-        switch ([string]$entry.projection_mode) {
-            "directory_link" {
-                $useRelative = ([string]$entry.scope -eq "project")
-                Ensure-DirectoryLink -LinkPath $targetRoot -TargetPath $sourceRoot -UseRelativeTarget:$useRelative -AllowReplace:$Force
-            }
-            "generated_claude_agents_from_subagents" {
-                Sync-ClaudeAgentsFromSubagents -TargetRoot $targetRoot -SourceRoot $sourceRoot
-            }
-            default {
-                throw "Unsupported subagents projection_mode '$([string]$entry.projection_mode)' for entry '$($entry.id)'."
-            }
-        }
-
-        $reconciledSubagentEntryIds.Add([string]$entry.id)
-    }
-
-    $managedPrefix = "<!-- Managed by docs/agents/link_repo_assets.ps1;"
-    $selectedSubagentEntryIds = @($reconciledSubagentEntryIds)
-    foreach ($entry in $allSubagentEntries) {
-        if ($selectedSubagentEntryIds -contains [string]$entry.id) {
-            continue
-        }
-
-        if (Preserve-DisabledProjectionIfRequested -AssetClass "subagents" -Entry $entry) {
-            continue
-        }
-
-        switch ([string]$entry.projection_mode) {
-            "directory_link" {
-                if ((-not ($entry.PSObject.Properties.Name -contains "source_root")) -or (-not ($entry.PSObject.Properties.Name -contains "target_root"))) {
-                    continue
-                }
-
-                $sourceRoot = Resolve-GovernancePath -PathSpec ([string]$entry.source_root)
-                $targetRoot = Resolve-TargetPath -PathSpec ([string]$entry.target_root)
-                $allowBrokenLinkRemoval = ([string]$entry.scope -eq "project")
-                Remove-StaleDirectoryLink -LinkPath $targetRoot -SourceRoot $sourceRoot -AllowBrokenLinkRemoval:$allowBrokenLinkRemoval
-            }
-            "generated_claude_agents_from_subagents" {
-                if (-not ($entry.PSObject.Properties.Name -contains "target_root")) {
-                    continue
-                }
-
-                $targetRoot = Resolve-TargetPath -PathSpec ([string]$entry.target_root)
-                Remove-StaleManagedFiles -RootPath $targetRoot -ExpectedPaths @() -ManagedPrefix $managedPrefix
             }
         }
     }

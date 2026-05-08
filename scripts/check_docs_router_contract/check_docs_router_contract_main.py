@@ -315,7 +315,7 @@ class DocsRouterContractTests(unittest.TestCase):
         fixtures = (
             ("project/goal", "goal.md"),
             ("agents/00-principles", "principles.md"),
-            ("agents/platforms/codex/2026-03-06-official-runtime", "evidence.md"),
+            ("project/change-records/2026-05-08-governance-cleanup", "evidence.md"),
         )
         for rel_dir, leaf_name in fixtures:
             with self.subTest(rel_dir=rel_dir):
