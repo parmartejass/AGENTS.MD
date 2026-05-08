@@ -12,11 +12,11 @@ update_trigger: governance rules change OR new recurring maintenance pitfalls em
 ## Do
 - Keep templates as reference implementations (patterns, not specs).
 - Keep checks deterministic and dependency-minimal.
-- Keep reusable agent assets under `docs/agents/` and regenerate external discovery paths from that authority.
+- Keep reusable source assets under `docs/agents/`.
 - For repo-owned skills, keep operational guidance in the skill bundle under `docs/agents/skills/<skill-name>/SKILL.md` instead of restating it in project docs.
 
 ## Don't
 - Don't add repo-generated artifacts to git (bytecode, caches, template outputs).
 - Don't expand docs into a second SSOT; reference owners by path/identifier instead.
 - Don't treat project docs or shared repo config as the authority for external service setup.
-- Don't edit projected runtime paths declared in `docs/agents/platforms/runtime-projections.json` as standalone copies; update the canonical `docs/agents/` source owners and linker/setup flow instead.
+- Don't treat local tool runtime paths or user-home config as canonical governance owners.

@@ -69,6 +69,76 @@ GOVERNANCE_OWNER_PREFIXES = (
     "docs/agents/",
     "scripts/check_",
 )
+RETIRED_REF_PREFIX = "retired:"
+VENDORED_GOVERNANCE_PREFIX = ".governance/"
+RETIRED_REFERENCE_PATTERNS = (
+    "docs/agents/acp/",
+    "docs/agents/automation/",
+    "docs/agents/integrations/",
+    "docs/generated/",
+    "templates/automation-loop/",
+    "templates/pr-control-plane/",
+)
+
+
+def _strip_reference_prefixes(raw_ref: str) -> str:
+    normalized = raw_ref.strip().replace("\\", "/")
+    if normalized.startswith(RETIRED_REF_PREFIX):
+        normalized = normalized[len(RETIRED_REF_PREFIX) :]
+    if normalized.startswith(VENDORED_GOVERNANCE_PREFIX):
+        normalized = normalized[len(VENDORED_GOVERNANCE_PREFIX) :]
+    return normalized
+
+
+def _iter_string_values(value: Any) -> List[str]:
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, dict):
+        strings: List[str] = []
+        for item in value.values():
+            strings.extend(_iter_string_values(item))
+        return strings
+    if isinstance(value, list):
+        strings = []
+        for item in value:
+            strings.extend(_iter_string_values(item))
+        return strings
+    return []
+
+
+def _unprefixed_retired_references(value: str) -> List[str]:
+    matches: List[str] = []
+    normalized = value.replace("\\", "/")
+    for pattern in RETIRED_REFERENCE_PATTERNS:
+        start = 0
+        while True:
+            index = normalized.find(pattern, start)
+            if index == -1:
+                break
+            prefix_start = index - len(RETIRED_REF_PREFIX)
+            if prefix_start < 0 or normalized[prefix_start:index] != RETIRED_REF_PREFIX:
+                matches.append(pattern)
+                break
+            start = index + len(pattern)
+    return matches
+
+
+def _reference_target_exists(repo_root: Path, raw_ref: str) -> bool:
+    if raw_ref.strip().replace("\\", "/").startswith(RETIRED_REF_PREFIX):
+        return True
+    normalized = _strip_reference_prefixes(raw_ref)
+    if not normalized:
+        return True
+    if "://" in normalized:
+        return True
+    target = normalized.split("#", 1)[0].split("?", 1)[0]
+    if not target or target == "README.md#checks":
+        return True
+    if target.startswith("/"):
+        return False
+    if any(part in {"", ".", ".."} for part in target.split("/")):
+        return False
+    return (repo_root / target).exists()
 
 
 def _record_is_governance_scoped(record: Dict[str, Any]) -> bool:
@@ -79,14 +149,14 @@ def _record_is_governance_scoped(record: Dict[str, Any]) -> bool:
     for owner in owners:
         if not isinstance(owner, str):
             continue
-        normalized = owner.strip().replace("\\", "/")
+        normalized = _strip_reference_prefixes(owner)
         if normalized.startswith(GOVERNANCE_OWNER_PREFIXES):
             return True
     return False
 
 
 def _check_governance_specific_record_fields(
-    path: Path, record: Dict[str, Any], errors: List[str]
+    path: Path, record: Dict[str, Any], repo_root: Path, errors: List[str]
 ) -> bool:
     record_has_errors = False
     change_type = record.get("change_type")
@@ -94,6 +164,14 @@ def _check_governance_specific_record_fields(
         return record_has_errors
     if not _record_is_governance_scoped(record):
         return record_has_errors
+
+    for value in _iter_string_values(record):
+        for pattern in _unprefixed_retired_references(value):
+            errors.append(
+                f"Governance docs change record contains unprefixed retired reference "
+                f"'{pattern}' in {path}. Prefix historical references with '{RETIRED_REF_PREFIX}'."
+            )
+            record_has_errors = True
 
     council = record.get("council_summary")
     if not isinstance(council, dict):
@@ -230,6 +308,13 @@ def _check_governance_specific_record_fields(
                 )
                 record_has_errors = True
                 continue
+            if not _reference_target_exists(repo_root, item):
+                errors.append(
+                    f"Governance docs validation_context.traceability_refs contains missing active reference "
+                    f"'{item}' in {path}. Prefix retired historical references with '{RETIRED_REF_PREFIX}'."
+                )
+                record_has_errors = True
+                continue
             valid_traceability_refs += 1
         if valid_traceability_refs == 0:
             errors.append(
@@ -359,7 +444,7 @@ def check_change_records(
                         errors.append(f"tests missing or empty '{field}' in {record_file}.")
                         record_has_errors = True
 
-        if _check_governance_specific_record_fields(record_file, record, errors):
+        if _check_governance_specific_record_fields(record_file, record, repo_root, errors):
             record_has_errors = True
 
         if not record_has_errors:

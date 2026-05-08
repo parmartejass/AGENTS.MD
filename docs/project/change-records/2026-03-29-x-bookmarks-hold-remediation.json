@@ -2,24 +2,24 @@
   "change_id": "CR-2026-03-29-x-bookmarks-hold-remediation",
   "change_type": "bugfix",
   "summary": "Clear the strict-safety release hold by centralizing X-Bookmarks runtime env/loading, HTTP error handling, logging/output routing, and atomic token persistence, while fixing the linked CLI and OAuth failure-path defects in the three affected scripts.",
-  "symptom_location": "python3 scripts/check_governance_core.py --fail-on-safety-warnings failed because X-Bookmarks Import scripts triggered 73 Python safety errors and 2 warnings.",
+  "symptom_location": "python3 scripts/check_governance_core/check_governance_core_main.py --fail-on-safety-warnings failed because X-Bookmarks Import scripts triggered 73 Python safety errors and 2 warnings.",
   "authority_fix_point": "X-Bookmarks Import/x_runtime.py, X-Bookmarks Import/x_bookmarks_auth.py, and X-Bookmarks Import/x_bookmarks_bookmarks.py, extended by the three X-Bookmarks entry scripts that now consume the shared runtime contract.",
   "root_cause_statement": "Three standalone X-Bookmarks scripts each reimplemented env loading, HTTP JSON/error parsing, CLI/logging output, and token/state writes. Those duplicate implementations used print-based diagnostics, broad silent exception fallbacks, and direct token writes, so strict safety failures and misleading failure-path behavior were structurally inevitable.",
   "class_of_errors_prevented": "Cross-script runtime safety regressions in the X-Bookmarks tools: print-based diagnostics, silent HTTP parse fallbacks, non-atomic token writes, offline-safe CLI paths blocked by token gates, misleading rate-limit/auth outcomes, and missing OAuth callback state validation.",
   "mre": {
     "fixture_path": "X-Bookmarks Import/",
-    "pre_fix_failure_signal": "python3 scripts/check_python_safety.py reported 73 error(s) and 2 warning(s) across fetch_bookmarks.py, governance_research.py, and x_search.py.",
-    "post_fix_pass_signal": "python3 scripts/check_python_safety.py reports Summary: 0 error(s), 0 warning(s), and python3 scripts/check_governance_core.py --fail-on-safety-warnings passes."
+    "pre_fix_failure_signal": "python3 scripts/check_python_safety/check_python_safety_main.py reported 73 error(s) and 2 warning(s) across fetch_bookmarks.py, governance_research.py, and x_search.py.",
+    "post_fix_pass_signal": "python3 scripts/check_python_safety/check_python_safety_main.py reports Summary: 0 error(s), 0 warning(s), and python3 scripts/check_governance_core/check_governance_core_main.py --fail-on-safety-warnings passes."
   },
   "tests": {
-    "regression": "python3 scripts/check_python_safety.py",
+    "regression": "python3 scripts/check_python_safety/check_python_safety_main.py",
     "disconfirming": "X_BEARER_TOKEN='' python3 'X-Bookmarks Import/skills/governance-autoresearch/scripts/governance_research.py' --list ; X_BEARER_TOKEN='' python3 'X-Bookmarks Import/skills/x-research/scripts/x_search.py' --help",
     "failure_path": "X_CLIENT_ID='' X_CLIENT_SECRET='' python3 'X-Bookmarks Import/fetch_bookmarks.py' ; X_BEARER_TOKEN='dummy' python3 'X-Bookmarks Import/skills/x-research/scripts/x_search.py' --days=abc 'topic'"
   },
   "verification_commands": [
-    "python3 scripts/check_python_safety.py",
-    "python3 scripts/check_governance_core.py --fail-on-safety-warnings",
-    "python3 scripts/check_governance_core.py",
+    "python3 scripts/check_python_safety/check_python_safety_main.py",
+    "python3 scripts/check_governance_core/check_governance_core_main.py --fail-on-safety-warnings",
+    "python3 scripts/check_governance_core/check_governance_core_main.py",
     "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/check_change_records.ps1"
   ],
   "invariants": [
@@ -32,7 +32,7 @@
     {
       "invariant_id": "INV-OBS-1",
       "signal": "Python safety and strict governance core outputs are fully green",
-      "record_location": "python3 scripts/check_python_safety.py stdout and python3 scripts/check_governance_core.py --fail-on-safety-warnings stdout",
+      "record_location": "python3 scripts/check_python_safety/check_python_safety_main.py stdout and python3 scripts/check_governance_core/check_governance_core_main.py --fail-on-safety-warnings stdout",
       "pass_criteria": "both commands exit 0 with zero Python safety errors and warnings"
     },
     {
@@ -61,7 +61,7 @@
     "X-Bookmarks Import/fetch_bookmarks.py",
     "X-Bookmarks Import/skills/x-research/scripts/x_search.py",
     "X-Bookmarks Import/skills/governance-autoresearch/scripts/governance_research.py",
-    "scripts/check_python_safety.py"
+    "scripts/check_python_safety/check_python_safety_main.py"
   ],
   "residual_risk": "Retry/backoff policy remains partly script-local across the X-Bookmarks tools, and the stage-4 linker hard-link identity follow-up remains a separate remediation slice.",
   "council_summary": {
@@ -93,9 +93,9 @@
     "residual_risks": "Retry/backoff policy remains partly script-local, but strict safety, strict governance core, and recorded failure-path witnesses all pass.",
     "go_no_go": "go",
     "verification_links": [
-      "python3 scripts/check_python_safety.py",
-      "python3 scripts/check_governance_core.py --fail-on-safety-warnings",
-      "python3 scripts/check_governance_core.py",
+      "python3 scripts/check_python_safety/check_python_safety_main.py",
+      "python3 scripts/check_governance_core/check_governance_core_main.py --fail-on-safety-warnings",
+      "python3 scripts/check_governance_core/check_governance_core_main.py",
       "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/check_change_records.ps1",
       "X_BEARER_TOKEN='' python3 'X-Bookmarks Import/skills/governance-autoresearch/scripts/governance_research.py' --list",
       "X_BEARER_TOKEN='' python3 'X-Bookmarks Import/skills/x-research/scripts/x_search.py' --help",
@@ -110,7 +110,7 @@
     "release_gate_decision": "go",
     "traceability_refs": [
       "README.md#checks",
-      "docs/project/master-todo.md",
+      "docs/project/master-todo/master-todo.md",
       "docs/project/change-records/2026-03-29-ssot-remediation-stages.json"
     ]
   }

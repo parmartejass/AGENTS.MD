@@ -272,7 +272,7 @@ class LoggingContractTests(unittest.TestCase):
             logging_config._RUN_EVENT_LOG_PATHS.pop(run_id, None)
 
         self.assertEqual(first, second)
-        self.assertEqual(str(first), "run-logs/20260209/stable-run-id.jsonl")
+        self.assertEqual(first.as_posix(), "run-logs/20260209/stable-run-id.jsonl")
 
     def test_redaction_masks_nested_secret_keys(self) -> None:
         payload = {

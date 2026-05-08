@@ -6,7 +6,7 @@ update_trigger: official platform docs, repo runtime projections, or local conne
 
 # Platform Runtime Status
 
-Verified on: 2026-03-08
+Verified on: 2026-05-08
 
 ## Scope
 
@@ -35,12 +35,13 @@ Verified on: 2026-03-08
 - Status: connected and aligned with current official docs.
 - Verified surfaces:
   - `.cursorrules` loader stub is present and routes back to `AGENTS.md`.
-  - Existing `.cursor/agents/` content is retained by the default bootstrap path for this repo's compatibility workflow.
+  - `.cursor/agents/` is not a repo-owned runtime projection target.
   - `.cursor/rules/` is compatibility-only and is not projected by the default bootstrap path.
   - `.cursor/mcp.json` is managed by the Cursor MCP runtime projection defined in `docs/agents/platforms/runtime-projections.json`.
   - `.cursor/cli.json` is managed by the shared settings projection from `docs/agents/settings/cursor/cli.json`.
 - Migration note:
-  - `.cursorrules` is legacy in the official docs, but this repo keeps it as the default clean loader surface. Existing `.cursor/agents/` content is preserved when present, while `.cursor/rules/` remains compatibility-only and stays out of the default bootstrap path.
+  - `.cursorrules` is legacy in the official docs, but this repo keeps it as the default clean loader surface. `.cursor/agents/` and `.cursor/rules/` stay out of the default bootstrap path.
+  - Existing tracked `.cursor/agents/` files are unchanged by this retirement; this cleanup only removes the former `docs/agents/subagents/` projection source.
 
 ### Claude Code
 
@@ -48,23 +49,24 @@ Verified on: 2026-03-08
 - Verified surfaces:
   - `CLAUDE.md` loader stub is present and routes back to `AGENTS.md`.
   - `.claude/skills/` exists and projects the canonical bundles directly.
-  - `.claude/agents/` points to `docs/agents/subagents/shared`.
+  - `.claude/agents/` is not a repo-owned runtime projection target.
   - `.claude/settings.json` is managed by the shared settings projection from `docs/agents/settings/claude-code/settings.json`.
   - `.mcp.json` is the managed target path for the shared MCP config when no conflicting local non-link file is present.
   - `.claude/settings.local.json` is unmanaged and may be present locally.
 - Migration note:
   - `.claude/commands/` is now compatibility-only in this repo and is no longer part of the default projection path.
+  - If `.claude/agents/` remains from older checkouts, remove it manually; setup no longer projects or cleans this retired subagent surface.
 
 ### Codex
 
 - Status: connected and aligned with current official docs.
 - Verified surfaces:
   - `.agents/skills/` exists with projected skill bundles from `docs/agents/skills/`.
-  - `.codex/agents/` points to `docs/agents/subagents/codex/`.
   - `.codex/config.toml` is the managed project-local settings projection from `docs/agents/settings/codex/config.toml`.
 - Migration note:
   - Current official user-scope skills live in `$HOME/.agents/skills`. This repo keeps user-home Codex skill paths manual and project-local `.agents/skills` remains the default.
-  - Codex subagent role adapters are platform-specific TOML projections; shared prompt intent remains canonical in `docs/agents/subagents/shared/`.
+  - Codex subagent role adapters are not repo-owned runtime projections; canonical agent instructions remain in `AGENTS.md`.
+  - If `.codex/agents/` remains from older checkouts, treat it as local runtime state and not as a canonical source.
 
 ## Verification method
 
@@ -72,12 +74,10 @@ Verified on: 2026-03-08
 - Local runtime checks used:
   - hash match for repo-owned settings and MCP files
   - existence/absence checks for default runtime surfaces and compatibility-only directories
-  - retention check for an existing `.cursor/agents/` compatibility surface
-  - link-target check for `.claude/agents`
   - unmanaged-local-file awareness for `.claude/settings.local.json` as a local-only ignored override
 
 ## Residual migration watch items
 
-- Cursor: keep `.cursorrules` as a loader stub only, preserve existing `.cursor/agents/` when present, and keep `.cursor/rules/` out of the default bootstrap path.
+- Cursor: keep `.cursorrules` as a loader stub only, and keep `.cursor/agents/` plus `.cursor/rules/` out of the default bootstrap path.
 - Claude Code: `.claude/commands/` remains compatibility-only for older setups.
 - Codex: do not treat `~/.codex/skills` as the current official user-scope contract.

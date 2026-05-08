@@ -3,10 +3,10 @@
   "change_type": "docs",
   "summary": "Close governance enforcement gaps for report normalization, context injection completeness, playbook hard-gate parity, and cross-platform change-record validation.",
   "verification_commands": [
-    "python3 scripts/check_governance_core.py",
-    "python3 scripts/check_governance_core.py --require-records",
-    "python3 scripts/check_governance_core.py --fail-on-safety-warnings",
-    "python3 scripts/check_python_safety.py",
+    "python3 scripts/check_governance_core/check_governance_core_main.py",
+    "python3 scripts/check_governance_core/check_governance_core_main.py --require-records",
+    "python3 scripts/check_governance_core/check_governance_core_main.py --fail-on-safety-warnings",
+    "python3 scripts/check_python_safety/check_python_safety_main.py",
     "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/check_agents_manifest.ps1",
     "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/check_change_records.ps1"
   ],
@@ -20,19 +20,19 @@
     {
       "invariant_id": "INV-OBS-1",
       "signal": "Core check output includes change-record stage and success/failure signal",
-      "record_location": "scripts/check_governance_core.py stdout",
-      "pass_criteria": "check_governance_core.py exits 0 in baseline mode"
+      "record_location": "scripts/check_governance_core/check_governance_core_main.py stdout",
+      "pass_criteria": "check_governance_core_main.py exits 0 in baseline mode"
     },
     {
       "invariant_id": "INV-ORD-1",
       "signal": "Governance playbook hard-gate parity check stage",
-      "record_location": "scripts/check_governance_core.py stdout",
+      "record_location": "scripts/check_governance_core/check_governance_core_main.py stdout",
       "pass_criteria": "parity stage reports passed"
     },
     {
       "invariant_id": "INV-OBS-2",
       "signal": "Unresolved citation token scan across docs",
-      "record_location": "scripts/check_governance_core.py stdout",
+      "record_location": "scripts/check_governance_core/check_governance_core_main.py stdout",
       "pass_criteria": "docs unresolved-citation checks passed"
     },
     {
@@ -46,7 +46,7 @@
     "AGENTS.md",
     "agents-manifest.yaml",
     "docs/agents/playbooks/governance-learnings-template.md",
-    "scripts/check_governance_core.py",
+    "scripts/check_governance_core/check_governance_core_main.py",
     "docs/agents/schemas/change-record.schema.json"
   ],
   "council_summary": {
@@ -78,7 +78,7 @@
     "findings": [
       {
         "severity": "HIGH",
-        "location": "scripts/check_governance_core.py",
+        "location": "scripts/check_governance_core/check_governance_core_main.py",
         "issue": "Core check omitted change-record validation",
         "recommendation": "Integrate cross-platform change-record checks with strict flag support"
       },
@@ -101,7 +101,7 @@
     "go_no_go": "go",
     "verification_links": [
       "README.md#checks",
-      "scripts/check_governance_core.py",
+      "scripts/check_governance_core/check_governance_core_main.py",
       "scripts/check_change_records.ps1"
     ]
   },
@@ -111,8 +111,8 @@
     "release_gate_decision": "go",
     "traceability_refs": [
       "README.md#checks",
-      "docs/project/learning.md",
-      "docs/generated/2026-02-23-deep-research-report-normalized.md"
+      "docs/project/learning/learning.md",
+      "retired:docs/generated/2026-02-23-deep-research-report-normalized.md"
     ]
   }
 }

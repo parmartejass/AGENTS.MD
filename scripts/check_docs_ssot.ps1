@@ -173,7 +173,6 @@ function Test-RouteTargetsChild(
 
 function Test-HeaderExemptMarkdown([string]$relativePath) {
   if ($relativePath -match '/SKILL\.md$') { return $true }
-  if ($relativePath -match '^agents/subagents/.+\.md$') { return $true }
   return $false
 }
 

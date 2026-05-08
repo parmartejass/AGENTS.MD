@@ -4,7 +4,7 @@ ssot_owner: docs/agents/platforms/runtime-projections.json
 update_trigger: Cursor runtime docs, rule paths, or MCP/config rules change
 ---
 
-# Cursor Runtime Contract (Retrieved 2026-03-06, re-verified 2026-03-08)
+# Cursor Runtime Contract (Retrieved 2026-03-06, repo decision re-verified 2026-05-08)
 
 ## Sources
 
@@ -28,5 +28,4 @@ update_trigger: Cursor runtime docs, rule paths, or MCP/config rules change
 - Treat repo-owned `.cursor/rules/` adapters as compatibility-only projections; generate them only when compatibility bootstrap is explicitly requested.
 - Keep `.cursor/mcp.json` repo-owned through the canonical MCP config.
 - Keep shared repo-owned Cursor CLI permissions in `.cursor/cli.json` when the repo intentionally defines a non-secret shared policy.
-- Treat `.cursor/skills` and `.cursor/agents` as compatibility-only paths, not official projections.
-- Preserve an existing `.cursor/agents/` repo surface during default bootstrap so repo workflows that already depend on it are not silently broken.
+- Treat `.cursor/skills`, `.cursor/agents`, and `.cursor/rules` as outside the default bootstrap path unless a future verified runtime contract adopts them.

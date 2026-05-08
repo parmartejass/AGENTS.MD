@@ -56,18 +56,17 @@ Owner: `docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md`
 - canonical owner + allowed non-owner locations + forbidden duplicates + coordinated migration or update set
 - project-local adoption details remain in `docs/project/architecture/architecture.md`
 
-## Platform assets (skills, settings, subagents, MCP, ACP)
-Owner: `docs/agents/skills/00-skill-standards/skill-standards.md`, `docs/agents/settings/00-settings-standards/settings-standards.md`, `docs/agents/subagents/00-subagent-standards/subagent-standards.md`, `docs/agents/mcp/00-mcp-standards/mcp-standards.md`, `docs/agents/acp/00-acp-standards/acp-standards.md`
-- repo-owned reusable platform assets and compatibility expectations
-- runtime projection via `docs/agents/link_repo_assets.ps1`
-- platform-specific guidance without policy duplication
+## Repo-owned agent assets and runtime projections
+Owner: `docs/agents/platforms/runtime-projections.json` + source asset roots under `docs/agents/`
+- source roots own reusable skills, shared settings, and MCP payloads
+- runtime projection targets are declared once in `docs/agents/platforms/runtime-projections.json`
+- projected dotpaths are non-owner runtime surfaces; do not treat them as canonical source roots
 
-## Concrete runtime path + support-level mapping
-Owner: `docs/agents/platforms/runtime-projections.json`
-- one concrete table for runtime targets, scope, support level, and projection mode
-- canonical source paths resolve from the governance root; runtime targets resolve from the project root
-- consumed by `docs/agents/link_repo_assets.ps1`
-- justified by dated notes under `docs/agents/platforms/`
+## Runtime config and secret boundary
+Owner: `docs/agents/settings/00-settings-standards/settings-standards.md`
+- repo-owned settings examples must be non-secret
+- MCP credentials, tokens, and machine identities remain user-owned and ignored
+- projected settings files must stay non-secret and derive from the declared source owners
 
 ## Excel COM lifecycle
 Owner: exactly one implementation.

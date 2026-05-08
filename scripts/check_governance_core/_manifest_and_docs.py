@@ -215,8 +215,6 @@ def _targets_child(targets: Sequence[str], child: Path, *, child_router_filename
 def _is_header_exempt_markdown(rel: str) -> bool:
     if rel.endswith("/SKILL.md"):
         return True
-    if rel.startswith("agents/subagents/") and rel.endswith(".md"):
-        return True
     return False
 
 
@@ -387,11 +385,6 @@ def check_project_docs(repo_root: Path, governance_rel_path: str, governance_roo
         required_refs = [
             "docs/project/project_index.md",
             "AGENTS.md",
-            f"{governance_prefix}docs/agents/platforms/00-platform-runtime-standards/platform-runtime-standards.md",
-            f"{governance_prefix}docs/agents/platforms/platforms_index.md",
-            f"{governance_prefix}docs/agents/platforms/runtime-projections.json",
-            f"{governance_prefix}docs/agents/integrations/integrations_index.md",
-            f"{governance_prefix}scripts/setup_repo_platform_assets.ps1",
             f"{governance_prefix}scripts/check_docs_ssot.ps1",
             f"{governance_prefix}scripts/check_docs_router_contract/check_docs_router_contract_main.py",
             f"{governance_prefix}scripts/check_agents_manifest.ps1",

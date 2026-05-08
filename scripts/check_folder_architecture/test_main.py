@@ -4,6 +4,7 @@ import importlib.util
 import json
 import shutil
 import sys
+import tempfile
 import textwrap
 import unittest
 from contextlib import contextmanager
@@ -25,7 +26,7 @@ SPEC.loader.exec_module(MODULE)
 check_governance_owned_contracts = MODULE._check_governance_owned_contracts
 load_scope_manifest = MODULE._load_scope_manifest
 python_entrypoint_filename = MODULE._python_entrypoint_filename
-TMP_ROOT = SCRIPT_ROOT / ".tmp-test-workspaces"
+TMP_ROOT = Path(tempfile.gettempdir()) / "agents-md-check-folder-architecture-tests"
 
 
 def _write(path: Path, content: str) -> None:
@@ -67,11 +68,6 @@ def _write_minimal_governance_tree(governance_root: Path) -> None:
                         "enforcement_mode": "enforce",
                         "owner": "scripts/check_folder_architecture/check_folder_architecture_main.py",
                     },
-                    {
-                        "path": "templates/pr-control-plane/scripts",
-                        "enforcement_mode": "enforce",
-                        "owner": "scripts/check_folder_architecture/check_folder_architecture_main.py",
-                    },
                 ],
             },
             indent=2,
@@ -90,13 +86,6 @@ def _write_minimal_governance_tree(governance_root: Path) -> None:
         "templates/python-dual-entry/myapp/runner/validation.py",
         "templates/python-dual-entry/myapp/runner/workflows.py",
         "templates/python-dual-entry/myapp/runner/text_transform.py",
-        "templates/pr-control-plane/scripts/check_review_state/check_review_state_main.py",
-        "templates/pr-control-plane/scripts/harness_gap/harness_gap_main.py",
-        "templates/pr-control-plane/scripts/remediation_loop/remediation_loop_main.py",
-        "templates/pr-control-plane/scripts/request_rerun/request_rerun_main.py",
-        "templates/pr-control-plane/scripts/resolve_bot_threads/resolve_bot_threads_main.py",
-        "templates/pr-control-plane/scripts/risk_policy_gate/risk_policy_gate_main.py",
-        "templates/pr-control-plane/scripts/validate_browser_evidence/validate_browser_evidence_main.py",
     ):
         _write(governance_root / rel_path, "from __future__ import annotations\n")
 
@@ -114,19 +103,6 @@ def _write_minimal_governance_tree(governance_root: Path) -> None:
         from .workflows import get_workflow
         """,
     )
-    _write(
-        governance_root / "templates/pr-control-plane/scripts/scripts_main.py",
-        """
-        def _load_child_module(child_name: str):
-            return child_name
-
-        _load_child_module("check_review_state")
-        _load_child_module("risk_policy_gate")
-        subparsers = type("Subparsers", (), {"add_parser": lambda self, *_args, **_kwargs: None})()
-        subparsers.add_parser("risk-policy-gate")
-        """,
-    )
-
 
 class FolderArchitectureBoundaryTests(unittest.TestCase):
     def test_scope_manifest_rejects_drive_qualified_paths(self) -> None:

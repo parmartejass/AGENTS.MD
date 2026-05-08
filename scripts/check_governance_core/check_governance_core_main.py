@@ -25,6 +25,7 @@ try:
     from ._change_records import check_change_records
     from ._manifest_and_docs import check_agents_manifest, check_docs_ssot, check_project_docs
     from ._repo_and_governance import (
+        check_docs_for_retired_active_references,
         check_docs_for_unresolved_citations,
         check_governance_authority_decisions,
         check_governance_playbook_hard_gates,
@@ -36,6 +37,7 @@ except ImportError:  # pragma: no cover - script-path execution fallback
     from _change_records import check_change_records
     from _manifest_and_docs import check_agents_manifest, check_docs_ssot, check_project_docs
     from _repo_and_governance import (
+        check_docs_for_retired_active_references,
         check_docs_for_unresolved_citations,
         check_governance_authority_decisions,
         check_governance_playbook_hard_gates,
@@ -121,20 +123,21 @@ def main(argv: Sequence[str]) -> int:
         logger.error("ERROR: %s", err)
         return 1
 
+    docs_errors, docs_notes = check_docs_ssot(repo_root, governance_root)
     runtime_projection_errors, runtime_projection_notes = check_runtime_projection_manifest(
         repo_root, governance_root
     )
-    docs_errors, docs_notes = check_docs_ssot(repo_root, governance_root)
     total_errors = 0
     for errors, success_message, notes in (
         (check_agents_manifest(governance_root), "Agents manifest checks passed.", []),
-        (runtime_projection_errors, None, runtime_projection_notes),
         (docs_errors, "Docs SSOT checks passed.", docs_notes),
         (check_project_docs(repo_root, governance_rel, governance_root), "Project docs checks passed.", []),
         (check_repo_hygiene(repo_root), "Repo hygiene checks passed.", []),
         (check_docs_for_unresolved_citations(repo_root), "Docs unresolved-citation checks passed.", []),
+        (check_docs_for_retired_active_references(repo_root), "Docs retired-reference checks passed.", []),
         (check_governance_playbook_hard_gates(governance_root), "Governance playbook hard-gate parity checks passed.", []),
         (check_governance_authority_decisions(governance_root), "Governance authority decision registry checks passed.", []),
+        (runtime_projection_errors, "Runtime projection manifest checks passed.", runtime_projection_notes),
     ):
         if errors:
             for issue in errors:

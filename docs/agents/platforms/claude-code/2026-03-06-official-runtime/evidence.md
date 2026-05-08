@@ -4,7 +4,7 @@ ssot_owner: docs/agents/platforms/runtime-projections.json
 update_trigger: Claude Code runtime docs, command/agent paths, or settings/MCP rules change
 ---
 
-# Claude Code Runtime Contract (Retrieved 2026-03-06, re-verified 2026-03-08)
+# Claude Code Runtime Contract (Retrieved 2026-03-06, repo decision re-verified 2026-05-08)
 
 ## Sources
 
@@ -28,6 +28,6 @@ update_trigger: Claude Code runtime docs, command/agent paths, or settings/MCP r
 - Canonical repo-owned skill bundles remain under `docs/agents/skills/`.
 - Auto-project official project-local Claude skills into `.claude/skills/`.
 - Keep generated `.claude/commands/` adapters as compatibility-only output for older environments that still rely on command files.
-- Project subagents are repo-owned and projected into `.claude/agents/`.
+- Do not auto-project Claude project subagents; canonical agent instructions remain in `AGENTS.md` and context routing remains in `agents-manifest.yaml`.
 - `.mcp.json` remains repo-owned through the canonical MCP config.
 - Keep shared non-secret Claude settings repo-owned in `.claude/settings.json`, while `.claude/settings.local.json` remains local-only.

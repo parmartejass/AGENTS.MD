@@ -15,7 +15,7 @@ if (-not (Test-Path -LiteralPath $linker -PathType Leaf)) {
 }
 
 & $linker `
-    -Include @("skills", "subagents", "mcp", "acp", "settings") `
+    -Include @("skills", "mcp", "acp", "settings") `
     -Force:$Force `
     -IncludeCompatibility:$IncludeCompatibility `
     -RepoRoot $RepoRoot

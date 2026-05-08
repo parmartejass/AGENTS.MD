@@ -9,7 +9,7 @@ update_trigger: skill standards change OR new platform support requirements emer
 ## Purpose
 - A skill is a reusable operational bundle that adapts governance guidance to a tool environment.
 - `docs/agents/skills/` is the authority for repo-owned skills, including both governance docs and installable skill bundles.
-- This file owns the cross-platform skill contract: bundle identity, naming, minimum contents, safety expectations, runtime-projection model, and coordination rules.
+- This file owns the cross-platform skill contract: bundle identity, naming, minimum contents, safety expectations, and coordination rules.
 - Keep platform-specific installation paths, runtime quirks, and capability differences in `docs/agents/skills/10-platform-adapters/platform-adapters.md`.
 
 ## Bundle identity
@@ -21,7 +21,7 @@ update_trigger: skill standards change OR new platform support requirements emer
 ## Bundle naming
 - `<skill-name>` should be a stable, lowercase, kebab-case identifier.
 - Use the filesystem name as the runtime path identifier; use the title inside `SKILL.md` for human-readable naming.
-- Renames are breaking for docs links, grepability, and runtime projection paths, so coordinate them across the docs index, adapter docs, and linker when they are necessary.
+- Renames are breaking for docs links, grepability, and downstream runtime installs, so coordinate them across the docs index and adapter docs when they are necessary.
 
 ## Minimum Bundle Contract
 - Every bundle must contain `SKILL.md`.
@@ -47,18 +47,15 @@ update_trigger: skill standards change OR new platform support requirements emer
 - Deterministic guidance: workflow instructions and verification notes should be reproducible from repo state and declared external authorities.
 - Explicit exceptions only: any runtime-specific sidecar or non-standard bundle file must name the consuming platform and why it exists.
 
-## Runtime Projections
-- Repo-owned skill bundles may be projected into supported runtime locations by `docs/agents/link_repo_assets.ps1`.
-- Exact runtime mappings, support levels, and scope rules live in `docs/agents/platforms/runtime-projections.json`.
-- Official project-local skill surfaces are platform-specific and do not all use the same runtime folder layout.
-- Compatibility mappings may exist, but they must stay explicitly labeled and disabled by default unless the setup flow is told to include them.
-- Runtime locations are derived views of the canonical repo bundle, not independent authorities.
+## Runtime Use
+- Repo-owned skill bundles are canonical source assets in this pack.
+- Runtime projections are declared in `docs/agents/platforms/runtime-projections.json` and created or repaired by `docs/agents/link_repo_assets.ps1` through the setup wrapper.
+- Runtime locations are projections, not canonical governance owners.
 
 ## Operating Rules
-- Edit the canonical repo bundle first. Regenerate runtime projections through `docs/agents/link_repo_assets.ps1` or `docs/agents/skills/link_skills.ps1` instead of editing projected runtime paths directly.
-- If a skill change affects runtime projection behavior, bundle identity, or supported platform behavior, update this file, `docs/agents/skills/10-platform-adapters/platform-adapters.md`, `docs/agents/platforms/runtime-projections.json`, `docs/agents/agents_index.md`, and `docs/agents/link_repo_assets.ps1` together.
+- Edit the canonical repo bundle first.
+- If a skill change affects bundle identity or supported platform behavior, update this file, `docs/agents/skills/10-platform-adapters/platform-adapters.md`, `docs/agents/agents_index.md`, and `README.md` together.
 - Keep docs-header carveout details in `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`.
-- Keep linker implementation details in `docs/agents/link_repo_assets.ps1`.
 
 ## Context Budget Constraint
 - All skill names are always loaded into the agent context, but descriptions are truncated to fit a character budget.
@@ -69,7 +66,7 @@ update_trigger: skill standards change OR new platform support requirements emer
 ## Verification Expectations
 - Every skill should include one deterministic smoke check or an explicit pointer to the platform-owned verification path.
 - When a platform or API limitation materially changes behavior, the skill should call that out explicitly rather than implying unsupported behavior works.
-- Bundle changes should be verified with the repo checks listed in `README.md` and any targeted skill-linking smoke check required by the change.
+- Bundle changes should be verified with the repo checks listed in `README.md` and any targeted skill validation required by the change.
 
 ## Codification Targets
 - Cross-platform principles -> `docs/agents/*.md`

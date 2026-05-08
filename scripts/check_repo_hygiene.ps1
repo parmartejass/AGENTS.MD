@@ -86,6 +86,7 @@ foreach ($path in $tracked) {
     Add-Issue $issues "Tracked secret-like or workspace-local file: $path"
     continue
   }
+
 }
 
 if ($issues.Count -gt 0) {

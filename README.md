@@ -22,7 +22,6 @@ When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` an
 ## Project docs (this repo)
 
 - Entry point: `docs/project/project_index.md` (goal/rules/architecture/learning)
-- Generated analyses: `docs/generated/` (non-authoritative, reproducible outputs)
 
 ## Repo-owned agent assets
 
@@ -30,16 +29,14 @@ When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` an
 - Current repo-owned asset classes:
   - Skills: `docs/agents/skills/`
   - Settings: `docs/agents/settings/`
-  - Subagents: `docs/agents/subagents/`
   - MCP configs: `docs/agents/mcp/`
-  - ACP placeholders: `docs/agents/acp/`
 - Platform runtime policy lives in `docs/agents/platforms/00-platform-runtime-standards/platform-runtime-standards.md`.
 - Concrete runtime path/support-level facts live in `docs/agents/platforms/runtime-projections.json`.
 - Dated platform/runtime evidence lives in `docs/agents/platforms/platforms_index.md`.
-- Integration notes for context/memory tools live in `docs/agents/integrations/integrations_index.md`.
 - Runtime projection sources resolve from the governance root; runtime targets resolve from the project root (or `{HOME}` when explicitly declared).
 - Use `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/setup_repo_platform_assets.ps1 -Force` to project supported assets into runtime locations for this repo.
-- Default setup preserves an existing `.cursor/agents/` compatibility surface for this repo, but does not create `.cursor/rules/`.
+- Default setup does not project repo-owned subagent runtime files or create `.cursor/rules/`.
+- Legacy `.claude/agents/` and `.codex/agents/` surfaces from older checkouts are local-only after subagent projection retirement; remove stale copies manually if they conflict with `AGENTS.md`.
 - Use `-IncludeCompatibility` only when you explicitly want legacy or unverified compatibility projections.
 - Conflicting user-owned runtime files such as a non-link `.mcp.json` can cause setup to stop with an explicit error until you rename or remove the conflicting path.
 - When vendored as `.governance/`, the linker auto-targets the parent project root and also accepts `-RepoRoot` for an explicit override.
@@ -60,8 +57,6 @@ When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` an
 ## Templates (reference implementations)
 
 - Routing index: [`templates/templates_index.md`](templates/templates_index.md)
-- Automation loop (nightly review + implement): `templates/automation-loop/`
-- PR control-plane loop (risk gate + review state + evidence + remediation): `templates/pr-control-plane/`
 - Dual-entry GUI+CLI + scenario tests: `templates/python-dual-entry/`
   - Reference implementation only: follow `AGENTS.md` discovery/adoption rules; copy patterns, not files.
   - Run one scenario: `cd templates/python-dual-entry; python3 -m myapp --cli --scenario tests/scenarios/scenario_001_happy_path.json --verify`
@@ -94,14 +89,8 @@ When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` an
 |  |  |  |- settings_index.md
 |  |  |- skills/
 |  |  |  |- skills_index.md
-|  |  |- subagents/
-|  |  |  |- subagents_index.md
-|  |  |- automation/
-|  |  |  |- automation_index.md
 |  |  |- schemas/
 |  |     |- schemas_index.md
-|  |- generated/
-|  |  |- generated_index.md
 |  |- project/
 |     |- project_index.md
 |     |- architecture/
@@ -118,8 +107,6 @@ When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` an
 |  |- *.ps1
 |- templates/
 |  |- templates_index.md
-|  |- automation-loop/
-|  |- pr-control-plane/
 |  |- python-dual-entry/
 |  |  |- myapp/
 |  |     |- cli/cli_main.py
@@ -328,7 +315,7 @@ Note: If `.governance/` folder is empty, run `git submodule update --init`.
 
 This repo:
 - Platform asset bootstrap/repair smoke (writes the repo-owned runtime projections): `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/setup_repo_platform_assets.ps1 -Force`
-  - Default path witness: existing `.cursor/agents/` remains in place; `.cursor/rules/` is not created.
+  - Default path witness: `.cursor/rules/` is not created and no repo-owned subagent runtime projection is attempted.
   - If setup stops on a conflicting non-link runtime file such as `.mcp.json`, rename or remove that path and rerun.
   - Include compatibility-only projections when explicitly needed: `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/setup_repo_platform_assets.ps1 -Force -IncludeCompatibility`
 - Docs SSOT header checks (all `docs/` except index pages): `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_docs_ssot.ps1`
@@ -344,7 +331,6 @@ This repo:
 - Change record artifact checks (schema + required evidence fields): `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_change_records.ps1`
   - Enforce required records by creating `docs/project/change-records/.required` or running with `-RequireRecords`.
 - Python safety baseline checks: `python3 scripts/check_python_safety/check_python_safety_main.py` (add `--fail-on-warnings` to enforce warnings; use `python` if `python3` is unavailable)
-- PR control-plane parent CLI policy tests: `cd templates/pr-control-plane && python3 -m unittest -v tests.policy.test_main_cli` (use `python -m unittest -v ...` if `python3` is unavailable)
 - Template structured logging contract tests: `cd templates/python-dual-entry && python3 -m unittest -v tests.test_logging_contract` (use `python` if `python3` is unavailable)
 
 Target repo (submodule under `.governance/`):
