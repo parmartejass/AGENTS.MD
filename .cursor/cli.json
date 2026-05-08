@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "editor": {
+    "vimMode": false
+  },
+  "permissions": {
+    "allow": [
+      "Shell(git)",
+      "Shell(gh)",
+      "Shell(python)",
+      "Shell(powershell)",
+      "Shell(cmd)"
+    ],
+    "deny": [
+      "Read(.env)",
+      "Read(.env.*)",
+      "Write(.env)",
+      "Write(.env.*)"
+    ]
+  }
+}
