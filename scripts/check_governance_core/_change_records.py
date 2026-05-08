@@ -132,7 +132,7 @@ def _reference_target_exists(repo_root: Path, raw_ref: str) -> bool:
     if "://" in normalized:
         return True
     target = normalized.split("#", 1)[0].split("?", 1)[0]
-    if not target or target == "README.md#checks":
+    if not target:
         return True
     if target.startswith("/"):
         return False

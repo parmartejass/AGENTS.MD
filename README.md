@@ -326,6 +326,7 @@ This repo:
 - Folder architecture checks (declared Python roots, explicit workspace exceptions, and repo-owned/template folder contracts): `python3 scripts/check_folder_architecture/check_folder_architecture_main.py` (use `python` if `python3` is unavailable)
 - Folder architecture regression tests (vendored governance boundary + scope): `python3 -m unittest -v scripts/check_folder_architecture/test_main.py` (use `python -m unittest -v ...` if `python3` is unavailable)
 - Cross-platform core governance checks (manifest + docs SSOT + project docs + governance authority decisions + hygiene + playbook parity + unresolved citation tokens + change records): `python3 scripts/check_governance_core/check_governance_core_main.py` (use `python` if `python3` is unavailable)
+  - Core governance regression tests: `python3 -m unittest -v scripts/check_governance_core/test_main.py` (use `python -m unittest -v ...` if `python3` is unavailable)
   - Require change records (or honor `.required` marker): `python3 scripts/check_governance_core/check_governance_core_main.py --require-records`
   - Strict safety mode: `python3 scripts/check_governance_core/check_governance_core_main.py --fail-on-safety-warnings`
 - Change record artifact checks (schema + required evidence fields): `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_change_records.ps1`
