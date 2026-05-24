@@ -301,6 +301,7 @@ For every concept, there must be exactly one authoritative definition:
 - data-facing truth / business facts
 - business rules / conditions / validation logic
 - workflow orchestration steps
+- run outcomes, user-facing feedback, and reporting/log schema
 - skills, scripts, and tools for the same domain
 - Excel lifecycle management (open/close/quit/verify/kill)
 - GUI queue/drain + cancellation pattern
@@ -357,6 +358,9 @@ Unreferenced helpers and "floating docs" are prohibited.
 - Use module-level logging (`logger = logging.getLogger(__name__)`) where applicable.
 - Catch specific exceptions; log context; raise meaningful domain errors.
 - Never "silently skip": if something is skipped, record **SKIPPED + reason** (log and/or run report).
+- Never "silently pass": success or partial success must reconcile the known work universe (`planned`, `eligible`, `executed`, `skipped`, `failed`) or fail validation if the workflow cannot know what it was supposed to process.
+- User-facing surfaces (CLI, GUI, reports, status panes) must show concise input/scope confirmation, progress or current processing phase for long work, terminal outcome, output/artifact path when produced, skip/failure reason, required user action, and run/report/log pointer when applicable.
+- Keep user feedback concise and actionable; keep deep diagnostics in structured logs with redaction and summarized large payloads.
 
 ### 5) Resource Safety
 - Prefer context managers.
@@ -391,8 +395,10 @@ GUI updates must occur on the main/UI thread only:
 
 ### 10) Performance & Speed (When Relevant)
 - If speed/performance is an acceptance criterion or implied by scale, state a performance model and pick low-risk optimizations first (algorithmic wins, reduce I/O, avoid repeated scans).
+- Choose the fastest safe correct method within validated data, domain, workflow, and resource boundaries; do not force an optimization blindly when its assumptions are unverified.
+- For processing work, define workload bounds, bottleneck hypothesis, cache/batch/chunk/queue strategy, invalidation rules, memory/concurrency limits, deterministic ordering, cancellation behavior, and cleanup behavior before optimizing.
 - Never trade away correctness, determinism, data integrity, edge-case safety, logging, or guaranteed cleanup for speed; keep concurrency bounded and cancellation-aware.
-- Verify claimed speedups with deterministic evidence (benchmark/timing) or complexity reasoning; avoid premature micro-optimizations.
+- Verify claimed speedups with deterministic evidence (benchmark/timing on representative inputs when feasible) or complexity reasoning, plus output-equivalence and failure-path witnesses; avoid premature micro-optimizations.
 
 ### 11) Module Architecture — Mandatory Rules
 These rules are NON-NEGOTIABLE. Violating any rule is a failed task.

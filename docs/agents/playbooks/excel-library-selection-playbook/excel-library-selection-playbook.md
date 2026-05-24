@@ -73,6 +73,7 @@ Required multi-library patterns (minimum):
 - Avoid per-cell loops whenever bulk range/table operations exist.
 - Minimize COM round-trips by batching read/write and state changes.
 - Determine worksheet/table bounds once; avoid repeated scans.
+- Cache only validated required ranges, headers, mappings, and COM properties; record cache key/scope, bounds source, row/column counts, and invalidation trigger.
 - Use chunked processing for large sheets to bound memory.
 - Prefer write-then-atomic-replace patterns for output files when overwriting.
 - Reuse parsed headers/mappings within a run; define invalidation on sheet/schema change.
@@ -106,6 +107,7 @@ Required multi-library patterns (minimum):
 | Idempotency | output hash/path + outcome parity across rerun | run_end summary | identical for identical inputs |
 | Lifecycle | Excel PID before/after (COM path) | lifecycle log fields | no orphan process |
 | Observability | terminal outcome per item | item-level records | 100% item terminalization |
+| Range/cache safety | selected sheet/table/range + bounds/counts | run summary + range/cache evidence | required data only, no missed trailing data/formula rows |
 
 ## Failure-path checks (deterministic)
 

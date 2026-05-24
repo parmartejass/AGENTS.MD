@@ -18,7 +18,8 @@ Use when:
 - if new logic is introduced: apply `AGENTS.md` "Module Architecture — Mandatory Rules" (use `docs/agents/playbooks/design-principles-checklist/design-principles-checklist.md`).
 
 ## Goal
-- Improve speed/throughput without data loss, determinism regressions, or weakened cleanup/logging.
+- Improve speed/throughput with the fastest safe correct method within validated workload, domain, resource, and workflow boundaries.
+- Do not trade away data integrity, deterministic behavior, user-facing feedback, cleanup, or logging for speed.
 
 ## Hotspot identification (verify first)
 - What is slow (CPU vs I/O vs COM/network round-trips):
@@ -28,9 +29,10 @@ Use when:
 ## Safe optimization levers (pick the minimal set)
 - No safety/correctness trade-offs.
 - Replace per-item round-trips with bulk operations (Excel: avoid per-cell COM calls; dataframes: avoid row-wise Python loops when a vectorized/groupby/join exists).
-- Cache expensive lookups deterministically (precompute maps/indices); define invalidation when inputs change.
+- Cache expensive lookups deterministically (precompute maps/indices); define cache key/scope, max size, and invalidation when inputs/schema/ranges change.
 - Reduce repeated scans (compute bounds once; avoid repeated `rg`/directory walks/parse passes).
 - Batch/chunk processing with explicit bounds (memory caps, timeouts, cancellation-aware cleanup).
+- Queue work only with explicit bounds, backpressure/coalescing, and deterministic output ordering.
 - Keep concurrency bounded and output deterministic (stable ordering rules; avoid races on shared outputs).
 
 ## Proof obligations
@@ -40,6 +42,8 @@ Use when:
 
 ## Evidence plan
 - Deterministic timing capture (same inputs, same environment): what is measured and where recorded.
+- Workload/resource bounds: rows/items/files/bytes, memory/concurrency limits, queue/chunk/batch sizes.
+- Cache/batch witness: cache scope/key/invalidation and batch/chunk strategy used.
 - Complexity reasoning (big-O + dominant constants) when benchmarks aren’t feasible.
 - Correctness witness: output equivalence/regression check on frozen representative fixtures.
 - Disconfirming check: one edge/adversarial case that could invalidate the optimization hypothesis.

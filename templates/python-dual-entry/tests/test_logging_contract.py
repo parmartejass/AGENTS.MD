@@ -35,6 +35,31 @@ def _events_for_run(path: Path, run_id: str) -> list[dict]:
     return [event for event in _read_jsonl(path) if event.get("run_id") == run_id]
 
 
+def _run_end_payload(
+    *,
+    result: str = "SUCCESS",
+    by_outcome: dict[str, int] | None = None,
+    failed_by_phase: dict[str, int] | None = None,
+    work_counts: dict[str, int] | None = None,
+) -> dict:
+    return {
+        "ts": "2026-02-09T12:00:00+00:00",
+        "event": "run_end",
+        "run_id": "abc",
+        "app": "myapp",
+        "version": "0.1.0",
+        "mode": "test",
+        "result": result,
+        "summary": {
+            "by_outcome": by_outcome or {"executed": 1, "skipped": 0, "failed": 0},
+            "failed_by_phase": failed_by_phase or {"validation": 0, "commit": 0, "cleanup": 0},
+            "work_counts": work_counts or {"planned": 1, "eligible": 1, "executed": 1, "skipped": 0, "failed": 0},
+        },
+        "timings_ms": {},
+        "errors": [],
+    }
+
+
 class LoggingContractTests(unittest.TestCase):
     def setUp(self) -> None:
         self._tmp = tempfile.TemporaryDirectory()
@@ -63,6 +88,10 @@ class LoggingContractTests(unittest.TestCase):
 
         run_end = [event for event in events if event["event"] == "run_end"][0]
         self.assertEqual(run_end["result"], "SUCCESS")
+        self.assertEqual(
+            run_end["summary"]["work_counts"],
+            {"planned": 1, "eligible": 1, "executed": 1, "skipped": 0, "failed": 0},
+        )
 
         terminal_item = [event for event in events if event["event"] == "item_terminal"][0]
         self.assertEqual(terminal_item["outcome"], "EXECUTED")
@@ -88,6 +117,10 @@ class LoggingContractTests(unittest.TestCase):
 
         run_end = [event for event in events if event["event"] == "run_end"][0]
         self.assertEqual(run_end["result"], "FAILURE")
+        self.assertEqual(
+            run_end["summary"]["work_counts"],
+            {"planned": 1, "eligible": 0, "executed": 0, "skipped": 0, "failed": 1},
+        )
 
     def test_runtime_exception_emits_failure_with_source(self) -> None:
         scenario = load_scenario(SCENARIOS_DIR / "scenario_001_happy_path.json")
@@ -119,6 +152,11 @@ class LoggingContractTests(unittest.TestCase):
         events = _events_for_run(self.event_log, result.run_id)
         run_end = [event for event in events if event["event"] == "run_end"][0]
         self.assertEqual(run_end["result"], "PARTIAL_SUCCESS")
+        self.assertEqual(
+            run_end["summary"]["work_counts"],
+            {"planned": 1, "eligible": 1, "executed": 0, "skipped": 1, "failed": 0},
+        )
+        self.assertEqual(run_end["summary"]["failed_by_phase"], {"validation": 0, "commit": 1, "cleanup": 0})
 
         terminal_item = [event for event in events if event["event"] == "item_terminal"][0]
         self.assertEqual(terminal_item["outcome"], "SKIPPED")
@@ -319,6 +357,23 @@ class LoggingContractTests(unittest.TestCase):
                     "error": {},
                 }
             )
+
+    def test_validator_rejects_incoherent_run_end_summaries(self) -> None:
+        cases = [
+            ("planned == executed", _run_end_payload(work_counts={"planned": 2, "eligible": 2, "executed": 1, "skipped": 0, "failed": 0})),
+            ("SUCCESS", _run_end_payload(by_outcome={"executed": 0, "skipped": 0, "failed": 1}, failed_by_phase={"validation": 1, "commit": 0, "cleanup": 0}, work_counts={"planned": 1, "eligible": 0, "executed": 0, "skipped": 0, "failed": 1})),
+            ("by_outcome", _run_end_payload(by_outcome={"executed": 0, "skipped": 0, "failed": 0})),
+            ("eligible", _run_end_payload(work_counts={"planned": 1, "eligible": 2, "executed": 1, "skipped": 0, "failed": 0})),
+            ("executed", _run_end_payload(work_counts={"planned": 1, "eligible": 0, "executed": 1, "skipped": 0, "failed": 0})),
+            ("executed work", _run_end_payload(by_outcome={"executed": 0, "skipped": 0, "failed": 0}, work_counts={"planned": 0, "eligible": 0, "executed": 0, "skipped": 0, "failed": 0})),
+            ("non-negative integer", _run_end_payload(work_counts={"planned": 1, "eligible": 1, "executed": True, "skipped": 0, "failed": 0})),
+            ("failed phase", _run_end_payload(failed_by_phase={"validation": 1, "commit": 0, "cleanup": 0})),
+            ("failed phase", _run_end_payload(result="FAILURE", by_outcome={"executed": 0, "skipped": 0, "failed": 1}, work_counts={"planned": 1, "eligible": 0, "executed": 0, "skipped": 0, "failed": 1})),
+        ]
+        for expected, payload in cases:
+            with self.subTest(expected=expected):
+                with self.assertRaisesRegex(ValueError, expected):
+                    validate_event_payload(payload)
 
 
 if __name__ == "__main__":

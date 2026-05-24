@@ -46,10 +46,10 @@ Use when:
 - Bottleneck hypothesis (disk/network/parse/serialize/CPU):
 - Safe levers (pick the minimal set that applies):
   - Stream/chunk processing with bounded memory.
-  - Avoid repeated directory scans and full-file re-reads; cache parsed metadata/lookups and define invalidation.
+  - Avoid repeated directory scans and full-file re-reads; cache parsed metadata/lookups with cache key/scope, max size, and invalidation.
   - Batch small writes (buffered I/O); avoid per-record filesystem operations.
   - Prefer linear-time data structures (hash maps/sets) over nested loops for joins/dedup.
-  - Concurrency only when safe: bounded workers, deterministic output rules, and cancellation-aware cleanup.
+  - Queue/batch work with backpressure/coalescing when needed; concurrency only when safe: bounded workers, deterministic output rules, and cancellation-aware cleanup.
 - Evidence plan (how timing/complexity is verified deterministically):
 
 ## Proof obligations (first principles)
@@ -59,6 +59,8 @@ Use when:
 
 ## Acceptance checks
 - run outcomes recorded (EXECUTED/SKIPPED + reason):
+- known work counts reconcile planned/eligible/executed/skipped/failed:
 - logs present with paths + counts:
+- user-facing summary includes input/scope, progress/current phase for long work, terminal result, output path, reason/action, and log/report pointer:
 - at least one failure-path check executed (e.g., missing input, invalid schema):
 - verification commands come from README.md "Checks":

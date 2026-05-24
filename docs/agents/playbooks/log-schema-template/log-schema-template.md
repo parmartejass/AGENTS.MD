@@ -16,10 +16,14 @@ update_trigger: log schema fields or reason code taxonomy changes
 - app, version, mode
 - inputs, outputs (objects)
 - result (SUCCESS | PARTIAL_SUCCESS | FAILURE)
-- summary (object): by_outcome {executed, skipped, failed}; failed_by_phase {validation, commit, cleanup}
+- summary (object): by_outcome {executed, skipped, failed}; failed_by_phase {validation, commit, cleanup}; work_counts {planned, eligible, executed, skipped, failed}
 - timings_ms (object)
 - errors (array of {type, message, where, fatal})
 - resources (optional, when applicable): pids_before/after, handles_closed, quit_called, pid_forced_termination_used
+
+When the item universe is knowable, `work_counts.planned == work_counts.executed + work_counts.skipped + work_counts.failed`.
+Unknown item universe must fail validation with `UNKNOWN_ITEM_UNIVERSE` or an equivalent reason unless the workflow contract explicitly allows that uncertainty.
+All-zero `SUCCESS` summaries are invalid; a valid no-op must terminalize as skipped with `VALID_NOOP` or equivalent explicit reason.
 
 ## Phase transition record
 - ts, event (phase_transition), run_id, phase, phase_seq, notes (optional)
@@ -38,4 +42,5 @@ Emitted once per item at terminal state:
 ## Reason codes
 - Maintain a single enum owner (module or config). Extend there only.
 - Example codes: MISSING_REQUIRED_HEADER, DUPLICATE_HEADER, MISSING_INPUT_FILE, INVALID_IDENTIFIER_FORMAT,
-  DUPLICATE_KEY_IN_INPUT, COM_WRITE_FAILED, SAVE_FAILED, EXCEL_QUIT_FAILED, PID_VALIDATION_FAILED.
+  DUPLICATE_KEY_IN_INPUT, COM_WRITE_FAILED, SAVE_FAILED, EXCEL_QUIT_FAILED, PID_VALIDATION_FAILED,
+  UNKNOWN_ITEM_UNIVERSE, VALID_NOOP.

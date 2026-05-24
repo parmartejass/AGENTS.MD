@@ -104,3 +104,6 @@ Owner: `AGENTS.md` + `agents-manifest.yaml`
 Owner: exactly one place.
 - per-item outcome: `EXECUTED` / `SKIPPED` / `FAILED` + reason
 - output location policy centralized
+- known work reconciliation: `planned`, `eligible`, `executed`, `skipped`, `failed`
+- user-visible status/reporting consumes workflow outcomes and reason codes; UI/CLI/report surfaces must not redefine success, failure, skip, or no-op semantics
+- user-facing summaries include accepted input/scope, progress/current phase for long work, terminal result, produced artifacts, skip/failure reason, required user action, and run/report/log pointer when applicable

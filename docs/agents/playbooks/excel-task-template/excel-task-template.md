@@ -56,10 +56,11 @@ Use when:
 - Safe levers (pick the minimal set that applies):
   - Bulk read/write (avoid per-cell COM loops; minimize round-trips).
   - Determine bounds once (prefer table/ListObject bounds; otherwise compute last used row/col with validation so no trailing data is missed).
-  - Cache expensive lookups (e.g., mapping dictionaries, parsed headers/ranges); define invalidation when the sheet changes.
-  - Batch/chunk processing with bounded memory; respect cancellation/timeouts.
+  - Cache only validated required lookups/ranges (e.g., mapping dictionaries, parsed headers/ranges); define cache key/scope, max size, and invalidation when sheet/schema/data bounds change.
+  - Batch/chunk processing with bounded memory, deterministic ordering, queue/backpressure if applicable, and cancellation/timeouts.
   - If toggling Excel settings (screen updating/calculation/events): restore in `finally` and log changes.
 - Evidence plan (how timing or complexity is verified deterministically):
+- Range/cache witness (sheet/table/range, bounds source, rows/cols, invalidation trigger):
 
 ## Proof obligations (first principles)
 - preconditions (required files/sheets/headers):
@@ -68,7 +69,10 @@ Use when:
 
 ## Acceptance checks
 - run outcomes recorded (EXECUTED/SKIPPED + reason):
+- known work counts reconcile planned/eligible/executed/skipped/failed:
 - logs present:
+- user-facing summary includes input/scope, progress/current phase for long work, terminal result, output path, reason/action, and log/report pointer:
 - no orphan Excel.exe:
+- range/cache witness proves no required trailing data/formula rows were missed:
 - failure-path check executed:
 - verification commands come from README.md "Checks":

@@ -19,7 +19,10 @@ Use when:
 
 ## UI requirements
 - controls:
-- progress display:
+- input/scope confirmation:
+- progress/current-phase display:
+- terminal summary (success/partial/failure/skipped/cancelled):
+- output/report/log pointer:
 - cancel behavior:
 
 ## Threading design
@@ -35,6 +38,7 @@ Use when:
 - Queue strategy (avoid floods; coalesce progress; keep messages small; consider max queue size/backpressure):
 - UI update throttle (rate-limit progress updates; batch multiple messages per drain tick):
 - Worker bounds (no unbounded threads; timeouts; guaranteed cleanup on cancel):
+- User feedback latency target and witness:
 - Evidence plan (how responsiveness and throughput are verified deterministically):
 
 ## Proof obligations (first principles)
@@ -51,6 +55,8 @@ Use when:
 ## Acceptance checks
 - UI never blocks:
 - no UI updates off main thread:
+- user sees accepted input/scope, progress/current phase, terminal outcome, reason/action for skip/fail, and output/report/log pointer when applicable:
+- visible summary matches workflow outcome vocabulary and counts:
 - cancel stops worker:
 - failure-path check executed:
 - verification commands come from README.md "Checks":

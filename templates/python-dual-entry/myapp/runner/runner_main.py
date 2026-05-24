@@ -21,6 +21,7 @@ from myapp.observability import (
 )
 
 from .validation import validate_job_config
+from .outcome_summary import build_run_summary
 from .workflows import get_workflow
 
 
@@ -378,18 +379,7 @@ def run_job(config: JobConfig, *, cancel_event: Event | None = None, mode: str =
             write_effects=write_effects,
             duration_ms=duration_ms,
         )
-        summary = {
-            "by_outcome": {
-                "executed": 1 if item_outcome == ItemOutcome.EXECUTED else 0,
-                "skipped": 1 if item_outcome == ItemOutcome.SKIPPED else 0,
-                "failed": 1 if item_outcome == ItemOutcome.FAILED else 0,
-            },
-            "failed_by_phase": {
-                "validation": 1 if final_phase == Phase.FAILED_VALIDATION else 0,
-                "commit": 1 if final_phase == Phase.FAILED_COMMIT else 0,
-                "cleanup": 1 if final_phase == Phase.FAILED_CLEANUP else 0,
-            },
-        }
+        summary = build_run_summary(item_outcome=item_outcome, final_phase=final_phase)
         emit_run_end(
             run,
             result=run_result,
