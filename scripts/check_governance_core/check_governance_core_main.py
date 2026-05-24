@@ -21,6 +21,10 @@ import sys
 from pathlib import Path
 from typing import List, Sequence, Tuple
 
+if sys.version_info < (3, 11):
+    sys.stderr.write("FAILED_VALIDATION: Python 3.11+ is required for governance core checks.\n")
+    raise SystemExit(1)
+
 try:
     from ._change_records import check_change_records
     from ._manifest_and_docs import check_agents_manifest, check_docs_ssot, check_project_docs
@@ -33,7 +37,7 @@ try:
     )
     from ._runtime_projection import check_runtime_projection_manifest
     from ._shared import PYTHON_SAFETY_TIMEOUT_SEC, configure_logging, context, logger
-except ImportError:  # pragma: no cover - script-path execution fallback
+except ImportError:  # pragma: no cover - script-path execution
     from _change_records import check_change_records
     from _manifest_and_docs import check_agents_manifest, check_docs_ssot, check_project_docs
     from _repo_and_governance import (
@@ -109,9 +113,28 @@ def main(argv: Sequence[str]) -> int:
         ),
     )
     parser.add_argument(
+        "--only-change-records",
+        action="store_true",
+        help="Run only change-record artifact checks.",
+    )
+    parser.add_argument(
+        "--only-docs-ssot",
+        action="store_true",
+        help="Run only docs SSOT/router/header checks.",
+    )
+    parser.add_argument(
+        "--only-project-docs",
+        action="store_true",
+        help="Run only project docs linkage/routing checks.",
+    )
+    parser.add_argument(
         "--fail-on-safety-warnings",
         action="store_true",
         help="Run scripts/check_python_safety/check_python_safety_main.py with --fail-on-warnings.",
+    )
+    parser.add_argument(
+        "--success-marker",
+        help="Emit this opaque marker only after the requested validator mode completes successfully.",
     )
     args = parser.parse_args(argv)
 
@@ -122,6 +145,49 @@ def main(argv: Sequence[str]) -> int:
     except RuntimeError as err:
         logger.error("ERROR: %s", err)
         return 1
+
+    narrow_modes = [args.only_change_records, args.only_docs_ssot, args.only_project_docs]
+    if sum(1 for enabled in narrow_modes if enabled) > 1:
+        logger.error("ERROR: Choose only one narrow check mode.")
+        return 1
+
+    if args.only_change_records:
+        change_record_errors, change_record_notes = check_change_records(
+            repo_root, governance_root, require_records=args.require_records
+        )
+        if change_record_errors:
+            for issue in change_record_errors:
+                logger.error("ERROR: %s", issue)
+            logger.error("Change record checks failed: %s issue(s).", len(change_record_errors))
+            return 1
+        for note in change_record_notes or ["Change record checks passed."]:
+            logger.info(note)
+        _emit_success_marker(args.success_marker)
+        return 0
+
+    if args.only_docs_ssot:
+        docs_errors, docs_notes = check_docs_ssot(repo_root, governance_root)
+        if docs_errors:
+            for issue in docs_errors:
+                logger.error("ERROR: %s", issue)
+            logger.error("Docs SSOT checks failed: %s issue(s).", len(docs_errors))
+            return 1
+        logger.info("Docs SSOT checks passed.")
+        for note in docs_notes:
+            logger.info(note)
+        _emit_success_marker(args.success_marker)
+        return 0
+
+    if args.only_project_docs:
+        project_docs_errors = check_project_docs(repo_root, governance_rel, governance_root)
+        if project_docs_errors:
+            for issue in project_docs_errors:
+                logger.error("ERROR: %s", issue)
+            logger.error("Project docs checks failed: %s issue(s).", len(project_docs_errors))
+            return 1
+        logger.info("Project docs checks passed.")
+        _emit_success_marker(args.success_marker)
+        return 0
 
     docs_errors, docs_notes = check_docs_ssot(repo_root, governance_root)
     runtime_projection_errors, runtime_projection_notes = check_runtime_projection_manifest(
@@ -177,7 +243,13 @@ def main(argv: Sequence[str]) -> int:
         return 1
 
     logger.info("Governance core checks passed.")
+    _emit_success_marker(args.success_marker)
     return 0
+
+
+def _emit_success_marker(marker: str | None) -> None:
+    if marker:
+        logger.info("VALIDATOR_SUCCESS_MARKER: %s", marker)
 
 
 if __name__ == "__main__":

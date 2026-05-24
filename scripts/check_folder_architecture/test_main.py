@@ -15,6 +15,9 @@ from uuid import uuid4
 SCRIPT_ROOT = Path(__file__).resolve().parent
 MODULE_PATH = SCRIPT_ROOT / "check_folder_architecture_main.py"
 ENTRYPOINT_REGISTRY_PATH = SCRIPT_ROOT.parent / "entrypoint_contracts.json"
+if str(SCRIPT_ROOT) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_ROOT))
+
 SPEC = importlib.util.spec_from_file_location("check_folder_architecture_main", MODULE_PATH)
 if SPEC is None or SPEC.loader is None:
     raise RuntimeError(f"Unable to load checker module from {MODULE_PATH}")
@@ -219,6 +222,23 @@ class FolderArchitectureBoundaryTests(unittest.TestCase):
 
             self.assertIn("rogue.py", paths)
             self.assertNotIn("app.py", paths)
+
+    def test_non_git_enumeration_ignores_generated_and_environment_paths(self) -> None:
+        with _temporary_workspace() as repo_root:
+            _write_minimal_governance_tree(repo_root)
+            _write(
+                repo_root / "docs/project/architecture/architecture.md",
+                f"# Architecture\n\n- {MODULE.SCOPE_MANIFEST_PATH}\n",
+            )
+            _write(repo_root / ".tmp-test-workspaces/generated.py", "print('generated')\n")
+            _write(repo_root / "venv/generated.py", "print('venv')\n")
+            _write(repo_root / ".venv/generated.py", "print('dot venv')\n")
+            _write(repo_root / "__pycache__/generated.py", "print('cache')\n")
+
+            issues = []
+            check_governance_owned_contracts(repo_root, repo_root, issues)
+
+            self.assertEqual([], issues)
 
     def test_source_repo_mode_keeps_scope_manifest_reference_check(self) -> None:
         with _temporary_workspace() as repo_root:

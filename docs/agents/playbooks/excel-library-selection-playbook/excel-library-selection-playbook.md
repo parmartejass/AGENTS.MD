@@ -53,7 +53,7 @@ Expanded cross-platform options (use when justified by workload):
 ## Single-library vs multi-library rules
 
 Use a single library when:
-- one library covers all capabilities without fallback logic, and
+- one library covers all capabilities as the selected SSOT path, and
 - performance is acceptable for expected data size.
 
 Use multi-library pipelines when:
@@ -79,7 +79,7 @@ Required multi-library patterns (minimum):
 
 ## Reliability and safety practices
 
-- Follow `docs/agents/50-excel-com-lifecycle/excel-com-lifecycle.md` for all COM workflows (PID-scoped quit verification + bounded kill fallback in `finally`).
+- Follow `docs/agents/50-excel-com-lifecycle/excel-com-lifecycle.md` for all COM workflows (PID-scoped quit verification + bounded PID-scoped forced termination after verified graceful-quit failure in `finally`).
 - Enforce bounded timeouts for open/read/write/refresh/quit operations.
 - Treat retries as idempotent: retry only side-effect-safe steps unless transactional safeguards exist.
 - Record explicit terminal outcomes (`EXECUTED`/`SKIPPED`/`FAILED`) with reason for each processed item.
@@ -121,7 +121,7 @@ COM path checks:
 1. Excel startup/open failure:
    - Expect explicit COM error and terminal run failure with cleanup attempt.
 2. Quit failure:
-   - Expect bounded verify/kill fallback per PID-scoped lifecycle policy.
+   - Expect bounded verify plus PID-scoped forced termination after verified graceful-quit failure.
 3. Refresh/recalc timeout:
    - Expect timeout failure code and bounded cleanup; no silent continuation.
 

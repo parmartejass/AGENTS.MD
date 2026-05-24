@@ -59,7 +59,7 @@ update_trigger: skill standards change OR new platform support requirements emer
 
 ## Context Budget Constraint
 - All skill names are always loaded into the agent context, but descriptions are truncated to fit a character budget.
-- The budget scales dynamically at 1% of the context window, with a fallback of 8,000 characters when the window size is unknown.
+- The budget scales dynamically at 1% of the context window; when the window size is unknown, the SSOT default is 8,000 characters.
 - Implication: keep `SKILL.md` descriptions concise. Front-load the trigger condition (when to use the skill) in the first sentence. Defer detail to referenced support files using progressive disclosure.
 - Source: Anthropic "Lessons from Building Claude Code: How We Use Skills" (March 2026).
 

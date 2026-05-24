@@ -313,12 +313,17 @@ Note: If `.governance/` folder is empty, run `git submodule update --init`.
 
 ## Checks
 
+Python checks require Python 3.11+.
+Python-backed PowerShell wrappers (`check_docs_ssot.ps1`, `check_project_docs.ps1`, `check_change_records.ps1`) accept `-PythonExe <path>` when `python3`/`python` do not resolve to Python 3.11+.
+When `-PythonExe` is omitted, wrappers use the resolver declared in `scripts/_python_check_runner.ps1`, print the selected executable, and require a validator success marker before reporting success.
+
 This repo:
 - Platform asset bootstrap/repair smoke (writes the repo-owned runtime projections): `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/setup_repo_platform_assets.ps1 -Force`
   - Default path witness: `.cursor/rules/` is not created and no repo-owned subagent runtime projection is attempted.
   - If setup stops on a conflicting non-link runtime file such as `.mcp.json`, rename or remove that path and rerun.
   - Include compatibility-only projections when explicitly needed: `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/setup_repo_platform_assets.ps1 -Force -IncludeCompatibility`
 - Docs SSOT header checks (all `docs/` except index pages): `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_docs_ssot.ps1`
+  - PowerShell wrapper for the Python docs SSOT/router validator.
 - Docs router contract regression test: `python3 scripts/check_docs_router_contract/check_docs_router_contract_main.py` (use `python` if `python3` is unavailable)
 - Agents manifest checks: `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_agents_manifest.ps1`
 - Project docs checks (required files + README linkage): `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_project_docs.ps1`
@@ -326,7 +331,7 @@ This repo:
 - Folder architecture checks (declared Python roots, explicit workspace exceptions, and repo-owned/template folder contracts): `python3 scripts/check_folder_architecture/check_folder_architecture_main.py` (use `python` if `python3` is unavailable)
 - Folder architecture regression tests (vendored governance boundary + scope): `python3 -m unittest -v scripts/check_folder_architecture/test_main.py` (use `python -m unittest -v ...` if `python3` is unavailable)
 - Cross-platform core governance checks (manifest + docs SSOT + project docs + governance authority decisions + hygiene + playbook parity + unresolved citation tokens + change records): `python3 scripts/check_governance_core/check_governance_core_main.py` (use `python` if `python3` is unavailable)
-  - Core governance regression tests: `python3 -m unittest -v scripts/check_governance_core/test_main.py` (use `python -m unittest -v ...` if `python3` is unavailable)
+  - Core governance regression tests: `python3 -m unittest discover -s scripts/check_governance_core -p "test*.py" -v` (use `python -m unittest discover -s ...` if `python3` is unavailable)
   - Require change records (or honor `.required` marker): `python3 scripts/check_governance_core/check_governance_core_main.py --require-records`
   - Strict safety mode: `python3 scripts/check_governance_core/check_governance_core_main.py --fail-on-safety-warnings`
 - Change record artifact checks (schema + required evidence fields): `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_change_records.ps1`
@@ -336,6 +341,7 @@ This repo:
 
 Target repo (submodule under `.governance/`):
 - Docs SSOT header checks: `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_docs_ssot.ps1 -RepoRoot .`
+  - PowerShell wrapper for the Python docs SSOT/router validator.
 - Docs router contract regression test: `python3 .governance/scripts/check_docs_router_contract/check_docs_router_contract_main.py` (use `python` if `python3` is unavailable)
 - Agents manifest checks: `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_agents_manifest.ps1`
 - Project docs checks: `powershell -NoProfile -ExecutionPolicy Bypass -File .governance/scripts/check_project_docs.ps1 -RepoRoot .`

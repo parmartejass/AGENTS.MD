@@ -34,6 +34,7 @@ Maintain one owner for domain errors so failures are searchable and consistent, 
   - Avoid: `except Exception: pass`
   - Avoid: `except Exception: return None/False/...` unless that sentinel is part of the function's explicit contract; otherwise record context/outcome (log/report) or raise a domain error
   - Definition: "explicit contract" means the sentinel meaning is documented (docstring/type) and callers handle it explicitly.
+- If a workflow cannot resolve the required config/rule/intent authority for a branch, it must stop that branch with `FAILED` or `SKIPPED + reason`; it must not infer, duplicate, or silently default the business rule in orchestration code.
 - If execution continues after an error (best-effort loops), still surface it:
   - record a terminal per-item outcome + reason
   - reflect partial failure at the run level (see `AGENTS.md` "Standard Log Schema (Required when logs are emitted)")

@@ -66,7 +66,7 @@ If a retrieved doc references a symbol, path, or config key that matters to the 
 
 ## Checklist Before Implementing
 
-- [ ] Resolved `agents-manifest.yaml` profiles, `injection_mode`, and fallback behavior
+- [ ] Resolved `agents-manifest.yaml` profiles, `injection_mode`, and `fallback_inject` routing
 - [ ] Read `default_inject` as required by `AGENTS.md`
 - [ ] Read the edited file and the relevant SSOT owner
 - [ ] Verified decision-critical paths/symbols/check commands against live files

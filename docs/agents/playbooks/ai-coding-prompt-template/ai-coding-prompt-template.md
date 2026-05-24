@@ -44,7 +44,7 @@ Constraints:
 - Follow `AGENTS.md` (SSOT): verify with tools, avoid duplicates, explicit failures, resource safety.
 - Minimal diff; no unrelated refactors.
 - No new dependencies unless explicitly approved.
-- If new logic is introduced, apply `AGENTS.md` "Mandatory Modularity + SOLID/DI (Authority Bloat Prevention)".
+- If new logic is introduced, apply `AGENTS.md` "Module Architecture — Mandatory Rules".
 
 Bugfix artifacts (required when Task type = bugfix):
 - Defect vocabulary summary (symptom/root cause/workaround):

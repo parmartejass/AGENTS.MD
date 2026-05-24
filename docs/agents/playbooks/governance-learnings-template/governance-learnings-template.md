@@ -12,7 +12,7 @@ update_trigger:
 Use this playbook to have an AI assistant review a work session and extract repeatable governance learnings that should be codified into the governance pack, while avoiding duplication and staying aligned with SSOT boundaries.
 
 ## Use when
-- You want an AI assistant (Claude/Codex/Copilot/etc.) to review a work session and extract learnings that should be codified into this governance pack.
+- You want an AI assistant to review a work session and extract learnings that should be codified into this governance pack.
 - You want the assistant to propose or (when explicitly authorized) apply governance updates while avoiding duplicates.
 
 ## Don't use when
@@ -21,6 +21,9 @@ Use this playbook to have an AI assistant review a work session and extract repe
 
 ## Definitions
 - Learning: a repeatable pitfall, missing invariant, missing witness/check, missing SSOT owner, missing template, or missing injection profile that would prevent future errors if codified.
+- Governance-level learning: a learning that changes reusable agent behavior across tasks/repos because it affects `AGENTS.md` hard gates, SSOT owners, invariants, witnesses, manifest routing, docs routing, safety, deterministic checks, or reusable governance playbooks.
+- Evidence handoff: a bounded, redacted summary of session evidence. It can support promotion decisions, but it is not itself a governance delta.
+- Noise: task-local, tool-budget, temporary execution preference, weak-evidence, or non-governance instruction that should not create a governance update.
 
 ## Quickstart checklist (recommended)
 1. Confirm required context is accessible:
@@ -55,6 +58,44 @@ Use this playbook to have an AI assistant review a work session and extract repe
 - If council output is `go_no_go = hold`, stop before editing.
 - If council conflicts or evidence gaps remain unresolved, stop and ask before editing.
 - If evidence is weak or missing for a candidate, mark it `UNVERIFIED` and request recap/context.
+- Prefer user-provided recap or redacted evidence handoff over raw transcripts.
+- Do not store raw session transcripts, raw local session logs, secrets, cookies, credentials, personal identifiers, or full user-home paths in repo artifacts.
+- Redact sensitive evidence before output; use counts, timestamps, session IDs, hashes, relative paths, and short snippets only when needed.
+
+## Promotion / Noise Gate
+
+Run this gate before de-duplication and before drafting any governance delta.
+
+Promote a candidate to de-duplication only when verified evidence shows a reusable governance gap affecting one or more of:
+
+- `AGENTS.md` hard gates or execution loops
+- SSOT ownership, authority boundaries, or duplicate-authority prevention
+- invariants, witnesses, deterministic checks, or README Checks alignment
+- manifest/context injection routing
+- docs routing, playbook structure, or governance template behavior
+- safety, resource cleanup, explicit failure, or no-silent-skip behavior
+- repeatable cross-repo agent behavior that future agents must preserve
+
+Repetition is useful evidence, but it is not sufficient by itself. A single verified critical governance failure may promote. Repeated task-local preferences must still be rejected.
+
+Use these gate statuses:
+
+- `PROMOTE_FOR_DEDUP`: verified governance-level candidate; continue to de-duplication and placement.
+- `DEFER_EVIDENCE_GAP`: plausible governance concern, but evidence is incomplete or inaccessible.
+- `REJECT_TASK_LOCAL`: applies only to one task, repo, file, or temporary user goal.
+- `REJECT_TOOL_BUDGET`: concerns token/time/thread/tool budgeting rather than durable governance behavior.
+- `REJECT_TEMPORARY_EXECUTION_PREFERENCE`: temporary instruction for the current run, not a reusable rule.
+- `REJECT_WEAK_EVIDENCE`: assertion lacks enough verified evidence to affect governance.
+- `REJECT_CONFLICTS_WITH_SSOT`: conflicts with current `AGENTS.md` or another authority unless the user explicitly requests an authority change and confirmation/council gates pass.
+- `REJECT_NON_GOVERNANCE`: does not affect governance-level authority, invariants, witnesses, routing, safety, or checks.
+
+Rejected candidates must include evidence, gate status, and rejection reason. They must not emit draft governance deltas, backlog proposals, or target locations beyond `N/A + rejected`.
+
+Example rejection:
+
+- Candidate: "do not let subagents spawn more subagents"
+- Gate status: `REJECT_TEMPORARY_EXECUTION_PREFERENCE` or `REJECT_CONFLICTS_WITH_SSOT`
+- Reason: task-local execution preference and/or conflict with `AGENTS.md` standing subagent authorization unless the user explicitly asks to revise that authority and required confirmation/council gates pass.
 
 ## Preflight checklist (required before Step 1)
 - AGENTS access confirmed.
@@ -67,12 +108,13 @@ Use this playbook to have an AI assistant review a work session and extract repe
 - `LOW`: clarity/compliance improvement with low immediate execution risk.
 
 ## Procedure
-1. Extract candidate learnings from session evidence.
-2. De-duplicate against governance docs and referenced SSOT owners before declaring `MISSING`.
-3. Run Council review and reconcile findings before any edits.
-4. Produce governance deltas (proposals or auto-edits, based on authorization).
-5. Emit deterministic output records in required field order.
-6. Publish final summary with P1/P2/P3 split and explicit unknowns.
+1. Extract candidate learnings from session evidence or an evidence handoff.
+2. Run the Promotion / Noise Gate; reject non-governance noise before de-duplication.
+3. De-duplicate promoted candidates against governance docs and referenced SSOT owners before declaring `MISSING`.
+4. Run Council review and reconcile findings before any edits.
+5. Produce governance deltas (proposals or auto-edits, based on authorization).
+6. Emit deterministic output records in required field order.
+7. Publish final summary with P1/P2/P3 split, rejected noise counts, and explicit unknowns.
 
 ## Prompt pack (copy/paste into any chat)
 
@@ -100,6 +142,7 @@ Preflight checklist (required before Step 1):
 
 Evidence inputs (provide if available; if none, write `None provided`):
 - Session transcript or recap
+- Session evidence handoff from the relevant evidence-collection playbook
 - Files changed and diffs
 - Commands run + outputs
 - Error messages/logs
@@ -168,6 +211,14 @@ Severity rubric (for findings):
 - MEDIUM: likely misuse or rework risk that is non-blocking with explicit controls.
 - LOW: clarity/compliance improvement with low immediate execution risk.
 
+Promotion / Noise Gate (required before de-duplication):
+- Promote only verified governance-level candidates affecting `AGENTS.md` hard gates, SSOT owners, invariants, witnesses, manifest routing, docs routing, safety, deterministic checks, or reusable governance playbooks.
+- Repetition is not sufficient by itself; a single verified critical governance failure may promote.
+- Reject task-local, tool-budget, temporary execution preference, weak-evidence, conflicting-with-SSOT, and non-governance items.
+- Use one of these gate statuses: `PROMOTE_FOR_DEDUP`, `DEFER_EVIDENCE_GAP`, `REJECT_TASK_LOCAL`, `REJECT_TOOL_BUDGET`, `REJECT_TEMPORARY_EXECUTION_PREFERENCE`, `REJECT_WEAK_EVIDENCE`, `REJECT_CONFLICTS_WITH_SSOT`, `REJECT_NON_GOVERNANCE`.
+- Rejected candidates must include evidence and reason, use `Target location: N/A + rejected`, and must not emit draft governance deltas or backlog proposals.
+- Example rejection: "do not let subagents spawn more subagents" is `REJECT_TEMPORARY_EXECUTION_PREFERENCE` or `REJECT_CONFLICTS_WITH_SSOT` unless the user explicitly requests an authority change and confirmation/council gates pass.
+
 Steps:
 1) Extract candidate learnings (0-15):
    - If fewer than 5 VERIFIED candidates exist, continue with available candidates and state shortfall + reason.
@@ -177,25 +228,30 @@ Steps:
      - Proposed invariant (S; one sentence, testable) + category (data, ordering, atomicity, idempotency, lifecycle, observability, other)
      - Proposed witness (what is measured, where recorded, pass criteria)
    - If evidence is weak, mark as UNVERIFIED and request additional context.
-2) De-duplicate and place (verify):
+2) Apply the Promotion / Noise Gate:
+   - Assign exactly one gate status to each candidate.
+   - Continue only `PROMOTE_FOR_DEDUP` candidates to Step 3.
+   - Keep `DEFER_EVIDENCE_GAP` and rejected candidates in output records without draft deltas.
+3) De-duplicate and place (verify):
    - For each candidate, search in this order:
      1. governance/playbooks/docs area
      2. referenced SSOT owner docs/files
      3. broader repo
    - Use `rg` for verification and record search terms used when practical.
    - Mark status as `ALREADY_COVERED`, `PARTIAL`, or `MISSING`.
-3) Council review (required before edits):
+4) Council review (required before edits):
    - Run the Subagent Council per `AGENTS.md` "Subagent Council (Hard Gate)" with minimum intention coverage (SSOT/duplication, silent-error scan, edge-case scan, resource/security/perf).
    - Merge findings into one council summary block using the required fields above.
    - For each HIGH/MEDIUM finding, include at least one evidence item (R or D) and one action (apply/defer + rationale).
    - If `go_no_go` is `hold`, stop and ask before editing.
    - If conflicts or gaps remain, pause and ask before editing.
-4) Produce governance deltas (proposals or auto-edits, depending on authorization):
+5) Produce governance deltas (proposals or auto-edits, depending on authorization):
    - If auto-edit is authorized: apply minimal edits after the confirmation gate and within the scope in `AGENTS.md` "Governance Auto-Edit Gate".
    - If auto-edit is not authorized: propose deltas only.
-5) Output records (deterministic; one record per candidate, exact field order):
+6) Output records (deterministic; one record per candidate, exact field order):
    - ID:
-   - Status (`MISSING`|`PARTIAL`|`ALREADY_COVERED`):
+   - Gate status:
+   - Status (`MISSING`|`PARTIAL`|`ALREADY_COVERED`|`DEFERRED`|`REJECTED`):
    - Evidence (R/D):
    - Failure mode prevented:
    - Authority-first prevention point:
@@ -207,12 +263,14 @@ Steps:
    - Modularity/structure decision:
    - Priority + confidence (`P1`|`P2`|`P3` + `VERIFIED`|`UNVERIFIED`):
    - If a field is not applicable, write `N/A + reason`.
+   - Rejected candidates must use `Target location: N/A + rejected` and `Draft delta: N/A + rejected`.
    - ID format rule: `GL-DDMMYYYY-###`
    - Increment rule: `###` starts at `001` within the session output and increments by 1 for each record.
-6) Final summary:
+7) Final summary:
    - P1 codify now (max 7; requires VERIFIED evidence + concrete verification command/manual check)
    - P2/P3 backlog
    - Already-covered (no action)
+   - Rejected noise by gate status
    - Manifest/injection improvements (if any)
    - Open questions/unknowns
    - UNVERIFIED items cannot be promoted as P1.

@@ -4,24 +4,13 @@ import json
 import logging
 import os
 import sys
+import tomllib
 from pathlib import Path
 from typing import Any, List, Tuple
-
-try:
-    import tomllib  # type: ignore[no-redef]
-except ModuleNotFoundError:  # pragma: no cover - Python < 3.11 fallback
-    try:
-        import tomli as tomllib  # type: ignore[no-redef]
-    except ModuleNotFoundError:  # pragma: no cover - optional dependency
-        tomllib = None  # type: ignore[assignment]
 
 logger = logging.getLogger(__name__)
 GIT_LS_FILES_TIMEOUT_SEC = 30
 PYTHON_SAFETY_TIMEOUT_SEC = 120
-
-
-class TomlValidationUnavailable(RuntimeError):
-    """Raised when TOML validation support is unavailable in the current runtime."""
 
 
 def configure_logging() -> None:
@@ -91,10 +80,6 @@ def load_json(path: Path) -> Any:
 
 
 def load_toml(path: Path) -> Any:
-    if tomllib is None:
-        raise TomlValidationUnavailable(
-            "TOML validation skipped because neither tomllib (Python 3.11+) nor tomli is available."
-        )
     try:
         return tomllib.loads(path.read_text(encoding="utf-8"))
     except OSError as exc:

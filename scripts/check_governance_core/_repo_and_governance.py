@@ -7,7 +7,7 @@ from typing import List
 
 try:
     from ._shared import GIT_LS_FILES_TIMEOUT_SEC
-except ImportError:  # pragma: no cover - script-path execution fallback
+except ImportError:  # pragma: no cover - script-path execution
     from _shared import GIT_LS_FILES_TIMEOUT_SEC
 
 TRACKED_SECRET_PATH_PATTERNS = (
@@ -31,8 +31,6 @@ RETIRED_ACTIVE_REFERENCE_PATTERNS = (
     "templates/automation-loop/",
     "templates/pr-control-plane/",
 )
-
-
 def check_repo_hygiene(repo_root: Path) -> List[str]:
     errors: List[str] = []
     if not (repo_root / ".git").exists():
@@ -51,7 +49,10 @@ def check_repo_hygiene(repo_root: Path) -> List[str]:
         return ["git is required for hygiene checks."]
     except subprocess.TimeoutExpired:
         return [f"git ls-files timed out after {GIT_LS_FILES_TIMEOUT_SEC}s for repo root: {repo_root}"]
-    except subprocess.CalledProcessError:
+    except subprocess.CalledProcessError as exc:
+        details = " ".join(part.strip() for part in (exc.stderr, exc.stdout) if part and part.strip())
+        if details:
+            return [f"git ls-files failed for repo root: {repo_root}: {details[:500]}"]
         return [f"git ls-files failed for repo root: {repo_root}"]
 
     for raw in result.stdout.splitlines():
@@ -180,10 +181,14 @@ def _extract_hard_gates_from_prompt_pack(lines: List[str], start_idx: int) -> Li
 def check_governance_playbook_hard_gates(governance_root: Path) -> List[str]:
     errors: List[str] = []
     playbook = governance_root / "docs/agents/playbooks/governance-learnings-template/governance-learnings-template.md"
+    evidence_handoff = governance_root / "docs/agents/playbooks/governance-learnings-template/codex-session-log-review.md"
     if not playbook.is_file():
         return [f"Missing governance learnings playbook: {playbook}"]
+    if not evidence_handoff.is_file():
+        errors.append(f"Missing Codex session log evidence handoff playbook: {evidence_handoff}")
 
     lines = playbook.read_text(encoding="utf-8").splitlines()
+    playbook_text = "\n".join(lines)
     canonical_heading = "## Hard gates (canonical; keep wording in sync)"
     prompt_heading = "## Prompt pack (copy/paste into any chat)"
 
@@ -211,6 +216,50 @@ def check_governance_playbook_hard_gates(governance_root: Path) -> List[str]:
             "Prompt pack Hard gates block does not match canonical Hard gates section in "
             "docs/agents/playbooks/governance-learnings-template/governance-learnings-template.md."
         )
+    required_noise_gate_markers = (
+        "## Promotion / Noise Gate",
+        "PROMOTE_FOR_DEDUP",
+        "DEFER_EVIDENCE_GAP",
+        "REJECT_TASK_LOCAL",
+        "REJECT_TOOL_BUDGET",
+        "REJECT_TEMPORARY_EXECUTION_PREFERENCE",
+        "REJECT_WEAK_EVIDENCE",
+        "REJECT_CONFLICTS_WITH_SSOT",
+        "REJECT_NON_GOVERNANCE",
+        "Rejected candidates must include evidence, gate status, and rejection reason.",
+        "must not emit draft governance deltas",
+        "Target location: N/A + rejected",
+        "Example rejection:",
+        "REJECT_CONFLICTS_WITH_SSOT",
+    )
+    for marker in required_noise_gate_markers:
+        if marker not in playbook_text:
+            errors.append(f"Governance learnings playbook missing promotion/noise gate marker: {marker}")
+
+    if evidence_handoff.is_file():
+        evidence_text = evidence_handoff.read_text(encoding="utf-8")
+        required_handoff_markers = (
+            "Evidence collection owner: this file.",
+            "Governance promotion/rejection owner: `governance-learnings-template.md` Promotion / Noise Gate.",
+            "Do not encode concept-specific search terms in this playbook.",
+            "Use only user-provided or user-approved log roots.",
+            "max files:",
+            "max bytes per file:",
+            "max total bytes:",
+            "max runtime seconds:",
+            "PARTIAL_SEARCH",
+            "budget_limits_hit",
+            "FOUND",
+            "NOT_FOUND_AFTER_COMPLETE_SEARCH",
+            "PARTIAL_SEARCH",
+            "INACCESSIBLE",
+            "UNPARSEABLE",
+            "AMBIGUOUS_TIMEFRAME",
+            "This playbook ends after evidence handoff.",
+        )
+        for marker in required_handoff_markers:
+            if marker not in evidence_text:
+                errors.append(f"Codex session log handoff playbook missing required marker: {marker}")
     return errors
 
 

@@ -31,6 +31,9 @@ If any wording conflicts with `AGENTS.md`, `AGENTS.md` wins.
 ## Dependency direction (keep boundaries clean)
 - Config/constants/schema types are leaf dependencies (authorities may depend on them; they do not depend on authorities).
 - Workflows compose authorities; UI calls workflows.
+- Workflow and parent entrypoints are runtime coordinators: they sequence authority calls, pass plain data, record outcomes, and invoke cleanup, but they do not own business-rule predicates, validation logic, constants/defaults, backend-selection rules, resource lifecycle policy, or UI/checkbox semantics.
+- Checkbox state, CLI flags, and other user selections are intent inputs; workflow entrypoints may route from them only after validating them against the config/rule authority that owns their meaning.
+- Composing an authority does not transfer ownership. A parent may decide whether to call a child from a validated runtime plan, but must not inspect, duplicate, or reimplement the child's private business logic.
 - The parent entrypoint is the only connector across child folders.
 - Children must not import siblings or parents.
 - Avoid cycles across authority boundaries.
@@ -58,7 +61,10 @@ If any wording conflicts with `AGENTS.md`, `AGENTS.md` wins.
 - Deep imports that bypass the public contract.
 - Sibling-to-sibling imports or child-to-parent imports.
 - The same rule or constant defined in multiple modules.
+- Hardcoded data-facing or business facts outside the owning input/config/data authority.
 - UI logic deciding business rules or workflow branching.
+- Orchestration branches that implement business rules directly instead of calling the rule/config/lifecycle authority.
+- Failure handlers that continue by choosing an alternate backend, legacy path, substitute subprocess, or compatibility workflow step.
 - "Helper" modules that become a second authority for the same responsibility.
 
 ## Where to record boundaries

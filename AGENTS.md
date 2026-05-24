@@ -298,11 +298,16 @@ Scope:
 For every concept, there must be exactly one authoritative definition:
 - constants (sheet names, headers, statuses, folder names, prefixes/patterns)
 - config keys + defaults + schema
+- data-facing truth / business facts
 - business rules / conditions / validation logic
 - workflow orchestration steps
 - skills, scripts, and tools for the same domain
 - Excel lifecycle management (open/close/quit/verify/kill)
 - GUI queue/drain + cancellation pattern
+
+Workflow/orchestration ownership means runtime coordination only. A workflow owner may load a validated runtime plan, sequence already-authoritative steps, call rule/config/constant owners, call I/O or lifecycle adapters, pass plain data to child entrypoints, select the declared runtime path when that selection is its contract, and emit run outcomes. It MUST NOT own, duplicate, or reinterpret child-stage business rules, validation predicates, constants, schema, config keys/defaults, backend-selection rules, lifecycle policy, or UI/checkbox semantics.
+
+Data-facing truth must not be hardcoded in runtime logic, workflow orchestration, scripts, docs, or config-repair code. Business/source data, user-facing mappings, workbook/sheet/header truth, portal fields, machine-specific paths, and other changing operational facts must come from input artifacts, declared config/constants, external systems, or the owning data authority. Business logic may consume only the validated value exposed by that owner; it must not embed a private copy.
 
 **File/folder structure IS SSOT enforcement.** Related artifacts sharing the same authority boundary MUST live under the same parent folder. Broader domains may contain multiple artifact-class roots only when a governance authority decision explicitly records one canonical owner plus any allowed non-owner workspace paths. When adding new files, find the existing SSOT parent first. When discovering scattered files that belong to the same authority boundary, refactor them into their SSOT parent before proceeding with other work.
 
@@ -320,6 +325,22 @@ Duplication includes:
 - multiple Excel quit/kill implementations
 - multiple GUI queue/drain implementations
 - copy/paste helpers with minor variations
+
+### 2A) No Fallback or Legacy Runtime Paths
+Runtime code must not introduce fallback execution paths, legacy execution methods, shadow compatibility branches, silent downgrade behavior, or substitute implementations for the same responsibility.
+
+Hard rules:
+- Choose one explicit deterministic runtime path from the current SSOT contract.
+- Runtime code must not implement or select fallback, legacy, compatibility, shadow, downgrade, or substitute execution branches for the same responsibility.
+- Unsupported, unverified, unavailable, retired, or legacy paths must produce a terminal `FAILED` or `SKIPPED + reason` outcome for the affected workflow/item; they must not trigger substitute execution or workflow continuation by another method.
+- Docs, evidence, migration notes, history, and projection metadata may record legacy/fallback/compatibility behavior as recorded truth only. Runtime code must not treat those records as executable authority or use them to select a workflow path.
+- Compatibility projections or setup targets may exist only as non-authoritative projection/setup records declared by their owning SSOT. They must not be used to continue a failed primary workflow or substitute for the current runtime contract.
+- Cleanup after validation, execution, or commit failure is cleanup-only: release resources, close handles, undo or mark partial writes when applicable, record the terminal outcome, and stop, raise, or return that outcome.
+- Cleanup must be deterministic and bounded. Cleanup failure must be recorded explicitly, for example as `FAILED_CLEANUP`, and must not mask the original failure.
+- Cleanup must not run alternate business rules, alternate backends, legacy methods, substitute workflow steps, or convert a failed/unsupported path into successful continuation.
+- Defaults are allowed only when the current config SSOT declares them and they are applied before runtime path selection; missing or invalid required inputs must fail or be skipped explicitly.
+- Config JSON creation, normalization, or repair may run only through the config owner/loader before runtime path selection. It may use declared defaults only, must record `REPAIRED_CONFIG + keys/reasons` or terminal `FAILED_CONFIG_REPAIR + keys/reasons`, and must not invent required values, repair business/source data, or continue by an alternate runtime path.
+- Performance, cost, convenience, dependency availability, or environment differences must not select an alternate runtime path unless that path is the single current SSOT contract for the workflow.
 
 ### 3) No Orphan Code / No Orphan Docs
 New code must be reachable from:
@@ -347,7 +368,7 @@ Excel automation must guarantee shutdown:
 - attempt graceful quit
 - track and validate Excel PID
 - verify process exit
-- kill fallback only with validated PID and bounded timeout
+- if still running after verified graceful-quit failure, terminate only the validated PID within a bounded timeout
 - log open/close/quit/verify/kill stages
 
 ### 7) GUI Thread Safety (If Applicable)
@@ -398,6 +419,15 @@ Rule 3 - The parent entrypoint is the only connector:
 - Children MUST NOT import the parent.
 - Only the parent entrypoint may import child entrypoints and pass data between them.
 - Data flow must be explicit in the parent entrypoint; no hidden cross-folder coupling, registries, or side-channel wiring.
+
+Rule 3A - Orchestration is runtime coordination only:
+- Orchestration code may order already-authoritative steps, pass plain data between authority entrypoints, enforce the workflow state machine, record phase transitions/outcomes, and invoke bounded cleanup.
+- Orchestration code MUST NOT own business rules, validation predicates, constants/defaults, backend-selection rules, lifecycle policies, retry policy, GUI-thread safety, COM safety, subprocess safety, or UI/checkbox semantics.
+- Checkbox state, CLI flags, and other user selections are intent inputs. A parent entrypoint may use them only after config/rule validation to decide whether a declared child stage is included in the runtime plan.
+- A selected child stage remains the authority for its own eligibility checks, required inputs, business validation, transformation rules, output contract, and terminal outcomes.
+- Any decision-critical branch in orchestration must call a named authority-owned rule/config/lifecycle contract and record the selected authority path before execution.
+- An unchecked or disabled stage must be recorded as `SKIPPED + reason` when it is part of the run report. A selected stage that fails validation or execution must produce the terminal outcome declared by that stage or workflow contract.
+- After validation, execution, commit, or cleanup failure, orchestration must emit the terminal outcome and stop that branch; it must not continue through an alternate backend, legacy path, substitute subprocess, substitute workflow step, or hidden compatibility branch.
 
 Rule 4 - Public contracts take plain data in and return plain data out:
 - Public functions in a folder entrypoint MUST accept plain data types only (`str`, `int`, `dict`, `list`, dataclass/TypedDict-equivalent shapes).

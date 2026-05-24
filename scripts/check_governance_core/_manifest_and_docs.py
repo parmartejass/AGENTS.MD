@@ -1,11 +1,11 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import re
 from pathlib import Path
-from typing import Dict, List, Sequence, Tuple
-from urllib.parse import unquote
+from typing import Dict, List, Tuple
 
 try:
+    from ._docs_routes import extract_route_targets, is_header_exempt_markdown, targets_child
     from ._entrypoint_contracts import (
         docs_contract_from_payload,
         load_entrypoint_contracts,
@@ -13,13 +13,8 @@ try:
         resolve_primary_leaf_filename,
         validate_registry_paths,
     )
-except ImportError:  # pragma: no cover - script-path execution fallback
-    import sys
-
-    CURRENT_DIR = Path(__file__).resolve().parent
-    if str(CURRENT_DIR) not in sys.path:
-        sys.path.insert(0, str(CURRENT_DIR))
-
+except ImportError:  # pragma: no cover - script-path execution
+    from _docs_routes import extract_route_targets, is_header_exempt_markdown, targets_child
     from _entrypoint_contracts import (
         docs_contract_from_payload,
         load_entrypoint_contracts,
@@ -152,72 +147,6 @@ def check_agents_manifest(governance_root: Path) -> List[str]:
     return errors
 
 
-def _normalize_link_target(raw_target: str) -> str:
-    target = unquote(raw_target.strip())
-    if not target:
-        return ""
-    if re.match(r"^[A-Za-z][A-Za-z0-9+.-]*:", target) or target.startswith("//"):
-        return ""
-    target = target.split("?", 1)[0]
-    target = target.split("#", 1)[0]
-    target = target.replace("\\", "/")
-    while target.startswith("./"):
-        target = target[2:]
-    if target.startswith("/"):
-        target = target[1:]
-    parts: List[str] = []
-    for part in target.split("/"):
-        if part in {"", "."}:
-            continue
-        if part == "..":
-            return ""
-        parts.append(part)
-    return "/".join(parts)
-
-
-def _extract_route_targets(router_text: str) -> Tuple[List[str], List[str]]:
-    errors: List[str] = []
-    targets: List[str] = []
-    lines = [line.rstrip() for line in router_text.splitlines() if line.strip()]
-    if not lines:
-        return targets, ["Router file is empty."]
-    if not lines[0].startswith("# "):
-        return targets, ["Router file must begin with a markdown heading."]
-
-    for line in lines[1:]:
-        stripped = line.strip()
-        if not stripped.startswith("- "):
-            errors.append("Router files must remain routing-only (title plus route bullets only).")
-            continue
-        if "Required when:" not in stripped:
-            errors.append("Router bullet is missing 'Required when:'.")
-        match = re.search(r"\[[^\]]+\]\(([^)]+)\)", stripped)
-        if match is None:
-            errors.append("Router bullet is missing a markdown link target.")
-            continue
-        normalized = _normalize_link_target(match.group(1))
-        if not normalized:
-            errors.append(f"Router bullet uses an invalid or out-of-bounds link target: {match.group(1)!r}")
-            continue
-        targets.append(normalized)
-    return targets, errors
-
-
-def _targets_child(targets: Sequence[str], child: Path, *, child_router_filename: str) -> bool:
-    child_name = child.name
-    if child.is_dir():
-        allowed = {child_name, f"{child_name}/{child_router_filename}"}
-    else:
-        allowed = {child_name}
-    return any(target in allowed for target in targets)
-
-
-def _is_header_exempt_markdown(rel: str) -> bool:
-    if rel.endswith("/SKILL.md"):
-        return True
-    return False
-
-
 def check_docs_ssot(repo_root: Path, governance_root: Path) -> Tuple[List[str], List[str]]:
     errors: List[str] = []
     warnings: List[str] = []
@@ -272,7 +201,7 @@ def check_docs_ssot(repo_root: Path, governance_root: Path) -> Tuple[List[str], 
             continue
 
         router_text = router_path.read_text(encoding="utf-8", errors="replace")
-        route_targets, route_errors = _extract_route_targets(router_text)
+        route_targets, route_errors = extract_route_targets(router_text)
         rel_dir = dir_path.relative_to(docs_root).as_posix()
         for issue in route_errors:
             errors.append(f"{router_path}: {issue}")
@@ -291,19 +220,16 @@ def check_docs_ssot(repo_root: Path, governance_root: Path) -> Tuple[List[str], 
         ]
         expected_primary_leaf = resolve_primary_leaf_filename(dir_path.name, docs_contract)
         artifact_first = len(public_markdown_children) == 0
-
         if not artifact_first:
             if len(public_markdown_children) < docs_contract.minimum_public_leaf_count:
                 errors.append(f"{dir_path}: expected at least {docs_contract.minimum_public_leaf_count} public leaf doc(s).")
             public_leaf_names = {child.name for child in public_markdown_children}
             if expected_primary_leaf not in public_leaf_names:
                 errors.append(f"{dir_path}: missing canonical public leaf '{expected_primary_leaf}'.")
-
         for child in direct_children:
             child_router = resolve_docs_router_filename(child.name, docs_contract) if child.is_dir() else ""
-            if not _targets_child(route_targets, child, child_router_filename=child_router):
+            if not targets_child(route_targets, child, child_router_filename=child_router):
                 errors.append(f"{router_path}: missing route for direct child '{child.name}'.")
-
         if artifact_first and any(target.endswith(".md") for target in route_targets):
             leaf_targets = [
                 target
@@ -312,15 +238,13 @@ def check_docs_ssot(repo_root: Path, governance_root: Path) -> Tuple[List[str], 
             ]
             if leaf_targets:
                 errors.append(f"{router_path}: router-only folders must not expose public leaf markdown targets.")
-
     for md_file in docs_root.rglob("*.md"):
         rel = md_file.relative_to(docs_root).as_posix()
         router_name = resolve_docs_router_filename(md_file.parent.name, docs_contract)
         if md_file.name == router_name:
             continue
-        if _is_header_exempt_markdown(rel):
+        if is_header_exempt_markdown(rel):
             continue
-
         head = md_file.read_text(encoding="utf-8").splitlines()[:25]
         doc_type_line = next((line for line in head if line.startswith("doc_type:")), None)
         if doc_type_line is None:
@@ -329,12 +253,10 @@ def check_docs_ssot(repo_root: Path, governance_root: Path) -> Tuple[List[str], 
             doc_type = re.sub(r"^doc_type:\s*", "", doc_type_line).strip()
             if doc_type not in allowed_doc_types:
                 errors.append(f"Invalid doc_type '{doc_type}' in: {md_file}")
-
         if not any(line.startswith("ssot_owner:") for line in head):
             errors.append(f"Missing doc header (ssot_owner) in: {md_file}")
         if not any(line.startswith("update_trigger:") for line in head):
             errors.append(f"Missing doc header (update_trigger) in: {md_file}")
-
     for doc_file in docs_root.rglob("*"):
         if not doc_file.is_file():
             continue
@@ -348,10 +270,7 @@ def check_docs_ssot(repo_root: Path, governance_root: Path) -> Tuple[List[str], 
                 "not copied literal values."
             )
             break
-
     return errors, warnings
-
-
 def check_project_docs(repo_root: Path, governance_rel_path: str, governance_root: Path) -> List[str]:
     errors: List[str] = []
     payload, registry_errors = load_entrypoint_contracts(governance_root)
@@ -359,7 +278,6 @@ def check_project_docs(repo_root: Path, governance_rel_path: str, governance_roo
     errors.extend(validate_registry_paths(payload) if payload else [])
     if errors:
         return errors
-
     docs_contract = docs_contract_from_payload(payload)
     required_files = [
         "README.md",
@@ -376,7 +294,6 @@ def check_project_docs(repo_root: Path, governance_rel_path: str, governance_roo
     for rel in required_files:
         if not (repo_root / rel).is_file():
             errors.append(f"Missing required file: {rel}")
-
     governance_prefix = f"{governance_rel_path.rstrip('/')}/" if governance_rel_path else ""
     readme = repo_root / "README.md"
     if readme.is_file():
@@ -397,17 +314,15 @@ def check_project_docs(repo_root: Path, governance_rel_path: str, governance_roo
         for ref in required_refs:
             if ref.lower() not in readme_text_lower:
                 errors.append(f"README.md must reference: {ref}")
-
     project_router = repo_root / "docs/project/project_index.md"
     if project_router.is_file():
-        project_targets, route_errors = _extract_route_targets(project_router.read_text(encoding="utf-8"))
+        project_targets, route_errors = extract_route_targets(project_router.read_text(encoding="utf-8"))
         for issue in route_errors:
             errors.append(f"{project_router}: {issue}")
         for child in ("goal", "rules", "architecture", "learning"):
             expected = f"{child}/{resolve_docs_router_filename(child, docs_contract)}"
             if expected not in project_targets:
                 errors.append(f"docs/project/project_index.md must reference {expected}")
-
     for folder_name in ("goal", "rules", "architecture", "learning"):
         dir_path = repo_root / "docs/project" / folder_name
         router_name = resolve_docs_router_filename(folder_name, docs_contract)
@@ -415,11 +330,10 @@ def check_project_docs(repo_root: Path, governance_rel_path: str, governance_roo
         if not router_path.is_file():
             errors.append(f"Missing required file: {router_path.relative_to(repo_root).as_posix()}")
             continue
-        route_targets, route_errors = _extract_route_targets(router_path.read_text(encoding="utf-8"))
+        route_targets, route_errors = extract_route_targets(router_path.read_text(encoding="utf-8"))
         for issue in route_errors:
             errors.append(f"{router_path.relative_to(repo_root).as_posix()}: {issue}")
         expected_leaf = resolve_primary_leaf_filename(folder_name, docs_contract)
         if expected_leaf not in route_targets:
             errors.append(f"{router_path.relative_to(repo_root).as_posix()} must reference {expected_leaf}")
-
     return errors

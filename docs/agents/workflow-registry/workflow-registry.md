@@ -20,4 +20,7 @@ C) A docs index page listing workflows and entrypoints.
 ## Requirements
 - Each workflow has a stable ID/name.
 - Each workflow specifies: inputs, outputs/artifacts, config keys used, and failure mode (what happens on error and how the caller is notified).
+- The workflow registry indexes entrypoints and config-key usage; it must not define business rules, defaults, validation predicates, transformations, or UI control semantics.
+- Config/checkbox-driven workflows list each selectable stage, the child stage owner/entrypoint, the config owner/loader, the config keys that select it, applicable config-preparation outcomes, and whether config failure stops the workflow or only the selected stage.
+- Registry entries reference rule/config owners by identifier; they do not restate child-stage business rules or defaults.
 - No workflow is “hidden” without an index entry.

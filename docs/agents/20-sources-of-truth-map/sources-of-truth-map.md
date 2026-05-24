@@ -19,10 +19,17 @@ Owner: exactly one place.
 - folder names, prefixes/patterns
 - column identifiers/keys
 
+## Data-facing truth / business data
+Owner: the input artifact, external system, declared config/constants owner, or dedicated data authority.
+- workbook/sheet/header truth, portal fields, user-facing mappings, source records, and machine-specific paths
+- business/workflow logic consumes validated owner-provided values; it must not embed private copies of changing data-facing truth
+- docs and scripts reference the owner by identifier; they do not become alternate data authorities
+
 ## Config (user-tunable)
 Owner: exactly one place.
 - keys + defaults + schema
-- loader mechanism consistent with repo conventions
+- loader, normalization, deterministic repair behavior, and repair outcomes consistent with repo conventions
+- each key classified as defaultable or required-without-default by the config owner
 
 ## Schema / types / data model
 Owner: exactly one place.
@@ -37,9 +44,19 @@ Owner: exactly one place.
 
 ## Workflows (orchestration)
 Owner: one module or cohesive package.
-- compose constants/config/rules
-- call I/O adapters
-- emit run outcomes (report/logs)
+- coordinate runtime execution only: validated plan, stage order, child contract calls, I/O/lifecycle adapter calls, and run outcomes
+- compose constants/config/rules by calling their owners; do not define, duplicate, or reinterpret business rules, predicates, validation logic, constants, schema, config keys/defaults, backend-selection rules, lifecycle policy, or UI control semantics
+- checkbox/config-selected stages are runtime plan inputs; selected child stages own their own eligibility checks, validation, transformations, output contracts, and terminal outcomes
+- record selected runtime path/backend before execution when selection is in scope
+- emit per-run and per-stage outcomes (`EXECUTED` / `SKIPPED` / `FAILED` + reason)
+- stop the affected branch/item after validation, execution, commit, or cleanup failure; do not continue that branch/item through substitute paths
+
+## Runtime path / backend selection
+Owner: the workflow entrypoint owns the selected-path record unless the repo declares a dedicated config SSOT for that workflow; backend-selection rules remain owned by their rule/config authority.
+- selected runtime path, backend, library, or execution mode
+- selection must be recorded before execution and referenced by owner path
+- failure after selection produces a terminal outcome; runtime code must not switch to a substitute path
+- Python-backed PowerShell checker interpreter resolution owner: `scripts/_python_check_runner.ps1` (`-PythonExe`, otherwise `python3`, then `python`, Python 3.11+ required, selected path printed before execution)
 
 ## Module boundaries + contracts
 Owner: exactly one place.
@@ -70,7 +87,7 @@ Owner: `docs/agents/settings/00-settings-standards/settings-standards.md`
 
 ## Excel COM lifecycle
 Owner: exactly one implementation.
-- start/open, PID, quit, verify, bounded kill fallback
+- start/open, PID, quit, verify, bounded PID-scoped forced termination after verified graceful-quit failure
 
 ## GUI queue/drain + cancellation
 Owner: exactly one implementation.

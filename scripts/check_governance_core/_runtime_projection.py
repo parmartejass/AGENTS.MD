@@ -4,9 +4,9 @@ from pathlib import Path
 from typing import Dict, List, Sequence, Set, Tuple
 
 try:
-    from ._shared import TomlValidationUnavailable, load_json, load_toml
-except ImportError:  # pragma: no cover - script-path execution fallback
-    from _shared import TomlValidationUnavailable, load_json, load_toml
+    from ._shared import load_json, load_toml
+except ImportError:  # pragma: no cover - script-path execution
+    from _shared import load_json, load_toml
 
 RUNTIME_PROJECTION_REQUIRED_SUPPORT_LEVELS = {
     "official",
@@ -144,8 +144,6 @@ def _validate_settings_source(
             errors.append(
                 f"runtime-projections.json entry '{entry_id}' uses unsupported settings file extension '{suffix}'."
             )
-    except TomlValidationUnavailable as exc:
-        notes.append(str(exc))
     except RuntimeError as exc:
         errors.append(str(exc))
     return errors, notes

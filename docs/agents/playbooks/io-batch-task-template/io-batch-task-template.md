@@ -15,7 +15,7 @@ Use when:
 - if bugfix/regression: fill `docs/agents/playbooks/bugfix-template/bugfix-template.md`.
 - if feature/behavior change: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" behavior-change/new-feature minimums (including shift-left baseline).
 - if refactor/behavior-neutral: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" behavior-neutral minimums.
-- if new logic is introduced: apply `AGENTS.md` "Mandatory Modularity + SOLID/DI (Authority Bloat Prevention)" (use `docs/agents/playbooks/design-principles-checklist/design-principles-checklist.md`).
+- if new logic is introduced: apply `AGENTS.md` "Module Architecture — Mandatory Rules" (use `docs/agents/playbooks/design-principles-checklist/design-principles-checklist.md`).
 
 ## Inputs
 - input formats (csv/json/jsonl/parquet/etc):
@@ -31,8 +31,8 @@ Use when:
 ## SSOT mapping (fill with exact repo locations)
 - constants owner:
 - config owner:
-- rules/validators owner:
-- workflow/runner owner:
+- rules/validators owner (business rules and checkbox/config predicates):
+- workflow/runner owner (runtime coordinator only):
 - run outcomes/report owner:
 
 ## Data integrity plan

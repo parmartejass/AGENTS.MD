@@ -19,7 +19,7 @@ update_trigger: log schema fields or reason code taxonomy changes
 - summary (object): by_outcome {executed, skipped, failed}; failed_by_phase {validation, commit, cleanup}
 - timings_ms (object)
 - errors (array of {type, message, where, fatal})
-- resources (optional, when applicable): pids_before/after, handles_closed, quit_called, kill_fallback_used
+- resources (optional, when applicable): pids_before/after, handles_closed, quit_called, pid_forced_termination_used
 
 ## Phase transition record
 - ts, event (phase_transition), run_id, phase, phase_seq, notes (optional)

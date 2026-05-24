@@ -6,9 +6,9 @@ function Resolve-PathOrFull {
     [string]$Path
   )
 
-  $resolved = Resolve-Path -Path $Path -ErrorAction SilentlyContinue
+  $resolved = Resolve-Path -LiteralPath $Path -ErrorAction SilentlyContinue
   if ($resolved -is [System.Array]) {
-    throw "Path resolved to multiple entries: $Path. Provide a single, literal path."
+    throw "FAILED_VALIDATION: Path resolved to multiple entries: $Path. Provide a single, literal path."
   }
   if ($resolved) {
     return $resolved.Path
@@ -28,11 +28,11 @@ function Get-RelativePath {
   $fromPath = Resolve-PathOrFull -Path $From
   $toPath = Resolve-PathOrFull -Path $To
 
-  $fromExists = Test-Path -Path $fromPath
-  $toExists = Test-Path -Path $toPath
+  $fromExists = Test-Path -LiteralPath $fromPath
+  $toExists = Test-Path -LiteralPath $toPath
 
-  $fromIsDir = ($fromExists -and (Test-Path -Path $fromPath -PathType Container)) -or ($From -match '[\\/]$')
-  $toIsDir = ($toExists -and (Test-Path -Path $toPath -PathType Container)) -or ($To -match '[\\/]$')
+  $fromIsDir = ($fromExists -and (Test-Path -LiteralPath $fromPath -PathType Container)) -or ($From -match '[\\/]$')
+  $toIsDir = ($toExists -and (Test-Path -LiteralPath $toPath -PathType Container)) -or ($To -match '[\\/]$')
 
   if (-not $fromExists -and -not $fromIsDir) {
     $fromIsDir = [string]::IsNullOrWhiteSpace([System.IO.Path]::GetExtension($From))
@@ -67,7 +67,8 @@ function Get-GovernanceContext {
   param(
     [string]$RepoRoot,
     [string]$GovernanceRoot,
-    [string]$ScriptRoot
+    [string]$ScriptRoot,
+    [switch]$RequireRepoRootForVendored
   )
 
   if ([string]::IsNullOrWhiteSpace($ScriptRoot)) {
@@ -83,15 +84,18 @@ function Get-GovernanceContext {
   $repoRootPath = if ($RepoRoot) {
     Resolve-PathOrFull -Path $RepoRoot
   } else {
+    if ($RequireRepoRootForVendored -and (Split-Path -Leaf $governanceRootPath) -eq ".governance") {
+      throw "FAILED_VALIDATION: RepoRoot is required when running from a vendored governance submodule. Use -RepoRoot <target repo root> (for example: -RepoRoot .)."
+    }
     $governanceRootPath
   }
 
-  if (-not (Test-Path -Path $governanceRootPath -PathType Container)) {
-    throw "Governance root does not exist or is not a directory: $governanceRootPath"
+  if (-not (Test-Path -LiteralPath $governanceRootPath -PathType Container)) {
+    throw "FAILED_VALIDATION: GovernanceRoot does not exist or is not a directory: $governanceRootPath"
   }
 
-  if (-not (Test-Path -Path $repoRootPath -PathType Container)) {
-    throw "Repo root does not exist or is not a directory: $repoRootPath"
+  if (-not (Test-Path -LiteralPath $repoRootPath -PathType Container)) {
+    throw "FAILED_VALIDATION: RepoRoot does not exist or is not a directory: $repoRootPath"
   }
 
   $relative = Get-RelativePath -From $repoRootPath -To $governanceRootPath

@@ -27,7 +27,12 @@ def _load_module(module_name: str, module_path: Path):
 if str(SCRIPT_ROOT) not in sys.path:
     sys.path.insert(0, str(SCRIPT_ROOT))
 
+from _test_helpers import write_text
+
 CHANGE_RECORDS = _load_module("check_governance_core_change_records", SCRIPT_ROOT / "_change_records.py")
+REPO_AND_GOVERNANCE = _load_module(
+    "check_governance_core_repo_and_governance", SCRIPT_ROOT / "_repo_and_governance.py"
+)
 GOVERNANCE_RESEARCH = _load_module(
     "governance_autoresearch",
     REPO_ROOT / "X-Bookmarks Import/skills/governance-autoresearch/scripts/governance_research.py",
@@ -39,16 +44,11 @@ ACTIVE_RESEARCH_FILES = (
 )
 
 
-def _write_text(path: Path, content: str) -> None:
-    with path.open("w", encoding="utf-8", newline="") as handle:
-        handle.write(content)
-
-
 class ChangeRecordReferenceTests(unittest.TestCase):
     def test_readme_checks_reference_resolves_through_existing_readme(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             repo_root = Path(tmp_dir)
-            _write_text(repo_root / "README.md", "# Checks\n")
+            write_text(repo_root / "README.md", "# Checks\n")
 
             self.assertTrue(CHANGE_RECORDS._reference_target_exists(repo_root, "README.md#checks"))
             self.assertTrue(CHANGE_RECORDS._reference_target_exists(repo_root, ".governance/README.md#checks"))
@@ -62,10 +62,83 @@ class ChangeRecordReferenceTests(unittest.TestCase):
     def test_invalid_reference_targets_are_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             repo_root = Path(tmp_dir)
-            _write_text(repo_root / "README.md", "# Checks\n")
+            write_text(repo_root / "README.md", "# Checks\n")
 
             self.assertFalse(CHANGE_RECORDS._reference_target_exists(repo_root, "../README.md#checks"))
             self.assertFalse(CHANGE_RECORDS._reference_target_exists(repo_root, "/README.md#checks"))
+
+
+class GovernanceLearningPlaybookTests(unittest.TestCase):
+    def _write_playbook_tree(self, repo_root: Path, playbook_body: str, handoff_body: str | None = None) -> None:
+        playbook_dir = repo_root / "docs/agents/playbooks/governance-learnings-template"
+        write_text(playbook_dir / "governance-learnings-template.md", playbook_body)
+        if handoff_body is not None:
+            write_text(playbook_dir / "codex-session-log-review.md", handoff_body)
+
+    def test_governance_learning_playbook_requires_noise_gate(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            repo_root = Path(tmp_dir)
+            self._write_playbook_tree(
+                repo_root,
+                """
+## Hard gates (canonical; keep wording in sync)
+- Read and follow `AGENTS.md` (SSOT).
+
+## Prompt pack (copy/paste into any chat)
+
+```text
+Hard gates:
+- Read and follow `AGENTS.md` (SSOT).
+```
+""".lstrip(),
+                "Evidence collection owner: this file.\n",
+            )
+
+            errors = REPO_AND_GOVERNANCE.check_governance_playbook_hard_gates(repo_root)
+
+            self.assertTrue(
+                any("missing promotion/noise gate marker: ## Promotion / Noise Gate" in error for error in errors),
+                errors,
+            )
+
+    def test_governance_learning_playbook_requires_handoff_leaf(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            repo_root = Path(tmp_dir)
+            self._write_playbook_tree(
+                repo_root,
+                """
+## Hard gates (canonical; keep wording in sync)
+- Read and follow `AGENTS.md` (SSOT).
+
+## Promotion / Noise Gate
+PROMOTE_FOR_DEDUP
+DEFER_EVIDENCE_GAP
+REJECT_TASK_LOCAL
+REJECT_TOOL_BUDGET
+REJECT_TEMPORARY_EXECUTION_PREFERENCE
+REJECT_WEAK_EVIDENCE
+REJECT_CONFLICTS_WITH_SSOT
+REJECT_NON_GOVERNANCE
+Rejected candidates must include evidence, gate status, and rejection reason.
+must not emit draft governance deltas
+Target location: N/A + rejected
+Example rejection:
+
+## Prompt pack (copy/paste into any chat)
+
+```text
+Hard gates:
+- Read and follow `AGENTS.md` (SSOT).
+```
+""".lstrip(),
+            )
+
+            errors = REPO_AND_GOVERNANCE.check_governance_playbook_hard_gates(repo_root)
+
+            self.assertTrue(
+                any("Missing Codex session log evidence handoff playbook" in error for error in errors),
+                errors,
+            )
 
 
 class GovernanceResearchTests(unittest.TestCase):

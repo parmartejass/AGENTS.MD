@@ -15,7 +15,7 @@ Use when:
 - if bugfix/regression: fill `docs/agents/playbooks/bugfix-template/bugfix-template.md`.
 - if feature/behavior change: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" behavior-change/new-feature minimums (including shift-left baseline).
 - if refactor/behavior-neutral: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" behavior-neutral minimums.
-- if new logic is introduced: apply `AGENTS.md` "Mandatory Modularity + SOLID/DI (Authority Bloat Prevention)" (use `docs/agents/playbooks/design-principles-checklist/design-principles-checklist.md`).
+- if new logic is introduced: apply `AGENTS.md` "Module Architecture — Mandatory Rules" (use `docs/agents/playbooks/design-principles-checklist/design-principles-checklist.md`).
 
 ## UI requirements
 - controls:
@@ -43,9 +43,9 @@ Use when:
 - cancellation/shutdown semantics (what "cancelled" means + how verified):
 
 ## SSOT mapping (fill with exact repo locations)
-- workflow entrypoint:
-- rules used:
-- config keys used:
+- workflow entrypoint (runtime coordinator only):
+- rules/validators owner (business rules and UI intent predicates):
+- config keys owner:
 - GUI queue/drain owner:
 
 ## Acceptance checks

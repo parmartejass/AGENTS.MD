@@ -1,3 +1,3 @@
-# 50 — Excel COM Lifecycle (Hard Requirements) Branch Index
+# 50 - Excel COM Lifecycle (Hard Requirements) Branch Index
 
-- [excel-com-lifecycle.md](excel-com-lifecycle.md) - Canonical policy guidance. Required when: you need the full 50 — excel com lifecycle (hard requirements) content.
+- [excel-com-lifecycle.md](excel-com-lifecycle.md) - Canonical Excel COM lifecycle policy. Required when: Excel COM automation, PID ownership, workbook cleanup, or Excel process shutdown is in scope.

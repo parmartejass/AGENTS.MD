@@ -17,7 +17,7 @@ This template is **not a spec**. It exists so agents can copy *patterns* while s
 - Runtime shim: `templates/python-dual-entry/myapp/__main__.py`
 - CLI child entry (thin): `templates/python-dual-entry/myapp/cli/cli_main.py`
 - GUI child entry (thin): `templates/python-dual-entry/myapp/gui/gui_main.py`
-- Orchestration SSOT: `templates/python-dual-entry/myapp/runner/runner_main.py`
+- Orchestration SSOT (runtime coordinator only): `templates/python-dual-entry/myapp/runner/runner_main.py`
 - Runner private workflow registry: `templates/python-dual-entry/myapp/runner/workflows.py`
 - Core logic SSOT: `templates/python-dual-entry/myapp/core/core_main.py`
 - Scenario schema keys SSOT: `templates/python-dual-entry/myapp/config_keys.py`
@@ -25,7 +25,7 @@ This template is **not a spec**. It exists so agents can copy *patterns* while s
 ## How to use it (avoid blind copying)
 
 - Start with target-repo discovery: follow `docs/agents/10-repo-discovery/repo-discovery.md`.
-- Adopt existing owners first: extend the repo's current config/constants/logging/workflow registry instead of introducing parallel modules.
+- Adopt existing owners first: extend the repo's current config/constants/rules/logging/workflow registry instead of introducing parallel modules.
 - Copy only the needed parts:
   - CLI-only automation: keep dispatcher+CLI+runner+workflow registry+scenario harness; skip the GUI.
   - GUI+CLI automation: keep both child entry layers thin and route everything through the parent contract plus `run_job()`.

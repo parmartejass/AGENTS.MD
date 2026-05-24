@@ -66,7 +66,7 @@ Ensure `README.md` contains (at minimum):
 ```md
 ---
 doc_type: reference
-ssot_owner: <workflow entrypoint path or workflow registry path>
+ssot_owner: <workflow coordinator entrypoint path or workflow registry path>
 update_trigger: requirements/acceptance criteria change OR workflow behavior changes
 ---
 
@@ -125,7 +125,7 @@ update_trigger: governance rules change OR new recurring pitfalls emerge
 ```md
 ---
 doc_type: reference
-ssot_owner: <workflow registry path or main orchestration module>
+ssot_owner: <workflow registry path or main runtime-coordination module>
 update_trigger: entrypoints/modules/workflows layout changes
 ---
 
@@ -139,7 +139,7 @@ update_trigger: entrypoints/modules/workflows layout changes
 - Constants:
 - Config:
 - Rules/validation:
-- Workflows/orchestration:
+- Workflows/orchestration (runtime coordination only):
 - Reporting/run outcomes:
 
 ## Data flow (high level)
@@ -176,7 +176,7 @@ Keep this focused on:
 
 Avoid:
 - duplicating constants/defaults (reference the SSOT owner instead)
-- re-implementing business rules in prose (reference the named rule functions/workflows)
+- re-implementing business rules in prose (reference the named rule functions; workflows only coordinate runtime execution)
 ```
 
 ## Final linkage checklist

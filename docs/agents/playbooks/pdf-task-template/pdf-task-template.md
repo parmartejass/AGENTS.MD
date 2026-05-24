@@ -19,17 +19,18 @@ This template is a prompting scaffold.
 - if bugfix/regression: fill `docs/agents/playbooks/bugfix-template/bugfix-template.md`.
 - if feature/behavior change: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" behavior-change/new-feature minimums (including shift-left baseline).
 - if refactor/behavior-neutral: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" behavior-neutral minimums.
-- if new logic is introduced: apply `AGENTS.md` "Mandatory Modularity + SOLID/DI (Authority Bloat Prevention)" (use `docs/agents/playbooks/design-principles-checklist/design-principles-checklist.md`).
+- if new logic is introduced: apply `AGENTS.md` "Module Architecture — Mandatory Rules" (use `docs/agents/playbooks/design-principles-checklist/design-principles-checklist.md`).
 
 Non-goals:
 - This is not a library specification. Library notes are examples; verify in your environment.
-- Do not duplicate constants/defaults here; reference SSOT owners (config/constants/workflows).
+- Do not duplicate constants/defaults/business rules here; reference SSOT owners (config/constants/rules/workflow coordinator).
 
 ## Model (first principles)
 - Inputs: ordered list of source PDFs (and optionally expected identifiers like tracking/order IDs).
-- Transformation: optional normalize/dedupe -> merge using a backend -> validate witnesses.
+- Transformation: optional normalize/dedupe -> merge using the backend selected by the workflow coordinator or config SSOT -> validate witnesses.
 - Outputs: merged PDF + logs/report entries.
 - Side effects: file writes and temp files; cleanup is required when temp artifacts are created.
+- Runtime path/backend selection owner: record the workflow coordinator entrypoint or config SSOT path before execution.
 
 ## Invariants (Semantic Truth: S)
 
@@ -42,7 +43,7 @@ Non-goals:
 
 ### Idempotency invariants
 - INV-PDF-I1: Re-merging identical inputs must not drift on core witnesses (page count, identifier coverage, size ratio within tolerance).
-  - If drift occurs, treat it as corruption (switch backend or fail fast; do not blindly retry the same strategy).
+  - If drift occurs, treat it as corruption and fail fast with a terminal outcome unless the recorded runtime path/backend owner selected a different backend before execution.
 
 ### Observability invariants
 - INV-PDF-OBS1: Logs record backend used, page counts, validation outcomes, and retry attempt number.
@@ -77,7 +78,7 @@ Use multiple witnesses; size alone is a heuristic.
 - Optional: expected ID coverage (only if IDs are reliably extractable/defined upstream).
 
 3) Merge attempt
-- Use the default (most deterministic) backend.
+- Use the backend selected by the recorded runtime path/backend owner.
 - Emit attempt-level logs with witness values.
 
 4) Validate
@@ -89,7 +90,7 @@ Use multiple witnesses; size alone is a heuristic.
 
 5) If validation fails
 - If witnesses drift across repeated attempts with identical inputs: treat as corruption.
-  - Switch backend OR restart process OR fail fast (pick one per repo policy).
+  - Fail fast with a terminal outcome unless the recorded runtime path/backend owner selected a different backend before execution.
 - If failure is stable and explainable (for example, optimization delta): adjust tolerance (project-level config), not the invariant.
 
 ## Notes (common pitfalls)
@@ -102,7 +103,7 @@ Use multiple witnesses; size alone is a heuristic.
 
 - PyPDF2 vs PyMuPDF:
   - Some workflows observe drift across repeated merges in the same process with certain libraries.
-  - If you observe drift (same inputs -> different outputs), prefer a more deterministic backend and keep the other as fallback.
+  - If you observe drift (same inputs -> different outputs), update the SSOT to select a more deterministic backend before execution; do not keep the other as runtime substitute.
   - Always rely on witnesses (page count / ID coverage / size ratio) to confirm.
 
 ## Deterministic verification checklist

@@ -21,7 +21,7 @@ update_trigger: release gates change
 
 ## Excel COM (if applicable)
 - Quit attempted and verified.
-- PID-validated kill fallback exists and is time-bounded.
+- PID-scoped forced termination after verified graceful-quit failure is time-bounded.
 - Cleanup occurs in `finally`.
 
 ## GUI (if applicable)

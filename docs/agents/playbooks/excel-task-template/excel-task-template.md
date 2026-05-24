@@ -24,7 +24,7 @@ Use when:
 - if bugfix/regression: fill `docs/agents/playbooks/bugfix-template/bugfix-template.md`.
 - if feature/behavior change: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" behavior-change/new-feature minimums (including shift-left baseline).
 - if refactor/behavior-neutral: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" behavior-neutral minimums.
-- if new logic is introduced: apply `AGENTS.md` "Mandatory Modularity + SOLID/DI (Authority Bloat Prevention)" (use `docs/agents/playbooks/design-principles-checklist/design-principles-checklist.md`).
+- if new logic is introduced: apply `AGENTS.md` "Module Architecture — Mandatory Rules" (use `docs/agents/playbooks/design-principles-checklist/design-principles-checklist.md`).
 
 ## Inputs
 - workbooks involved:
@@ -32,20 +32,22 @@ Use when:
 - required headers:
 - output artifacts:
 - selected library path (from canonical selection playbook):
+- runtime path/backend selection owner (workflow entrypoint or config SSOT path):
 
 ## SSOT mapping (fill with exact repo locations)
 - constants owner:
 - config owner:
-- rules owner:
-- workflow owner:
+- rules/validators owner (business rules and checkbox/config predicates):
+- workflow/orchestration owner (runtime coordinator only):
+- selected runtime path/backend owner:
 - run outcomes/report owner:
 
 ## Excel lifecycle plan
-- If using Excel COM: follow `docs/agents/50-excel-com-lifecycle/excel-com-lifecycle.md` (PID-tracked quit + bounded kill fallback, all in `finally`).
+- If using Excel COM: follow `docs/agents/50-excel-com-lifecycle/excel-com-lifecycle.md` (PID-tracked quit + bounded PID-scoped forced termination after verified graceful-quit failure, all in `finally`).
 - start/open method:
 - PID tracking:
 - quit + verify:
-- kill fallback (PID-validated + bounded timeout):
+- forced termination cleanup (PID-validated + bounded timeout, after verified graceful-quit failure):
 
 ## Performance & throughput plan (when relevant)
 - Never trade away safety/data integrity for speed.
