@@ -34,13 +34,13 @@ Verified on: 2026-05-08
 
 - Status: connected and aligned with current official docs.
 - Verified surfaces:
-  - `.cursorrules` loader stub is present and routes back to `AGENTS.md`.
+  - No Cursor-specific repo loader stub is required; repo loader stubs are `AGENTS.md` and `CLAUDE.md`.
   - `.cursor/agents/` is not a repo-owned runtime projection target.
   - `.cursor/rules/` is compatibility-only and is not projected by the default bootstrap path.
   - `.cursor/mcp.json` is managed by the Cursor MCP runtime projection defined in `docs/agents/platforms/runtime-projections.json`.
   - `.cursor/cli.json` is managed by the shared settings projection from `docs/agents/settings/cursor/cli.json`.
 - Migration note:
-  - `.cursorrules` is legacy in the official docs, but this repo keeps it as the default clean loader surface. `.cursor/agents/` and `.cursor/rules/` stay out of the default bootstrap path.
+  - `.cursorrules` is legacy in the official docs and is not a repo-owned loader stub. `.cursor/agents/` and `.cursor/rules/` stay out of the default bootstrap path.
   - Existing tracked `.cursor/agents/` files are unchanged by this retirement; this cleanup only removes the former `docs/agents/subagents/` projection source.
 
 ### Claude Code
@@ -78,6 +78,6 @@ Verified on: 2026-05-08
 
 ## Residual migration watch items
 
-- Cursor: keep `.cursorrules` as a loader stub only, and keep `.cursor/agents/` plus `.cursor/rules/` out of the default bootstrap path.
+- Cursor: keep `.cursor/agents/` plus `.cursor/rules/` out of the default bootstrap path.
 - Claude Code: `.claude/commands/` remains compatibility-only for older setups.
 - Codex: do not treat `~/.codex/skills` as the current official user-scope contract.

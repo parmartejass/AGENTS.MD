@@ -15,13 +15,15 @@ This repository maintains a reusable, repo-agnostic governance pack for autonomo
 2. `agents-manifest.yaml` (context injection and profile routing)
 3. `docs/agents/agents_index.md` (supporting branch map and when-to-read guidance)
 4. Task-specific supporting docs/playbooks under `docs/agents/`
-5. Project docs entrypoint: `docs/project/project_index.md`
+5. Project docs entrypoint: `docs/project/project_index.md` (goal, rules, architecture/protected behavior, data-truth, learning)
 
 When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` and `.governance/agents-manifest.yaml`.
 
 ## Project docs (this repo)
 
-- Entry point: `docs/project/project_index.md` (goal/rules/architecture/learning)
+- Entry point: `docs/project/project_index.md` (goal, rules, architecture/protected behavior, data-truth, learning)
+- Project docs provide bounded authority memory only for durable truths that change future allowed behavior; they are not transcript/session memory.
+- Facts are owned by declared SSOT owners, not by file type; project docs may own data/config/constant/default facts when explicitly declared and validated.
 
 ## Repo-owned agent assets
 
@@ -44,15 +46,14 @@ When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` an
 
 ## Tool loader stubs
 
-- Cursor: `.cursorrules` (forces loading `AGENTS.md`)
-- Claude Code: `CLAUDE.md` (forces loading `AGENTS.md`)
-- GitHub Copilot: `.github/copilot-instructions.md` (forces loading `AGENTS.md`)
+- `AGENTS.md` (required loader stub)
+- `CLAUDE.md` (required Claude Code loader stub)
 
-## Supporting docs (non-authoritative)
+## Supporting docs
 
 - Index: `docs/agents/agents_index.md`
 - Authority decisions: `docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md`
-- Docs are supporting material only; facts and behavior must stay in code/SSOT (see `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`).
+- Facts and behavior must stay in their declared SSOT owner, which may be code, config, constants, artifacts, external systems, schemas, workbooks, or explicitly declared project docs (see `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`).
 
 ## Templates (reference implementations)
 
@@ -96,7 +97,16 @@ When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` an
 |     |- architecture/
 |     |  |- architecture_index.md
 |     |- change-records/
-|        |- change-records_index.md
+|     |  |- change-records_index.md
+|     |- data-truth/
+|     |  |- data-truth_index.md
+|     |  |- data-truth.md
+|     |- goal/
+|     |  |- goal_index.md
+|     |- learning/
+|     |  |- learning_index.md
+|     |- rules/
+|        |- rules_index.md
 |- scripts/
 |  |- check_folder_architecture/
 |  |  |- check_folder_architecture_main.py
@@ -116,6 +126,8 @@ When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` an
 |  |     |- runner/runner_main.py
 |  |     |- runner/workflows.py
 ```
+
+Triggered leaves such as `current-work.md`, `changelog.md`, and `protected-behavior.md` are added only when active/current authority records require them.
 
 ## Use in other repos (submodule)
 
@@ -138,99 +150,26 @@ git submodule add -b main https://github.com/parmartejass/AGENTS.MD.git .governa
 
 ### Step 2: Create loader stubs at project root
 
-Create these files in your project root so every coding assistant/tool lands on the same governance SSOT.
+Create these files in your project root so every coding assistant/tool lands on the same governance SSOT. The loader body is intentionally minimal: `.governance/AGENTS.md` owns the hard gates and context-injection procedure, and `.governance/agents-manifest.yaml` owns routing facts.
 
-**AGENTS.md** (required):
+Use this shared body for each loader:
 
 ```md
-# AGENTS.md (Loader Stub)
+# <loader title>
 
-Hard gate:
-- Before doing any work, open and follow `.governance/AGENTS.md`.
+Required loader:
+- Open and follow `.governance/AGENTS.md` before doing any work.
 - If `.governance/` is missing or empty in a fresh clone, run `git submodule update --init --recursive`.
 - If you cannot access repository files, request that the user paste `.governance/AGENTS.md`.
-- Do not implement changes unless `AGENTS.md` is in-context.
-
-Context injection (REQUIRED):
-- After reading `.governance/AGENTS.md`, follow its "Context Injection Procedure (Hard Gate)" section
-  (consult `.governance/agents-manifest.yaml`, load injected docs/playbooks from
-  `.governance/docs/agents/`, and use `fallback_inject` if no profile matches).
-
-Governance SSOT:
-- All governance docs live in `.governance/` submodule (AGENTS.md, agents-manifest.yaml, docs/agents/*)
-- Project-specific docs live in `docs/project/`
-
-If any conflict exists, `.governance/AGENTS.md` is authoritative.
+- After reading `.governance/AGENTS.md`, execute its current Context Injection Procedure.
+- Project-specific docs remain under `docs/project/`.
 ```
 
-**CLAUDE.md** (optional, for Claude Code):
-```md
-# CLAUDE.md (Loader Stub)
-
-Hard gate:
-- Before doing any work, open and follow `.governance/AGENTS.md`.
-- If `.governance/` is missing or empty in a fresh clone, run `git submodule update --init --recursive`.
-- If you cannot access repository files, request that the user paste `.governance/AGENTS.md`.
-- Do not implement changes unless `AGENTS.md` is in-context.
-
-Context injection (REQUIRED):
-- After reading `.governance/AGENTS.md`, follow its "Context Injection Procedure (Hard Gate)" section
-  (consult `.governance/agents-manifest.yaml`, load injected docs/playbooks from
-  `.governance/docs/agents/`, and use `fallback_inject` if no profile matches).
-
-Governance SSOT:
-- All governance docs live in `.governance/` submodule (AGENTS.md, agents-manifest.yaml, docs/agents/*)
-- Project-specific docs live in `docs/project/`
-
-If any conflict exists, `.governance/AGENTS.md` is authoritative.
-```
-
-**.cursorrules** (optional, for Cursor):
-```md
-# .cursorrules (Loader Stub)
-
-Hard gate:
-- Before doing any work, open and follow `.governance/AGENTS.md`.
-- If `.governance/` is missing or empty in a fresh clone, run `git submodule update --init --recursive`.
-- If you cannot access repository files, request that the user paste `.governance/AGENTS.md`.
-- Do not implement changes unless `AGENTS.md` is in-context.
-
-Context injection (REQUIRED):
-- After reading `.governance/AGENTS.md`, follow its "Context Injection Procedure (Hard Gate)" section
-  (consult `.governance/agents-manifest.yaml`, load injected docs/playbooks from
-  `.governance/docs/agents/`, and use `fallback_inject` if no profile matches).
-
-Governance SSOT:
-- All governance docs live in `.governance/` submodule (AGENTS.md, agents-manifest.yaml, docs/agents/*)
-- Project-specific docs live in `docs/project/`
-
-If any conflict exists, `.governance/AGENTS.md` is authoritative.
-```
-
-**.github/copilot-instructions.md** (optional, for GitHub Copilot):
-```md
-# copilot-instructions.md (Loader Stub)
-
-Hard gate:
-- Before doing any work, open and follow `.governance/AGENTS.md`.
-- If `.governance/` is missing or empty in a fresh clone, run `git submodule update --init --recursive`.
-- If you cannot access repository files, request that the user paste `.governance/AGENTS.md`.
-- Do not implement changes unless `AGENTS.md` is in-context.
-
-Context injection (REQUIRED):
-- After reading `.governance/AGENTS.md`, follow its "Context Injection Procedure (Hard Gate)" section
-  (consult `.governance/agents-manifest.yaml`, load injected docs/playbooks from
-  `.governance/docs/agents/`, and use `fallback_inject` if no profile matches).
-
-Governance SSOT:
-- All governance docs live in `.governance/` submodule (AGENTS.md, agents-manifest.yaml, docs/agents/*)
-- Project-specific docs live in `docs/project/`
-
-If any conflict exists, `.governance/AGENTS.md` is authoritative.
-```
+Loader titles:
+- `AGENTS.md` (required): `# AGENTS.md (Loader Stub)`
+- `CLAUDE.md` (required for Claude Code): `# CLAUDE.md (Loader Stub)`
 
 **Note**:
-- Create `.github/` first if your repo does not already have it.
 - Keep your project docs under `docs/project/` (do not copy `docs/agents` into the project root).
 
 ### Step 3: Commit

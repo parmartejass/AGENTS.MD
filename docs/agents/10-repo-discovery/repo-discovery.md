@@ -31,7 +31,7 @@ Use `agents-manifest.yaml` profile `gui_task` detection lists (keep them SSOT in
 
 ### Documentation owners
 - `README.md`, `docs/project/project_index.md`, `docs/project/goal/goal.md`, `docs/project/architecture/architecture.md`
-- `AGENTS.md`, `CLAUDE.md`, `.cursorrules`, `.github/copilot-instructions.md`
+- `AGENTS.md`, `CLAUDE.md`
 
 ### Workflows
 - `workflow`, `pipeline`, `runner`, `dispatcher`, `run_`, `main()`

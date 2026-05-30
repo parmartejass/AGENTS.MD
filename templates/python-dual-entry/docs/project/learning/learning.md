@@ -14,5 +14,5 @@ Keep this focused on:
 - verification tips (how to reproduce/confirm outcomes)
 
 Avoid:
-- duplicating constants/defaults (reference the SSOT owner instead)
+- duplicating constants/defaults from a different owner (reference the SSOT owner instead)
 - re-implementing business rules in prose (reference the named rule functions/workflows)

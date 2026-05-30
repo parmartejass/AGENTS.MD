@@ -38,8 +38,9 @@ Output format (copy/paste block):
 ```
 Here's your restart prompt (copy/paste into a new chat/model):
 
-Hard gates:
-- Read and follow `AGENTS.md` (SSOT). If you cannot access it, request it before doing any work.
+Hard gates (copy/paste scaffold sourced from AGENTS.md):
+- Read and follow `AGENTS.md`; if it is inaccessible, request it before doing any work.
+- Derive task instructions from declared SSOT owners; if ownership is unknown or conflicting, stop and report the authority gap before acting.
 
 Goal:
 Acceptance criteria:
@@ -87,8 +88,9 @@ Example (format only; paths/symbols are illustrative):
 ```
 Here's your restart prompt (copy/paste into a new chat/model):
 
-Hard gates:
-- Read and follow `AGENTS.md` (SSOT). If you cannot access it, request it before doing any work.
+Hard gates (copy/paste scaffold sourced from AGENTS.md):
+- Read and follow `AGENTS.md`; if it is inaccessible, request it before doing any work.
+- Derive task instructions from declared SSOT owners; if ownership is unknown or conflicting, stop and report the authority gap before acting.
 
 Goal: Add Excel validation for duplicate invoice IDs
 Acceptance criteria:

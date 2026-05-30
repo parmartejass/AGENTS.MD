@@ -6,8 +6,10 @@ from pathlib import Path
 from typing import List
 
 try:
+    from ._instruction_derivation import DERIVATION_SCAFFOLD
     from ._shared import GIT_LS_FILES_TIMEOUT_SEC
 except ImportError:  # pragma: no cover - script-path execution
+    from _instruction_derivation import DERIVATION_SCAFFOLD
     from _shared import GIT_LS_FILES_TIMEOUT_SEC
 
 TRACKED_SECRET_PATH_PATTERNS = (
@@ -164,7 +166,7 @@ def _extract_hard_gates_from_prompt_pack(lines: List[str], start_idx: int) -> Li
             continue
         if not in_code_block:
             continue
-        if stripped == "Hard gates:":
+        if stripped == "Hard gates:" or stripped.startswith("Hard gates ("):
             in_hard_gate_section = True
             continue
         if not in_hard_gate_section:
@@ -189,33 +191,61 @@ def check_governance_playbook_hard_gates(governance_root: Path) -> List[str]:
 
     lines = playbook.read_text(encoding="utf-8").splitlines()
     playbook_text = "\n".join(lines)
-    canonical_heading = "## Hard gates (canonical; keep wording in sync)"
+    forbidden_canonical_heading = "## Hard gates (canonical; keep wording in sync)"
+    authority_heading = "## Authority References"
     prompt_heading = "## Prompt pack (copy/paste into any chat)"
 
-    canonical_indices = [idx for idx, line in enumerate(lines) if line.strip() == canonical_heading]
-    if len(canonical_indices) != 1:
-        errors.append("Governance learnings playbook must contain exactly one canonical Hard gates section.")
-        return errors
+    if forbidden_canonical_heading in playbook_text:
+        errors.append(
+            "Governance learnings playbook must not maintain a canonical Hard gates section; "
+            "use Authority References plus a minimal copy/paste scaffold."
+        )
+
+    authority_indices = [idx for idx, line in enumerate(lines) if line.strip() == authority_heading]
+    if len(authority_indices) != 1:
+        errors.append("Governance learnings playbook must contain exactly one Authority References section.")
 
     prompt_indices = [idx for idx, line in enumerate(lines) if line.strip() == prompt_heading]
     if len(prompt_indices) != 1:
         errors.append("Governance learnings playbook must contain exactly one Prompt pack section.")
         return errors
 
-    canonical_gates = _extract_hard_gates_from_playbook_block(lines, canonical_indices[0] + 1)
     prompt_gates = _extract_hard_gates_from_prompt_pack(lines, prompt_indices[0] + 1)
+    prompt_section_lines: List[str] = []
+    for index in range(prompt_indices[0] + 1, len(lines)):
+        if lines[index].strip().startswith("## "):
+            break
+        prompt_section_lines.append(lines[index])
+    prompt_section_text = "\n".join(prompt_section_lines)
 
-    if not canonical_gates:
-        errors.append("Canonical Hard gates section is empty in governance learnings playbook.")
-        return errors
+    required_authority_markers = (
+        "Global hard gates, council requirements, and governance auto-edit rules are owned by `AGENTS.md`.",
+        "Context-routing facts are owned by `agents-manifest.yaml`; this playbook must not keep a local injected-doc list.",
+        "Docs placement, router behavior, and non-owner-doc limits are owned by `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`.",
+        "This playbook owns the promotion/noise gate, evidence record shape, and copy/paste prompt scaffold for governance-learning work.",
+    )
+    for marker in required_authority_markers:
+        if marker not in playbook_text:
+            errors.append(f"Governance learnings playbook missing authority-reference marker: {marker}")
+
     if not prompt_gates:
         errors.append("Prompt pack Hard gates block is missing or empty in governance learnings playbook.")
         return errors
-    if canonical_gates != prompt_gates:
+    if "Hard gates (copy/paste scaffold sourced from AGENTS.md):" not in prompt_section_text:
         errors.append(
-            "Prompt pack Hard gates block does not match canonical Hard gates section in "
-            "docs/agents/playbooks/governance-learnings-template/governance-learnings-template.md."
+            "Governance learnings playbook prompt pack must label hard gates as "
+            "copy/paste scaffold sourced from AGENTS.md."
         )
+    required_prompt_scaffold_gates = (
+        "Read and follow `AGENTS.md`; if it is inaccessible, request it before doing any work.",
+        "Execute the `AGENTS.md` Context Injection Procedure using the current `agents-manifest.yaml`.",
+        "For governance auto-edit, apply the `AGENTS.md` Governance Auto-Edit Gate and Subagent Council before editing.",
+        DERIVATION_SCAFFOLD,
+        "Use docs placement and router rules from `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`; do not restate them here.",
+    )
+    for marker in required_prompt_scaffold_gates:
+        if marker not in prompt_gates:
+            errors.append(f"Governance learnings playbook prompt pack missing scaffold gate: {marker}")
     required_noise_gate_markers = (
         "## Promotion / Noise Gate",
         "PROMOTE_FOR_DEDUP",
@@ -260,6 +290,48 @@ def check_governance_playbook_hard_gates(governance_root: Path) -> List[str]:
         for marker in required_handoff_markers:
             if marker not in evidence_text:
                 errors.append(f"Codex session log handoff playbook missing required marker: {marker}")
+    return errors
+
+
+def check_subagent_council_profile_coverage(governance_root: Path) -> List[str]:
+    errors: List[str] = []
+    agents_path = governance_root / "AGENTS.md"
+    playbook_path = governance_root / "docs/agents/playbooks/governance-learnings-template/governance-learnings-template.md"
+
+    if not agents_path.is_file():
+        return [f"Missing AGENTS.md for subagent council profile-coverage checks: {agents_path}"]
+
+    agents_text = agents_path.read_text(encoding="utf-8")
+    required_agents_markers = (
+        "### Profile-Aware Context Coverage",
+        "After the Context Injection Procedure resolves matched profiles and injected files from `agents-manifest.yaml`",
+        "Profile-aware coverage is required when any of these are true:",
+        "one or more manifest profiles match and any resolved injected docs are decision-critical to planning or review",
+        "one subagent per matched profile, or fewer subagents",
+        "profile-to-reviewer/doc mapping",
+        "Do not copy profile names or injected doc lists into this policy",
+        "If a required profile doc or required reviewer/runtime path is unavailable",
+        "record `SKIPPED`/`UNKNOWN` + reason",
+        "`profile_doc_coverage`",
+        "set `go_no_go = hold` unless the user explicitly accepts reduced coverage",
+    )
+    for marker in required_agents_markers:
+        if marker not in agents_text:
+            errors.append(f"AGENTS.md missing Subagent Council profile-coverage marker: {marker}")
+
+    if not playbook_path.is_file():
+        errors.append(f"Missing governance learnings playbook for profile-coverage checks: {playbook_path}")
+        return errors
+
+    playbook_text = playbook_path.read_text(encoding="utf-8")
+    required_playbook_marker = (
+        "- profile_doc_coverage (when `AGENTS.md` Profile-Aware Context Coverage applies):"
+    )
+    if required_playbook_marker not in playbook_text:
+        errors.append(
+            "Governance learnings playbook council summary block missing profile_doc_coverage marker."
+        )
+
     return errors
 
 

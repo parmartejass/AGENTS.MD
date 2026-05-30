@@ -15,7 +15,7 @@ Centralize all shared literals:
 
 Rule: if a literal appears more than once for the same meaning, it must become a named constant in the constants owner.
 
-Business/source data is not a constant. User-facing mappings, workbook/sheet/header truth, portal fields, source records, and machine-specific paths must come from the input artifact, external system, declared config, or owning data authority.
+Business/source data is not a private runtime constant. User-facing mappings, workbook/sheet/header truth, portal fields, source records, and machine-specific paths must come from the input artifact, external system, declared config/constants owner, project data-truth owner, or other owning data authority.
 
 ## Config
 Use config for values that may vary by user/machine/environment:
@@ -24,7 +24,7 @@ Use config for values that may vary by user/machine/environment:
 - UI refresh intervals
 - calculation waits
 
-Rule: keys/defaults/schema must have a single owner; docs reference keys by identifier and point to the owner.
+Rule: keys/defaults/schema must have a single owner. Non-owner docs reference keys by identifier and point to the owner; docs or doc-owned artifacts may own keys/defaults/schema only when explicitly declared as that authority and paired with validation.
 
 ### Enum-like config values
 - Allowed values and defaults live in one lightweight owner.
@@ -57,4 +57,3 @@ Rule: keys/defaults/schema must have a single owner; docs reference keys by iden
 ### Dependency boundaries
 - Config/constant owners must remain dependency-light; avoid importing runtime/UI modules.
 - Use shared lightweight modules for enums/constants to prevent circular imports.
-

@@ -18,36 +18,24 @@ Deliver changes that are:
 - **Safe**: no resource leaks; Excel COM + GUI threading rules are enforced.
 - **Searchable**: critical concepts are discoverable via grep + semantic search.
 
-## Governance Pack Layout (When Vendored)
+## Vendored Authority + Path Resolution (SSOT)
 
-When this pack is installed as a submodule under `.governance/` in a target repo:
-- `.governance/AGENTS.md` is authoritative; root `AGENTS.md`, `CLAUDE.md`, `.cursorrules`, and `.github/copilot-instructions.md` are project-owned overlays that must direct readers to the governance root.
-- The context injection manifest lives at `.governance/agents-manifest.yaml`.
-- Governance docs and scripts live under `.governance/docs/agents/` and `.governance/scripts/`.
-- Project-specific docs remain at `docs/project/` in the target repo.
+When vendored under `.governance/`, `.governance/AGENTS.md` is authoritative; root `AGENTS.md` and `CLAUDE.md` are loader stubs that route to it.
 
-## Path Resolution (SSOT)
+Resolve governance paths relative to the governance root: the directory containing `AGENTS.md` and `agents-manifest.yaml`. This includes governance-root references such as `docs/agents/...`, `scripts/...`, and `./README.md`.
 
-All paths in this governance pack are written relative to a root. Resolve paths as follows:
-- Governance root: the directory containing this `AGENTS.md` and `agents-manifest.yaml`. Unless explicitly marked as project-root, all governance paths (e.g., `docs/agents/...`, `docs/agents/playbooks/...`, `scripts/...`, `./README.md`) are resolved relative to this root.
-- Project root: the target repo root into which the pack is vendored (parent of `.governance/` when used as a submodule). Paths under `docs/project/...` and `README.md` (project README) are resolved relative to the project root.
-- When vendored as `.governance/`, governance-root paths resolve under `.governance/` without rewriting the path strings in docs or manifests.
+Resolve project-owned paths, including `docs/project/...` and project `README.md`, relative to the project root. When vendored, the project root is the parent of `.governance/`; governance-root paths resolve under `.governance/` without rewriting path strings in docs or manifests.
 
 ## Submodule Workflow Rules (Hard Gate)
 
 The governance pack source repo is: `https://github.com/parmartejass/AGENTS.MD.git`
 
-When editing files inside `.governance/`:
-1. **NEVER** commit `.governance/` changes from the parent repo directory.
-2. **ALWAYS** go INTO the submodule first: `cd .governance`
-3. **ALWAYS** checkout and pull main before making changes: run `git checkout main`, then `git pull origin main`
-4. Create a branch, commit, and push to the **submodule repo** (parmartejass/AGENTS.MD).
-5. Create PR in the submodule repo, merge to main.
-6. Return to parent repo and update the pointer: `git submodule update --remote .governance`
+When editing files inside `.governance/`, the change belongs to the governance pack source repo, not to the parent project.
 
-The parent repo only stores a pointer (SHA) to a commit in the submodule—it cannot store file changes.
-
-See `./README.md` section "Editing governance (from inside a project)" for exact commands.
+Hard rules:
+- **NEVER** commit `.governance/` file edits from the parent repo directory.
+- Commit governance file changes in the submodule repo (`parmartejass/AGENTS.MD`).
+- The parent repo stores only a submodule pointer (SHA); after the governance change lands, the parent repo may update only that pointer.
 
 ## Prime Directive: Verify, Then Trust
 
@@ -69,6 +57,8 @@ Before implementing, explicitly define:
 - **SSOT map**: which owner(s) hold constants, config, rules, workflows, and any lifecycle utilities.
 - **Root-cause uplift** (authority-first): for any defect or error, trace from symptom to the earliest authority/contract/boundary that should have prevented it; prefer fixing there by adding or strengthening invariants/validation so the class of errors becomes structurally impossible; one authority fix prevents N errors. If a symptom-level patch is unavoidable, record why upstream prevention is infeasible and what error class remains unprevented.
 - **Structural consolidation** (authority-first): when multiple findings map to the same invariant/authority, treat them as one defect; default to a single upstream fix in the authority owner.
+- **Derived task authority** (authority-first): for any non-trivial output, first identify or create the minimum task-specific control artifact required to make the output trustworthy (for example an authority map, source map, extraction ledger, validation matrix, patch plan, or test fixture). The final output must be generated from and verified against that control artifact; do not treat the final output itself as the authority.
+- **Patch, do not fork authority**: when improving governance, docs structure, frameworks, prompts, or reusable procedures, update the current highest owning authority through an explicit patch/supersession path. Do not create disconnected framework versions, parallel docs, or replacement structures unless the user explicitly authorizes a new authority and the old authority is deprecated or superseded.
 - **Proof obligations**: preconditions/postconditions + failure modes to cover.
 - **Verification**: exact commands or deterministic manual checks (include at least one failure-path check when feasible).
 - **Resource bounds**: timeouts, cancellation, and guaranteed cleanup in `finally` for external resources.
@@ -230,6 +220,18 @@ Each council must cover these intentions (one or more subagents may cover multip
 
 Optional intentions (add as needed): integration/compatibility across modules and entrypoints, data migration/backward compatibility, test/verification gaps.
 
+### Profile-Aware Context Coverage
+After the Context Injection Procedure resolves matched profiles and injected files from `agents-manifest.yaml`, council planning must account for that manifest-resolution witness.
+
+Profile-aware coverage is required when any of these are true:
+- the task is large, cross-cutting, high-risk, or touches multiple authority owners;
+- one or more manifest profiles match and any resolved injected docs are decision-critical to planning or review;
+- the task changes `AGENTS.md`, `agents-manifest.yaml`, context injection, council policy, or governance routing.
+
+Coverage may be one subagent per matched profile, or fewer subagents when one reviewer is explicitly assigned multiple profiles. The merged council summary must make the profile-to-reviewer/doc mapping auditable. Do not copy profile names or injected doc lists into this policy; use the current resolved manifest witness.
+
+If a required profile doc or required reviewer/runtime path is unavailable, record `SKIPPED`/`UNKNOWN` + reason in `profile_doc_coverage` and set `go_no_go = hold` unless the user explicitly accepts reduced coverage.
+
 ### Council sizing (preference ranges, not caps)
 Choose size based on risk, scope, and uncertainty. Increase when the change touches many files or unclear invariants.
 - Micro edits or formatting-only: **1** (minimum review).
@@ -257,6 +259,7 @@ No maximum: scale up as needed.
   - `residual_risks`
   - `go_no_go` (`go` | `hold`)
   - `verification_links` (README checks and/or deterministic manual witness)
+  - `profile_doc_coverage` when Profile-Aware Context Coverage applies (matched profiles, resolved injected docs or doc groups, reviewer assignments, inaccessible docs, omissions/reasons, reduced-coverage acceptance if any)
 - Micro edits or formatting-only changes may use an abbreviated summary:
   - `intent_coverage`
   - `findings` (or explicit `No findings`)
@@ -318,6 +321,17 @@ Hard rules:
 - Do not create parallel utilities/modules/docs/skills for the same ownership.
 - A non-owner workspace path is allowed only when a governance authority decision records the canonical owner, the allowed non-owner path, and the forbidden duplicates. This is hierarchical authority, not parallel authority.
 - Every new file must answer: "Which existing SSOT parent does this belong under?" If none exists, create one and move any related scattered files into it.
+
+### 1A) Instruction Derivation Gate (Hard Gate)
+Every agent-authored normative statement must derive from a declared SSOT owner before it is treated as an instruction, requirement, checklist item, plan step, prompt scaffold, doc record, or user-facing obligation.
+
+Hard rules:
+- Classify each source before deriving obligations: owner, routed support, reference/example, scaffold, generated artifact, or user intent.
+- Only a declared owner defines obligations. Non-owner text routes, cites, illustrates, scaffolds, or records evidence; it does not create policy, weaken policy, broaden policy, or select runtime behavior.
+- Derived statements must preserve the owner's scope, preconditions, ordering, optionality/defaultability, allowed states, terminal outcomes, and verification witness. If the owner declares exact terms, states, phases, reason codes, or outcome values, use those owner-declared terms or cite the owner instead of restating them.
+- User prompts provide intent, scope, and acceptance criteria. Repo owners constrain allowed behavior. A conflict between prompt intent and a declared owner is an authority conflict, not permission to synthesize a replacement rule.
+- Generated plans, checklists, prompt packs, summaries, and examples are non-authoritative unless each normative item cites or routes to the owner that makes it binding.
+- Missing owner, conflicting owners, unknown optionality/defaultability, missing witness, or unclear precedence is an authority gap. Stop and report the gap before editing or executing; do not infer, duplicate, downgrade, or continue through a substitute path.
 
 ### 2) No Duplicates (Operational Meaning)
 Duplication includes:
@@ -526,14 +540,26 @@ Hard gate:
 - The project `README.md` MUST link to `docs/project/project_index.md` (project docs entrypoint) and to `AGENTS.md` (governance).
 - The project `README.md` MUST include a short "Checks" section listing the deterministic verification commands for the repo.
 
-Project docs are the SSOT for intent/runbooks (not for code facts):
+Project docs are the SSOT for declared project authority records:
 - `docs/project/project_index.md` (entrypoint/router; linked from README)
 - `docs/project/goal/goal.md` (objective + acceptance criteria; router at `docs/project/goal/goal_index.md`)
 - `docs/project/rules/rules.md` (project do/don't rules; router at `docs/project/rules/rules_index.md`)
 - `docs/project/architecture/architecture.md` (SSOT pointers: entrypoints/modules/workflows; router at `docs/project/architecture/architecture_index.md`)
+- `docs/project/data-truth/data-truth.md` (data-truth ownership/provenance/validation routing; router at `docs/project/data-truth/data-truth_index.md`)
 - `docs/project/learning/learning.md` (operational learnings and pitfalls; router at `docs/project/learning/learning_index.md`)
 
-Structure SSOT: `docs/agents/playbooks/project-docs-template/project-docs-template.md`
+Facts are owned by their declared source of truth, not by file type. Code, config, constants, input artifacts, external systems, schemas, workbooks, and project docs may each own facts when explicitly declared as the SSOT. Non-owner docs must route to the owner instead of duplicating the fact.
+
+Config, constants, defaults, sample artifacts, workbooks, and external systems may be real data authorities when declared as the SSOT. Runtime code consuming those values does not automatically become the owner of the underlying business or data truth.
+
+Project docs also provide **bounded project authority memory**: a small docs-first record of prior truth that must affect future allowed behavior until explicitly superseded. It is not raw chat/session memory and it is not a separate memory system. Classification, placement, precedence, optional-leaf semantics, and checker limits are owned by `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`.
+
+Hard gate:
+- Before changing project authority records, identify the declared owner and follow `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`.
+- Before scaffolding or repairing project docs, follow `docs/agents/playbooks/project-docs-template/project-docs-template.md`.
+
+Policy/detail SSOT: `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`
+Scaffold/template SSOT: `docs/agents/playbooks/project-docs-template/project-docs-template.md`
 
 All project docs must:
 - Follow the required doc header (except router files resolved from `scripts/entrypoint_contracts.json`).

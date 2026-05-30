@@ -11,6 +11,7 @@ update_trigger: new operational learnings/pitfalls discovered in real use
 - Generated artifacts (e.g., `__pycache__/`, `*.pyc`, template outputs) must not be committed.
 
 ## Session-backed decisions
+- 2026-05-31: ChatGPT framework/docs-structure conversations were treated as evidence for thinking principles, not standalone authority. Durable principles were promoted to `AGENTS.md` and `docs/agents/00-principles/principles.md`; this note records only the evidence source and placement decision.
 - 2026-05-24: Broad no-fallback word scanning was rejected as the deterministic witness for `AGENTS.md` "No Fallback or Legacy Runtime Paths". Project-scoped Codex session evidence in `rollout-2026-05-24T13-50-32-019e5912-3cc3-7033-8b35-23ac0514bf1e.jsonl` at 2026-05-24T08:36:02Z and 2026-05-24T08:36:09Z recorded that vocabulary scanning cannot prove semantic fallback intent, can block legitimate docs/tests/history, and can miss renamed substitute paths. Future enforcement should prefer structured workflow-selected-path records plus terminal `FAILED` / `SKIPPED + reason` outcome witnesses, not broad banned-word matching.
 
 ## Deep research synthesis (2026-02-23)

@@ -27,23 +27,17 @@ Use this playbook to have an AI assistant review a work session and extract repe
 
 ## Quickstart checklist (recommended)
 1. Confirm required context is accessible:
-   - `AGENTS.md`
-   - `agents-manifest.yaml`
-   - `docs/agents/agents_index.md`
-   - `docs/agents/20-sources-of-truth-map/sources-of-truth-map.md`
-   - `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`
-   - `docs/project/learning/learning.md`
-   - plus injected docs/playbooks from the manifest (or `fallback_inject` if no profiles match)
+   - Read `AGENTS.md`.
+   - Resolve the current task routing from `agents-manifest.yaml`.
+   - Read the routed owner docs and record the manifest-resolution witness.
 2. Confirm whether governance auto-edit is authorized for this session.
 3. Collect evidence inputs; if none are available, request a Session Recap using the schema in this file.
 
-## Hard gates (canonical; keep wording in sync)
-- Read and follow `AGENTS.md` (SSOT). If you cannot access it, request it before doing any work.
-- Follow `AGENTS.md` "Context Injection Procedure (Hard Gate)" (consult `agents-manifest.yaml`, load injected docs/playbooks).
-- Auto-edit is allowed only when this playbook is explicitly invoked (see `AGENTS.md` "Governance Auto-Edit Gate").
-- Before any edit: run the Council Review step and apply the confirmation gate from `AGENTS.md`.
-- Follow `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md` (docs cannot become a second SSOT).
-- When proposing docs changes, preserve the branched docs tree: every affected `docs/` directory keeps the registry-resolved router file (for example `<authority>_index.md`), and parent routers remain routing-only.
+## Authority References
+- Global hard gates, council requirements, and governance auto-edit rules are owned by `AGENTS.md`.
+- Context-routing facts are owned by `agents-manifest.yaml`; this playbook must not keep a local injected-doc list.
+- Docs placement, router behavior, and non-owner-doc limits are owned by `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`.
+- This playbook owns the promotion/noise gate, evidence record shape, and copy/paste prompt scaffold for governance-learning work.
 
 ## Language discipline
 - Use `MUST` / `Hard Gate` only when quoting requirements explicitly hard-gated in `AGENTS.md`.
@@ -91,6 +85,8 @@ Use these gate statuses:
 
 Rejected candidates must include evidence, gate status, and rejection reason. They must not emit draft governance deltas, backlog proposals, or target locations beyond `N/A + rejected`.
 
+For project-local bounded authority memory, place promoted records through `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md` and scaffold any missing project-doc shape with `docs/agents/playbooks/project-docs-template/project-docs-template.md`. This playbook records only the selected owner path, promotion evidence, and reason; it does not maintain a local placement matrix.
+
 Example rejection:
 
 - Candidate: "do not let subagents spawn more subagents"
@@ -99,7 +95,7 @@ Example rejection:
 
 ## Preflight checklist (required before Step 1)
 - AGENTS access confirmed.
-- Context injection executed per `AGENTS.md`.
+- Manifest routing resolved and injected files read.
 - Auto-edit authorization status known.
 
 ## Severity rubric (for council findings)
@@ -119,13 +115,12 @@ Example rejection:
 ## Prompt pack (copy/paste into any chat)
 
 ```text
-Hard gates:
-- Read and follow `AGENTS.md` (SSOT). If you cannot access it, request it before doing any work.
-- Follow `AGENTS.md` "Context Injection Procedure (Hard Gate)" (consult `agents-manifest.yaml`, load injected docs/playbooks).
-- Auto-edit is allowed only when this playbook is explicitly invoked (see `AGENTS.md` "Governance Auto-Edit Gate").
-- Before any edit: run the Council Review step and apply the confirmation gate from `AGENTS.md`.
-- Follow `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md` (docs cannot become a second SSOT).
-- When proposing docs changes, preserve the branched docs tree: every affected `docs/` directory keeps the registry-resolved router file (for example `<authority>_index.md`), and parent routers remain routing-only.
+Hard gates (copy/paste scaffold sourced from AGENTS.md):
+- Read and follow `AGENTS.md`; if it is inaccessible, request it before doing any work.
+- Execute the `AGENTS.md` Context Injection Procedure using the current `agents-manifest.yaml`.
+- For governance auto-edit, apply the `AGENTS.md` Governance Auto-Edit Gate and Subagent Council before editing.
+- Derive task instructions from declared SSOT owners; if ownership is unknown or conflicting, stop and report the authority gap before acting.
+- Use docs placement and router rules from `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`; do not restate them here.
 
 Task type: governance_improvement
 
@@ -137,7 +132,7 @@ Field completion rule:
 
 Preflight checklist (required before Step 1):
 - AGENTS access confirmed.
-- Context injection executed per `AGENTS.md`.
+- Manifest routing resolved and injected files read.
 - Auto-edit authorization status known.
 
 Evidence inputs (provide if available; if none, write `None provided`):
@@ -161,12 +156,9 @@ If you cannot see the full session history:
 
 Required repo context (read at minimum):
 - `AGENTS.md`
-- `agents-manifest.yaml`
-- `docs/agents/agents_index.md`
-- `docs/agents/20-sources-of-truth-map/sources-of-truth-map.md`
-- `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`
-- `docs/project/learning/learning.md`
-- Plus any injected docs/playbooks per the manifest (or `fallback_inject` if no profiles match).
+- Current routing from `agents-manifest.yaml`.
+- Files injected by the matched profile or fallback routing.
+- Any owner docs referenced by candidate evidence.
 - If a required file is inaccessible (permissions/tooling), stop and request it; do not infer missing contents.
 - If a required file is truly missing and `AGENTS.md` requires creation, create it only in authorized proposal/auto-edit flow.
 
@@ -205,6 +197,7 @@ Council summary block (required before Step 4; follow `AGENTS.md` "Subagent Coun
 - residual_risks:
 - go_no_go (`go` | `hold`):
 - verification_links:
+- profile_doc_coverage (when `AGENTS.md` Profile-Aware Context Coverage applies):
 
 Severity rubric (for findings):
 - HIGH: blocker risk that can cause incorrect governance edits, policy drift, or unsafe execution sequence.
@@ -305,9 +298,9 @@ Record the exact `rg` search terms used in candidate evidence notes when practic
 - Failure mode prevented: Governance updates run without required hard-gate constraints due to non-self-contained prompt reuse.
 - Authority-first prevention point: `docs/agents/playbooks/governance-learnings-template/governance-learnings-template.md` prompt pack owner.
 - Target location: `docs/agents/playbooks/governance-learnings-template/governance-learnings-template.md`
-- Draft delta (for `MISSING`/`PARTIAL`) or coverage citation (for `ALREADY_COVERED`): Replace prompt skeleton with a self-contained prompt pack that inlines hard gates and preflight checks.
+- Draft delta (for `MISSING`/`PARTIAL`) or coverage citation (for `ALREADY_COVERED`): Replace prompt skeleton with a self-contained prompt pack that uses a minimal AGENTS-sourced scaffold and playbook-owned preflight fields.
 - Change Contract alignment: `AGENTS.md` template sections B (invariants), C (witnesses), D (authority impact), H (verification checklist).
-- Witness/verification: `python3 scripts/check_governance_core/check_governance_core_main.py` passes; manual witness confirms prompt pack contains hard gates inline and no external copy dependency.
+- Witness/verification: `python3 scripts/check_governance_core/check_governance_core_main.py` passes; manual witness confirms prompt pack keeps only the minimal AGENTS-sourced scaffold needed for copy/paste execution.
 - Risk if not addressed: Repeated governance drift and skipped council/confirmation gate steps.
 - Modularity/structure decision: Keep playbook as single authority document; avoid creating parallel prompt docs.
 - Priority + confidence (`P1`|`P2`|`P3` + `VERIFIED`|`UNVERIFIED`): P1 + VERIFIED

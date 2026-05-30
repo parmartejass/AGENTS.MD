@@ -144,6 +144,89 @@ def check_agents_manifest(governance_root: Path) -> List[str]:
         if not (governance_root / rel).exists():
             errors.append(f"Manifest references missing path: {rel}")
 
+    manifest_text = "\n".join(lines)
+    errors.extend(_validate_project_docs_profile(manifest_text, paths_by_list))
+
+    return errors
+
+
+def _profile_block(manifest_text: str, profile_name: str) -> str:
+    match = re.search(
+        rf"(?ms)^  {re.escape(profile_name)}:\n(?P<body>.*?)(?=^  [A-Za-z0-9_]+:\n|^\S|\Z)",
+        manifest_text,
+    )
+    return match.group("body") if match else ""
+
+
+def _detect_keywords_from_profile(profile_block: str) -> List[str]:
+    match = re.search(r"(?ms)^    detect:\n(?P<body>.*?)(?=^    inject:|^  [A-Za-z0-9_]+:|^\S|\Z)", profile_block)
+    if not match:
+        return []
+    keywords_match = re.search(
+        r"(?ms)^      keywords:\n(?P<body>.*?)(?=^      [A-Za-z0-9_]+:|^    inject:|^  [A-Za-z0-9_]+:|^\S|\Z)",
+        match.group("body"),
+    )
+    if not keywords_match:
+        return []
+    return re.findall(r'^\s+-\s+"([^"]+)"\s*$', keywords_match.group("body"), flags=re.MULTILINE)
+
+
+def _detect_file_globs_from_profile(profile_block: str) -> List[str]:
+    match = re.search(r"(?ms)^    detect:\n(?P<body>.*?)(?=^    inject:|^  [A-Za-z0-9_]+:|^\S|\Z)", profile_block)
+    if not match:
+        return []
+    file_globs_match = re.search(
+        r"(?ms)^      file_globs:\n(?P<body>.*?)(?=^      [A-Za-z0-9_]+:|^    inject:|^  [A-Za-z0-9_]+:|^\S|\Z)",
+        match.group("body"),
+    )
+    if not file_globs_match:
+        return []
+    return re.findall(r'^\s+-\s+"([^"]+)"\s*$', file_globs_match.group("body"), flags=re.MULTILINE)
+
+
+def _validate_project_docs_profile(manifest_text: str, paths_by_list: Dict[str, List[str]]) -> List[str]:
+    errors: List[str] = []
+    profile = _profile_block(manifest_text, "project_docs")
+    if not profile:
+        errors.append("Missing profiles.project_docs in agents-manifest.yaml")
+        return errors
+
+    project_docs_inject = paths_by_list.get("profiles.project_docs.inject", [])
+    required_inject = {
+        "docs/project/project_index.md",
+        "docs/agents/25-docs-ssot-policy/docs-ssot-policy.md",
+        "docs/agents/20-sources-of-truth-map/sources-of-truth-map.md",
+        "docs/agents/playbooks/project-docs-template/project-docs-template.md",
+    }
+    for rel in sorted(required_inject - set(project_docs_inject)):
+        errors.append(f"profiles.project_docs.inject must include {rel}")
+
+    broad_keywords = {
+        "docs",
+        "documentation",
+        "readme",
+        "architecture",
+        "goal",
+        "rules",
+        "runbook",
+        "playbook",
+        "adr",
+        "current-work",
+        "protected behavior",
+        "protected-behavior",
+        "data truth",
+        "data-truth",
+        "authority supersession",
+    }
+    for keyword in _detect_keywords_from_profile(profile):
+        if keyword.lower() in broad_keywords:
+            errors.append(f"profiles.project_docs.detect keyword is too broad: {keyword}")
+
+    required_file_globs = {"README.md", "docs/project/**/*.md"}
+    project_docs_file_globs = set(_detect_file_globs_from_profile(profile))
+    for file_glob in sorted(required_file_globs - project_docs_file_globs):
+        errors.append(f"profiles.project_docs.detect.file_globs must include {file_glob}")
+
     return errors
 
 
@@ -271,69 +354,19 @@ def check_docs_ssot(repo_root: Path, governance_root: Path) -> Tuple[List[str], 
             )
             break
     return errors, warnings
-def check_project_docs(repo_root: Path, governance_rel_path: str, governance_root: Path) -> List[str]:
-    errors: List[str] = []
-    payload, registry_errors = load_entrypoint_contracts(governance_root)
-    errors.extend(registry_errors)
-    errors.extend(validate_registry_paths(payload) if payload else [])
-    if errors:
-        return errors
-    docs_contract = docs_contract_from_payload(payload)
-    required_files = [
-        "README.md",
-        "docs/project/project_index.md",
-        "docs/project/goal/goal_index.md",
-        "docs/project/goal/goal.md",
-        "docs/project/rules/rules_index.md",
-        "docs/project/rules/rules.md",
-        "docs/project/architecture/architecture_index.md",
-        "docs/project/architecture/architecture.md",
-        "docs/project/learning/learning_index.md",
-        "docs/project/learning/learning.md",
-    ]
-    for rel in required_files:
-        if not (repo_root / rel).is_file():
-            errors.append(f"Missing required file: {rel}")
-    governance_prefix = f"{governance_rel_path.rstrip('/')}/" if governance_rel_path else ""
-    readme = repo_root / "README.md"
-    if readme.is_file():
-        readme_text = readme.read_text(encoding="utf-8")
-        readme_text_lower = readme_text.lower()
-        required_refs = [
-            "docs/project/project_index.md",
-            "AGENTS.md",
-            f"{governance_prefix}scripts/check_docs_ssot.ps1",
-            f"{governance_prefix}scripts/check_docs_router_contract/check_docs_router_contract_main.py",
-            f"{governance_prefix}scripts/check_agents_manifest.ps1",
-            f"{governance_prefix}scripts/check_project_docs.ps1",
-            f"{governance_prefix}scripts/check_repo_hygiene.ps1",
-            f"{governance_prefix}scripts/check_change_records.ps1",
-            f"{governance_prefix}scripts/check_folder_architecture/check_folder_architecture_main.py",
-            f"{governance_prefix}scripts/check_python_safety/check_python_safety_main.py",
-        ]
-        for ref in required_refs:
-            if ref.lower() not in readme_text_lower:
-                errors.append(f"README.md must reference: {ref}")
-    project_router = repo_root / "docs/project/project_index.md"
-    if project_router.is_file():
-        project_targets, route_errors = extract_route_targets(project_router.read_text(encoding="utf-8"))
-        for issue in route_errors:
-            errors.append(f"{project_router}: {issue}")
-        for child in ("goal", "rules", "architecture", "learning"):
-            expected = f"{child}/{resolve_docs_router_filename(child, docs_contract)}"
-            if expected not in project_targets:
-                errors.append(f"docs/project/project_index.md must reference {expected}")
-    for folder_name in ("goal", "rules", "architecture", "learning"):
-        dir_path = repo_root / "docs/project" / folder_name
-        router_name = resolve_docs_router_filename(folder_name, docs_contract)
-        router_path = dir_path / router_name
-        if not router_path.is_file():
-            errors.append(f"Missing required file: {router_path.relative_to(repo_root).as_posix()}")
-            continue
-        route_targets, route_errors = extract_route_targets(router_path.read_text(encoding="utf-8"))
-        for issue in route_errors:
-            errors.append(f"{router_path.relative_to(repo_root).as_posix()}: {issue}")
-        expected_leaf = resolve_primary_leaf_filename(folder_name, docs_contract)
-        if expected_leaf not in route_targets:
-            errors.append(f"{router_path.relative_to(repo_root).as_posix()} must reference {expected_leaf}")
-    return errors
+
+
+try:
+    from ._project_authority_docs import (
+        _validate_project_authority_memory_docs,
+        _validate_project_optional_leaf_routes,
+        _validate_record_shape,
+        check_project_docs,
+    )
+except ImportError:  # pragma: no cover - script-path execution
+    from _project_authority_docs import (
+        _validate_project_authority_memory_docs,
+        _validate_project_optional_leaf_routes,
+        _validate_record_shape,
+        check_project_docs,
+    )

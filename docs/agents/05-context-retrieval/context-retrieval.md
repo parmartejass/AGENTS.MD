@@ -23,10 +23,10 @@ Verify decision-critical facts only:
 
 `agents-manifest.yaml` owns task-signal routing. This doc owns the retrieval behavior after routing is known.
 
-Before implementing, record or be able to report:
-- `default_inject` was read as required by `AGENTS.md`
-- matched profile names, or `fallback_inject` when defined and no profile matched
-- active `injection_mode`
+Before implementing, record or be able to report the manifest-resolution witness:
+- required default context was read
+- matched profile names, or fallback routing when no profile matched
+- active manifest injection mode
 - injected files actually read
 - inaccessible manifest-referenced files, with the STOP/ask outcome required by `AGENTS.md`
 
@@ -66,8 +66,8 @@ If a retrieved doc references a symbol, path, or config key that matters to the 
 
 ## Checklist Before Implementing
 
-- [ ] Resolved `agents-manifest.yaml` profiles, `injection_mode`, and `fallback_inject` routing
-- [ ] Read `default_inject` as required by `AGENTS.md`
+- [ ] Resolved and recorded the current `agents-manifest.yaml` routing witness
+- [ ] Read required default context
 - [ ] Read the edited file and the relevant SSOT owner
 - [ ] Verified decision-critical paths/symbols/check commands against live files
 - [ ] Reported unresolved facts as `UNKNOWN` and inaccessible manifest-referenced files as a stop/ask outcome

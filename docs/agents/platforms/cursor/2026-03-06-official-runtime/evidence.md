@@ -24,7 +24,7 @@ update_trigger: Cursor runtime docs, rule paths, or MCP/config rules change
 
 ## Repo decision
 
-- Keep root `.cursorrules` as the default repo loader stub for a clean project surface.
+- Do not keep root `.cursorrules` as a repo-owned loader stub; repo loader stubs are `AGENTS.md` and `CLAUDE.md`.
 - Treat repo-owned `.cursor/rules/` adapters as compatibility-only projections; generate them only when compatibility bootstrap is explicitly requested.
 - Keep `.cursor/mcp.json` repo-owned through the canonical MCP config.
 - Keep shared repo-owned Cursor CLI permissions in `.cursor/cli.json` when the repo intentionally defines a non-secret shared policy.

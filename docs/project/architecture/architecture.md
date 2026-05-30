@@ -17,6 +17,11 @@ update_trigger: repo layout, injection profiles, or validation scripts change
 - Governance rules: `AGENTS.md`
 - Context injection routing: `agents-manifest.yaml`
 - Docs policy and headers: `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`
+- Bounded project authority memory policy/detail: `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`
+- Active current-work status: `docs/project/goal/current-work.md` when the triggered leaf exists.
+- Protected behavior records: `docs/project/architecture/protected-behavior.md` when concrete observable protected behavior exists.
+- Project data-truth records: `docs/project/data-truth/data-truth.md`
+- Human-readable change/supersession notes: `docs/project/learning/changelog.md` when the triggered leaf exists.
 - Folder-owned public contract filename registry: `scripts/entrypoint_contracts.json`
 - Change record artifact schema: `docs/agents/schemas/change-record.schema.json`
 - Change record artifact location: `docs/project/change-records/*.json`
@@ -33,6 +38,7 @@ update_trigger: repo layout, injection profiles, or validation scripts change
 - `AGENTS.md` -> `docs/agents/*`, `docs/project/*`, `scripts/check_*.ps1`, `scripts/check_folder_architecture/check_folder_architecture_main.py`, `scripts/check_python_safety/check_python_safety_main.py`
 - `agents-manifest.yaml` -> context injection procedure in `AGENTS.md` and supporting retrieval guidance
 - `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md` -> `scripts/check_governance_core/_manifest_and_docs.py`; `scripts/check_docs_ssot.ps1` is a thin wrapper
+- `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md` -> bounded project authority-memory policy/detail; `docs/project/data-truth/data-truth.md` is the required data-truth branch, while `docs/project/goal/current-work.md`, `docs/project/learning/changelog.md`, and `docs/project/architecture/protected-behavior.md` are triggered leaves created only when their records exist; none form a separate memory system
 - `docs/agents/35-authority-bounded-modules/authority-bounded-modules.md` -> `scripts/check_folder_architecture/check_folder_architecture_main.py` and template runtime-contract examples
 - `scripts/entrypoint_contracts.json` -> docs router/primary-leaf derivation in `scripts/check_governance_core/_manifest_and_docs.py`; `scripts/check_docs_ssot.ps1` and `scripts/check_project_docs.ps1` are thin wrappers, `scripts/check_docs_router_contract/check_docs_router_contract_main.py` is the contract-test surface, and runtime public-entrypoint derivation is enforced by `scripts/check_folder_architecture/check_folder_architecture_main.py`
 - `docs/agents/schemas/change-record.schema.json` -> `scripts/check_governance_core/_change_records.py`; `scripts/check_change_records.ps1` is a thin wrapper

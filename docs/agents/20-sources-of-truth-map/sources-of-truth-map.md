@@ -23,7 +23,9 @@ Owner: exactly one place.
 Owner: the input artifact, external system, declared config/constants owner, or dedicated data authority.
 - workbook/sheet/header truth, portal fields, user-facing mappings, source records, and machine-specific paths
 - business/workflow logic consumes validated owner-provided values; it must not embed private copies of changing data-facing truth
-- docs and scripts reference the owner by identifier; they do not become alternate data authorities
+- docs and scripts reference the owner by identifier unless a doc or doc-owned artifact is explicitly declared as the data authority
+- data-facing truths include business/source data, mappings, workbook/sheet/header truth, schemas, portal fields, thresholds, settings, machine paths, config defaults, constants, sample artifacts, and external fields
+- permitted owners include input artifacts, external systems, declared config/default files, constants modules, schemas, sample data, project docs explicitly marked as owner, and other declared data authorities
 
 ## Config (user-tunable)
 Owner: exactly one place.
@@ -35,7 +37,7 @@ Owner: exactly one place.
 Owner: exactly one place.
 - data shape and type definitions shared across modules
 - validation rules remain in Rules / conditions / validations
-- schema SSOT must be a single code location (module or generated schema); docs reference it only
+- schema SSOT must be a single declared owner (module, generated schema/artifact, external schema, workbook/source artifact, or explicitly owned project doc); non-owner docs reference it only
 
 ## Rules / conditions / validations
 Owner: exactly one place.
@@ -67,6 +69,15 @@ Owner: exactly one place.
 Owner: `agents-manifest.yaml`
 - task signal → which supporting docs/playbooks to load alongside `AGENTS.md`
 
+## Bounded project authority memory
+Owner: the existing `docs/project/` branch authorities, routed from `docs/project/project_index.md`.
+- `docs/project/goal/` owns stable project intent and active current-work status.
+- `docs/project/rules/` owns project-specific protected boundaries.
+- `docs/project/architecture/` owns authority pointers, verified behavior references, implementation rationale, accepted tradeoffs, and protected behavior invariants.
+- `docs/project/data-truth/` owns project data-truth ownership, provenance, validation expectations, and routing to source artifacts, config/default/constant owners, schemas, samples, workbooks, and external systems.
+- `docs/project/learning/` owns durable operational learnings and concise change/supersession notes.
+- `docs/project/change-records/` owns structured evidence artifacts when enabled.
+
 ## Cross-project SSOT authority decisions
 Owner: `docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md`
 - governance-level authority choices that apply across repos using this pack
@@ -97,6 +108,7 @@ Owner: exactly one implementation.
 ## Agent instructions / prompt configuration
 Owner: `AGENTS.md` + `agents-manifest.yaml`
 - agent behavioral rules, constraints, and execution loops
+- instruction derivation rules for prompts, plans, checklists, generated artifacts, and downstream scaffolds
 - prompt/instruction content must not be scattered across ad-hoc files; consolidate in the governance root
 - context injection manifest is the single map from task signals to supporting docs
 

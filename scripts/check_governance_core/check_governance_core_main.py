@@ -11,6 +11,7 @@ This script consolidates cross-platform governance checks:
 6) governance learnings playbook hard-gate parity
 7) check_change_records.ps1 equivalent validation
 8) optional strict python safety mode
+9) instruction derivation scaffold validation
 """
 
 from __future__ import annotations
@@ -27,6 +28,7 @@ if sys.version_info < (3, 11):
 
 try:
     from ._change_records import check_change_records
+    from ._instruction_derivation import check_instruction_derivation_gate
     from ._manifest_and_docs import check_agents_manifest, check_docs_ssot, check_project_docs
     from ._repo_and_governance import (
         check_docs_for_retired_active_references,
@@ -34,11 +36,13 @@ try:
         check_governance_authority_decisions,
         check_governance_playbook_hard_gates,
         check_repo_hygiene,
+        check_subagent_council_profile_coverage,
     )
     from ._runtime_projection import check_runtime_projection_manifest
     from ._shared import PYTHON_SAFETY_TIMEOUT_SEC, configure_logging, context, logger
 except ImportError:  # pragma: no cover - script-path execution
     from _change_records import check_change_records
+    from _instruction_derivation import check_instruction_derivation_gate
     from _manifest_and_docs import check_agents_manifest, check_docs_ssot, check_project_docs
     from _repo_and_governance import (
         check_docs_for_retired_active_references,
@@ -46,6 +50,7 @@ except ImportError:  # pragma: no cover - script-path execution
         check_governance_authority_decisions,
         check_governance_playbook_hard_gates,
         check_repo_hygiene,
+        check_subagent_council_profile_coverage,
     )
     from _runtime_projection import check_runtime_projection_manifest
     from _shared import PYTHON_SAFETY_TIMEOUT_SEC, configure_logging, context, logger
@@ -201,7 +206,9 @@ def main(argv: Sequence[str]) -> int:
         (check_repo_hygiene(repo_root), "Repo hygiene checks passed.", []),
         (check_docs_for_unresolved_citations(repo_root), "Docs unresolved-citation checks passed.", []),
         (check_docs_for_retired_active_references(repo_root), "Docs retired-reference checks passed.", []),
-        (check_governance_playbook_hard_gates(governance_root), "Governance playbook hard-gate parity checks passed.", []),
+        (check_governance_playbook_hard_gates(governance_root), "Governance playbook authority-scaffold checks passed.", []),
+        (check_instruction_derivation_gate(governance_root), "Instruction derivation scaffold checks passed.", []),
+        (check_subagent_council_profile_coverage(governance_root), "Subagent council profile-coverage checks passed.", []),
         (check_governance_authority_decisions(governance_root), "Governance authority decision registry checks passed.", []),
         (runtime_projection_errors, "Runtime projection manifest checks passed.", runtime_projection_notes),
     ):

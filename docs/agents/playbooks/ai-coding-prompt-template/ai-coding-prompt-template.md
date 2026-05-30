@@ -16,8 +16,9 @@ Use when:
 ## Prompt skeleton (copy/paste)
 
 ```
-Hard gates:
-- Read and follow `AGENTS.md` (SSOT). If you cannot access it, ask for it before doing any work.
+Hard gates (copy/paste scaffold sourced from AGENTS.md):
+- Read and follow `AGENTS.md`; if it is inaccessible, ask for it before doing any work.
+- Derive task instructions from declared SSOT owners; if ownership is unknown or conflicting, stop and report the authority gap before acting.
 
 Task type: <feature|bugfix|refactor>
 
@@ -41,7 +42,7 @@ First-principles artifacts:
 - Proof obligations (preconditions/postconditions/failure modes):
 
 Constraints:
-- Follow `AGENTS.md` (SSOT): verify with tools, avoid duplicates, explicit failures, resource safety.
+- Apply the relevant `AGENTS.md` hard gates and verification floors.
 - Minimal diff; no unrelated refactors.
 - No new dependencies unless explicitly approved.
 - If new logic is introduced, apply `AGENTS.md` "Module Architecture — Mandatory Rules".
@@ -106,9 +107,10 @@ The loop prompt must:
 - Only when verification passes: update `run_confirmation.xml` to `COMPLETE` and output the exact completion token.
 
 ```
-Hard gates:
-- Read and follow `AGENTS.md` (SSOT). If you cannot access it, ask for it before doing any work.
-- Follow `AGENTS.md` Mandatory Execution Loop and Context Injection Procedure.
+Hard gates (copy/paste scaffold sourced from AGENTS.md):
+- Read and follow `AGENTS.md`; if it is inaccessible, ask for it before doing any work.
+- Execute the current `AGENTS.md` Mandatory Execution Loop and Context Injection Procedure.
+- Derive task instructions from declared SSOT owners; if ownership is unknown or conflicting, stop and report the authority gap before acting.
 
 Task type: <feature|bugfix|refactor|review>
 User request:

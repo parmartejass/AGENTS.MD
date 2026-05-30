@@ -16,20 +16,24 @@ This protocol is supporting guidance only (non-normative) and is intended to pre
 2) **Tracing to Authority** (root-cause uplift):
    - Use `docs/agents/playbooks/rca-methods-template/rca-methods-template.md` for method steps/examples.
 3) **Mapping SSOT owners** (constants/config/rules/workflows/lifecycle utilities) and extending them (no parallel ownership).
-4) **Stating proof obligations**:
+4) **Deriving task authority** when the output is non-trivial:
+   - Identify the minimum control artifact needed before final output can be trusted, such as an authority map, source map, extraction ledger, validation matrix, patch plan, or test fixture.
+   - Generate the final output from that artifact and verify against it before claiming proof.
+5) **Stating proof obligations**:
    - Preconditions: what must be true before work begins
    - Postconditions: what must be true after success
    - Failure modes: what can go wrong and how it should fail (explicitly)
    - Invariants + witnesses: define how correctness is measured and recorded
-5) **Choosing verification first**:
+6) **Choosing verification first**:
    - Reference the repo-root `README.md` "Checks" (SSOT for commands).
    - A tight deterministic check is typically preferred when it satisfies the verification floors and proves the proof obligations.
    - A failure-path check is useful when feasible.
-6) **Minimal implementation** (smallest diff that satisfies acceptance criteria).
-7) **Verification and evidence reporting** (commands + outcomes, or deterministic manual checks if tooling is unavailable).
+7) **Minimal implementation** (smallest diff that satisfies acceptance criteria).
+8) **Verification and evidence reporting** (commands + outcomes, or deterministic manual checks if tooling is unavailable).
 
 ## Preferred patterns
 - "Verify, then trust": confirm paths/symbols/dependencies with repo + tools.
+- "Patch, do not fork": improve the current highest owning authority through explicit patch/supersession; do not create disconnected framework versions or parallel docs.
 - Named rules for conditions (`is_*`, `require_*`, `validate_*`) in the appropriate SSOT owner to avoid duplicated `if` logic (see `docs/agents/20-sources-of-truth-map/sources-of-truth-map.md`).
 - Workflows orchestrate; UI and scripts call workflows.
 - Resource safety via context managers and `finally`.
