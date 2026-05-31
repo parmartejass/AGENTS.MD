@@ -31,7 +31,7 @@ MANIFEST_AND_DOCS = _load_module(
 
 
 class ProjectAuthorityRouteDocTests(unittest.TestCase):
-    def test_optional_leaf_route_requires_existing_target(self) -> None:
+    def test_required_current_work_route_requires_existing_target(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             repo_root = Path(tmp_dir)
             write_text(
@@ -40,7 +40,7 @@ class ProjectAuthorityRouteDocTests(unittest.TestCase):
 # Goal Branch Index
 
 - [goal.md](goal.md) - Canonical goal. Required when: checking goal.
-- [current-work.md](current-work.md) - Active work. Required when: current work exists.
+- [current-work.md](current-work.md) - Live work status. Required when: checking handoff.
 """.lstrip(),
             )
 
@@ -48,7 +48,7 @@ class ProjectAuthorityRouteDocTests(unittest.TestCase):
 
             self.assertTrue(any("references missing local route target: current-work.md" in error for error in errors), errors)
 
-    def test_optional_leaf_route_requires_router_link_when_leaf_exists(self) -> None:
+    def test_required_current_work_route_requires_router_link(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             repo_root = Path(tmp_dir)
             write_text(
@@ -64,11 +64,11 @@ class ProjectAuthorityRouteDocTests(unittest.TestCase):
             errors = MANIFEST_AND_DOCS._validate_project_optional_leaf_routes(repo_root)
 
             self.assertTrue(
-                any("must reference current-work.md when docs/project/goal/current-work.md exists" in error for error in errors),
+                any("must reference required current-work.md" in error for error in errors),
                 errors,
             )
 
-    def test_optional_leaf_route_requires_existing_target_with_uppercase_extension(self) -> None:
+    def test_required_current_work_route_requires_existing_target_with_uppercase_extension(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             repo_root = Path(tmp_dir)
             write_text(
@@ -84,6 +84,15 @@ class ProjectAuthorityRouteDocTests(unittest.TestCase):
             errors = MANIFEST_AND_DOCS._validate_project_optional_leaf_routes(repo_root)
 
             self.assertTrue(any("references missing local route target: missing.MD" in error for error in errors), errors)
+            self.assertTrue(any("must reference required current-work.md" in error for error in errors), errors)
+
+    def test_project_docs_requires_current_work_file(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            repo_root = Path(tmp_dir)
+
+            errors = MANIFEST_AND_DOCS.check_project_docs(repo_root, "", REPO_ROOT)
+
+            self.assertTrue(any("Missing required file: docs/project/goal/current-work.md" in error for error in errors), errors)
 
     def test_project_docs_rejects_parallel_memory_like_path(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -155,6 +164,34 @@ Status: `blocked`
 Work item ID: `CW-20260531-001`
 Last updated: `2026-05-31`
 
+## User Prompt
+```text
+Prompt.
+```
+
+## Goal Statement
+- Goal.
+
+## Status
+
+## Goal Alignment
+
+## Blockers
+
+## Boundaries
+
+## Supersession
+
+## SSOT Layers
+- Runtime truth: pending verification
+- Semantic truth: validator contract
+- Recorded truth: current-work.md
+
+## Review Confirmation
+- Pre-change review: complete
+- Post-change review: pending
+- Fulfillment: pending
+
 ## Next safe action
 
 Continue.
@@ -168,4 +205,3 @@ Clear when done.
             errors = MANIFEST_AND_DOCS.check_project_docs(repo_root, "", REPO_ROOT)
 
             self.assertTrue(any("contains duplicate Status fields" in error for error in errors), errors)
-

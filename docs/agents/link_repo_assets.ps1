@@ -2,6 +2,7 @@
 param(
     [switch]$Force,
     [switch]$IncludeCompatibility,
+    [string]$PythonExe,
     [string]$RepoRoot,
     [string[]]$Include = @("skills", "mcp", "settings", "acp"),
     [switch]$RepairPlainDirectoryStubs
@@ -400,6 +401,7 @@ function Ensure-FileLink {
         [string]$LinkPath,
         [Parameter(Mandatory = $true)]
         [string]$TargetPath,
+        [switch]$UseRelativeTarget,
         [switch]$AllowReplace
     )
 
@@ -429,9 +431,22 @@ function Ensure-FileLink {
             $isRepairablePlainFile = $true
         }
 
-        if ($isExpectedLink) {
+        $usesPreferredLinkTarget = $true
+        if ($isExpectedLink -and $UseRelativeTarget -and (Test-IsLink -Item $existing)) {
+            $expectedTargetText = Get-RelativeLinkTarget -BaseDirectory (Split-Path -Parent $LinkPath) -TargetPath $TargetPath
+            $actualTargetText = [string]$existing.Target
+            if ($actualTargetText -ne $expectedTargetText) {
+                $usesPreferredLinkTarget = $false
+            }
+        }
+
+        if ($isExpectedLink -and $usesPreferredLinkTarget) {
             Write-Output "OK     $LinkPath -> $expectedResolved"
             return
+        }
+
+        if ($isExpectedLink -and (-not $usesPreferredLinkTarget) -and (-not $AllowReplace)) {
+            throw "Existing file link '$LinkPath' points to the canonical source but does not use the preferred relative target. Re-run with -Force to repair the link."
         }
 
         if ($isRepairablePlainFile -and (-not $AllowReplace)) {
@@ -461,8 +476,12 @@ function Ensure-FileLink {
 
     $linkKind = "symbolic-link"
     $symlinkError = $null
+    $linkTarget = $TargetPath
+    if ($UseRelativeTarget) {
+        $linkTarget = Get-RelativeLinkTarget -BaseDirectory $linkParent -TargetPath $TargetPath
+    }
     try {
-        New-Item -ItemType SymbolicLink -Path $LinkPath -Target $TargetPath | Out-Null
+        New-Item -ItemType SymbolicLink -Path $LinkPath -Target $linkTarget | Out-Null
     } catch {
         $symlinkError = $_.Exception.Message
         try {
@@ -790,17 +809,13 @@ function Test-ValidTomlFile {
         [string]$Path
     )
 
-    $pythonCmd = Get-Command python -ErrorAction SilentlyContinue
-    if ($null -eq $pythonCmd) {
-        $pythonCmd = Get-Command python3 -ErrorAction SilentlyContinue
-    }
-    if ($null -eq $pythonCmd) {
-        throw "Python (python or python3) is required to validate TOML settings at '$Path'."
+    if ([string]::IsNullOrWhiteSpace($script:TomlValidatorPythonPath)) {
+        throw "Python 3.11+ is required to validate TOML settings at '$Path'."
     }
 
     $validationScript = "import pathlib, sys, tomllib; tomllib.loads(pathlib.Path(sys.argv[1]).read_text(encoding='utf-8'))"
     $startInfo = New-Object System.Diagnostics.ProcessStartInfo
-    $startInfo.FileName = $pythonCmd.Source
+    $startInfo.FileName = $script:TomlValidatorPythonPath
     $escapedScript = $validationScript.Replace('"', '\"')
     $escapedPath = $Path.Replace('"', '\"')
     $startInfo.Arguments = "-c `"$escapedScript`" `"$escapedPath`""
@@ -1258,6 +1273,17 @@ if ($missingGovernanceFiles) {
     throw "Computed governance root '$governanceRoot' from script root '$PSScriptRoot' is invalid. Missing required file(s): $($missingGovernanceFiles -join ', ')."
 }
 
+$pythonCheckRunner = Join-Path $governanceRoot "scripts/_python_check_runner.ps1"
+if (-not (Test-Path -LiteralPath $pythonCheckRunner -PathType Leaf)) {
+    throw "Missing Python resolver script: $pythonCheckRunner"
+}
+. $pythonCheckRunner
+
+$script:TomlValidatorPythonPath = $null
+if (Should-Include -Name "settings") {
+    $script:TomlValidatorPythonPath = Resolve-CheckPythonExecutable -RequestedPython $PythonExe
+}
+
 if (-not [string]::IsNullOrWhiteSpace($RepoRoot)) {
     $resolvedRepoRoot = Get-NormalizedPath -Path $RepoRoot
 } elseif ((Split-Path -Leaf $governanceRoot) -eq ".governance") {
@@ -1370,7 +1396,7 @@ if (Should-Include -Name "mcp") {
 
         Test-ValidMcpConfig -Path $sourcePath
         $targetPath = Resolve-TargetPath -PathSpec ([string]$entry.target_path)
-        Ensure-FileLink -LinkPath $targetPath -TargetPath $sourcePath -AllowReplace:$Force
+        Ensure-FileLink -LinkPath $targetPath -TargetPath $sourcePath -UseRelativeTarget -AllowReplace:$Force
     }
 }
 
@@ -1400,7 +1426,7 @@ if (Should-Include -Name "settings") {
         }
 
         $targetPath = Resolve-TargetPath -PathSpec ([string]$entry.target_path)
-        Ensure-FileLink -LinkPath $targetPath -TargetPath $sourcePath -AllowReplace:$Force
+        Ensure-FileLink -LinkPath $targetPath -TargetPath $sourcePath -UseRelativeTarget -AllowReplace:$Force
     }
 }
 

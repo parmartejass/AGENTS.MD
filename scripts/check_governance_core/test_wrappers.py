@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import shutil
+import sys
 import tempfile
 import time
 import unittest
@@ -17,11 +18,65 @@ from _test_helpers import (
 
 SCRIPT_ROOT = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_ROOT.parents[1]
-POWERSHELL = shutil.which("powershell")
+POWERSHELL = shutil.which("powershell") or shutil.which("pwsh")
+PYTHON_EXE = sys.executable
 
 
 def _write_fake_python_noop(path: Path) -> None:
-    write_text(path, "@echo off\r\necho 3.11.0\r\nexit /b 0\r\n")
+    if os.name == "nt":
+        write_text(path, "@echo off\r\necho 3.11.0\r\nexit /b 0\r\n")
+        return
+    write_text(path, "#!/bin/sh\necho 3.11.0\nexit 0\n")
+    path.chmod(0o755)
+
+
+def _write_fake_python_version(path: Path, version: str) -> None:
+    if os.name == "nt":
+        write_text(path, f"@echo off\r\necho {version}\r\n")
+        return
+    write_text(path, f"#!/bin/sh\necho {version}\n")
+    path.chmod(0o755)
+
+
+def _write_fake_python_hang(path: Path) -> None:
+    if os.name == "nt":
+        write_text(path, "@echo off\r\nping -n 15 127.0.0.1 >nul\r\n")
+        return
+    write_text(path, "#!/bin/sh\nsleep 15\n")
+    path.chmod(0o755)
+
+
+def _write_minimal_runtime_projection_governance(governance_root: Path) -> None:
+    write_text(governance_root / "AGENTS.md", "# Test governance\n")
+    write_text(governance_root / "agents-manifest.yaml", "default_inject:\n  - AGENTS.md\n")
+    (governance_root / "scripts").mkdir(parents=True, exist_ok=True)
+    shutil.copy2(REPO_ROOT / "scripts/_python_check_runner.ps1", governance_root / "scripts/_python_check_runner.ps1")
+    shutil.copy2(REPO_ROOT / "scripts/setup_repo_platform_assets.ps1", governance_root / "scripts/setup_repo_platform_assets.ps1")
+    write_text(governance_root / "docs/agents/settings/codex/config.toml", 'model = "test"\n')
+    write_text(
+        governance_root / "docs/agents/platforms/runtime-projections.json",
+        """{
+  "asset_classes": {
+    "skills": [],
+    "mcp": [],
+    "settings": [
+      {
+        "id": "codex-project-config",
+        "platform": "codex",
+        "support_level": "official",
+        "projection_mode": "settings_file_link",
+        "scope": "project",
+        "source_path": "docs/agents/settings/codex/config.toml",
+        "target_path": ".codex/config.toml",
+        "default_enabled": true
+      }
+    ],
+    "acp": []
+  }
+}
+""",
+    )
+    shutil.copy2(REPO_ROOT / "docs/agents/link_repo_assets.ps1", governance_root / "docs/agents/link_repo_assets.ps1")
 
 
 @unittest.skipIf(POWERSHELL is None, "PowerShell is not available in PATH.")
@@ -34,6 +89,8 @@ class ChangeRecordWrapperTests(unittest.TestCase):
             result = run_powershell_script(
                 POWERSHELL,
                 REPO_ROOT / "scripts/check_change_records.ps1",
+                "-PythonExe",
+                PYTHON_EXE,
                 "-RepoRoot",
                 str(repo_root),
                 "-RequireRecords",
@@ -51,6 +108,8 @@ class ChangeRecordWrapperTests(unittest.TestCase):
         result = run_powershell_script(
             POWERSHELL,
             REPO_ROOT / "scripts/check_change_records.ps1",
+            "-PythonExe",
+            PYTHON_EXE,
             "-RepoRoot",
             ".\\",
             "-RequireRecords",
@@ -87,8 +146,8 @@ class ChangeRecordWrapperTests(unittest.TestCase):
 
     def test_wrapper_rejects_python_below_minimum_version(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
-            fake_python = Path(tmp_dir) / "python310.cmd"
-            write_text(fake_python, "@echo off\r\necho 3.10.0\r\n")
+            fake_python = Path(tmp_dir) / ("python310.cmd" if os.name == "nt" else "python310")
+            _write_fake_python_version(fake_python, "3.10.0")
 
             result = run_powershell_script(
                 POWERSHELL,
@@ -104,7 +163,7 @@ class ChangeRecordWrapperTests(unittest.TestCase):
 
     def test_wrappers_reject_noop_python_that_does_not_run_validator(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
-            fake_python = Path(tmp_dir) / "python-noop.cmd"
+            fake_python = Path(tmp_dir) / ("python-noop.cmd" if os.name == "nt" else "python-noop")
             _write_fake_python_noop(fake_python)
 
             wrappers = (
@@ -125,12 +184,12 @@ class ChangeRecordWrapperTests(unittest.TestCase):
 
                     combined = result.stdout + result.stderr
                     self.assertNotEqual(result.returncode, 0, combined)
-                    self.assertIn("did not emit expected success marker", combined)
+                    self.assertIn("expected success marker", combined)
 
     def test_wrapper_bounds_hanging_python_version_probe(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
-            fake_python = Path(tmp_dir) / "python-hangs.cmd"
-            write_text(fake_python, "@echo off\r\nping -n 15 127.0.0.1 >nul\r\n")
+            fake_python = Path(tmp_dir) / ("python-hangs.cmd" if os.name == "nt" else "python-hangs")
+            _write_fake_python_hang(fake_python)
 
             result = run_powershell_script(
                 POWERSHELL,
@@ -143,6 +202,55 @@ class ChangeRecordWrapperTests(unittest.TestCase):
             combined = result.stdout + result.stderr
             self.assertNotEqual(result.returncode, 0, combined)
             self.assertIn("FAILED_VALIDATION: Python version probe timed out", combined)
+
+    def test_platform_setup_accepts_python_exe_for_toml_validation(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            host_root = Path(tmp_dir) / "host repo"
+            governance_root = host_root / ".governance"
+            _write_minimal_runtime_projection_governance(governance_root)
+
+            result = run_powershell_script(
+                POWERSHELL,
+                governance_root / "scripts/setup_repo_platform_assets.ps1",
+                "-Force",
+                "-PythonExe",
+                PYTHON_EXE,
+                "-RepoRoot",
+                str(host_root),
+                cwd=host_root,
+            )
+
+            combined = result.stdout + result.stderr
+            self.assertEqual(result.returncode, 0, combined)
+            self.assertIn("Python selected:", combined)
+            projected_config = host_root / ".codex/config.toml"
+            self.assertTrue(projected_config.exists(), combined)
+            if os.name != "nt":
+                self.assertTrue(projected_config.is_symlink(), combined)
+                self.assertFalse(os.path.isabs(os.readlink(projected_config)), combined)
+
+    def test_platform_setup_rejects_python_below_minimum_version(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            host_root = Path(tmp_dir) / "host repo"
+            governance_root = host_root / ".governance"
+            _write_minimal_runtime_projection_governance(governance_root)
+            fake_python = Path(tmp_dir) / ("python310.cmd" if os.name == "nt" else "python310")
+            _write_fake_python_version(fake_python, "3.10.0")
+
+            result = run_powershell_script(
+                POWERSHELL,
+                governance_root / "scripts/setup_repo_platform_assets.ps1",
+                "-Force",
+                "-PythonExe",
+                str(fake_python),
+                "-RepoRoot",
+                str(host_root),
+                cwd=host_root,
+            )
+
+            combined = result.stdout + result.stderr
+            self.assertNotEqual(result.returncode, 0, combined)
+            self.assertIn("FAILED_VALIDATION: PythonExe must resolve to Python 3.11+ executable", combined)
 
     @unittest.skipUnless(os.name == "nt" and POWERSHELL is not None, "Windows PowerShell process-tree cleanup test.")
     def test_python_check_timeout_terminates_child_process_tree(self) -> None:
@@ -197,6 +305,8 @@ try {{
             result = run_powershell_script(
                 POWERSHELL,
                 governance_root / "scripts/check_change_records.ps1",
+                "-PythonExe",
+                PYTHON_EXE,
                 "-RepoRoot",
                 ".\\",
                 "-RequireRecords",
@@ -249,6 +359,8 @@ try {{
                 result = run_powershell_script(
                     POWERSHELL,
                     REPO_ROOT / "scripts/check_change_records.ps1",
+                    "-PythonExe",
+                    PYTHON_EXE,
                     "-RepoRoot",
                     repo_root,
                     "-RequireRecords",

@@ -67,6 +67,7 @@ Example rejection:
 Hard gates (copy/paste scaffold sourced from AGENTS.md):
 - Read and follow `AGENTS.md`; if it is inaccessible, request it before doing any work.
 - Execute the `AGENTS.md` Context Injection Procedure using the current `agents-manifest.yaml`.
+- Execute the current-work session gate before any non-trivial plan, review, council output, implementation, or repo mutation.
 - For governance auto-edit, apply the `AGENTS.md` Governance Auto-Edit Gate and Subagent Council before editing.
 - {INSTRUCTION_DERIVATION.DERIVATION_SCAFFOLD}
 - Use docs placement and router rules from `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`; do not restate them here.

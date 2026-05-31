@@ -173,6 +173,13 @@ Default posture:
 
 ## Mandatory Execution Loop (Follow For Every Task)
 
+0) **Current-work authority gate**:
+   - After required loader/context-injection reads and before producing a non-trivial plan, review, council prompt/summary, implementation, or other repo-mutating work, update `docs/project/goal/current-work.md` with the exact user prompt as a bounded active-work input witness, prompt-safety decision, derived work-item goal statement, source-derived plan, planned SSOT/truth-layer witnesses, and pending review confirmation.
+   - If the exact prompt contains secrets, credentials, PII, customer data, or oversized pasted artifacts, STOP before writing it and ask for a redacted prompt or explicit safe substitute. Do not store sensitive prompt text in tracked docs.
+   - Exact-prompt equality is a review/harness witness: when a tool provides an expected prompt artifact or hash, validate against it; otherwise council/manual review must confirm that `current-work.md` preserves the controlling prompt before downstream plan/review conclusions are trusted.
+   - The source-derived plan in `current-work.md` is the active-work plan authority until closure. It must route each plan item to the prompt/work-item goal, SSOT owner, target files, status, and witness; do not use `.cursor/plans/`, chat plans, or tool UI plans as authority unless their facts are promoted into `current-work.md`.
+   - Before final closure, update `current-work.md` with implementation records, stale/rejected prompt and plan reconciliation, SSOT/truth-layer witnesses (Runtime truth, Semantic truth, Recorded truth), confirmed review evidence showing the work fulfilled the recorded prompt and work-item goal, and closure handoff evidence.
+   - Completed work may be marked `ready-to-clear` only after those witnesses are present, authority-changing outcomes are recorded in `docs/project/learning/changelog.md`, and the commit/push handoff is recorded as pushed/PR evidence or an explicit no-push/not-required reason. Clearing then folds durable outcomes into owner docs or change records and resets `current-work.md` to `Status: no-active-work`; do not delete it.
 1) **Restate goal + acceptance criteria** (1-5 bullets).
 2) **Discover** relevant files and existing SSOT owners (constants/config/rules/workflows/etc).
    - **MUST** consult `agents-manifest.yaml` and execute the Context Injection Procedure (see below).
@@ -543,10 +550,13 @@ Hard gate:
 Project docs are the SSOT for declared project authority records:
 - `docs/project/project_index.md` (entrypoint/router; linked from README)
 - `docs/project/goal/goal.md` (objective + acceptance criteria; router at `docs/project/goal/goal_index.md`)
+- `docs/project/goal/current-work.md` (mandatory current status + handoff state; router at `docs/project/goal/goal_index.md`)
 - `docs/project/rules/rules.md` (project do/don't rules; router at `docs/project/rules/rules_index.md`)
 - `docs/project/architecture/architecture.md` (SSOT pointers: entrypoints/modules/workflows; router at `docs/project/architecture/architecture_index.md`)
 - `docs/project/data-truth/data-truth.md` (data-truth ownership/provenance/validation routing; router at `docs/project/data-truth/data-truth_index.md`)
 - `docs/project/learning/learning.md` (operational learnings and pitfalls; router at `docs/project/learning/learning_index.md`)
+
+`docs/project/goal/goal.md` owns durable project intent, objective, acceptance criteria, non-goals, and verification intent. `docs/project/goal/current-work.md` is always present and owns only the active-work authority record: live work status, bounded exact-prompt witness, prompt-safety decision, derived work-item goal statement, source-derived plan, handoff/checkpoint state, blockers, implementation records, stale/rejected prompt and plan reconciliation, truth-layer witnesses, review confirmation, closure handoff, and next safe action. When no work is active, reset `current-work.md` to the canonical no-active-work state; do not delete it.
 
 Facts are owned by their declared source of truth, not by file type. Code, config, constants, input artifacts, external systems, schemas, workbooks, and project docs may each own facts when explicitly declared as the SSOT. Non-owner docs must route to the owner instead of duplicating the fact.
 

@@ -77,7 +77,7 @@ Each active decision record must include:
   - Explicit user-home targets declared in `docs/agents/platforms/runtime-projections.json`, such as `{HOME}/.agents/skills`
   - Generated or linked runtime projections created by `docs/agents/link_repo_assets.ps1` or `scripts/setup_repo_platform_assets.ps1`
   - Legacy local subagent runtime paths such as `.claude/agents/` and `.codex/agents/` may exist only as non-authoritative local/platform surfaces; they are not repo-owned projections and stale copies must be removed or managed outside this runtime-projection authority.
-  - `.cursor/plans/` may contain tracked Cursor planning records for this governance source repo; it is not a runtime projection target and is not governed by `runtime-projections.json`.
+  - `.cursor/plans/` may contain tracked Cursor planning records for this governance source repo; it is not a runtime projection target, is not governed by `runtime-projections.json`, and is not an active-work plan authority unless selected facts are promoted into `docs/project/goal/current-work.md`.
 - Retired scope:
   - ACP placeholders, automation runbooks, integration note branches, generated analyses, and PR-control-plane templates are retired in this cleanup and may appear in change records only with `retired:`.
   - Repo-owned subagent source docs and runtime adapters under `docs/agents/subagents/` are retired; canonical agent instructions remain in `AGENTS.md` and context routing remains in `agents-manifest.yaml`.
@@ -155,3 +155,42 @@ Each active decision record must include:
   - Any proposal to change a contract-family filename pattern without updating `scripts/entrypoint_contracts.json`
   - Any proposal to reintroduce `index.md` as the universal docs router contract
   - Any proposal to rename or repurpose `SKILL.md` or `mcp.json` under this contract family
+
+### SSOT-DEC-004 - Mandatory current-work project-doc contract
+- Status: active
+- Scope: project-doc goal branch ownership for repos using this governance pack
+- Canonical owner:
+  - Governing required-doc contract: `AGENTS.md`
+  - Placement and lifecycle policy: `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`
+  - Scaffold shape: `docs/agents/playbooks/project-docs-template/project-docs-template.md`
+- Allowed non-owner locations:
+  - `docs/project/goal/goal.md` owns durable project intent, objective, acceptance criteria, non-goals, and verification intent.
+  - `docs/project/goal/current-work.md` is mandatory and owns the active-work authority record: live work status, bounded exact-prompt witness, prompt-safety decision, derived work-item goal statement, source-derived plan, handoff/checkpoint state, blockers, implementation records, stale/rejected prompt and plan reconciliation, truth-layer witnesses, review confirmation, closure handoff, next safe action, and no-active-work reset state.
+  - Template/example project-doc instances may show the same shape under their own example project roots, but they do not define policy.
+- Forbidden duplicates:
+  - Do not let `current-work.md` restate or redefine durable project intent, objective, acceptance criteria, or non-goals owned by `goal.md`.
+  - Do not model `current-work.md` as optional, triggered, deletable, or replaceable by absence.
+  - Do not store secrets, credentials, PII, customer data, or oversized pasted prompt artifacts in `current-work.md`.
+  - Do not create a separate project-doc `plan.md` or treat `.cursor/plans/`, chat plans, or tool UI plans as active-work authority outside `current-work.md`.
+  - Do not create a parallel project memory/session/transcript tree for active work state.
+- Coordinated update set:
+  - `AGENTS.md`
+  - `README.md`
+  - `docs/agents/20-sources-of-truth-map/sources-of-truth-map.md`
+  - `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`
+  - `docs/agents/playbooks/project-docs-template/project-docs-template.md`
+  - `docs/project/project_index.md`
+  - `docs/project/architecture/architecture.md`
+  - `docs/project/goal/goal_index.md`
+  - `docs/project/goal/goal.md`
+  - `docs/project/goal/current-work.md`
+  - `scripts/check_governance_core/_project_authority_docs.py`
+  - `scripts/check_governance_core/test_project_authority_routes.py`
+  - `templates/python-dual-entry/docs/project/`
+- Verification witness:
+  - `scripts/check_governance_core/_project_authority_docs.py` requires `docs/project/goal/current-work.md`.
+  - Project-doc checks fail when the mandatory current-work file or route is absent.
+  - A canonical no-active-work state passes validation.
+  - Active current-work records require prompt-safety, prompt, work-goal, derived-plan, implementation-record, reconciliation, truth-layer, review-confirmation, and closure-handoff witnesses.
+- Review trigger:
+  - Any proposal to make `current-work.md` optional, remove the no-active-work reset state, move durable project intent out of `goal.md`, or move active-work planning authority to another path.

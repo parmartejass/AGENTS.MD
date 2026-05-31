@@ -39,8 +39,6 @@ X-Bookmarks Import/skills/x-api-data-access/
 # IDE settings
 .vscode/
 .idea/
-.codex/config.toml
-# Project-local Codex agent configs are local runtime state, not repo-owned projections.
 # Do not commit a symlink-stub file named `.codex/agents` — on Windows it is a regular file and breaks Codex CLI (os error 267).
 .codex/agents/
 .agents/skills/
