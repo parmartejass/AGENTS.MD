@@ -8,6 +8,22 @@ update_trigger: durable project authority records are added, superseded, or reti
 
 ## Entries
 
+### CH-20260531-004 - PR comment fixes for current-work and runtime projection setup
+- Date: 2026-05-31
+- Status: accepted
+- Change type: current-work/runtime-projection
+- Changed owners/files: `README.md`, `docs/agents/20-sources-of-truth-map/sources-of-truth-map.md`, `docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md`, `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`, `docs/agents/link_repo_assets.ps1`, `docs/agents/playbooks/project-docs-template/project-docs-template.md`, `docs/agents/settings/link_settings.ps1`, `docs/project/architecture/architecture.md`, `docs/project/goal/current-work.md`, `docs/project/goal/goal.md`, `docs/project/learning/changelog.md`, `scripts/check_governance_core/_current_work_authority.py`, `scripts/check_governance_core/test_project_current_work_pr_comments.py`, `scripts/check_governance_core/test_runtime_projection_setup_edges.py`, `scripts/check_governance_core/test_wrappers.py`, `scripts/setup_repo_platform_assets.ps1`
+- Current work: `CW-20260531-007`
+- Context: PR `#43` received review comments on current-work validation, plus merged local review findings for ready-to-clear handoff semantics and runtime projection setup repair paths.
+- Decision/change: Current-work validation now reads top-level metadata fields separately from fenced prompt text, scans every current-work section for no-active residue, and rejects `committed:<sha>` as a `ready-to-clear` handoff. The lower docs now route repeated active-work field inventories back to the docs policy owner and distinguish active committed state from ready-to-clear pushed/PR/no-push closure. Runtime projection setup now validates the manifest contract before writes, the setup wrapper forwards `-RepairPlainDirectoryStubs`, and the settings helper forwards `-PythonExe`.
+- Consequences/tradeoffs: Greptile's suggestion to ignore untracked files was not adopted because the current owner contract requires the tracked artifact witness to match actual `git status --short` cleanliness. Setup performs more side-effect-free validation up front, so malformed manifests fail earlier instead of partially writing projections.
+- Validation: `pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/setup_repo_platform_assets.ps1 -Force -PythonExe /opt/homebrew/bin/python3.12`; `pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/check_docs_ssot.ps1 -PythonExe /opt/homebrew/bin/python3.12`; `/opt/homebrew/bin/python3.12 scripts/check_docs_router_contract/check_docs_router_contract_main.py`; `pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/check_agents_manifest.ps1`; `pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/check_project_docs.ps1 -PythonExe /opt/homebrew/bin/python3.12`; `pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/check_repo_hygiene.ps1 -PythonExe /opt/homebrew/bin/python3.12`; `/opt/homebrew/bin/python3.12 scripts/check_folder_architecture/check_folder_architecture_main.py`; `/opt/homebrew/bin/python3.12 -m unittest -v scripts/check_folder_architecture/test_main.py`; `pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/check_change_records.ps1 -PythonExe /opt/homebrew/bin/python3.12`; `/opt/homebrew/bin/python3.12 scripts/check_governance_core/check_governance_core_main.py --fail-on-safety-warnings`; `/opt/homebrew/bin/python3.12 -m unittest discover -s scripts/check_governance_core -p "test*.py" -v`; `/opt/homebrew/bin/python3.12 scripts/check_python_safety/check_python_safety_main.py --fail-on-warnings`; `cd templates/python-dual-entry && /opt/homebrew/bin/python3.12 -m unittest -v tests.test_logging_contract`; `git diff --check`.
+- Evidence/version: `docs/project/goal/current-work.md` work item `CW-20260531-007`; PR `#43` head `c515373c83d743bda98a917293340706429438b4` before these fixes.
+- Commit/push state: PR:https://github.com/parmartejass/AGENTS.MD/pull/43
+- Supersedes: N/A
+- Superseded by: N/A
+- Follow-up required: None for the accepted PR comments after this change is pushed to PR `#43`.
+
 ### CH-20260531-003 - Current-work authority owns source-derived plan and closure
 - Date: 2026-05-31
 - Status: accepted

@@ -33,7 +33,7 @@ Use the placement and promotion policy in `docs/agents/25-docs-ssot-policy/docs-
 
 Scaffold placement:
 - `docs/project/goal/goal.md`: durable project intent, objective, acceptance criteria, non-goals, and verification intent.
-- `docs/project/goal/current-work.md`: active-work authority record, including live status, bounded exact-prompt witness, prompt-safety decision, derived work-item goal statement, source-derived plan, blockers, handoff/checkpoint state, implementation records, stale/rejected prompt and plan reconciliation, truth-layer witnesses, review confirmation, closure handoff, next safe action, and no-active-work reset state.
+- `docs/project/goal/current-work.md`: active-work authority record and no-active-work reset state; field ownership and lifecycle are declared in `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`.
 - `docs/project/architecture/protected-behavior.md`: protected behavior invariant, current mechanism owner, accepted tradeoff, replacement/change rule, deterministic witness.
 - `docs/project/data-truth/data-truth.md`: data-truth owner, source format/provenance, validation witness, consumers, and change rule.
 - `docs/project/learning/changelog.md`: concise promoted change/supersession history; evidence pointers only, not all reasoning.
@@ -200,7 +200,7 @@ For active work, each item must use this shape:
 - Commit/push state: N/A - no active work
 - Tracked artifact witness: N/A - no active work
 
-For active work, Commit/push state is one of `uncommitted`, `committed:<sha>`, `pushed:<remote/ref>`, `PR:<url>`, or `not-required + reason:<reason>`.
+For active work, Commit/push state is one of `uncommitted`, `committed:<sha>`, `pushed:<remote/ref>`, `PR:<url>`, or `not-required + reason:<reason>`. `ready-to-clear` requires `pushed:<remote/ref>`, `PR:<url>`, or `not-required + reason:<reason>`.
 
 ## Next safe action
 - <next action a future agent can safely take>

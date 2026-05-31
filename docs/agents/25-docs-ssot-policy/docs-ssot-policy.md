@@ -37,7 +37,7 @@ Authority-changing actions use this classification:
 
 Placement:
 - Durable project intent, stable objective, acceptance criteria, non-goals, and verification intent: `docs/project/goal/goal.md`
-- Active-work authority record: live work status, bounded exact-prompt witness, prompt-safety decision, derived work-item goal statement, source-derived plan, handoff/checkpoint state, blockers, implementation records, stale/rejected prompt and plan reconciliation, truth-layer witnesses, review confirmation, closure handoff, and next safe action: mandatory leaf `docs/project/goal/current-work.md`
+- Active-work authority record: mandatory leaf `docs/project/goal/current-work.md`; owned fields and lifecycle are declared in the mandatory goal-branch leaves below.
 - Project-specific protected boundaries: `docs/project/rules/rules.md`
 - Verified behavior, implementation rationale, accepted tradeoffs, owner graph, and protected behavior invariants: `docs/project/architecture/architecture.md` and triggered leaf `docs/project/architecture/protected-behavior.md`
 - Data-truth ownership, provenance, validation expectations, schemas, source artifacts, mappings, config/default/constant ownership, sample-data authority, workbook/header truth, machine paths, and external-system field authority: `docs/project/data-truth/data-truth.md`
@@ -68,7 +68,7 @@ Mandatory goal-branch leaves:
 - The current-work prompt/goal witness is recorded before non-trivial planning, review, council output, implementation, or mutation. Plans, reviews, and council summaries are downstream artifacts until their selected facts are promoted into `current-work.md`; they may not become the first place where the user's controlling intent or accepted plan is preserved.
 - Exact user prompts may be recorded in `current-work.md` only as bounded active-work input witnesses. The prompt section must stay at or below 4000 characters. If a prompt contains secrets, credentials, PII, customer data, or oversized pasted artifacts, stop before writing it and request a redacted prompt or safe substitute; record the prompt-safety decision, evidence, and prompt equality witness.
 - The `Derived Plan` section in `current-work.md` is the source-derived plan authority for active work until closure. Each plan item records its status (`planned`, `in_progress`, `completed`, `skipped`, `deferred`, or `rejected`), prompt/goal link, SSOT owner, target files or docs, and witness.
-- Before work is marked `ready-to-clear`, `current-work.md` must show implementation records, stale/rejected prompt and plan reconciliation, SSOT/truth-layer witnesses using the `AGENTS.md` terms Runtime truth, Semantic truth, and Recorded truth, review confirmation that fulfills the recorded prompt and work-item goal, a changelog witness for authority-changing work, and commit/push closure handoff (`committed:<sha>`, `pushed:<remote/ref>`, `PR:<url>`, or `not-required + reason:<reason>`). The changelog witness must resolve to the current-work ID unless it is explicitly `not-required + reason:<reason>`, and the tracked artifact witness must match the actual git status when the target is a git repo.
+- Before work is marked `ready-to-clear`, `current-work.md` must show implementation records, stale/rejected prompt and plan reconciliation, SSOT/truth-layer witnesses using the `AGENTS.md` terms Runtime truth, Semantic truth, and Recorded truth, review confirmation that fulfills the recorded prompt and work-item goal, a changelog witness for authority-changing work, and commit/push closure handoff (`pushed:<remote/ref>`, `PR:<url>`, or `not-required + reason:<reason>`). `committed:<sha>` may be recorded while work remains active, but it is not sufficient for `ready-to-clear`. The changelog witness must resolve to the current-work ID unless it is explicitly `not-required + reason:<reason>`, and the tracked artifact witness must match the actual git status when the target is a git repo.
 - When no work is active, `current-work.md` must use the canonical no-active-work state and must not retain active prompt, goal, plan, implementation, closure, or review-fulfillment residue. Completion folds durable outcomes into owner docs or change records as needed, then resets `current-work.md`; completed task logs do not remain there.
 
 Triggered leaves:
@@ -80,7 +80,7 @@ Decision tree:
 1. Ask: "What prior truth must affect this change?"
 2. Classify it:
    - binding goal, accepted intent, objective, acceptance criteria, non-goal, or verification intent -> `goal/goal.md`
-   - exact active-work prompt witness, prompt-safety decision, derived work-item goal statement, source-derived plan, live status, blocker, checkpoint, handoff, implementation record, stale/rejected prompt or plan reconciliation, truth-layer witness, review confirmation, closure handoff, next safe action, or no-active-work state -> `goal/current-work.md`
+   - active-work record field or lifecycle item declared in the mandatory goal-branch leaves above -> `goal/current-work.md`
    - standing project rule -> `rules/rules.md`
    - architecture/rationale/mechanism -> `architecture/architecture.md`
    - protected observable behavior -> `architecture/protected-behavior.md`

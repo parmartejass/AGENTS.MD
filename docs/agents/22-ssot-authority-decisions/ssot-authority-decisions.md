@@ -165,7 +165,7 @@ Each active decision record must include:
   - Scaffold shape: `docs/agents/playbooks/project-docs-template/project-docs-template.md`
 - Allowed non-owner locations:
   - `docs/project/goal/goal.md` owns durable project intent, objective, acceptance criteria, non-goals, and verification intent.
-  - `docs/project/goal/current-work.md` is mandatory and owns the active-work authority record: live work status, bounded exact-prompt witness, prompt-safety decision, derived work-item goal statement, source-derived plan, handoff/checkpoint state, blockers, implementation records, stale/rejected prompt and plan reconciliation, truth-layer witnesses, review confirmation, closure handoff, next safe action, and no-active-work reset state.
+  - `docs/project/goal/current-work.md` is mandatory and owns the active-work authority record and no-active-work reset state declared by `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`.
   - Template/example project-doc instances may show the same shape under their own example project roots, but they do not define policy.
 - Forbidden duplicates:
   - Do not let `current-work.md` restate or redefine durable project intent, objective, acceptance criteria, or non-goals owned by `goal.md`.

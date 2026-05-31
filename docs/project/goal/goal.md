@@ -17,7 +17,7 @@ update_trigger: repo objective, structure, or required checks change
 
 ## Durable intent
 - Implement docs-first truth through declared owners: reusable governance policy lives in `AGENTS.md` and `docs/agents/`, while repo-local project authority records live under `docs/project/`.
-- Keep durable project intent in this file; `docs/project/goal/current-work.md` is mandatory and owns the active-work authority record, including prompt, prompt safety, derived work-item goal, source-derived plan, implementation records, reconciliation, review, truth-layer witnesses, closure handoff, and next safe action.
+- Keep durable project intent in this file; `docs/project/goal/current-work.md` owns the active-work authority record declared by `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`.
 
 ## Non-goals
 - This repo does not define domain business logic; templates are reference implementations only.

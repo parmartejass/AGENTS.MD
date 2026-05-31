@@ -46,6 +46,39 @@ COMMIT_STATE_PATTERN = re.compile(
 )
 ACTIVE_STATUSES = {"active", "paused", "blocked", "ready-to-clear"}
 ALLOWED_STATUSES = ACTIVE_STATUSES | {"no-active-work"}
+CURRENT_WORK_HEADINGS = (
+    "User Prompt",
+    "Prompt Safety",
+    "Goal Statement",
+    "Status",
+    "Goal Alignment",
+    "Blockers",
+    "Boundaries",
+    "Derived Plan",
+    "Implementation Records",
+    "Reconciliation",
+    "Supersession",
+    "SSOT Layers",
+    "Review Confirmation",
+    "Closure Handoff",
+    "Next safe action",
+    "Clear Rule",
+)
+NO_ACTIVE_RESET_REQUIRED_HEADINGS = (
+    "User Prompt",
+    "Prompt Safety",
+    "Goal Statement",
+    "Derived Plan",
+    "Implementation Records",
+    "Reconciliation",
+    "SSOT Layers",
+    "Review Confirmation",
+    "Closure Handoff",
+)
+NO_ACTIVE_RESIDUE_PATTERN = re.compile(
+    r"\b(CW-[0-9]{8}-[0-9]{3}|CH-[0-9]{8}-[0-9]{3}|DP-[0-9]{8}-[0-9]{3}|"
+    r"reviewed-safe|redacted-substitute|uncommitted|committed:|pushed:|PR:https?://)"
+)
 
 
 def validate_current_work_doc(repo_root: Path) -> List[str]:
@@ -75,8 +108,21 @@ def validate_current_work_doc(repo_root: Path) -> List[str]:
 
 
 def _work_item_id(text: str) -> str:
-    match = re.search(r"Work item ID:\s*`?(CW-[0-9]{8}-[0-9]{3})`?", text)
+    values = _metadata_field_values(text, "Work item ID")
+    match = re.search(r"`?(CW-[0-9]{8}-[0-9]{3})`?", values[0]) if values else None
     return match.group(1) if match else ""
+
+
+def _metadata_block(text: str) -> str:
+    return re.split(r"^##\s+", text, maxsplit=1, flags=re.MULTILINE)[0]
+
+
+def _metadata_field_values(text: str, field: str) -> list[str]:
+    metadata = _metadata_block(text)
+    return [
+        match.group(1).strip()
+        for match in re.finditer(rf"^{re.escape(field)}:\s*`?([^`\n]+)`?\s*$", metadata, flags=re.MULTILINE)
+    ]
 
 
 def _validate_current_work_shape(errors: List[str], rel: str, text: str) -> None:
@@ -106,14 +152,15 @@ def _validate_current_work_shape(errors: List[str], rel: str, text: str) -> None
             "## Clear Rule",
         ],
     )
-    if not re.search(r"Work item ID:\s*`?(CW-[0-9]{8}-[0-9]{3})`?", text):
+    if not _work_item_id(text):
         errors.append(f"{rel} must contain a CW-YYYYMMDD-NNN Work item ID.")
-    if not re.search(r"Last updated:\s*`?[0-9]{4}-[0-9]{2}-[0-9]{2}`?", text):
+    last_updated_values = _metadata_field_values(text, "Last updated")
+    if not last_updated_values or not re.match(r"[0-9]{4}-[0-9]{2}-[0-9]{2}$", last_updated_values[0]):
         errors.append(f"{rel} must contain a Last updated value in YYYY-MM-DD format.")
 
 
 def _validate_status(errors: List[str], rel: str, text: str) -> str:
-    status_values = re.findall(r"^Status:\s*`?([^`\n]+)`?\s*$", text, flags=re.MULTILINE)
+    status_values = _metadata_field_values(text, "Status")
     status = ""
     if status_values:
         if len(status_values) > 1:
@@ -128,26 +175,16 @@ def _validate_status(errors: List[str], rel: str, text: str) -> str:
 
 
 def _current_work_sections(text: str) -> dict[str, str]:
-    headings = (
-        "User Prompt",
-        "Prompt Safety",
-        "Goal Statement",
-        "Derived Plan",
-        "Implementation Records",
-        "Reconciliation",
-        "SSOT Layers",
-        "Review Confirmation",
-        "Closure Handoff",
-    )
-    return {heading: _section_text(text, heading) for heading in headings}
+    return {heading: _section_text(text, heading) for heading in CURRENT_WORK_HEADINGS}
 
 
 def _validate_no_active_work(errors: List[str], rel: str, sections: dict[str, str]) -> None:
-    for heading, section in sections.items():
+    for heading in NO_ACTIVE_RESET_REQUIRED_HEADINGS:
+        section = sections[heading]
         if "N/A - no active work" not in section:
             errors.append(f"{rel} {heading} section must reset to 'N/A - no active work' when Status is no-active-work.")
     no_active_residue = "\n".join(sections.values())
-    if re.search(r"\b(DP-[0-9]{8}-[0-9]{3}|reviewed-safe|uncommitted|committed:|pushed:|PR:https?://)", no_active_residue):
+    if NO_ACTIVE_RESIDUE_PATTERN.search(no_active_residue):
         errors.append(f"{rel} no-active-work sections must not retain active prompt, plan, review, or closure residue.")
 
 
@@ -241,6 +278,8 @@ def _validate_ready_to_clear(
         errors.append(f"{rel} ready-to-clear Derived Plan cannot contain planned or in_progress items.")
     if commit_state == "uncommitted":
         errors.append(f"{rel} ready-to-clear Closure Handoff cannot remain uncommitted.")
+    if commit_state.startswith("committed:"):
+        errors.append(f"{rel} ready-to-clear Closure Handoff requires pushed/PR evidence or not-required + reason, not committed-only.")
     for field, section_name in {
         "Runtime truth": "SSOT Layers",
         "Semantic truth": "SSOT Layers",

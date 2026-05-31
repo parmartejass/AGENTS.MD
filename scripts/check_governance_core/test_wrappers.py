@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 import shutil
 import sys
@@ -53,29 +54,37 @@ def _write_minimal_runtime_projection_governance(governance_root: Path) -> None:
     shutil.copy2(REPO_ROOT / "scripts/_python_check_runner.ps1", governance_root / "scripts/_python_check_runner.ps1")
     shutil.copy2(REPO_ROOT / "scripts/setup_repo_platform_assets.ps1", governance_root / "scripts/setup_repo_platform_assets.ps1")
     write_text(governance_root / "docs/agents/settings/codex/config.toml", 'model = "test"\n')
-    write_text(
-        governance_root / "docs/agents/platforms/runtime-projections.json",
-        """{
-  "asset_classes": {
-    "skills": [],
-    "mcp": [],
-    "settings": [
-      {
-        "id": "codex-project-config",
-        "platform": "codex",
-        "support_level": "official",
-        "projection_mode": "settings_file_link",
-        "scope": "project",
-        "source_path": "docs/agents/settings/codex/config.toml",
-        "target_path": ".codex/config.toml",
-        "default_enabled": true
-      }
-    ],
-    "acp": []
-  }
-}
-""",
-    )
+    manifest = {
+        "version": 1,
+        "ssot_owner": "docs/agents/platforms/runtime-projections.json",
+        "update_trigger": "test fixture",
+        "support_levels": ["official", "compatibility", "manual", "unsupported", "reserved"],
+        "path_resolution": {
+            "source_root": "governance root",
+            "source_path": "governance root",
+            "source_preference": "governance root",
+            "target_root": "repo root",
+            "target_path": "repo root",
+        },
+        "asset_classes": {
+            "skills": [],
+            "mcp": [],
+            "settings": [
+                {
+                    "id": "codex-project-config",
+                    "platform": "codex",
+                    "support_level": "official",
+                    "projection_mode": "settings_file_link",
+                    "scope": "project",
+                    "source_path": "docs/agents/settings/codex/config.toml",
+                    "target_path": ".codex/config.toml",
+                    "default_enabled": True,
+                }
+            ],
+            "acp": [],
+        },
+    }
+    write_text(governance_root / "docs/agents/platforms/runtime-projections.json", json.dumps(manifest, indent=2) + "\n")
     shutil.copy2(REPO_ROOT / "docs/agents/link_repo_assets.ps1", governance_root / "docs/agents/link_repo_assets.ps1")
 
 

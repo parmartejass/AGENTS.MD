@@ -263,6 +263,7 @@ This repo:
   - If `python3`/`python` do not resolve to Python 3.11+, pass `-PythonExe <path>` for TOML settings validation.
   - Default path witness: `.cursor/rules/` is not created and no repo-owned subagent runtime projection is attempted.
   - If setup stops on a conflicting non-link runtime file such as `.mcp.json`, rename or remove that path and rerun.
+  - If setup stops on a plain directory-link stub that points to the canonical source, rerun with `-Force -RepairPlainDirectoryStubs`.
   - Include compatibility-only projections when explicitly needed: `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/setup_repo_platform_assets.ps1 -Force -IncludeCompatibility`
 - Docs SSOT header checks (all `docs/` except index pages): `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_docs_ssot.ps1`
   - PowerShell wrapper for the Python docs SSOT/router validator.
