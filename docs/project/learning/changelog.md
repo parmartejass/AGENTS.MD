@@ -19,10 +19,10 @@ update_trigger: durable project authority records are added, superseded, or reti
 - Consequences/tradeoffs: No separate `plan.md` or `.cursor/plans` authority was created, reducing path churn and duplicate ownership. Exact prompt equality remains a manual or harness witness when no expected prompt artifact/hash is supplied, but `current-work.md` must now record that witness explicitly.
 - Validation: README Checks passed with `/opt/homebrew/bin/python3.12` and setup `-PythonExe /opt/homebrew/bin/python3.12`: platform asset setup smoke, project docs, docs SSOT, agents manifest, docs router contract, governance core strict mode, governance-core unit discovery, folder architecture, folder architecture unit tests, change records, Python safety strict mode, template logging contract, and `git diff --check`.
 - Evidence/version: `docs/project/goal/current-work.md` work item `CW-20260531-004`
-- Commit/push state: uncommitted
+- Commit/push state: pushed:origin/codex/docs-first-authority
 - Supersedes: `CH-20260531-001`, `CH-20260531-002`
 - Superseded by: N/A
-- Follow-up required: Before clearing `CW-20260531-004`, review tracked/untracked artifacts, commit/push or record no-push closure, then reset `docs/project/goal/current-work.md` to `Status: no-active-work`.
+- Follow-up required: None for `CW-20260531-004`; active work was cleared after the implementation commit was pushed.
 
 ### CH-20260531-002 - Prompt-first current-work gate before planning and review
 - Date: 2026-05-31
