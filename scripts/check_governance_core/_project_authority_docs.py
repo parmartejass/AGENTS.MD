@@ -1,8 +1,9 @@
 from __future__ import annotations
 import re
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import List
 try:
+    from ._current_work_authority import validate_current_work_doc
     from ._docs_routes import extract_route_targets
     from ._entrypoint_contracts import (
         docs_contract_from_payload,
@@ -11,7 +12,12 @@ try:
         resolve_primary_leaf_filename,
         validate_registry_paths,
     )
+    from ._project_authority_records import (
+        _validate_contains_fields,
+        _validate_record_shape,
+    )
 except ImportError:  # pragma: no cover - script-path execution
+    from _current_work_authority import validate_current_work_doc
     from _docs_routes import extract_route_targets
     from _entrypoint_contracts import (
         docs_contract_from_payload,
@@ -20,145 +26,13 @@ except ImportError:  # pragma: no cover - script-path execution
         resolve_primary_leaf_filename,
         validate_registry_paths,
     )
-def _record_blocks(text: str, prefix: str) -> List[str]:
-    heading_pattern = re.compile(rf"^###\s+({re.escape(prefix)}-[0-9]{{8}}-[0-9]{{3}})\b.*$", re.MULTILINE)
-    matches = list(heading_pattern.finditer(text))
-    blocks: List[str] = []
-    for index, match in enumerate(matches):
-        start = match.start()
-        end = matches[index + 1].start() if index + 1 < len(matches) else len(text)
-        blocks.append(text[start:end])
-    return blocks
-def _malformed_record_headings(text: str, prefix: str) -> List[str]:
-    valid_heading = re.compile(rf"^###\s+{re.escape(prefix)}-[0-9]{{8}}-[0-9]{{3}}\b.*$", re.MULTILINE)
-    malformed: List[str] = []
-    record_like_heading = re.compile(
-        rf"^###\s+{re.escape(prefix)}(?:[-_][^\n]*|\b[^\n]*)$",
-        flags=re.IGNORECASE | re.MULTILINE,
+    from _project_authority_records import (
+        _validate_contains_fields,
+        _validate_record_shape,
     )
-    for match in record_like_heading.finditer(text):
-        line = match.group(0).strip()
-        if not valid_heading.match(line):
-            malformed.append(line)
-    return malformed
-def _validate_contains_fields(errors: List[str], rel_path: str, text: str, fields: List[str]) -> None:
-    for field in fields:
-        if field not in text:
-            errors.append(f"{rel_path} must contain required field/section: {field}")
-def _field_value(block: str, field: str) -> str | None:
-    match = re.search(rf"^- {re.escape(field)}:[^\S\r\n]*(.*)[^\S\r\n]*$", block, flags=re.MULTILINE)
-    if match is None:
-        return None
-    return match.group(1).strip().strip("`").strip()
-def _field_values(block: str, field: str) -> List[str]:
-    return [
-        match.group(1).strip().strip("`").strip()
-        for match in re.finditer(rf"^- {re.escape(field)}:[^\S\r\n]*(.*)[^\S\r\n]*$", block, flags=re.MULTILINE)
-    ]
-def _is_placeholder_value(value: str) -> bool:
-    normalized = value.strip().lower()
-    return (
-        not normalized
-        or normalized in {"todo", "tbd", "fixme", "pending", "..."}
-        or (normalized.startswith("<") and normalized.endswith(">"))
-    )
-def _normalized_record_key(block: str, fields: List[str]) -> Tuple[str, ...]:
-    values: List[str] = []
-    for field in fields:
-        value = _field_value(block, field) or ""
-        values.append(re.sub(r"\s+", " ", value).strip().lower())
-    return tuple(values)
-def _validate_record_shape(
-    errors: List[str],
-    rel_path: str,
-    text: str,
-    *,
-    prefix: str,
-    required_fields: List[str],
-    allowed_statuses: set[str],
-    allow_empty: bool = False,
-    empty_marker: str | None = None,
-    duplicate_key_fields: List[str] | None = None,
-    allowed_field_values: Dict[str, set[str]] | None = None,
-) -> None:
-    for heading in _malformed_record_headings(text, prefix):
-        errors.append(f"{rel_path} contains malformed {prefix} record heading: {heading}")
-    blocks = _record_blocks(text, prefix)
-    if not blocks:
-        if allow_empty and (empty_marker is None or empty_marker in text):
-            return
-        errors.append(f"{rel_path} must contain at least one {prefix}-YYYYMMDD-NNN record.")
-        return
-    seen_ids = set()
-    seen_structural_keys: Dict[Tuple[str, ...], str] = {}
-    for block in blocks:
-        id_match = re.match(rf"^###\s+({re.escape(prefix)}-[0-9]{{8}}-[0-9]{{3}})\b", block)
-        if not id_match:
-            errors.append(f"{rel_path} contains malformed {prefix} record heading.")
-            continue
-        record_id = id_match.group(1)
-        if record_id in seen_ids:
-            errors.append(f"{rel_path} contains duplicate record id: {record_id}")
-        seen_ids.add(record_id)
-        for field in required_fields:
-            values = _field_values(block, field)
-            if not values:
-                errors.append(f"{rel_path} record {record_id} missing required field: {field}")
-                continue
-            if len(values) > 1:
-                errors.append(f"{rel_path} record {record_id} contains duplicate field: {field}")
-            for value in values:
-                if _is_placeholder_value(value) and value.upper() != "N/A":
-                    errors.append(f"{rel_path} record {record_id} has blank or placeholder value for field: {field}")
-        status_values = _field_values(block, "Status")
-        if not status_values:
-            if "Status" not in required_fields:
-                errors.append(f"{rel_path} record {record_id} missing required field: Status")
-        else:
-            for status in status_values:
-                if status not in allowed_statuses:
-                    errors.append(f"{rel_path} record {record_id} has invalid status: {status}")
-        if duplicate_key_fields:
-            key = _normalized_record_key(block, duplicate_key_fields)
-            if all(key):
-                previous_id = seen_structural_keys.get(key)
-                if previous_id is not None:
-                    errors.append(
-                        f"{rel_path} records {previous_id} and {record_id} duplicate structural authority key: "
-                        f"{', '.join(duplicate_key_fields)}"
-                    )
-                else:
-                    seen_structural_keys[key] = record_id
-        if allowed_field_values:
-            for field, allowed_values in allowed_field_values.items():
-                for value in _field_values(block, field):
-                    if value not in allowed_values:
-                        errors.append(f"{rel_path} record {record_id} has invalid {field}: {value}")
 def _validate_project_authority_memory_docs(repo_root: Path) -> List[str]:
     errors: List[str] = []
-    current_work = repo_root / "docs/project/goal/current-work.md"
-    if current_work.is_file():
-        rel = current_work.relative_to(repo_root).as_posix()
-        text = current_work.read_text(encoding="utf-8")
-        _validate_contains_fields(
-            errors,
-            rel,
-            text,
-            ["Status:", "Work item ID:", "Last updated:", "## Next safe action", "## Clear Rule"],
-        )
-        id_match = re.search(r"Work item ID:\s*`?(CW-[0-9]{8}-[0-9]{3})`?", text)
-        if not id_match:
-            errors.append(f"{rel} must contain a CW-YYYYMMDD-NNN Work item ID.")
-        status_values = re.findall(r"^Status:\s*`?([^`\n]+)`?\s*$", text, flags=re.MULTILINE)
-        if status_values:
-            if len(status_values) > 1:
-                errors.append(f"{rel} contains duplicate Status fields.")
-            for status_value in status_values:
-                status = status_value.strip()
-                if status not in {"active", "paused", "blocked", "ready-to-clear"}:
-                    errors.append(f"{rel} has invalid Status: {status}")
-        else:
-            errors.append(f"{rel} must contain a Status value.")
+    errors.extend(validate_current_work_doc(repo_root))
     data_truth = repo_root / "docs/project/data-truth/data-truth.md"
     if data_truth.is_file():
         rel = data_truth.relative_to(repo_root).as_posix()
@@ -250,10 +124,12 @@ def _validate_project_authority_memory_docs(repo_root: Path) -> List[str]:
                 "Status",
                 "Change type",
                 "Changed owners/files",
+                "Current work",
                 "Context",
                 "Decision/change",
                 "Validation",
                 "Evidence/version",
+                "Commit/push state",
                 "Superseded by",
                 "Follow-up required",
             ],
@@ -263,11 +139,27 @@ def _validate_project_authority_memory_docs(repo_root: Path) -> List[str]:
     return errors
 def _validate_project_optional_leaf_routes(repo_root: Path) -> List[str]:
     errors: List[str] = []
-    optional_routes = {
+    required_routes = {
         "docs/project/goal/current-work.md": "docs/project/goal/goal_index.md",
+    }
+    optional_routes = {
         "docs/project/architecture/protected-behavior.md": "docs/project/architecture/architecture_index.md",
         "docs/project/learning/changelog.md": "docs/project/learning/learning_index.md",
     }
+    for leaf_rel, router_rel in required_routes.items():
+        leaf = repo_root / leaf_rel
+        router = repo_root / router_rel
+        if not router.is_file():
+            errors.append(f"Missing required file: {router_rel}")
+            continue
+        route_targets, route_errors = extract_route_targets(router.read_text(encoding="utf-8"))
+        for issue in route_errors:
+            errors.append(f"{router_rel}: {issue}")
+        if Path(leaf_rel).name not in route_targets:
+            errors.append(f"{router_rel} must reference required {Path(leaf_rel).name}")
+        for target in route_targets:
+            if target.lower().endswith(".md") and not (router.parent / target).is_file():
+                errors.append(f"{router_rel} references missing local route target: {target}")
     for leaf_rel, router_rel in optional_routes.items():
         leaf = repo_root / leaf_rel
         router = repo_root / router_rel
@@ -305,6 +197,7 @@ def check_project_docs(repo_root: Path, governance_rel_path: str, governance_roo
         "docs/project/project_index.md",
         "docs/project/goal/goal_index.md",
         "docs/project/goal/goal.md",
+        "docs/project/goal/current-work.md",
         "docs/project/rules/rules_index.md",
         "docs/project/rules/rules.md",
         "docs/project/architecture/architecture_index.md",

@@ -17,7 +17,7 @@ Goal: create a minimal docs set that captures declared project authority without
 These outputs are the project-doc scaffold owned by this playbook. `AGENTS.md` owns the governing documentation hard gate, and `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md` owns the placement and router policy.
 
 - `docs/project/project_index.md` (router only; no header required)
-- `docs/project/goal/goal_index.md` and `docs/project/goal/goal.md`
+- `docs/project/goal/goal_index.md`, `docs/project/goal/goal.md`, and `docs/project/goal/current-work.md`
 - `docs/project/rules/rules_index.md` and `docs/project/rules/rules.md`
 - `docs/project/architecture/architecture_index.md` and `docs/project/architecture/architecture.md`
 - `docs/project/data-truth/data-truth_index.md` and `docs/project/data-truth/data-truth.md`
@@ -32,14 +32,16 @@ Required references:
 Use the placement and promotion policy in `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`. This playbook owns scaffold shape and copy/paste templates only.
 
 Scaffold placement:
-- `docs/project/goal/current-work.md`: active intent, current status, next checkpoint, supersession pointer.
+- `docs/project/goal/goal.md`: durable project intent, objective, acceptance criteria, non-goals, and verification intent.
+- `docs/project/goal/current-work.md`: active-work authority record and no-active-work reset state; field ownership and lifecycle are declared in `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`.
 - `docs/project/architecture/protected-behavior.md`: protected behavior invariant, current mechanism owner, accepted tradeoff, replacement/change rule, deterministic witness.
 - `docs/project/data-truth/data-truth.md`: data-truth owner, source format/provenance, validation witness, consumers, and change rule.
 - `docs/project/learning/changelog.md`: concise promoted change/supersession history; evidence pointers only, not all reasoning.
 - `docs/project/change-records/*.json`: structured verification artifacts when artifact-based verification is enabled.
 
-Triggered-leaf router rule:
-- Include a triggered leaf route only when creating or keeping that leaf.
+Router rule:
+- `docs/project/goal/goal_index.md` must route both `goal.md` and `current-work.md`.
+- Include triggered leaf routes only for optional leaves when creating or keeping that leaf.
 - Router files remain title plus route bullets only; do not add subsection headings to router files.
 
 Promotion test:
@@ -70,7 +72,7 @@ Ensure `README.md` contains (at minimum):
 ```md
 # Project Docs
 
-- [docs/project/goal/goal_index.md](goal/goal_index.md) - Project objective, acceptance criteria, and current work status. Required when: confirming project scope or resuming active work.
+- [docs/project/goal/goal_index.md](goal/goal_index.md) - Project durable intent, acceptance criteria, and mandatory current-work status. Required when: confirming project scope or resuming active work.
 - [docs/project/rules/rules_index.md](rules/rules_index.md) - Project-specific rules that supplement `AGENTS.md`. Required when: checking project-local do/don't rules.
 - [docs/project/architecture/architecture_index.md](architecture/architecture_index.md) - Architecture, SSOT pointers, and protected behavior records. Required when: locating owners, entrypoints, protected invariants, or authority relationships.
 - [docs/project/data-truth/data-truth_index.md](data-truth/data-truth_index.md) - Data-truth ownership, provenance, validation, and routing. Required when: locating declared data/config/constant/default/sample/workbook/external-system truth owners.
@@ -81,12 +83,8 @@ Ensure `README.md` contains (at minimum):
 ```md
 # Goal Branch Index
 
-- [goal.md](goal.md) - Canonical project objective and acceptance criteria. Required when: confirming the repo's purpose, scope, or verification target.
-```
-
-When creating `docs/project/goal/current-work.md`, add this router bullet:
-```md
-- [current-work.md](current-work.md) - Active intent and current status. Required when: the file exists because in-flight work or prior status constrains the next change.
+- [goal.md](goal.md) - Durable project intent, objective, acceptance criteria, non-goals, and verification intent. Required when: confirming the repo's purpose, scope, or verification target.
+- [current-work.md](current-work.md) - Mandatory live work status and handoff state. Required when: starting, resuming, or clearing active work.
 ```
 
 ### `docs/project/goal/goal.md`
@@ -105,6 +103,9 @@ update_trigger: requirements/acceptance criteria change OR workflow behavior cha
 ## Acceptance criteria
 - <objectively verifiable criteria>
 
+## Durable intent
+- <accepted project intent that should guide future work, or "No additional durable intent declared beyond the objective and acceptance criteria.">
+
 ## Non-goals
 - <explicitly out of scope>
 
@@ -113,23 +114,39 @@ update_trigger: requirements/acceptance criteria change OR workflow behavior cha
 - If no tests: <deterministic manual check steps>
 ```
 
-### `docs/project/goal/current-work.md` (optional)
+### `docs/project/goal/current-work.md`
 ```md
 ---
 doc_type: runbook
 ssot_owner: docs/project/goal/current-work.md
-update_trigger: active user intent, status, checkpoint, or supersession changes
+update_trigger: live work status, handoff checkpoint, blockers, next safe action, or reset state changes
 ---
 
-# Current Work
+# Current Work Authority
 
-Status: active|paused|blocked|ready-to-clear
+Status: no-active-work|active|paused|blocked|ready-to-clear
 Work item ID: CW-YYYYMMDD-NNN
 Last updated: YYYY-MM-DD
 Owner/context: <agent/user/process, if relevant>
 
-## Active intent
-- <one durable current goal, or "None">
+## User Prompt
+```text
+N/A - no active work
+```
+
+For active work, replace the `N/A` text with the exact user prompt only after checking that it contains no secrets, credentials, PII, customer data, or oversized pasted artifacts. If unsafe, stop and request a redacted prompt or safe substitute before writing tracked docs.
+
+## Prompt Safety
+- Storage decision: N/A - no active work
+- Evidence: N/A - no active work
+- Prompt equality witness: N/A - no active work
+
+For active work, use `reviewed-safe` or `redacted-substitute` for Storage decision. Keep the prompt section at or below 4000 characters and record how prompt equality was confirmed.
+
+## Goal Statement
+- N/A - no active work
+
+For active work, replace this with the derived work-item goal statement from the exact prompt. This statement is scoped to the work item and must not redefine durable project intent owned by `docs/project/goal/goal.md`.
 
 ## Status
 - Last verified:
@@ -138,18 +155,58 @@ Owner/context: <agent/user/process, if relevant>
 - Current state:
 - Next checkpoint:
 
+## Goal Alignment
+- Durable intent owner: `docs/project/goal/goal.md`
+- This file must not redefine project objective, acceptance criteria, non-goals, or durable intent.
+
+## Blockers
+- <blocking condition or "None">
+
 ## Boundaries
 - <protected scope boundaries that affect the next change>
+
+## Derived Plan
+- N/A - no active work
+
+For active work, each item must use this shape:
+- DP-YYYYMMDD-NNN `[planned|in_progress|completed|skipped|deferred|rejected]`: <source-derived action>; prompt/goal link: <prompt or work-item goal>; SSOT owner: <owner path>; target files/docs: <paths or N/A + reason>; witness: <command, doc record, review, or N/A + reason>.
+
+## Implementation Records
+- Owner docs updated: N/A - no active work
+- Changelog witness: N/A - no active work
+- Change records: N/A - no active work
+
+## Reconciliation
+- Stale/rejected prompts: N/A - no active work
+- Stale/rejected plans: N/A - no active work
+- Unused artifacts: N/A - no active work
 
 ## Supersession
 - Superseded by:
 - Clear when:
 
+## SSOT Layers
+- Runtime truth: N/A - no active work
+- Semantic truth: N/A - no active work
+- Recorded truth: N/A - no active work
+
+## Review Confirmation
+- Pre-change review: N/A - no active work
+- Post-change review: N/A - no active work
+- Fulfillment: N/A - no active work
+
+## Closure Handoff
+- Changelog witness: N/A - no active work
+- Commit/push state: N/A - no active work
+- Tracked artifact witness: N/A - no active work
+
+For active work, Commit/push state is one of `uncommitted`, `committed:<sha>`, `pushed:<remote/ref>`, `PR:<url>`, or `not-required + reason:<reason>`. `ready-to-clear` requires `pushed:<remote/ref>`, `PR:<url>`, or `not-required + reason:<reason>`.
+
 ## Next safe action
 - <next action a future agent can safely take>
 
 ## Clear Rule
-- When this work is complete, fold durable outcomes into owner docs, add changelog entries if authority changed, then remove or reset this file. Do not preserve completed task logs here.
+- Work may be marked `ready-to-clear` only after the Derived Plan, Implementation Records, Reconciliation, SSOT Layers, Review Confirmation, and Closure Handoff sections show evidence that the recorded prompt and work-item goal were fulfilled. Then fold durable outcomes into owner docs, add changelog entries if authority changed, record commit/push or no-push closure, and reset this file to `Status: no-active-work`. Do not delete this file or preserve completed task logs here.
 ```
 
 ### `docs/project/rules/rules_index.md`
@@ -358,11 +415,13 @@ update_trigger: durable project authority records are added, superseded, or reti
 - Status: proposed|accepted|corrected|deprecated|superseded|rolled-back
 - Change type: goal|rule|architecture|data-truth|protected-behavior|source-owner|current-work|governance-policy|other
 - Changed owners/files:
+- Current work:
 - Context:
 - Decision/change:
 - Consequences/tradeoffs:
 - Validation:
 - Evidence/version:
+- Commit/push state:
 - Supersedes:
 - Superseded by:
 - Follow-up required:
@@ -370,6 +429,7 @@ update_trigger: durable project authority records are added, superseded, or reti
 
 ## Final linkage checklist
 - `docs/project/project_index.md` exists and links to the project branches.
+- `docs/project/goal/current-work.md` exists and is linked from `docs/project/goal/goal_index.md`.
 - Each migrated project-doc branch has both a router `<authority>_index.md` and a canonical primary narrative leaf doc.
 - README links to `docs/project/project_index.md`.
 - Each non-router doc under `docs/` has the required header (`doc_type`, `ssot_owner`, `update_trigger`).

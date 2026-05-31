@@ -15,13 +15,13 @@ This repository maintains a reusable, repo-agnostic governance pack for autonomo
 2. `agents-manifest.yaml` (context injection and profile routing)
 3. `docs/agents/agents_index.md` (supporting branch map and when-to-read guidance)
 4. Task-specific supporting docs/playbooks under `docs/agents/`
-5. Project docs entrypoint: `docs/project/project_index.md` (goal, rules, architecture/protected behavior, data-truth, learning)
+5. Project docs entrypoint: `docs/project/project_index.md` (goal/current-work, rules, architecture/protected behavior, data-truth, learning)
 
 When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` and `.governance/agents-manifest.yaml`.
 
 ## Project docs (this repo)
 
-- Entry point: `docs/project/project_index.md` (goal, rules, architecture/protected behavior, data-truth, learning)
+- Entry point: `docs/project/project_index.md` (goal/current-work, rules, architecture/protected behavior, data-truth, learning)
 - Project docs provide bounded authority memory only for durable truths that change future allowed behavior; they are not transcript/session memory.
 - Facts are owned by declared SSOT owners, not by file type; project docs may own data/config/constant/default facts when explicitly declared and validated.
 
@@ -103,6 +103,8 @@ When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` an
 |     |  |- data-truth.md
 |     |- goal/
 |     |  |- goal_index.md
+|     |  |- goal.md
+|     |  |- current-work.md
 |     |- learning/
 |     |  |- learning_index.md
 |     |- rules/
@@ -127,7 +129,7 @@ When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` an
 |  |     |- runner/workflows.py
 ```
 
-Triggered leaves such as `current-work.md`, `changelog.md`, and `protected-behavior.md` are added only when active/current authority records require them.
+`docs/project/goal/current-work.md` is always present as the active-work authority owner for prompt, work-item goal, source-derived plan, implementation records, reconciliation, review, and closure handoff. Triggered leaves such as `changelog.md` and `protected-behavior.md` are added only when their authority records require them.
 
 ## Use in other repos (submodule)
 
@@ -253,13 +255,15 @@ Note: If `.governance/` folder is empty, run `git submodule update --init`.
 ## Checks
 
 Python checks require Python 3.11+.
-Python-backed PowerShell wrappers (`check_docs_ssot.ps1`, `check_project_docs.ps1`, `check_change_records.ps1`) accept `-PythonExe <path>` when `python3`/`python` do not resolve to Python 3.11+.
-When `-PythonExe` is omitted, wrappers use the resolver declared in `scripts/_python_check_runner.ps1`, print the selected executable, and require a validator success marker before reporting success.
+Python-backed PowerShell wrappers (`setup_repo_platform_assets.ps1`, `check_docs_ssot.ps1`, `check_project_docs.ps1`, `check_change_records.ps1`) accept `-PythonExe <path>` when `python3`/`python` do not resolve to Python 3.11+.
+When `-PythonExe` is omitted, these scripts use the resolver declared in `scripts/_python_check_runner.ps1` and print the selected executable when Python-backed validation runs. Validator wrappers require a validator success marker before reporting success.
 
 This repo:
 - Platform asset bootstrap/repair smoke (writes the repo-owned runtime projections): `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/setup_repo_platform_assets.ps1 -Force`
+  - If `python3`/`python` do not resolve to Python 3.11+, pass `-PythonExe <path>` for TOML settings validation.
   - Default path witness: `.cursor/rules/` is not created and no repo-owned subagent runtime projection is attempted.
   - If setup stops on a conflicting non-link runtime file such as `.mcp.json`, rename or remove that path and rerun.
+  - If setup stops on a plain directory-link stub that points to the canonical source, rerun with `-Force -RepairPlainDirectoryStubs`.
   - Include compatibility-only projections when explicitly needed: `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/setup_repo_platform_assets.ps1 -Force -IncludeCompatibility`
 - Docs SSOT header checks (all `docs/` except index pages): `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_docs_ssot.ps1`
   - PowerShell wrapper for the Python docs SSOT/router validator.

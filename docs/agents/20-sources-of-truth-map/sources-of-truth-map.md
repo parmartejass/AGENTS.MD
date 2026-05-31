@@ -58,7 +58,7 @@ Owner: the workflow entrypoint owns the selected-path record unless the repo dec
 - selected runtime path, backend, library, or execution mode
 - selection must be recorded before execution and referenced by owner path
 - failure after selection produces a terminal outcome; runtime code must not switch to a substitute path
-- Python-backed PowerShell checker interpreter resolution owner: `scripts/_python_check_runner.ps1` (`-PythonExe`, otherwise `python3`, then `python`, Python 3.11+ required, selected path printed before execution)
+- Python-backed PowerShell script interpreter resolution owner: `scripts/_python_check_runner.ps1` (`-PythonExe`, otherwise `python3`, then `python`, Python 3.11+ required, selected path printed before execution). This covers checker wrappers and runtime-projection TOML validation.
 
 ## Module boundaries + contracts
 Owner: exactly one place.
@@ -71,7 +71,8 @@ Owner: `agents-manifest.yaml`
 
 ## Bounded project authority memory
 Owner: the existing `docs/project/` branch authorities, routed from `docs/project/project_index.md`.
-- `docs/project/goal/` owns stable project intent and active current-work status.
+- `docs/project/goal/goal.md` owns durable project intent, objective, acceptance criteria, non-goals, and verification intent.
+- `docs/project/goal/current-work.md` is mandatory and owns the active-work authority record and no-active-work reset state declared by `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`.
 - `docs/project/rules/` owns project-specific protected boundaries.
 - `docs/project/architecture/` owns authority pointers, verified behavior references, implementation rationale, accepted tradeoffs, and protected behavior invariants.
 - `docs/project/data-truth/` owns project data-truth ownership, provenance, validation expectations, and routing to source artifacts, config/default/constant owners, schemas, samples, workbooks, and external systems.

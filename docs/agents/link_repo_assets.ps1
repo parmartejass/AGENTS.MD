@@ -2,6 +2,7 @@
 param(
     [switch]$Force,
     [switch]$IncludeCompatibility,
+    [string]$PythonExe,
     [string]$RepoRoot,
     [string[]]$Include = @("skills", "mcp", "settings", "acp"),
     [switch]$RepairPlainDirectoryStubs
@@ -400,6 +401,7 @@ function Ensure-FileLink {
         [string]$LinkPath,
         [Parameter(Mandatory = $true)]
         [string]$TargetPath,
+        [switch]$UseRelativeTarget,
         [switch]$AllowReplace
     )
 
@@ -429,9 +431,22 @@ function Ensure-FileLink {
             $isRepairablePlainFile = $true
         }
 
-        if ($isExpectedLink) {
+        $usesPreferredLinkTarget = $true
+        if ($isExpectedLink -and $UseRelativeTarget -and (Test-IsLink -Item $existing)) {
+            $expectedTargetText = Get-RelativeLinkTarget -BaseDirectory (Split-Path -Parent $LinkPath) -TargetPath $TargetPath
+            $actualTargetText = [string]$existing.Target
+            if ($actualTargetText -ne $expectedTargetText) {
+                $usesPreferredLinkTarget = $false
+            }
+        }
+
+        if ($isExpectedLink -and $usesPreferredLinkTarget) {
             Write-Output "OK     $LinkPath -> $expectedResolved"
             return
+        }
+
+        if ($isExpectedLink -and (-not $usesPreferredLinkTarget) -and (-not $AllowReplace)) {
+            throw "Existing file link '$LinkPath' points to the canonical source but does not use the preferred relative target. Re-run with -Force to repair the link."
         }
 
         if ($isRepairablePlainFile -and (-not $AllowReplace)) {
@@ -461,8 +476,12 @@ function Ensure-FileLink {
 
     $linkKind = "symbolic-link"
     $symlinkError = $null
+    $linkTarget = $TargetPath
+    if ($UseRelativeTarget) {
+        $linkTarget = Get-RelativeLinkTarget -BaseDirectory $linkParent -TargetPath $TargetPath
+    }
     try {
-        New-Item -ItemType SymbolicLink -Path $LinkPath -Target $TargetPath | Out-Null
+        New-Item -ItemType SymbolicLink -Path $LinkPath -Target $linkTarget | Out-Null
     } catch {
         $symlinkError = $_.Exception.Message
         try {
@@ -790,17 +809,13 @@ function Test-ValidTomlFile {
         [string]$Path
     )
 
-    $pythonCmd = Get-Command python -ErrorAction SilentlyContinue
-    if ($null -eq $pythonCmd) {
-        $pythonCmd = Get-Command python3 -ErrorAction SilentlyContinue
-    }
-    if ($null -eq $pythonCmd) {
-        throw "Python (python or python3) is required to validate TOML settings at '$Path'."
+    if ([string]::IsNullOrWhiteSpace($script:TomlValidatorPythonPath)) {
+        throw "Python 3.11+ is required to validate TOML settings at '$Path'."
     }
 
     $validationScript = "import pathlib, sys, tomllib; tomllib.loads(pathlib.Path(sys.argv[1]).read_text(encoding='utf-8'))"
     $startInfo = New-Object System.Diagnostics.ProcessStartInfo
-    $startInfo.FileName = $pythonCmd.Source
+    $startInfo.FileName = $script:TomlValidatorPythonPath
     $escapedScript = $validationScript.Replace('"', '\"')
     $escapedPath = $Path.Replace('"', '\"')
     $startInfo.Arguments = "-c `"$escapedScript`" `"$escapedPath`""
@@ -924,6 +939,275 @@ function Read-ProjectionManifest {
         return (Get-Content -LiteralPath $ManifestPath -Raw | ConvertFrom-Json)
     } catch {
         throw "Failed to parse runtime projection manifest '$ManifestPath': $($_.Exception.Message)"
+    }
+}
+
+function Test-ObjectProperty {
+    param(
+        [Parameter(Mandatory = $true)]
+        $Object,
+        [Parameter(Mandatory = $true)]
+        [string]$Name
+    )
+
+    return ($null -ne $Object -and $Object.PSObject.Properties.Name -contains $Name)
+}
+
+function Add-ProjectionManifestError {
+    param(
+        [System.Collections.Generic.List[string]]$Errors,
+        [Parameter(Mandatory = $true)]
+        [string]$Message
+    )
+
+    $Errors.Add($Message)
+}
+
+function Assert-NonEmptyStringProperty {
+    param(
+        [System.Collections.Generic.List[string]]$Errors,
+        [Parameter(Mandatory = $true)]
+        $Object,
+        [Parameter(Mandatory = $true)]
+        [string]$PropertyName,
+        [Parameter(Mandatory = $true)]
+        [string]$Location
+    )
+
+    if ((-not (Test-ObjectProperty -Object $Object -Name $PropertyName)) -or [string]::IsNullOrWhiteSpace([string]$Object.$PropertyName)) {
+        Add-ProjectionManifestError -Errors $Errors -Message "runtime-projections.json $Location.$PropertyName must be a non-empty string."
+    }
+}
+
+function Assert-ProjectionManifestContract {
+    param(
+        [Parameter(Mandatory = $true)]
+        $Manifest,
+        [Parameter(Mandatory = $true)]
+        [string]$ManifestPath,
+        [Parameter(Mandatory = $true)]
+        [string[]]$ValidateContentForAssetClasses
+    )
+
+    $errors = [System.Collections.Generic.List[string]]::new()
+    $requiredTopLevelFields = @("version", "ssot_owner", "update_trigger", "support_levels", "path_resolution", "asset_classes")
+    foreach ($field in $requiredTopLevelFields) {
+        if (-not (Test-ObjectProperty -Object $Manifest -Name $field)) {
+            Add-ProjectionManifestError -Errors $errors -Message "Runtime projection manifest missing top-level field '$field': $ManifestPath"
+        }
+    }
+    if ($errors.Count -gt 0) {
+        throw "FAILED_VALIDATION: runtime projection manifest contract invalid.`n - $($errors -join "`n - ")"
+    }
+
+    if ([string]$Manifest.ssot_owner -ne "docs/agents/platforms/runtime-projections.json") {
+        Add-ProjectionManifestError -Errors $errors -Message "Runtime projection manifest ssot_owner must be 'docs/agents/platforms/runtime-projections.json'."
+    }
+
+    $requiredSupportLevels = @("official", "compatibility", "manual", "unsupported", "reserved")
+    $supportLevels = @($Manifest.support_levels)
+    if ($supportLevels.Count -eq 0) {
+        Add-ProjectionManifestError -Errors $errors -Message "runtime-projections.json support_levels must be a non-empty array."
+    } else {
+        $normalizedSupportLevels = @()
+        foreach ($supportLevel in $supportLevels) {
+            if ($supportLevel -isnot [string] -or [string]::IsNullOrWhiteSpace($supportLevel)) {
+                Add-ProjectionManifestError -Errors $errors -Message "runtime-projections.json support_levels must contain only non-empty strings."
+                continue
+            }
+            $normalizedSupportLevels += [string]$supportLevel
+        }
+        foreach ($requiredSupportLevel in $requiredSupportLevels) {
+            if ($normalizedSupportLevels -notcontains $requiredSupportLevel) {
+                Add-ProjectionManifestError -Errors $errors -Message "runtime-projections.json support_levels is missing required value: $requiredSupportLevel"
+            }
+        }
+        if (($normalizedSupportLevels | Select-Object -Unique).Count -ne $normalizedSupportLevels.Count) {
+            Add-ProjectionManifestError -Errors $errors -Message "runtime-projections.json support_levels contains duplicates."
+        }
+    }
+
+    $pathResolution = $Manifest.path_resolution
+    if ($null -eq $pathResolution -or $pathResolution -isnot [pscustomobject]) {
+        Add-ProjectionManifestError -Errors $errors -Message "runtime-projections.json path_resolution must be an object."
+    } else {
+        foreach ($field in @("source_root", "source_path", "source_preference", "target_root", "target_path")) {
+            Assert-NonEmptyStringProperty -Errors $errors -Object $pathResolution -PropertyName $field -Location "path_resolution"
+        }
+    }
+
+    $assetClasses = $Manifest.asset_classes
+    if ($null -eq $assetClasses -or $assetClasses -isnot [pscustomobject]) {
+        Add-ProjectionManifestError -Errors $errors -Message "runtime-projections.json asset_classes must be an object."
+    } else {
+        $allowedScopes = @("project", "user", "system")
+        $allowedModes = @{
+            skills = @("child_directory_links", "generated_cursor_rules_from_skills", "generated_claude_commands_from_skills", "skip")
+            mcp = @("mcp_file_link", "skip")
+            settings = @("settings_file_link", "skip")
+            acp = @("skip")
+        }
+        $seenIds = [System.Collections.Generic.HashSet[string]]::new()
+        foreach ($assetClass in @("skills", "mcp", "settings", "acp")) {
+            if (-not (Test-ObjectProperty -Object $assetClasses -Name $assetClass)) {
+                Add-ProjectionManifestError -Errors $errors -Message "runtime-projections.json asset_classes.$assetClass must be an array."
+                continue
+            }
+
+            $rawEntries = $assetClasses.$assetClass
+            if ($null -ne $rawEntries -and $rawEntries -isnot [array]) {
+                Add-ProjectionManifestError -Errors $errors -Message "runtime-projections.json asset_classes.$assetClass must be an array."
+                continue
+            }
+
+            $entries = @($rawEntries)
+            for ($index = 0; $index -lt $entries.Count; $index++) {
+                $entry = $entries[$index]
+                $entryNumber = $index + 1
+                $entryLocation = "asset_classes.$assetClass[$entryNumber]"
+                if ($null -eq $entry -or $entry -isnot [pscustomobject]) {
+                    Add-ProjectionManifestError -Errors $errors -Message "runtime-projections.json $entryLocation must be an object."
+                    continue
+                }
+
+                $missingFields = @()
+                foreach ($field in @("id", "platform", "support_level", "projection_mode", "scope", "default_enabled")) {
+                    if (-not (Test-ObjectProperty -Object $entry -Name $field)) {
+                        $missingFields += $field
+                    }
+                }
+                if ($missingFields) {
+                    foreach ($field in $missingFields) {
+                        Add-ProjectionManifestError -Errors $errors -Message "runtime-projections.json $entryLocation missing field '$field'."
+                    }
+                    continue
+                }
+
+                $entryId = [string]$entry.id
+                if ([string]::IsNullOrWhiteSpace($entryId)) {
+                    Add-ProjectionManifestError -Errors $errors -Message "runtime-projections.json $entryLocation.id must be a non-empty string."
+                    continue
+                }
+                if (-not $seenIds.Add($entryId)) {
+                    Add-ProjectionManifestError -Errors $errors -Message "runtime-projections.json contains duplicate projection id '$entryId'."
+                }
+
+                foreach ($booleanField in @("default_enabled", "preserve_existing_when_disabled", "preserve_existing_non_link")) {
+                    if ((Test-ObjectProperty -Object $entry -Name $booleanField) -and $entry.$booleanField -isnot [bool]) {
+                        Add-ProjectionManifestError -Errors $errors -Message "runtime-projections.json entry '$entryId' $booleanField must be a boolean."
+                    }
+                }
+
+                $supportLevel = [string]$entry.support_level
+                if ($requiredSupportLevels -notcontains $supportLevel) {
+                    Add-ProjectionManifestError -Errors $errors -Message "runtime-projections.json entry '$entryId' uses unsupported support_level '$supportLevel'."
+                }
+
+                $scope = [string]$entry.scope
+                if ($allowedScopes -notcontains $scope) {
+                    Add-ProjectionManifestError -Errors $errors -Message "runtime-projections.json entry '$entryId' uses unsupported scope '$scope'."
+                }
+
+                $projectionMode = [string]$entry.projection_mode
+                if ($allowedModes[$assetClass] -notcontains $projectionMode) {
+                    Add-ProjectionManifestError -Errors $errors -Message "runtime-projections.json entry '$entryId' uses unsupported projection_mode '$projectionMode' for asset class '$assetClass'."
+                    continue
+                }
+
+                if (@("compatibility", "manual", "unsupported", "reserved") -contains $supportLevel -and $entry.default_enabled) {
+                    Add-ProjectionManifestError -Errors $errors -Message "runtime-projections.json entry '$entryId' must not enable non-official projections by default."
+                }
+
+                switch ($projectionMode) {
+                    "child_directory_links" {
+                        Assert-NonEmptyStringProperty -Errors $errors -Object $entry -PropertyName "source_root" -Location "entry '$entryId'"
+                        Assert-NonEmptyStringProperty -Errors $errors -Object $entry -PropertyName "target_root" -Location "entry '$entryId'"
+                        if (Test-ObjectProperty -Object $entry -Name "source_root") {
+                            $sourceRoot = Resolve-GovernancePath -PathSpec ([string]$entry.source_root)
+                            if (-not (Test-Path -LiteralPath $sourceRoot -PathType Container)) {
+                                Add-ProjectionManifestError -Errors $errors -Message "runtime-projections.json entry '$entryId' source_root does not exist: $sourceRoot"
+                            }
+                        }
+                    }
+                    "generated_cursor_rules_from_skills" {
+                        Assert-NonEmptyStringProperty -Errors $errors -Object $entry -PropertyName "source_root" -Location "entry '$entryId'"
+                        Assert-NonEmptyStringProperty -Errors $errors -Object $entry -PropertyName "target_root" -Location "entry '$entryId'"
+                        if (Test-ObjectProperty -Object $entry -Name "source_root") {
+                            $sourceRoot = Resolve-GovernancePath -PathSpec ([string]$entry.source_root)
+                            if (-not (Test-Path -LiteralPath $sourceRoot -PathType Container)) {
+                                Add-ProjectionManifestError -Errors $errors -Message "runtime-projections.json entry '$entryId' source_root does not exist: $sourceRoot"
+                            }
+                        }
+                    }
+                    "generated_claude_commands_from_skills" {
+                        Assert-NonEmptyStringProperty -Errors $errors -Object $entry -PropertyName "source_root" -Location "entry '$entryId'"
+                        Assert-NonEmptyStringProperty -Errors $errors -Object $entry -PropertyName "target_root" -Location "entry '$entryId'"
+                        if (Test-ObjectProperty -Object $entry -Name "source_root") {
+                            $sourceRoot = Resolve-GovernancePath -PathSpec ([string]$entry.source_root)
+                            if (-not (Test-Path -LiteralPath $sourceRoot -PathType Container)) {
+                                Add-ProjectionManifestError -Errors $errors -Message "runtime-projections.json entry '$entryId' source_root does not exist: $sourceRoot"
+                            }
+                        }
+                    }
+                    "mcp_file_link" {
+                        Assert-NonEmptyStringProperty -Errors $errors -Object $entry -PropertyName "target_path" -Location "entry '$entryId'"
+                        $sourcePreference = @($entry.source_preference)
+                        if ($sourcePreference.Count -eq 0) {
+                            Add-ProjectionManifestError -Errors $errors -Message "runtime-projections.json entry '$entryId' requires non-empty source_preference."
+                            break
+                        }
+                        $preferredSource = $null
+                        foreach ($candidate in $sourcePreference) {
+                            if ($candidate -isnot [string] -or [string]::IsNullOrWhiteSpace($candidate)) {
+                                Add-ProjectionManifestError -Errors $errors -Message "runtime-projections.json entry '$entryId' source_preference must contain only non-empty strings."
+                                continue
+                            }
+                            $candidatePath = Resolve-GovernancePath -PathSpec ([string]$candidate)
+                            if ($null -eq $preferredSource -and (Test-Path -LiteralPath $candidatePath -PathType Leaf)) {
+                                $preferredSource = $candidatePath
+                            }
+                        }
+                        if ($null -eq $preferredSource) {
+                            Add-ProjectionManifestError -Errors $errors -Message "runtime-projections.json entry '$entryId' source_preference does not resolve to an existing file."
+                        } elseif ($ValidateContentForAssetClasses -contains $assetClass) {
+                            try {
+                                Test-ValidMcpConfig -Path $preferredSource
+                            } catch {
+                                Add-ProjectionManifestError -Errors $errors -Message $_.Exception.Message
+                            }
+                        }
+                    }
+                    "settings_file_link" {
+                        Assert-NonEmptyStringProperty -Errors $errors -Object $entry -PropertyName "source_path" -Location "entry '$entryId'"
+                        Assert-NonEmptyStringProperty -Errors $errors -Object $entry -PropertyName "target_path" -Location "entry '$entryId'"
+                        if (Test-ObjectProperty -Object $entry -Name "source_path") {
+                            $sourcePath = Resolve-GovernancePath -PathSpec ([string]$entry.source_path)
+                            if (-not (Test-Path -LiteralPath $sourcePath -PathType Leaf)) {
+                                Add-ProjectionManifestError -Errors $errors -Message "runtime-projections.json entry '$entryId' source_path does not exist: $sourcePath"
+                            } elseif ($ValidateContentForAssetClasses -contains $assetClass) {
+                                $extension = [System.IO.Path]::GetExtension($sourcePath).ToLowerInvariant()
+                                try {
+                                    switch ($extension) {
+                                        ".json" { Test-ValidJsonFile -Path $sourcePath }
+                                        ".toml" { Test-ValidTomlFile -Path $sourcePath }
+                                        default { throw "runtime-projections.json entry '$entryId' uses unsupported settings file extension '$extension'." }
+                                    }
+                                } catch {
+                                    Add-ProjectionManifestError -Errors $errors -Message $_.Exception.Message
+                                }
+                            }
+                        }
+                    }
+                    "skip" {
+                        Assert-NonEmptyStringProperty -Errors $errors -Object $entry -PropertyName "reason" -Location "entry '$entryId'"
+                    }
+                }
+            }
+        }
+    }
+
+    if ($errors.Count -gt 0) {
+        throw "FAILED_VALIDATION: runtime projection manifest contract invalid.`n - $($errors -join "`n - ")"
     }
 }
 
@@ -1258,6 +1542,17 @@ if ($missingGovernanceFiles) {
     throw "Computed governance root '$governanceRoot' from script root '$PSScriptRoot' is invalid. Missing required file(s): $($missingGovernanceFiles -join ', ')."
 }
 
+$pythonCheckRunner = Join-Path $governanceRoot "scripts/_python_check_runner.ps1"
+if (-not (Test-Path -LiteralPath $pythonCheckRunner -PathType Leaf)) {
+    throw "Missing Python resolver script: $pythonCheckRunner"
+}
+. $pythonCheckRunner
+
+$script:TomlValidatorPythonPath = $null
+if (Should-Include -Name "settings") {
+    $script:TomlValidatorPythonPath = Resolve-CheckPythonExecutable -RequestedPython $PythonExe
+}
+
 if (-not [string]::IsNullOrWhiteSpace($RepoRoot)) {
     $resolvedRepoRoot = Get-NormalizedPath -Path $RepoRoot
 } elseif ((Split-Path -Leaf $governanceRoot) -eq ".governance") {
@@ -1269,6 +1564,7 @@ $governanceReferenceRoot = Get-RepoRelativeReferenceRoot -RepoRoot $resolvedRepo
 
 $manifestPath = Join-Path $governanceRoot "docs/agents/platforms/runtime-projections.json"
 $manifest = Read-ProjectionManifest -ManifestPath $manifestPath
+Assert-ProjectionManifestContract -Manifest $manifest -ManifestPath $manifestPath -ValidateContentForAssetClasses $normalizedInclude
 
 if (Should-Include -Name "skills") {
     $allSkillEntries = @($manifest.asset_classes.skills)
@@ -1370,7 +1666,7 @@ if (Should-Include -Name "mcp") {
 
         Test-ValidMcpConfig -Path $sourcePath
         $targetPath = Resolve-TargetPath -PathSpec ([string]$entry.target_path)
-        Ensure-FileLink -LinkPath $targetPath -TargetPath $sourcePath -AllowReplace:$Force
+        Ensure-FileLink -LinkPath $targetPath -TargetPath $sourcePath -UseRelativeTarget -AllowReplace:$Force
     }
 }
 
@@ -1400,7 +1696,7 @@ if (Should-Include -Name "settings") {
         }
 
         $targetPath = Resolve-TargetPath -PathSpec ([string]$entry.target_path)
-        Ensure-FileLink -LinkPath $targetPath -TargetPath $sourcePath -AllowReplace:$Force
+        Ensure-FileLink -LinkPath $targetPath -TargetPath $sourcePath -UseRelativeTarget -AllowReplace:$Force
     }
 }
 

@@ -89,10 +89,12 @@ class ProjectAuthorityMemoryDocTests(unittest.TestCase):
 - Status: `proposed`
 - Change type: `governance-policy`
 - Changed owners/files: `AGENTS.md`
+- Current work: `CW-20260531-999`
 - Context: `N/A`
 - Decision/change: `N/A`
 - Validation: `N/A`
 - Evidence/version: `2026-05-31 fixture`
+- Commit/push state: `not-required + reason:test`
 - Superseded by: `N/A`
 - Follow-up required: `N/A`
 """.lstrip(),
@@ -102,10 +104,12 @@ class ProjectAuthorityMemoryDocTests(unittest.TestCase):
                 "Status",
                 "Change type",
                 "Changed owners/files",
+                "Current work",
                 "Context",
                 "Decision/change",
                 "Validation",
                 "Evidence/version",
+                "Commit/push state",
                 "Superseded by",
                 "Follow-up required",
             ],
@@ -381,5 +385,4 @@ This is an explicit reviewed-empty registry state.
         )
 
         self.assertTrue(any("duplicate structural authority key" in error for error in errors), errors)
-
 

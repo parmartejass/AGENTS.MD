@@ -2,6 +2,8 @@
 param(
     [switch]$Force,
     [switch]$IncludeCompatibility,
+    [switch]$RepairPlainDirectoryStubs,
+    [string]$PythonExe,
     [string]$RepoRoot
 )
 
@@ -18,4 +20,6 @@ if (-not (Test-Path -LiteralPath $linker -PathType Leaf)) {
     -Include @("skills", "mcp", "acp", "settings") `
     -Force:$Force `
     -IncludeCompatibility:$IncludeCompatibility `
+    -RepairPlainDirectoryStubs:$RepairPlainDirectoryStubs `
+    -PythonExe $PythonExe `
     -RepoRoot $RepoRoot

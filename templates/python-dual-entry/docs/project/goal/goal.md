@@ -21,6 +21,11 @@ while **both** call the same orchestration entrypoint: `myapp.runner.runner_main
 - No `print()` in runtime code; logs include start/fail boundaries with context.
 - Cancellation exists in the GUI and is observed by the worker/core loop.
 
+## Durable intent
+
+- Preserve a dependency-minimal reference implementation for agents to copy by pattern after target-repo discovery.
+- Keep template project docs aligned with the governance pack's mandatory active-work authority contract in `current-work.md` without making the example a policy owner.
+
 ## Non-goals
 
 - This template does not prescribe a domain (Excel, PDFs, etc.). Replace `myapp/core/` with your domain logic.
