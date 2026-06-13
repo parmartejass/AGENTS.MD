@@ -379,9 +379,6 @@ profiles:
         - "project docs-first"
         - "bounded project authority memory"
         - "bounded authority memory"
-        - "project current-work"
-        - "project current work"
-        - "docs/project/goal/current-work.md"
         - "project protected behavior"
         - "project protected-behavior"
         - "docs/project/architecture/protected-behavior.md"
@@ -391,8 +388,11 @@ profiles:
         - "docs source artifact"
         - "authority accepted tradeoff"
         - "project authority supersession"
-        - "project changelog"
-        - "docs/project/learning/changelog.md"
+        - "docs modularity"
+        - "documentation modularity"
+        - "docs branching"
+        - "docs router"
+        - "docs routing"
       code_patterns: []
       file_globs:
         - "README.md"
@@ -448,10 +448,11 @@ profiles:
         - "codex session logs"
         - "local codex logs"
         - "session log review"
-        - "session evidence"
+        - "codex session evidence"
         - "session transcript"
         - "review codex sessions"
         - "last 20 days session logs"
+        - "last 24 hours of codex session"
       code_patterns: []
       file_globs: []
     inject:
@@ -466,6 +467,24 @@ profiles:
         - "design review"
         - "module"
         - "modularity"
+        - "code modularity"
+        - "coding modularity"
+        - "coding rules"
+        - "module boundary"
+        - "authority boundary"
+        - "folder architecture"
+        - "folder contract"
+        - "feature folder"
+        - "public entrypoint"
+        - "single public entrypoint"
+        - "entrypoint contract"
+        - "hardcoded enforcement"
+        - "patch-heavy"
+        - "loc reduction"
+        - "structural minimality"
+        - "smallest possible"
+        - "smallest authority-correct"
+        - "orchestration-only"
         - "reusability"
         - "high cohesion"
         - "low coupling"
@@ -477,7 +496,10 @@ profiles:
         - "law of demeter"
         - "dependency inversion"
       code_patterns: []
-      file_globs: []
+      file_globs:
+        - "scripts/check_folder_architecture/**/*.py"
+        - "scripts/check_governance_core/**/*.py"
+        - "templates/python-dual-entry/myapp/**/*.py"
     inject:
       - "docs/agents/35-authority-bounded-modules/authority-bounded-modules.md"
       - "docs/agents/playbooks/design-principles-checklist/design-principles-checklist.md"

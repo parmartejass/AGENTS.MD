@@ -15,19 +15,22 @@ Follow the repo's first principles in `AGENTS.md`:
 
 If any wording here conflicts with `AGENTS.md`, `AGENTS.md` wins.
 
+Project docs entrypoint: `docs/project/project_index.md`.
+
 ## Quickstart
 
-```powershell
+```sh
 cd templates/python-dual-entry
+PYTHON_EXE=${PYTHON_EXE:-python3}
 
 # Run a real-file scenario end-to-end (and verify output matches expected)
-python -m myapp --cli --scenario tests/scenarios/scenario_001_happy_path.json --verify
+$PYTHON_EXE -m myapp --cli --scenario tests/scenarios/scenario_001_happy_path.json --verify
 
 # Run all scenarios via the test harness (no third-party deps)
-python -m unittest -v
+$PYTHON_EXE -m unittest -v
 
 # Optional: write structured lifecycle events to a deterministic JSONL file
-python -m myapp --cli --scenario tests/scenarios/scenario_001_happy_path.json --verify --event-log tests/output/run.events.jsonl
+$PYTHON_EXE -m myapp --cli --scenario tests/scenarios/scenario_001_happy_path.json --verify --event-log tests/output/run.events.jsonl
 ```
 
 If `--event-log` is not provided, events are written to:
@@ -39,6 +42,21 @@ Each run emits:
 - `failure_event` (when applicable)
 - `item_terminal`
 - `run_end`
+
+## Checks
+
+Set `PYTHON_EXE` to a Python 3.11+ executable when `python3` is not suitable on the current machine.
+
+- Template scenarios: `$PYTHON_EXE -m unittest -v`
+- Project docs checks: `pwsh -NoProfile -ExecutionPolicy Bypass -File ../../scripts/check_project_docs.ps1 -RepoRoot . -PythonExe "$PYTHON_EXE"`
+- Template docs SSOT header/router checks: `pwsh -NoProfile -ExecutionPolicy Bypass -File ../../scripts/check_docs_ssot.ps1 -RepoRoot . -GovernanceRoot ../.. -PythonExe "$PYTHON_EXE"`
+- Folder architecture checks: `$PYTHON_EXE ../../scripts/check_folder_architecture/check_folder_architecture_main.py --root .`
+- Python safety checks: `$PYTHON_EXE ../../scripts/check_python_safety/check_python_safety_main.py --root .`
+
+Cwd-specific projections of the repo-root README Checks from this folder:
+- Docs router contract regression test: `$PYTHON_EXE ../../scripts/check_docs_router_contract/check_docs_router_contract_main.py`
+- Agents manifest checks: `pwsh -NoProfile -ExecutionPolicy Bypass -File ../../scripts/check_agents_manifest.ps1 -PythonExe "$PYTHON_EXE"`
+- Repo hygiene checks: `pwsh -NoProfile -ExecutionPolicy Bypass -File ../../scripts/check_repo_hygiene.ps1 -RepoRoot ../.. -PythonExe "$PYTHON_EXE"`
 
 ## Where to look (SSOT)
 

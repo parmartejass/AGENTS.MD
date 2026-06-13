@@ -9,7 +9,7 @@
 - [22-ssot-authority-decisions/ssot-authority-decisions_index.md](22-ssot-authority-decisions/ssot-authority-decisions_index.md) - Cross-project authority decisions (`docs/agents/22-ssot-authority-decisions/ssot-authority-decisions_index.md`). Required when: a mixed-owner or migration decision needs a canonical decision record.
 - [25-docs-ssot-policy/docs-ssot-policy_index.md](25-docs-ssot-policy/docs-ssot-policy_index.md) - Docs structure and drift-prevention policy. Required when: changing docs layout, headers, or doc routing rules.
 - [30-logging-errors/logging-errors_index.md](30-logging-errors/logging-errors_index.md) - Logging and explicit-failure policy. Required when: changing logging, error handling, or skip/failure reporting.
-- [35-authority-bounded-modules/authority-bounded-modules_index.md](35-authority-bounded-modules/authority-bounded-modules_index.md) - Folder-centered module architecture policy. Required when: adding or refactoring feature-folder structure.
+- [35-authority-bounded-modules/authority-bounded-modules_index.md](35-authority-bounded-modules/authority-bounded-modules_index.md) - Delegated runtime-code module-contract policy under the `AGENTS.md` code-modularity gate. Required when: adding or refactoring feature-folder structure.
 - [40-config-constants/config-constants_index.md](40-config-constants/config-constants_index.md) - Config/constants ownership policy. Required when: adding or changing repeated literals, config keys, or defaults.
 - [50-excel-com-lifecycle/excel-com-lifecycle_index.md](50-excel-com-lifecycle/excel-com-lifecycle_index.md) - Excel COM lifecycle policy. Required when: Excel COM automation is in scope.
 - [60-gui-threading/gui-threading_index.md](60-gui-threading/gui-threading_index.md) - GUI threading policy. Required when: GUI or main-thread updates are involved.
@@ -21,7 +21,6 @@
 - [mcp/mcp_index.md](mcp/mcp_index.md) - MCP asset branch. Required when: repo-owned MCP config assets change.
 - [platforms/platforms_index.md](platforms/platforms_index.md) - Platform runtime notes branch. Required when: runtime support levels, dated platform evidence, or projection rules change.
 - [playbooks/playbooks_index.md](playbooks/playbooks_index.md) - Playbook branch. Required when: a task needs a structured scaffold or template.
-- [schemas/schemas_index.md](schemas/schemas_index.md) - Schema branch. Required when: validating or extending structured governance artifacts.
 - [settings/settings_index.md](settings/settings_index.md) - Shared settings branch. Required when: repo-owned settings payloads or settings projections change.
 - [skills/skills_index.md](skills/skills_index.md) - Skill branch. Required when: repo-owned reusable skill bundles or platform adapters change.
 - [workflow-registry/workflow-registry_index.md](workflow-registry/workflow-registry_index.md) - Workflow indexing standard. Required when: defining how workflows are named, surfaced, and cataloged.

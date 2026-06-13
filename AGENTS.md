@@ -152,8 +152,7 @@ Confidence rule:
   - Docs-only or formatting: run doc-related checks if present; otherwise record a deterministic manual check.
   - Behavior-neutral code change: run baseline checks relevant to the touched area plus at least one targeted smoke test if available; if none, record a deterministic manual check.
   - Behavior change or new feature: baseline checks plus targeted tests covering the new behavior and at least one failure-path check (see I/O guidance in `docs/agents/80-testing-real-files/testing-real-files.md` when applicable).
-  - Bugfix/regression: follow "Bias-Resistant Debugging" (no extra exceptions) and run applicable tests, including deterministic MRE witness, regression test, at least one disconfirming edge/adversarial test, and at least one failure-path check; when artifact-based verification is enabled, store evidence in `docs/project/change-records/*.json` using `docs/agents/schemas/change-record.schema.json`.
-    Artifact-based verification is enabled when `docs/project/change-records/.required` exists or `scripts/check_change_records.ps1` is run with `-RequireRecords`.
+  - Bugfix/regression: follow "Bias-Resistant Debugging" (no extra exceptions) and run applicable tests, including deterministic MRE witness, regression test, at least one disconfirming edge/adversarial test, and at least one failure-path check. Durable bug/regression truth belongs in the highest owning project doc, while executable evidence belongs in tests, fixtures, and verification output.
 - Shift-left quality baseline (new features/behavior changes): before merge, encode prevention with tests (TDD/BDD where feasible), design pre-mortem or failure-mode review, relevant static checks, contract tests on module/service boundaries, and observability-by-design.
 - Coverage/fixtures:
   - If coverage thresholds exist (CI/config/tooling), meet them and do not lower them.
@@ -173,13 +172,20 @@ Default posture:
 
 ## Mandatory Execution Loop (Follow For Every Task)
 
-0) **Current-work authority gate**:
-   - After required loader/context-injection reads and before producing a non-trivial plan, review, council prompt/summary, implementation, or other repo-mutating work, update `docs/project/goal/current-work.md` with the exact user prompt as a bounded active-work input witness, prompt-safety decision, derived work-item goal statement, source-derived plan, planned SSOT/truth-layer witnesses, and pending review confirmation.
-   - If the exact prompt contains secrets, credentials, PII, customer data, or oversized pasted artifacts, STOP before writing it and ask for a redacted prompt or explicit safe substitute. Do not store sensitive prompt text in tracked docs.
-   - Exact-prompt equality is a review/harness witness: when a tool provides an expected prompt artifact or hash, validate against it; otherwise council/manual review must confirm that `current-work.md` preserves the controlling prompt before downstream plan/review conclusions are trusted.
-   - The source-derived plan in `current-work.md` is the active-work plan authority until closure. It must route each plan item to the prompt/work-item goal, SSOT owner, target files, status, and witness; do not use `.cursor/plans/`, chat plans, or tool UI plans as authority unless their facts are promoted into `current-work.md`.
-   - Before final closure, update `current-work.md` with implementation records, stale/rejected prompt and plan reconciliation, SSOT/truth-layer witnesses (Runtime truth, Semantic truth, Recorded truth), confirmed review evidence showing the work fulfilled the recorded prompt and work-item goal, and closure handoff evidence.
-   - Completed work may be marked `ready-to-clear` only after those witnesses are present, authority-changing outcomes are recorded in `docs/project/learning/changelog.md`, and the commit/push handoff is recorded as pushed/PR evidence or an explicit no-push/not-required reason. Clearing then folds durable outcomes into owner docs or change records and resets `current-work.md` to `Status: no-active-work`; do not delete it.
+0) **Docs-first authority gate**:
+   - After required loader/context-injection reads and before producing a non-trivial plan, review, council prompt/summary, implementation, or other repo-mutating work, identify the controlling user-authored intent, classify the facts that would change future allowed behavior, and route only durable authority facts to their highest owning project doc.
+   - Classify user intent before project-doc promotion:
+     - Basic task: no project-doc update is required when the request does not change future allowed behavior.
+     - Durable truth: promote the durable fact to the owning project doc before or with implementation.
+     - Ambiguous truth change: ask before treating the fact as project truth.
+   - Direct user-authored messages are the controlling intent source. Subagent prompts, generated plans, copied assistant output, summaries, and review artifacts are supporting evidence only; they become authoritative only when their selected durable facts are promoted into the owning SSOT.
+   - Agent findings are not project truth unless they preserve existing documented intent, correct an owner doc under its change rule, or are confirmed by the user.
+   - If implementation changes behavior, accepted inputs/outputs, purpose, boundaries, invariants, or project rules, update the owning doc before closure.
+   - Do not create, update, or require a separate project truth surface outside the declared `docs/project/` owner docs. New project docs are allowed only when routed through the docs SSOT policy with a declared owner, scope, update trigger, and verification witness.
+   - If a prompt contains secrets, credentials, PII, customer data, or oversized pasted artifacts, do not store the raw prompt in tracked docs. Ask for a redacted durable statement only when the fact must become project authority.
+   - Working evidence, including uncommitted repository changes, runtime observations, review notes, and closure evidence, does not own project truth unless the durable fact is promoted into the declared owning `docs/project/` authority doc routed by the docs SSOT policy. Treat working evidence as protected context until its owner and relation to the requested work are clear; do not overwrite it, remove it, stage it, commit it, or absorb it into the requested work by assumption.
+   - Before staging, committing, pushing, or preparing a PR, reconcile the intended commit set against owner docs, changed code/config/tests, deleted/new files, and verification evidence. Fix owner-scoped issues that are clearly within the requested change. Proceed only when docs, implementation, and verification agree. If intent, ownership, scope, deletion, or risk cannot be resolved from repo evidence, STOP with `hold: <reason>` and ask the user; otherwise report `ready`.
+   - Before final closure, ensure every durable authority-changing outcome has been promoted into its highest owning project doc with a deterministic witness. Do not use non-owner working evidence to compensate for missing owner-doc promotion.
 1) **Restate goal + acceptance criteria** (1-5 bullets).
 2) **Discover** relevant files and existing SSOT owners (constants/config/rules/workflows/etc).
    - **MUST** consult `agents-manifest.yaml` and execute the Context Injection Procedure (see below).
@@ -236,6 +242,13 @@ Profile-aware coverage is required when any of these are true:
 - the task changes `AGENTS.md`, `agents-manifest.yaml`, context injection, council policy, or governance routing.
 
 Coverage may be one subagent per matched profile, or fewer subagents when one reviewer is explicitly assigned multiple profiles. The merged council summary must make the profile-to-reviewer/doc mapping auditable. Do not copy profile names or injected doc lists into this policy; use the current resolved manifest witness.
+
+When profile-aware coverage applies, every subagent prompt MUST include:
+- assigned profile(s), assigned intention(s), review scope, and resolved injected docs or doc groups from the current manifest-resolution witness;
+- a directive to read or verify the assigned profile docs before reviewing;
+- required `profile_doc_coverage` output: docs used, docs skipped, inaccessible docs, skip reasons, and `go_no_go`.
+
+A subagent that cannot confirm required assigned profile-doc coverage MUST return `go_no_go = hold`.
 
 If a required profile doc or required reviewer/runtime path is unavailable, record `SKIPPED`/`UNKNOWN` + reason in `profile_doc_coverage` and set `go_no_go = hold` unless the user explicitly accepts reduced coverage.
 
@@ -424,47 +437,37 @@ GUI updates must occur on the main/UI thread only:
 ### 11) Module Architecture — Mandatory Rules
 These rules are NON-NEGOTIABLE. Violating any rule is a failed task.
 
+Authority role:
+- This section is the always-on code-modularity hard gate for implementation code in scope.
+- `docs/agents/35-authority-bounded-modules/authority-bounded-modules.md` owns the delegated runtime-code module-contract mechanics under this gate; consult it when adding, reviewing, or refactoring feature folders, public entrypoints, orchestration boundaries, or dependency direction.
+- `scripts/entrypoint_contracts.json` owns public contract filename pattern facts; `scripts/check_folder_architecture/scope.json` owns the current checker-readable enforcement scope.
+- `agents-manifest.yaml` owns routing to supporting modularity docs. If routing does not inject a support doc but implementation code is in scope, this `AGENTS.md` hard gate still applies.
+
 Scope:
 - Apply this section to implementation code that owns runtime behavior, workflow logic, or reusable runtime contracts.
-- PowerShell/shell launchers and Python runtime shims such as `__main__.py` may exist only as zero-logic delegates into the canonical folder contract.
+- Launch-only PowerShell/shell wrappers and Python runtime shims such as `__main__.py` may exist only as zero-logic delegates into the canonical folder contract. A script with owner-declared runtime-selection or validation responsibility must expose that responsibility through its declared owner/contract instead of being treated as a launcher shim.
 - Config payloads, fixtures, schemas, and generated artifacts do not become feature folders unless they start owning runtime behavior.
 
 Rule 1 - Every feature is a folder:
-- Every distinct piece of runtime functionality gets its own folder.
-- No "too small for a folder" exception exists once a unit owns behavior.
-- A parent public entrypoint file resolved from `scripts/entrypoint_contracts.json` (for example `billing_main.py` or `billing_index.ts`) may exist only as an orchestrator that calls child folders; it must not accumulate child logic.
+- Every distinct piece of runtime functionality gets its own authority folder and one registry-resolved public entrypoint. Use `docs/agents/35-authority-bounded-modules/authority-bounded-modules.md` for the delegated boundary mechanics.
 
 Rule 2 - Every folder has exactly one public entry point:
-- Folder-owned runtime public contract filenames MUST resolve from `scripts/entrypoint_contracts.json`.
-- Python executable authorities therefore expose `<authority>_main.py`.
-- TypeScript executable authorities therefore expose `<authority>_index.ts`.
-- If another implementation language is used, declare the contract family/artifact kind in `scripts/entrypoint_contracts.json` and record the adopted public contract file in `docs/project/architecture/architecture.md`.
-- No file other than the folder entrypoint is public to the outside world; all other files in the folder are private implementation details.
+- Consumers use the folder entrypoint only; internal files remain private implementation details. Public contract filename patterns are owned by `scripts/entrypoint_contracts.json`.
 
 Rule 3 - The parent entrypoint is the only connector:
-- Children MUST NOT import siblings.
-- Children MUST NOT import the parent.
-- Only the parent entrypoint may import child entrypoints and pass data between them.
-- Data flow must be explicit in the parent entrypoint; no hidden cross-folder coupling, registries, or side-channel wiring.
+- Parent entrypoints wire child authorities and pass plain data. Children must not import parents or siblings; hidden cross-folder coupling is a failed task.
 
 Rule 3A - Orchestration is runtime coordination only:
 - Orchestration code may order already-authoritative steps, pass plain data between authority entrypoints, enforce the workflow state machine, record phase transitions/outcomes, and invoke bounded cleanup.
 - Orchestration code MUST NOT own business rules, validation predicates, constants/defaults, backend-selection rules, lifecycle policies, retry policy, GUI-thread safety, COM safety, subprocess safety, or UI/checkbox semantics.
-- Checkbox state, CLI flags, and other user selections are intent inputs. A parent entrypoint may use them only after config/rule validation to decide whether a declared child stage is included in the runtime plan.
-- A selected child stage remains the authority for its own eligibility checks, required inputs, business validation, transformation rules, output contract, and terminal outcomes.
 - Any decision-critical branch in orchestration must call a named authority-owned rule/config/lifecycle contract and record the selected authority path before execution.
-- An unchecked or disabled stage must be recorded as `SKIPPED + reason` when it is part of the run report. A selected stage that fails validation or execution must produce the terminal outcome declared by that stage or workflow contract.
 - After validation, execution, commit, or cleanup failure, orchestration must emit the terminal outcome and stop that branch; it must not continue through an alternate backend, legacy path, substitute subprocess, substitute workflow step, or hidden compatibility branch.
 
 Rule 4 - Public contracts take plain data in and return plain data out:
-- Public functions in a folder entrypoint MUST accept plain data types only (`str`, `int`, `dict`, `list`, dataclass/TypedDict-equivalent shapes).
-- Public contracts MUST return plain data types only.
-- Public contracts MUST NOT accept or return live handles/resources such as file handles, DB connections, sockets, COM objects, framework singletons, or process-global mutable state.
+- Public contracts accept and return plain data only. Live handles/resources stay behind the owning boundary.
 
 Rule 5 - I/O stays at the boundary:
-- File reads/writes, network calls, database access, COM automation, subprocess execution, and framework I/O stay at the boundary.
-- Pure logic functions MUST NOT perform I/O.
-- A folder entrypoint may wire boundary helpers to pure logic, but business rules and transformations stay separated from the I/O implementation.
+- I/O stays at boundary adapters or entrypoint wiring; pure logic functions do not perform I/O.
 
 Rule 6 - No file exceeds 400 LOC:
 - A file approaching 400 LOC is doing too much and MUST be decomposed by responsibility.
@@ -472,41 +475,36 @@ Rule 6 - No file exceeds 400 LOC:
 - Create a new child folder only when the responsibility becomes independently owned behavior.
 
 Rule 7 - `shared/` is a dictionary, not a connector:
-- `shared/` is optional.
-- `shared/` may contain only data shapes and pure/stateless utility functions.
-- `shared/` MUST NOT contain business rules, workflow orchestration, I/O, stateful services, singletons, or decision-making logic.
-- Do not create `shared/` preemptively. Extract to `shared/` only when the exact same pure shape/utility is duplicated across 3+ folders.
+- `shared/` is optional and may contain only data shapes or pure/stateless utilities; it must not become a second authority or connector.
 
 Rule 8 - Deletion test:
-- Before marking the task complete, ask: "Can I delete any single feature folder and the only file that breaks is its parent entrypoint?"
-- If deleting one folder causes errors in any sibling folder, there is a coupling violation that MUST be fixed before completion.
+- Before completion, deleting one feature folder should break only its parent entrypoint. Sibling breakage is a coupling violation.
 
 Rule 9 - Depth when necessary, not flat by default:
-- If a child folder grows multiple sub-responsibilities, apply these same rules recursively inside that child.
-- There is no depth limit, but every level MUST keep one folder entrypoint, private internals, parent-only wiring, and a passing deletion test.
+- Apply the same authority-folder rules recursively when a child folder gains independently owned behavior.
 
 Rule 10 - Contract changes require explicit approval:
-- Before changing a folder entrypoint contract, state:
-  - the current contract
-  - the proposed new contract
-  - every parent entrypoint that calls it
-- Get explicit user approval before changing entrypoint parameters, return types, or names.
-- Internal files that are not the folder entrypoint may change freely as long as the public contract remains stable.
+- Public entrypoint contract changes require explicit current/proposed contract and caller impact before approval. Private internals may change when the public contract stays stable.
+
+Rule 11 - Structural minimality is the default:
+- Before adding code, identify the code authority owner, public entrypoint/contract, relevant config/data/schema source, affected invariants, and behavior-preservation witness; promote only durable authority facts to the owning project doc.
+- Choose the first implementation path through existing owner contracts, registries, schemas, config, or entrypoints. Repeated local conditionals or checker-specific patch logic require owner-level justification.
+- Treat numeric LOC-reduction targets as pressure toward structural minimality, never as permission to weaken correctness, explicit failure, witnesses, or SSOT ownership.
+- Detailed structural-minimality mechanics and review questions live in `docs/agents/35-authority-bounded-modules/authority-bounded-modules.md` and `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`.
 
 Supporting design constraints (mandatory):
 - Keep high cohesion + low coupling.
 - Apply DRY, KISS, YAGNI, Separation of Concerns, and Law of Demeter inside the folder-contract model.
 - Use explicit parameter/constructor injection instead of service locators.
 - No runtime discovery, dynamic import, or eval for wiring.
-- Shared leaf modules remain pure/stateless and authority-neutral.
 - Keep folder entrypoints thin, import-safe, and orchestration-only; private internals hold the detailed logic.
 
 ## Governance Templates (Required)
 
-### Change Contract (Required for any change record)
-Use in PR description or commit message. Full template: `docs/agents/playbooks/change-contract-template/change-contract-template.md`.
+### Change Contract (Required for behavior changes and bugfixes)
+Use as a temporary implementation/review scaffold. Durable project truth from the contract must be promoted into the highest owning project doc instead of a separate history artifact. Full template: `docs/agents/playbooks/change-contract-template/change-contract-template.md`.
 
-When artifact-based verification is enabled for the repo, record the same evidence in `docs/project/change-records/*.json` and validate it against `docs/agents/schemas/change-record.schema.json`.
+Bugfix and regression evidence must remain deterministically reproducible through owner docs, tests, fixtures, and verification output. Additional evidence artifacts must be routed through the docs SSOT policy with declared ownership and update triggers.
 
 ### Standard Log Schema (Required when logs are emitted)
 Full schema: `docs/agents/playbooks/log-schema-template/log-schema-template.md`.
@@ -547,16 +545,15 @@ Hard gate:
 - The project `README.md` MUST link to `docs/project/project_index.md` (project docs entrypoint) and to `AGENTS.md` (governance).
 - The project `README.md` MUST include a short "Checks" section listing the deterministic verification commands for the repo.
 
-Project docs are the SSOT for declared project authority records:
+Baseline required project docs include:
 - `docs/project/project_index.md` (entrypoint/router; linked from README)
 - `docs/project/goal/goal.md` (objective + acceptance criteria; router at `docs/project/goal/goal_index.md`)
-- `docs/project/goal/current-work.md` (mandatory current status + handoff state; router at `docs/project/goal/goal_index.md`)
 - `docs/project/rules/rules.md` (project do/don't rules; router at `docs/project/rules/rules_index.md`)
 - `docs/project/architecture/architecture.md` (SSOT pointers: entrypoints/modules/workflows; router at `docs/project/architecture/architecture_index.md`)
 - `docs/project/data-truth/data-truth.md` (data-truth ownership/provenance/validation routing; router at `docs/project/data-truth/data-truth_index.md`)
 - `docs/project/learning/learning.md` (operational learnings and pitfalls; router at `docs/project/learning/learning_index.md`)
 
-`docs/project/goal/goal.md` owns durable project intent, objective, acceptance criteria, non-goals, and verification intent. `docs/project/goal/current-work.md` is always present and owns only the active-work authority record: live work status, bounded exact-prompt witness, prompt-safety decision, derived work-item goal statement, source-derived plan, handoff/checkpoint state, blockers, implementation records, stale/rejected prompt and plan reconciliation, truth-layer witnesses, review confirmation, closure handoff, and next safe action. When no work is active, reset `current-work.md` to the canonical no-active-work state; do not delete it.
+`docs/project/goal/goal.md` owns durable project intent, objective, acceptance criteria, non-goals, and verification intent. Working evidence remains non-authority unless a durable fact is promoted into the declared owning project doc routed by the docs SSOT policy.
 
 Facts are owned by their declared source of truth, not by file type. Code, config, constants, input artifacts, external systems, schemas, workbooks, and project docs may each own facts when explicitly declared as the SSOT. Non-owner docs must route to the owner instead of duplicating the fact.
 
@@ -578,22 +575,15 @@ All project docs must:
 - Avoid duplicating governance rules: reference `AGENTS.md` instead of copying its requirements.
 
 ### Docs Branching Architecture (Hard Gate)
-- Every directory under `docs/` MUST contain the canonical router file resolved from `scripts/entrypoint_contracts.json`.
-- Docs routers therefore follow the folder-owned pattern `<authority>_index.md`.
-- The router file is the required public routing contract for a docs folder.
-- The router file MUST be routing-only; it MUST NOT be the canonical narrative content doc for the folder.
-- Each docs-folder router MUST catalog its direct children only.
-- Docs folders with narrative content MUST expose one-or-more router-linked public leaf markdown files inside the same folder authority.
-- The registry-resolved primary public leaf MUST exist when a docs folder exposes narrative content.
-- Each child entry in a folder router MUST include:
-  - the child path/link
-  - its role/purpose
-  - a `Required when:` routing statement
-- Direct references to actual narrative content MAY point to a router-linked public leaf doc; external navigation into a docs branch should enter through the router file.
-- Artifact-first folders may remain router-only when they only catalog payload children or dated evidence folders and expose no public narrative leaf docs.
-- Parent routers route downward; they MUST NOT restate the child doc's rules, literals, or contracts in full.
-- Flat markdown docs under `docs/` should be promoted into branch folders when they start accumulating multiple subtopics or repeated edits.
-- Payload/artifact folders under `docs/` (schemas, generated docs, settings payloads, change records, runtime assets) still require the canonical router file so the tree stays navigable and auditable.
+Authority role:
+- This section is the always-on docs-modularity hard gate for documentation structure under `docs/`.
+- `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md` owns delegated docs-family mechanics under this gate: headers, router behavior, public leaf placement, project-doc placement, owner-doc promotion, and optional leaf placement.
+- `scripts/entrypoint_contracts.json` owns docs router and public leaf filename pattern facts.
+
+- Every `docs/` folder must expose the registry-resolved router contract and route to direct children without becoming the narrative owner.
+- Narrative facts live in router-linked public leaf docs under the owning folder authority; parent routers route downward and do not restate child rules, literals, or contracts in full.
+- Artifact/payload folders remain navigable through the router contract even when they expose no narrative leaf.
+- Apply the detailed docs-router/header/public-leaf mechanics from `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`; do not fork those mechanics here.
 
 ### Docs MAY contain
 - intent (“why”), invariants, and safety constraints

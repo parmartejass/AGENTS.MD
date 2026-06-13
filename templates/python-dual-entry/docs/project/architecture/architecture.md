@@ -6,6 +6,21 @@ update_trigger: entrypoints, workflow registry, or scenario harness changes
 
 # Architecture (Dual-Entry)
 
+## Boundary
+- This root doc owns template entrypoint, folder-contract, owner, and execution-flow routing.
+- It does not own reusable governance policy, template goals, data-truth routing, or operational learnings.
+
+## When to create a branch-local owner subdoc
+- Create an architecture subdoc when a stable structural truth cluster needs its own intent, boundary, invariant, change rule, and verification.
+- Keep folder-contract mechanics in the runtime owners and reusable governance policy; route by identifier here.
+
+## Current Summary
+- `myapp/myapp_main.py` remains the only connector between CLI, GUI, and runner contracts.
+- No branch-local architecture subdocs are declared.
+
+## Branch-local owner subdocs
+- None currently declared.
+
 ## Entrypoints
 
 - Canonical wrapper: `myapp/myapp_main.py`

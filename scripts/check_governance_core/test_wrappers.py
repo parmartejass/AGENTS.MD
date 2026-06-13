@@ -9,12 +9,7 @@ import time
 import unittest
 from pathlib import Path
 
-from _test_helpers import (
-    copy_vendored_governance_for_wrappers,
-    run_powershell_script,
-    write_minimal_change_record,
-    write_text,
-)
+from _test_helpers import copy_vendored_governance_for_wrappers, run_powershell_script, write_text
 
 
 SCRIPT_ROOT = Path(__file__).resolve().parent
@@ -39,26 +34,23 @@ def _write_fake_python_version(path: Path, version: str) -> None:
     path.chmod(0o755)
 
 
-def _write_fake_python_hang(path: Path) -> None:
-    if os.name == "nt":
-        write_text(path, "@echo off\r\nping -n 15 127.0.0.1 >nul\r\n")
-        return
-    write_text(path, "#!/bin/sh\nsleep 15\n")
-    path.chmod(0o755)
-
-
 def _write_minimal_runtime_projection_governance(governance_root: Path) -> None:
     write_text(governance_root / "AGENTS.md", "# Test governance\n")
     write_text(governance_root / "agents-manifest.yaml", "default_inject:\n  - AGENTS.md\n")
     (governance_root / "scripts").mkdir(parents=True, exist_ok=True)
     shutil.copy2(REPO_ROOT / "scripts/_python_check_runner.ps1", governance_root / "scripts/_python_check_runner.ps1")
     shutil.copy2(REPO_ROOT / "scripts/setup_repo_platform_assets.ps1", governance_root / "scripts/setup_repo_platform_assets.ps1")
+    shutil.copytree(
+        REPO_ROOT / "scripts/check_governance_core",
+        governance_root / "scripts/check_governance_core",
+        ignore=shutil.ignore_patterns("__pycache__", "*.pyc"),
+    )
     write_text(governance_root / "docs/agents/settings/codex/config.toml", 'model = "test"\n')
     manifest = {
         "version": 1,
         "ssot_owner": "docs/agents/platforms/runtime-projections.json",
         "update_trigger": "test fixture",
-        "support_levels": ["official", "compatibility", "manual", "unsupported", "reserved"],
+        "support_levels": ["official", "manual", "unsupported", "reserved"],
         "path_resolution": {
             "source_root": "governance root",
             "source_path": "governance root",
@@ -89,128 +81,37 @@ def _write_minimal_runtime_projection_governance(governance_root: Path) -> None:
 
 
 @unittest.skipIf(POWERSHELL is None, "PowerShell is not available in PATH.")
-class ChangeRecordWrapperTests(unittest.TestCase):
-    def test_wrapper_runs_only_change_record_checks(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            repo_root = Path(tmp_dir)
-            write_minimal_change_record(repo_root)
-
-            result = run_powershell_script(
-                POWERSHELL,
-                REPO_ROOT / "scripts/check_change_records.ps1",
-                "-PythonExe",
-                PYTHON_EXE,
-                "-RepoRoot",
-                str(repo_root),
-                "-RequireRecords",
-                cwd=REPO_ROOT,
-            )
-
-            combined = result.stdout + result.stderr
-            self.assertEqual(result.returncode, 0, combined)
-            self.assertIn("Python selected:", combined)
-            self.assertIn("Change record checks passed", combined)
-            self.assertNotIn("Agents manifest checks passed", combined)
-            self.assertNotIn("Docs SSOT checks passed", combined)
-
-    def test_wrapper_accepts_trailing_backslash_repo_root(self) -> None:
-        result = run_powershell_script(
-            POWERSHELL,
-            REPO_ROOT / "scripts/check_change_records.ps1",
-            "-PythonExe",
-            PYTHON_EXE,
-            "-RepoRoot",
-            ".\\",
-            "-RequireRecords",
-            cwd=REPO_ROOT,
-        )
-
-        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-
-    def test_wrapper_rejects_missing_repo_root_with_explicit_validation(self) -> None:
-        result = run_powershell_script(
-            POWERSHELL,
-            REPO_ROOT / "scripts/check_change_records.ps1",
-            "-RepoRoot",
-            str(REPO_ROOT / ".missing-change-record-wrapper-root"),
-            cwd=REPO_ROOT,
-        )
-
-        combined = result.stdout + result.stderr
-        self.assertNotEqual(result.returncode, 0, combined)
-        self.assertIn("FAILED_VALIDATION: RepoRoot does not exist", combined)
-
-    def test_wrapper_rejects_missing_python_exe_with_explicit_validation(self) -> None:
-        result = run_powershell_script(
-            POWERSHELL,
-            REPO_ROOT / "scripts/check_change_records.ps1",
-            "-PythonExe",
-            str(REPO_ROOT / ".missing-python.exe"),
-            cwd=REPO_ROOT,
-        )
-
-        combined = result.stdout + result.stderr
-        self.assertNotEqual(result.returncode, 0, combined)
-        self.assertIn("FAILED_VALIDATION: PythonExe must resolve to Python 3.11+ executable", combined)
-
-    def test_wrapper_rejects_python_below_minimum_version(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            fake_python = Path(tmp_dir) / ("python310.cmd" if os.name == "nt" else "python310")
-            _write_fake_python_version(fake_python, "3.10.0")
-
-            result = run_powershell_script(
-                POWERSHELL,
-                REPO_ROOT / "scripts/check_change_records.ps1",
-                "-PythonExe",
-                str(fake_python),
-                cwd=REPO_ROOT,
-            )
-
-            combined = result.stdout + result.stderr
-            self.assertNotEqual(result.returncode, 0, combined)
-            self.assertIn("FAILED_VALIDATION: PythonExe must resolve to Python 3.11+ executable", combined)
+class GovernanceWrapperTests(unittest.TestCase):
+    def test_asset_wrappers_pass_python_exe_to_python_backed_linker(self) -> None:
+        for wrapper_rel in (
+            "docs/agents/mcp/link_mcp.ps1",
+            "docs/agents/settings/link_settings.ps1",
+            "docs/agents/skills/link_skills.ps1",
+        ):
+            with self.subTest(wrapper_rel=wrapper_rel):
+                text = (REPO_ROOT / wrapper_rel).read_text(encoding="utf-8")
+                self.assertIn("[string]$PythonExe", text)
+                self.assertIn("-PythonExe $PythonExe", text)
+                self.assertNotIn("IncludeCompatibility", text)
 
     def test_wrappers_reject_noop_python_that_does_not_run_validator(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             fake_python = Path(tmp_dir) / ("python-noop.cmd" if os.name == "nt" else "python-noop")
             _write_fake_python_noop(fake_python)
 
-            wrappers = (
-                ("check_change_records.ps1", ("-RequireRecords",)),
-                ("check_docs_ssot.ps1", ()),
-                ("check_project_docs.ps1", ()),
-            )
-            for wrapper_name, extra_args in wrappers:
+            for wrapper_name in ("check_docs_ssot.ps1", "check_project_docs.ps1"):
                 with self.subTest(wrapper_name=wrapper_name):
                     result = run_powershell_script(
                         POWERSHELL,
                         REPO_ROOT / "scripts" / wrapper_name,
                         "-PythonExe",
                         str(fake_python),
-                        *extra_args,
                         cwd=REPO_ROOT,
                     )
 
                     combined = result.stdout + result.stderr
                     self.assertNotEqual(result.returncode, 0, combined)
                     self.assertIn("expected success marker", combined)
-
-    def test_wrapper_bounds_hanging_python_version_probe(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            fake_python = Path(tmp_dir) / ("python-hangs.cmd" if os.name == "nt" else "python-hangs")
-            _write_fake_python_hang(fake_python)
-
-            result = run_powershell_script(
-                POWERSHELL,
-                REPO_ROOT / "scripts/check_change_records.ps1",
-                "-PythonExe",
-                str(fake_python),
-                cwd=REPO_ROOT,
-            )
-
-            combined = result.stdout + result.stderr
-            self.assertNotEqual(result.returncode, 0, combined)
-            self.assertIn("FAILED_VALIDATION: Python version probe timed out", combined)
 
     def test_platform_setup_accepts_python_exe_for_toml_validation(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -304,33 +205,13 @@ try {{
             time.sleep(10)
             self.assertFalse(child_marker.exists(), result.stdout + result.stderr)
 
-    def test_vendored_wrapper_accepts_space_path_and_trailing_slash(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            host_root = Path(tmp_dir) / "host repo"
-            governance_root = host_root / ".governance"
-            write_minimal_change_record(host_root)
-            copy_vendored_governance_for_wrappers(REPO_ROOT, governance_root)
-
-            result = run_powershell_script(
-                POWERSHELL,
-                governance_root / "scripts/check_change_records.ps1",
-                "-PythonExe",
-                PYTHON_EXE,
-                "-RepoRoot",
-                ".\\",
-                "-RequireRecords",
-                cwd=host_root,
-            )
-
-            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-
     def test_vendored_target_repo_wrappers_require_explicit_repo_root(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             host_root = Path(tmp_dir) / "host repo"
             governance_root = host_root / ".governance"
             copy_vendored_governance_for_wrappers(REPO_ROOT, governance_root)
 
-            for wrapper_name in ("check_change_records.ps1", "check_docs_ssot.ps1", "check_project_docs.ps1"):
+            for wrapper_name in ("check_docs_ssot.ps1", "check_project_docs.ps1"):
                 with self.subTest(wrapper_name=wrapper_name):
                     result = run_powershell_script(
                         POWERSHELL,
@@ -361,22 +242,6 @@ try {{
             )
 
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-
-    def test_wrapper_accepts_space_containing_repo_root_variants(self) -> None:
-        for repo_root in (str(REPO_ROOT), f"{REPO_ROOT}\\"):
-            with self.subTest(repo_root=repo_root):
-                result = run_powershell_script(
-                    POWERSHELL,
-                    REPO_ROOT / "scripts/check_change_records.ps1",
-                    "-PythonExe",
-                    PYTHON_EXE,
-                    "-RepoRoot",
-                    repo_root,
-                    "-RequireRecords",
-                    cwd=REPO_ROOT,
-                )
-
-                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
 
 if __name__ == "__main__":

@@ -25,14 +25,6 @@ UNRESOLVED_CITATION_PATTERNS = (
     "entity",
     "image_group",
 )
-RETIRED_ACTIVE_REFERENCE_PATTERNS = (
-    "docs/agents/acp/",
-    "docs/agents/automation/",
-    "docs/agents/integrations/",
-    "docs/generated/",
-    "templates/automation-loop/",
-    "templates/pr-control-plane/",
-)
 def check_repo_hygiene(repo_root: Path) -> List[str]:
     errors: List[str] = []
     if not (repo_root / ".git").exists():
@@ -111,33 +103,6 @@ def check_docs_for_unresolved_citations(repo_root: Path) -> List[str]:
                     "Replace `cite`/`entity`/`image_group` markers with resolvable references."
                 )
 
-    return errors
-
-
-def check_docs_for_retired_active_references(repo_root: Path) -> List[str]:
-    errors: List[str] = []
-    docs_root = repo_root / "docs"
-    if not docs_root.is_dir():
-        return errors
-
-    for doc_file in docs_root.rglob("*"):
-        if not doc_file.is_file():
-            continue
-        rel_under_docs = doc_file.relative_to(docs_root)
-        if "change-records" in rel_under_docs.parts:
-            continue
-        rel_path = doc_file.relative_to(repo_root).as_posix()
-        try:
-            text = doc_file.read_text(encoding="utf-8", errors="replace")
-        except OSError as exc:
-            errors.append(f"Failed to read docs file for retired-reference checks: {rel_path} ({exc})")
-            continue
-        for pattern in RETIRED_ACTIVE_REFERENCE_PATTERNS:
-            if pattern in text:
-                errors.append(
-                    f"Retired path reference in active docs: {rel_path} contains {pattern}. "
-                    "Move historical references to change records with the 'retired:' prefix."
-                )
     return errors
 
 
@@ -239,7 +204,7 @@ def check_governance_playbook_hard_gates(governance_root: Path) -> List[str]:
     required_prompt_scaffold_gates = (
         "Read and follow `AGENTS.md`; if it is inaccessible, request it before doing any work.",
         "Execute the `AGENTS.md` Context Injection Procedure using the current `agents-manifest.yaml`.",
-        "Execute the current-work session gate before any non-trivial plan, review, council output, implementation, or repo mutation.",
+        "Execute the docs-first authority gate before any non-trivial plan, review, council output, implementation, or repo mutation.",
         "For governance auto-edit, apply the `AGENTS.md` Governance Auto-Edit Gate and Subagent Council before editing.",
         DERIVATION_SCAFFOLD,
         "Use docs placement and router rules from `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`; do not restate them here.",
@@ -334,6 +299,27 @@ def check_subagent_council_profile_coverage(governance_root: Path) -> List[str]:
         )
 
     return errors
+
+
+def check_docs_first_prompt_classification(governance_root: Path) -> List[str]:
+    agents_path = governance_root / "AGENTS.md"
+    if not agents_path.is_file():
+        return [f"Missing AGENTS.md for docs-first prompt classification checks: {agents_path}"]
+
+    agents_text = agents_path.read_text(encoding="utf-8")
+    required_markers = (
+        "Classify user intent before project-doc promotion:",
+        "Basic task: no project-doc update is required when the request does not change future allowed behavior.",
+        "Durable truth: promote the durable fact to the owning project doc before or with implementation.",
+        "Ambiguous truth change: ask before treating the fact as project truth.",
+        "Agent findings are not project truth unless they preserve existing documented intent, correct an owner doc under its change rule, or are confirmed by the user.",
+        "If implementation changes behavior, accepted inputs/outputs, purpose, boundaries, invariants, or project rules, update the owning doc before closure.",
+    )
+    return [
+        f"AGENTS.md missing docs-first prompt-classification marker: {marker}"
+        for marker in required_markers
+        if marker not in agents_text
+    ]
 
 
 def check_governance_authority_decisions(governance_root: Path) -> List[str]:

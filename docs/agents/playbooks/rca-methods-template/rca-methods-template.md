@@ -105,7 +105,8 @@ This template is a prompting scaffold. If any wording conflicts with policy, `AG
 - prevention controls added:
 - residual risk:
 
-## Common Closure Block (required)
+## Common Closure Fields (scaffold)
+- required semantics owner: `AGENTS.md`
 - root-cause statement (specific/upstream/actionable):
 - symptom location (where issue manifested):
 - authority fix point (where prevention belongs):
@@ -118,4 +119,4 @@ This template is a prompting scaffold. If any wording conflicts with policy, `AG
 - guard check (did anything else break?):
   - guard command (e.g., full test suite or smoke suite):
   - guard result (pass/fail):
-- change record artifact path (if enabled): `docs/project/change-records/<timestamp>-<slug>.json`
+- owner-doc promotion target and witness for durable authority-changing outcomes:

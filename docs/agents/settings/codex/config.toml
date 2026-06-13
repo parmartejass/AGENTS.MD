@@ -4,3 +4,8 @@
 approval_policy = "on-request"
 sandbox_mode = "workspace-write"
 fast_mode = true
+project_doc_max_bytes = 131072
+
+compact_prompt = """
+Before doing any work, read the live repo AGENTS.md from disk and follow it.
+"""

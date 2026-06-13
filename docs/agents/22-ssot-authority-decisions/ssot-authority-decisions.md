@@ -77,9 +77,9 @@ Each active decision record must include:
   - Explicit user-home targets declared in `docs/agents/platforms/runtime-projections.json`, such as `{HOME}/.agents/skills`
   - Generated or linked runtime projections created by `docs/agents/link_repo_assets.ps1` or `scripts/setup_repo_platform_assets.ps1`
   - Legacy local subagent runtime paths such as `.claude/agents/` and `.codex/agents/` may exist only as non-authoritative local/platform surfaces; they are not repo-owned projections and stale copies must be removed or managed outside this runtime-projection authority.
-  - `.cursor/plans/` may contain tracked Cursor planning records for this governance source repo; it is not a runtime projection target, is not governed by `runtime-projections.json`, and is not an active-work plan authority unless selected facts are promoted into `docs/project/goal/current-work.md`.
+  - `.cursor/plans/` may contain tracked Cursor planning records for this governance source repo; it is not a runtime projection target, is not governed by `runtime-projections.json`, and is not a project truth owner unless selected durable facts are promoted into the owning project doc.
 - Retired scope:
-  - ACP placeholders, automation runbooks, integration note branches, generated analyses, and PR-control-plane templates are retired in this cleanup and may appear in change records only with `retired:`.
+  - ACP placeholders, automation runbooks, integration note branches, generated analyses, and PR-control-plane templates are retired in this cleanup; any still-current durable truth belongs in the highest owning project doc.
   - Repo-owned subagent source docs and runtime adapters under `docs/agents/subagents/` are retired; canonical agent instructions remain in `AGENTS.md` and context routing remains in `agents-manifest.yaml`.
 - Forbidden duplicates:
   - Do not treat projected runtime files or folders as canonical owners for platform settings, MCP definitions, or skills.
@@ -109,15 +109,16 @@ Each active decision record must include:
   - Retired `.claude/agents/` and `.codex/agents/` runtime paths are documented as local-only legacy surfaces, not canonical source roots or projection targets.
 - Review trigger:
   - Any proposal to add or remove a projected runtime target.
-  - Any proposal to move a runtime surface between project-local, user-home, compatibility, manual, or official support levels.
+  - Any proposal to move a runtime surface between project-local, user-home, manual, or official support levels.
   - Any proposal to treat a projected runtime path as a canonical owner rather than a non-owner projection.
 
 ### SSOT-DEC-003 - Docs router authority vs canonical narrative leaf docs
 - Status: active
 - Scope: folder-owned public contract naming for runtime code and docs, with docs-specific router and public-leaf behavior under `docs/`
 - Canonical owner:
+  - Governing hard gate for code/docs modularity: `AGENTS.md`
   - Human-readable policy owner for docs-family behavior: `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`
-  - Human-readable policy owner for runtime-code family behavior: `docs/agents/35-authority-bounded-modules/authority-bounded-modules.md`
+  - Human-readable delegated policy owner for runtime-code family mechanics: `docs/agents/35-authority-bounded-modules/authority-bounded-modules.md`
   - Machine-readable filename registry for contract families: `scripts/entrypoint_contracts.json`
 - Allowed non-owner locations:
   - Router-linked public leaf markdown docs inside the same docs folder authority
@@ -156,23 +157,24 @@ Each active decision record must include:
   - Any proposal to reintroduce `index.md` as the universal docs router contract
   - Any proposal to rename or repurpose `SKILL.md` or `mcp.json` under this contract family
 
-### SSOT-DEC-004 - Mandatory current-work project-doc contract
+### SSOT-DEC-004 - Project truth authority vs non-owner evidence
 - Status: active
-- Scope: project-doc goal branch ownership for repos using this governance pack
+- Scope: project-doc truth ownership for repos using this governance pack, including the boundary between declared owner docs and non-owner evidence surfaces
 - Canonical owner:
-  - Governing required-doc contract: `AGENTS.md`
-  - Placement and lifecycle policy: `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`
+  - Authority-boundary decision: this decision record (`SSOT-DEC-004`)
+  - Governing required-doc and owner-doc promotion contract: `AGENTS.md`
+  - Placement and owner-doc promotion mechanics: `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`
   - Scaffold shape: `docs/agents/playbooks/project-docs-template/project-docs-template.md`
 - Allowed non-owner locations:
   - `docs/project/goal/goal.md` owns durable project intent, objective, acceptance criteria, non-goals, and verification intent.
-  - `docs/project/goal/current-work.md` is mandatory and owns the active-work authority record and no-active-work reset state declared by `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`.
-  - Template/example project-doc instances may show the same shape under their own example project roots, but they do not define policy.
+  - Other `docs/project/` owner docs own their declared durable project truth under `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`.
+  - Temporary local planning notes, PR/review evidence, git history, task coordination artifacts, working evidence, and closure evidence may support review, but they are evidence only unless selected durable facts are promoted into a declared owner doc.
+  - Template/example project-doc instances may show the same durable owner-doc shape under their own example project roots, but they do not define policy.
 - Forbidden duplicates:
-  - Do not let `current-work.md` restate or redefine durable project intent, objective, acceptance criteria, or non-goals owned by `goal.md`.
-  - Do not model `current-work.md` as optional, triggered, deletable, or replaceable by absence.
-  - Do not store secrets, credentials, PII, customer data, or oversized pasted prompt artifacts in `current-work.md`.
-  - Do not create a separate project-doc `plan.md` or treat `.cursor/plans/`, chat plans, or tool UI plans as active-work authority outside `current-work.md`.
-  - Do not create a parallel project memory/session/transcript tree for active work state.
+  - Do not require, route, scaffold, or recreate a separate project-doc truth owner outside the docs SSOT declared owner-doc path.
+  - Do not create changelog-like project truth ledgers, steering-truth meta-docs, work-status surfaces, broad history surfaces, or catch-all project-truth docs.
+  - Do not store raw prompts containing secrets, credentials, PII, customer data, or oversized pasted artifacts in tracked docs.
+  - Do not treat non-owner working evidence as project truth.
 - Coordinated update set:
   - `AGENTS.md`
   - `README.md`
@@ -183,14 +185,14 @@ Each active decision record must include:
   - `docs/project/architecture/architecture.md`
   - `docs/project/goal/goal_index.md`
   - `docs/project/goal/goal.md`
-  - `docs/project/goal/current-work.md`
-  - `scripts/check_governance_core/_project_authority_docs.py`
-  - `scripts/check_governance_core/test_project_authority_routes.py`
+  - `scripts/check_governance_core/` project-doc validator contracts/tests, including `_project_authority_docs.py`, `_repo_and_governance.py`, and related tests
   - `templates/python-dual-entry/docs/project/`
 - Verification witness:
-  - `scripts/check_governance_core/_project_authority_docs.py` requires `docs/project/goal/current-work.md`.
-  - Project-doc checks fail when the mandatory current-work file or route is absent.
-  - A canonical no-active-work state passes validation.
-  - Active current-work records require prompt-safety, prompt, work-goal, derived-plan, implementation-record, reconciliation, truth-layer, review-confirmation, and closure-handoff witnesses.
+  - Project-doc checks pass with durable truth routed through declared owner docs.
+  - Active docs route authority-changing facts to declared owner docs instead of non-owner working evidence.
+  - New project truth docs are accepted only through the docs SSOT declared-owner path.
+  - Docs router validation has no active route to a non-owner project-truth surface.
+  - Text audit confirms active project docs do not define a duplicate project-truth authority outside declared owner docs.
 - Review trigger:
-  - Any proposal to make `current-work.md` optional, remove the no-active-work reset state, move durable project intent out of `goal.md`, or move active-work planning authority to another path.
+  - Any proposal to add a separate project truth owner outside the docs SSOT declared-owner path.
+  - Any proposal to move durable project intent out of `goal.md`, weaken owner-doc promotion, or treat a non-owner evidence surface as project-truth authority.

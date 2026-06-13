@@ -67,7 +67,7 @@ Example rejection:
 Hard gates (copy/paste scaffold sourced from AGENTS.md):
 - Read and follow `AGENTS.md`; if it is inaccessible, request it before doing any work.
 - Execute the `AGENTS.md` Context Injection Procedure using the current `agents-manifest.yaml`.
-- Execute the current-work session gate before any non-trivial plan, review, council output, implementation, or repo mutation.
+- Execute the docs-first authority gate before any non-trivial plan, review, council output, implementation, or repo mutation.
 - For governance auto-edit, apply the `AGENTS.md` Governance Auto-Edit Gate and Subagent Council before editing.
 - {INSTRUCTION_DERIVATION.DERIVATION_SCAFFOLD}
 - Use docs placement and router rules from `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`; do not restate them here.
@@ -99,6 +99,39 @@ This playbook ends after evidence handoff.
             errors = REPO_AND_GOVERNANCE.check_governance_playbook_hard_gates(repo_root)
 
             self.assertEqual([], errors)
+
+    def test_docs_first_prompt_classification_markers_pass(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            repo_root = Path(tmp_dir)
+            write_text(
+                repo_root / "AGENTS.md",
+                """
+## Mandatory Execution Loop (Follow For Every Task)
+
+0) **Docs-first authority gate**:
+   - Classify user intent before project-doc promotion:
+     - Basic task: no project-doc update is required when the request does not change future allowed behavior.
+     - Durable truth: promote the durable fact to the owning project doc before or with implementation.
+     - Ambiguous truth change: ask before treating the fact as project truth.
+   - Agent findings are not project truth unless they preserve existing documented intent, correct an owner doc under its change rule, or are confirmed by the user.
+   - If implementation changes behavior, accepted inputs/outputs, purpose, boundaries, invariants, or project rules, update the owning doc before closure.
+""".lstrip(),
+            )
+
+            errors = REPO_AND_GOVERNANCE.check_docs_first_prompt_classification(repo_root)
+
+            self.assertEqual([], errors)
+
+    def test_docs_first_prompt_classification_markers_fail_when_missing(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            repo_root = Path(tmp_dir)
+            write_text(repo_root / "AGENTS.md", "# AGENTS\n")
+
+            errors = REPO_AND_GOVERNANCE.check_docs_first_prompt_classification(repo_root)
+
+            self.assertTrue(any("Basic task" in error for error in errors), errors)
+            self.assertTrue(any("Durable truth" in error for error in errors), errors)
+            self.assertTrue(any("Ambiguous truth change" in error for error in errors), errors)
 
 
 if __name__ == "__main__":

@@ -9,9 +9,8 @@ This script consolidates cross-platform governance checks:
 4) check_repo_hygiene.ps1
 5) docs unresolved citation placeholders
 6) governance learnings playbook hard-gate parity
-7) check_change_records.ps1 equivalent validation
-8) optional strict python safety mode
-9) instruction derivation scaffold validation
+7) optional strict python safety mode
+8) instruction derivation scaffold validation
 """
 
 from __future__ import annotations
@@ -27,12 +26,11 @@ if sys.version_info < (3, 11):
     raise SystemExit(1)
 
 try:
-    from ._change_records import check_change_records
     from ._instruction_derivation import check_instruction_derivation_gate
     from ._manifest_and_docs import check_agents_manifest, check_docs_ssot, check_project_docs
     from ._repo_and_governance import (
-        check_docs_for_retired_active_references,
         check_docs_for_unresolved_citations,
+        check_docs_first_prompt_classification,
         check_governance_authority_decisions,
         check_governance_playbook_hard_gates,
         check_repo_hygiene,
@@ -41,12 +39,11 @@ try:
     from ._runtime_projection import check_runtime_projection_manifest
     from ._shared import PYTHON_SAFETY_TIMEOUT_SEC, configure_logging, context, logger
 except ImportError:  # pragma: no cover - script-path execution
-    from _change_records import check_change_records
     from _instruction_derivation import check_instruction_derivation_gate
     from _manifest_and_docs import check_agents_manifest, check_docs_ssot, check_project_docs
     from _repo_and_governance import (
-        check_docs_for_retired_active_references,
         check_docs_for_unresolved_citations,
+        check_docs_first_prompt_classification,
         check_governance_authority_decisions,
         check_governance_playbook_hard_gates,
         check_repo_hygiene,
@@ -100,7 +97,7 @@ def main(argv: Sequence[str]) -> int:
     parser = argparse.ArgumentParser(
         description=(
             "Run cross-platform governance checks for manifest/docs/project-docs/hygiene, "
-            "governance playbook parity, unresolved citation markers, and change-record validation."
+            "governance playbook parity, and unresolved citation markers."
         )
     )
     parser.add_argument("--repo-root", help="Target repo root (default: governance root).")
@@ -108,19 +105,6 @@ def main(argv: Sequence[str]) -> int:
         "--governance-root",
         help="Governance root that contains AGENTS.md and agents-manifest.yaml "
         "(default: parent of this script).",
-    )
-    parser.add_argument(
-        "--require-records",
-        action="store_true",
-        help=(
-            "Require docs/project/change-records/*.json (same behavior as "
-            "docs/project/change-records/.required marker)."
-        ),
-    )
-    parser.add_argument(
-        "--only-change-records",
-        action="store_true",
-        help="Run only change-record artifact checks.",
     )
     parser.add_argument(
         "--only-docs-ssot",
@@ -131,6 +115,20 @@ def main(argv: Sequence[str]) -> int:
         "--only-project-docs",
         action="store_true",
         help="Run only project docs linkage/routing checks.",
+    )
+    parser.add_argument(
+        "--only-runtime-projection",
+        action="store_true",
+        help="Run only runtime projection manifest checks.",
+    )
+    parser.add_argument(
+        "--runtime-projection-include",
+        action="append",
+        default=[],
+        help=(
+            "Validate runtime projection source/content only for the named asset class. "
+            "May be passed multiple times; manifest structure is still validated globally."
+        ),
     )
     parser.add_argument(
         "--fail-on-safety-warnings",
@@ -151,24 +149,12 @@ def main(argv: Sequence[str]) -> int:
         logger.error("ERROR: %s", err)
         return 1
 
-    narrow_modes = [args.only_change_records, args.only_docs_ssot, args.only_project_docs]
+    narrow_modes = [args.only_docs_ssot, args.only_project_docs, args.only_runtime_projection]
     if sum(1 for enabled in narrow_modes if enabled) > 1:
         logger.error("ERROR: Choose only one narrow check mode.")
         return 1
 
-    if args.only_change_records:
-        change_record_errors, change_record_notes = check_change_records(
-            repo_root, governance_root, require_records=args.require_records
-        )
-        if change_record_errors:
-            for issue in change_record_errors:
-                logger.error("ERROR: %s", issue)
-            logger.error("Change record checks failed: %s issue(s).", len(change_record_errors))
-            return 1
-        for note in change_record_notes or ["Change record checks passed."]:
-            logger.info(note)
-        _emit_success_marker(args.success_marker)
-        return 0
+    runtime_projection_content_scope = set(args.runtime_projection_include) or None
 
     if args.only_docs_ssot:
         docs_errors, docs_notes = check_docs_ssot(repo_root, governance_root)
@@ -194,9 +180,31 @@ def main(argv: Sequence[str]) -> int:
         _emit_success_marker(args.success_marker)
         return 0
 
+    if args.only_runtime_projection:
+        runtime_projection_errors, runtime_projection_notes = check_runtime_projection_manifest(
+            repo_root,
+            governance_root,
+            validate_content_for_asset_classes=runtime_projection_content_scope,
+        )
+        if runtime_projection_errors:
+            for issue in runtime_projection_errors:
+                logger.error("ERROR: %s", issue)
+            logger.error(
+                "Runtime projection manifest checks failed: %s issue(s).",
+                len(runtime_projection_errors),
+            )
+            return 1
+        logger.info("Runtime projection manifest checks passed.")
+        for note in runtime_projection_notes:
+            logger.info(note)
+        _emit_success_marker(args.success_marker)
+        return 0
+
     docs_errors, docs_notes = check_docs_ssot(repo_root, governance_root)
     runtime_projection_errors, runtime_projection_notes = check_runtime_projection_manifest(
-        repo_root, governance_root
+        repo_root,
+        governance_root,
+        validate_content_for_asset_classes=runtime_projection_content_scope,
     )
     total_errors = 0
     for errors, success_message, notes in (
@@ -205,10 +213,10 @@ def main(argv: Sequence[str]) -> int:
         (check_project_docs(repo_root, governance_rel, governance_root), "Project docs checks passed.", []),
         (check_repo_hygiene(repo_root), "Repo hygiene checks passed.", []),
         (check_docs_for_unresolved_citations(repo_root), "Docs unresolved-citation checks passed.", []),
-        (check_docs_for_retired_active_references(repo_root), "Docs retired-reference checks passed.", []),
         (check_governance_playbook_hard_gates(governance_root), "Governance playbook authority-scaffold checks passed.", []),
         (check_instruction_derivation_gate(governance_root), "Instruction derivation scaffold checks passed.", []),
         (check_subagent_council_profile_coverage(governance_root), "Subagent council profile-coverage checks passed.", []),
+        (check_docs_first_prompt_classification(governance_root), "Docs-first prompt-classification checks passed.", []),
         (check_governance_authority_decisions(governance_root), "Governance authority decision registry checks passed.", []),
         (runtime_projection_errors, "Runtime projection manifest checks passed.", runtime_projection_notes),
     ):
@@ -219,17 +227,6 @@ def main(argv: Sequence[str]) -> int:
         elif success_message:
             logger.info(success_message)
         for note in notes:
-            logger.info(note)
-
-    change_record_errors, change_record_notes = check_change_records(
-        repo_root, governance_root, require_records=args.require_records
-    )
-    if change_record_errors:
-        for issue in change_record_errors:
-            logger.error("ERROR: %s", issue)
-        total_errors += len(change_record_errors)
-    else:
-        for note in change_record_notes or ["Change record checks passed."]:
             logger.info(note)
 
     if args.fail_on_safety_warnings:

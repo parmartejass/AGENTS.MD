@@ -42,7 +42,7 @@ This template is a prompting scaffold.
 - authority fix point (where fix should be applied):
 - class of errors prevented by fixing at authority:
 - authority owner unknown or conflicting? (Y/N):
-- if authority owner is unknown/conflicting: STOP and resolve ownership before implementing the fix.
+- if authority owner is unknown/conflicting: follow `AGENTS.md` authority-gap handling before implementing the fix.
 - if patching at symptom, justify:
 
 ## RCA evidence
@@ -66,7 +66,7 @@ This template is a prompting scaffold.
 - disconfirming test:
 - failure-path check:
 - guard check (full suite or smoke suite confirming nothing else broke):
-- change record artifact (when enabled): `docs/project/change-records/<timestamp>-<slug>.json`
+- owner-doc promotion target and witness for durable authority-changing outcomes:
 - if behavior changed: shift-left prevention updates (tests/design/contracts/observability):
 - modularity decision (if new logic introduced; use the decomposition record in `design-principles-checklist.md`):
 - security/resource/perf scan (notes):

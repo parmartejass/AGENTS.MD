@@ -4,12 +4,12 @@ ssot_owner: AGENTS.md
 update_trigger: change contract fields or verification checklist requirements change
 ---
 
-# Change Contract Template (Required for any change record)
+# Change Contract Template (Required for behavior changes and bugfixes)
 
-Use in PR description or commit message. When artifact-based verification is enabled for the repo, record the same evidence in `docs/project/change-records/*.json` and validate it against `docs/agents/schemas/change-record.schema.json`.
+Use as a temporary implementation/review scaffold; `AGENTS.md` and owner docs define required semantics, while Git remains the mechanical change-history source.
 
 ```md
-# Change Contract (Required)
+# Change Contract
 
 ## A) Problem Statement (Observed vs Expected)
 - Observed:
@@ -55,7 +55,7 @@ Identify which authorities are touched and confirm no new competing authority ex
 - Writer authority impacted? (Y/N)
 - Excel lifecycle authority impacted? (Y/N)
 - Logger/schema authority impacted? (Y/N)
-- Report ledger authority impacted? (Y/N)
+- Reporting/run-outcome authority impacted? (Y/N)
 
 No-duplication proof (list any removed duplicated logic/files):
 - Removed:

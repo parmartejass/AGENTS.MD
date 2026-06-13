@@ -6,9 +6,16 @@ update_trigger: authority graph rules change OR module boundary/contract guidanc
 
 # 35 - Folder-Centered Authority Modules with Explicit Contracts
 
-This policy supports the hard-gated "Authority Graph" requirement.
-It explains how to structure code so authority boundaries are explicit and auditable.
+This delegated policy supports the hard-gated "Module Architecture" and "Authority Graph" requirements in `AGENTS.md`.
+It explains how to apply those gates so runtime-code authority boundaries are explicit and auditable.
 If any wording conflicts with `AGENTS.md`, `AGENTS.md` wins.
+
+## Authority role
+- `AGENTS.md` owns the always-on code-modularity hard gate and conflict precedence.
+- This doc owns delegated runtime-code module-contract mechanics under that gate: boundary application, contract expectations, dependency direction, decomposition procedure, boundary witnesses, and reject-pattern guidance.
+- `scripts/entrypoint_contracts.json` owns public contract filename pattern facts.
+- `scripts/check_folder_architecture/scope.json` owns the current checker-readable enforcement scope.
+- Use this doc whenever implementation code is added, reviewed, refactored, decomposed, or wired across feature-folder boundaries.
 
 ## Core rules (authority alignment)
 - One authority per decision-critical responsibility.
@@ -44,6 +51,14 @@ If any wording conflicts with `AGENTS.md`, `AGENTS.md` wins.
 - Split inside the same folder first; promote to a child folder when the behavior becomes independently owned.
 - Follow the `400 LOC` hard gate in `AGENTS.md`; LOC alone is not a reason for unrelated refactors.
 
+## Structural minimality
+- The default implementation path is the smallest authority-correct design that preserves or strengthens behavior.
+- Before adding code, identify the authority owner, public entrypoint or contract, config/data/schema source if any, affected invariants, and behavior-preservation witness.
+- Prefer existing owner-owned contracts, registries, schemas, config, and entrypoints over repeated local conditionals or checker-specific patch logic.
+- Continue consolidating while behavior remains equivalent or stronger. LOC reduction is valid evidence only when correctness, explicit failure, witnesses, and SSOT ownership remain intact.
+- Numeric LOC-reduction targets are evidence pressure toward structural minimality, not quotas.
+- Any remaining LOC increase must be justified by new required behavior, stronger validation, or stronger observability.
+
 ## Boundary discipline
 - I/O stays at the boundary: folder entrypoints or boundary helpers may perform I/O, but pure logic functions must not.
 - `shared/` is optional and may contain only data shapes and pure/stateless utilities.
@@ -61,6 +76,8 @@ If any wording conflicts with `AGENTS.md`, `AGENTS.md` wins.
 - Deep imports that bypass the public contract.
 - Sibling-to-sibling imports or child-to-parent imports.
 - The same rule or constant defined in multiple modules.
+- Repeated local enforcement branches when a contract, registry, schema, config owner, or authority-owned validator can represent the rule once.
+- Checker-specific patch logic that encodes policy outside the policy owner instead of reading contract data or calling the owner-owned validation path.
 - Hardcoded data-facing or business facts outside the owning input/config/data authority.
 - UI logic deciding business rules or workflow branching.
 - Orchestration branches that implement business rules directly instead of calling the rule/config/lifecycle authority.

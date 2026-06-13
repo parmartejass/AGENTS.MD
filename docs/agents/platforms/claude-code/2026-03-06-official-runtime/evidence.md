@@ -27,7 +27,7 @@ update_trigger: Claude Code runtime docs, command/agent paths, or settings/MCP r
 
 - Canonical repo-owned skill bundles remain under `docs/agents/skills/`.
 - Auto-project official project-local Claude skills into `.claude/skills/`.
-- Keep generated `.claude/commands/` adapters as compatibility-only output for older environments that still rely on command files.
+- Historical note: older repo decisions kept generated `.claude/commands/` adapters for command-file environments. Current runtime mapping is owned by `docs/agents/platforms/runtime-projections.json`, which no longer projects generated command adapters.
 - Do not auto-project Claude project subagents; canonical agent instructions remain in `AGENTS.md` and context routing remains in `agents-manifest.yaml`.
 - `.mcp.json` remains repo-owned through the canonical MCP config.
 - Keep shared non-secret Claude settings repo-owned in `.claude/settings.json`, while `.claude/settings.local.json` remains local-only.

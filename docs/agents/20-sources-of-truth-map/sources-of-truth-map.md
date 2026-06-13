@@ -61,23 +61,31 @@ Owner: the workflow entrypoint owns the selected-path record unless the repo dec
 - Python-backed PowerShell script interpreter resolution owner: `scripts/_python_check_runner.ps1` (`-PythonExe`, otherwise `python3`, then `python`, Python 3.11+ required, selected path printed before execution). This covers checker wrappers and runtime-projection TOML validation.
 
 ## Module boundaries + contracts
-Owner: exactly one place.
+Owner by decision-critical fact.
+- code-modularity hard gate: `AGENTS.md`
+- delegated runtime-code module-contract mechanics: `docs/agents/35-authority-bounded-modules/authority-bounded-modules.md`
+- public contract filename pattern facts: `scripts/entrypoint_contracts.json`
 - authority boundaries recorded in `docs/project/architecture/architecture.md` (project root)
-- module contracts defined in the authority module entrypoint (see `docs/agents/35-authority-bounded-modules/authority-bounded-modules.md`)
+- module contracts defined in the authority module entrypoint
 
 ## Context injection (supporting docs selection)
 Owner: `agents-manifest.yaml`
 - task signal → which supporting docs/playbooks to load alongside `AGENTS.md`
 
+## Docs modularity / docs folder contracts
+Owner by decision-critical fact.
+- docs-modularity hard gate: `AGENTS.md`
+- delegated docs-family mechanics: `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`
+- docs router and public leaf filename pattern facts: `scripts/entrypoint_contracts.json`
+
 ## Bounded project authority memory
 Owner: the existing `docs/project/` branch authorities, routed from `docs/project/project_index.md`.
 - `docs/project/goal/goal.md` owns durable project intent, objective, acceptance criteria, non-goals, and verification intent.
-- `docs/project/goal/current-work.md` is mandatory and owns the active-work authority record and no-active-work reset state declared by `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`.
 - `docs/project/rules/` owns project-specific protected boundaries.
 - `docs/project/architecture/` owns authority pointers, verified behavior references, implementation rationale, accepted tradeoffs, and protected behavior invariants.
 - `docs/project/data-truth/` owns project data-truth ownership, provenance, validation expectations, and routing to source artifacts, config/default/constant owners, schemas, samples, workbooks, and external systems.
-- `docs/project/learning/` owns durable operational learnings and concise change/supersession notes.
-- `docs/project/change-records/` owns structured evidence artifacts when enabled.
+- `docs/project/learning/` owns reusable operational learnings only; change-specific what/how/why and supersession truth belongs in the highest owner doc for that fact.
+- Working evidence is not a project-memory owner by default; promote only durable facts into the owning SSOT docs.
 
 ## Cross-project SSOT authority decisions
 Owner: `docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md`
@@ -112,6 +120,7 @@ Owner: `AGENTS.md` + `agents-manifest.yaml`
 - instruction derivation rules for prompts, plans, checklists, generated artifacts, and downstream scaffolds
 - prompt/instruction content must not be scattered across ad-hoc files; consolidate in the governance root
 - context injection manifest is the single map from task signals to supporting docs
+- controlling-intent handling is owned by `AGENTS.md`; durable project truth is owned by the appropriate `docs/project/` owner doc
 
 ## Run outcomes / reporting
 Owner: exactly one place.

@@ -4,7 +4,6 @@
   "update_trigger": "official runtime paths, support levels, projection modes, or source/target path-resolution rules change",
   "support_levels": [
     "official",
-    "compatibility",
     "manual",
     "unsupported",
     "reserved"
@@ -29,17 +28,6 @@
         "default_enabled": true
       },
       {
-        "id": "cursor-skill-rules",
-        "platform": "cursor",
-        "support_level": "compatibility",
-        "projection_mode": "generated_cursor_rules_from_skills",
-        "scope": "project",
-        "source_root": "docs/agents/skills",
-        "target_root": ".cursor/rules",
-        "preserve_existing_when_disabled": true,
-        "default_enabled": false
-      },
-      {
         "id": "claude-project-skills",
         "platform": "claude-code",
         "support_level": "official",
@@ -57,27 +45,6 @@
         "scope": "user",
         "target_root": "{HOME}/.agents/skills",
         "reason": "Codex officially supports user-scoped skills in $HOME/.agents/skills, but this repo defaults to project-scoped .agents/skills and does not auto-manage user-home paths.",
-        "default_enabled": false
-      },
-      {
-        "id": "legacy-cursor-skills",
-        "platform": "cursor",
-        "support_level": "compatibility",
-        "projection_mode": "child_directory_links",
-        "scope": "project",
-        "source_root": "docs/agents/skills",
-        "target_root": ".cursor/skills",
-        "default_enabled": false
-      },
-      {
-        "id": "legacy-claude-commands",
-        "platform": "claude-code",
-        "support_level": "compatibility",
-        "projection_mode": "generated_claude_commands_from_skills",
-        "scope": "project",
-        "source_root": "docs/agents/skills",
-        "target_root": ".claude/commands",
-        "preserve_existing_when_disabled": true,
         "default_enabled": false
       }
     ],

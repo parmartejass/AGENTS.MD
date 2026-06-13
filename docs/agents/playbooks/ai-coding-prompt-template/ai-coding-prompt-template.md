@@ -18,7 +18,7 @@ Use when:
 ```
 Hard gates (copy/paste scaffold sourced from AGENTS.md):
 - Read and follow `AGENTS.md`; if it is inaccessible, ask for it before doing any work.
-- Execute the current-work session gate before any non-trivial plan, review, council output, implementation, or repo mutation.
+- Execute the docs-first authority gate before any non-trivial plan, review, council output, implementation, or repo mutation.
 - Derive task instructions from declared SSOT owners; if ownership is unknown or conflicting, stop and report the authority gap before acting.
 
 Task type: <feature|bugfix|refactor>
@@ -111,7 +111,7 @@ The loop prompt must:
 Hard gates (copy/paste scaffold sourced from AGENTS.md):
 - Read and follow `AGENTS.md`; if it is inaccessible, ask for it before doing any work.
 - Execute the current `AGENTS.md` Mandatory Execution Loop and Context Injection Procedure.
-- Execute the current-work session gate before any non-trivial plan, review, council output, implementation, or repo mutation.
+- Execute the docs-first authority gate before any non-trivial plan, review, council output, implementation, or repo mutation.
 - Derive task instructions from declared SSOT owners; if ownership is unknown or conflicting, stop and report the authority gap before acting.
 
 Task type: <feature|bugfix|refactor|review>

@@ -1,4 +1,4 @@
-"""Compatibility delegate for `python -m myapp`."""
+"""Module entry delegate for `python -m myapp`."""
 
 from myapp.myapp_main import main
 

@@ -2,12 +2,11 @@
 import argparse
 import json
 import logging
-import subprocess
 import sys
 from pathlib import Path, PurePosixPath
+from _enumeration import iter_repo_python_files as _iter_repo_python_files
 from _issues import Issue, PythonRoot
 from _imports import TreeSpec, check_parent_only_imports
-from _paths import is_excluded_non_git_python_path
 logger = logging.getLogger(__name__)
 SCOPE_MANIFEST_PATH = "scripts/check_folder_architecture/scope.json"
 ENTRYPOINT_CONTRACTS_PATH = "scripts/entrypoint_contracts.json"
@@ -209,47 +208,6 @@ def _load_scope_manifest(governance_root: Path, issues: list[Issue]) -> list[Pyt
     return roots
 def _is_path_within(rel_path: str, root_path: str) -> bool:
     return rel_path == root_path or rel_path.startswith(root_path + "/")
-def _iter_repo_python_files(root: Path, issues: list[Issue]) -> list[Path]:
-    if not (root / ".git").exists():
-        return sorted(
-            path
-            for path in root.rglob("*.py")
-            if not is_excluded_non_git_python_path(path, root)
-        )
-    command = [
-        "git",
-        "-C",
-        str(root),
-        "ls-files",
-        "--cached",
-        "--others",
-        "--exclude-standard",
-        "--",
-        "*.py",
-    ]
-    try:
-        result = subprocess.run(command, check=True, capture_output=True, text=True, cwd=root, timeout=10)
-    except FileNotFoundError:
-        issues.append(Issue(path="git", message="git is required for deterministic Python file enumeration."))
-        return []
-    except subprocess.TimeoutExpired:
-        issues.append(Issue(path="git", message="git ls-files timed out during Python file enumeration."))
-        return []
-    except subprocess.CalledProcessError as exc:
-        details = " ".join(part.strip() for part in (exc.stderr, exc.stdout) if part and part.strip())
-        if details:
-            issues.append(
-                Issue(path="git", message=f"git ls-files failed during Python file enumeration: {details[:500]}")
-            )
-        else:
-            issues.append(Issue(path="git", message=f"git ls-files failed during Python file enumeration: {exc}"))
-        return []
-    paths: list[Path] = []
-    for raw in result.stdout.splitlines():
-        if not raw.strip():
-            continue
-        paths.append(root / raw.strip())
-    return sorted(paths)
 def _check_python_scope(
     validation_root: Path, governance_root: Path, python_files: list[Path], issues: list[Issue]
 ) -> None:

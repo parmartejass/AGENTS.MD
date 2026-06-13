@@ -10,7 +10,6 @@ except ImportError:  # pragma: no cover - script-path execution
 
 RUNTIME_PROJECTION_REQUIRED_SUPPORT_LEVELS = {
     "official",
-    "compatibility",
     "manual",
     "unsupported",
     "reserved",
@@ -19,8 +18,6 @@ RUNTIME_PROJECTION_ALLOWED_SCOPES = {"project", "user", "system"}
 RUNTIME_PROJECTION_ALLOWED_MODES_BY_ASSET_CLASS = {
     "skills": {
         "child_directory_links",
-        "generated_cursor_rules_from_skills",
-        "generated_claude_commands_from_skills",
         "skip",
     },
     "mcp": {"mcp_file_link", "skip"},
@@ -28,7 +25,6 @@ RUNTIME_PROJECTION_ALLOWED_MODES_BY_ASSET_CLASS = {
     "acp": {"skip"},
 }
 ENTRY_OPTIONAL_BOOLEAN_FIELDS = {
-    "preserve_existing_when_disabled",
     "preserve_existing_non_link",
 }
 
@@ -76,6 +72,12 @@ def _validate_support_levels(manifest: Dict[str, object]) -> List[str]:
             "runtime-projections.json support_levels is missing required values: "
             + ", ".join(sorted(missing))
         )
+    unsupported = set(normalized).difference(RUNTIME_PROJECTION_REQUIRED_SUPPORT_LEVELS)
+    if unsupported:
+        errors.append(
+            "runtime-projections.json support_levels contains unsupported values: "
+            + ", ".join(sorted(unsupported))
+        )
     return errors
 
 
@@ -96,7 +98,11 @@ def _validate_path_resolution(manifest: Dict[str, object]) -> List[str]:
 
 
 def _validate_source_preference(
-    entry_id: str, source_preference: Sequence[object], governance_root: Path
+    entry_id: str,
+    source_preference: Sequence[object],
+    governance_root: Path,
+    *,
+    validate_content: bool,
 ) -> List[str]:
     errors: List[str] = []
     if not isinstance(source_preference, list) or not source_preference:
@@ -113,7 +119,7 @@ def _validate_source_preference(
         errors.append(
             f"runtime-projections.json entry '{entry_id}' source_preference must contain only non-empty strings."
         )
-    elif not any(candidate.is_file() for candidate in resolved_candidates):
+    elif validate_content and not any(candidate.is_file() for candidate in resolved_candidates):
         errors.append(
             f"runtime-projections.json entry '{entry_id}' source_preference does not resolve to an existing file."
         )
@@ -121,7 +127,11 @@ def _validate_source_preference(
 
 
 def _validate_settings_source(
-    entry_id: str, source_path: object, governance_root: Path
+    entry_id: str,
+    source_path: object,
+    governance_root: Path,
+    *,
+    validate_content: bool,
 ) -> Tuple[List[str], List[str]]:
     errors: List[str] = []
     notes: List[str] = []
@@ -129,21 +139,26 @@ def _validate_settings_source(
         return [f"runtime-projections.json entry '{entry_id}' requires non-empty source_path."], notes
 
     resolved_source_path = resolve_runtime_projection_source(source_path, governance_root)
+    suffix = resolved_source_path.suffix.lower()
+    if suffix not in {".json", ".toml"}:
+        errors.append(
+            f"runtime-projections.json entry '{entry_id}' uses unsupported settings file extension '{suffix}'."
+        )
+        return errors, notes
+
+    if not validate_content:
+        return errors, notes
+
     if not resolved_source_path.is_file():
         return [
             f"runtime-projections.json entry '{entry_id}' source_path does not exist: {resolved_source_path}"
         ], notes
 
-    suffix = resolved_source_path.suffix.lower()
     try:
         if suffix == ".json":
             load_json(resolved_source_path)
-        elif suffix == ".toml":
-            load_toml(resolved_source_path)
         else:
-            errors.append(
-                f"runtime-projections.json entry '{entry_id}' uses unsupported settings file extension '{suffix}'."
-            )
+            load_toml(resolved_source_path)
     except RuntimeError as exc:
         errors.append(str(exc))
     return errors, notes
@@ -164,6 +179,7 @@ def _validate_entry(
     allowed_modes: Set[str],
     governance_root: Path,
     seen_ids: Set[str],
+    validate_content: bool,
 ) -> Tuple[List[str], List[str]]:
     errors: List[str] = []
     notes: List[str] = []
@@ -222,16 +238,12 @@ def _validate_entry(
         )
         return errors, notes
 
-    if projection_mode in {
-        "child_directory_links",
-        "generated_cursor_rules_from_skills",
-        "generated_claude_commands_from_skills",
-    }:
+    if projection_mode == "child_directory_links":
         source_root = entry.get("source_root")
         target_root = entry.get("target_root")
         if not isinstance(source_root, str) or not source_root.strip():
             errors.append(f"runtime-projections.json entry '{entry_id}' requires non-empty source_root.")
-        else:
+        elif validate_content:
             resolved_source_root = resolve_runtime_projection_source(source_root, governance_root)
             if not resolved_source_root.is_dir():
                 errors.append(
@@ -241,14 +253,24 @@ def _validate_entry(
             errors.append(f"runtime-projections.json entry '{entry_id}' requires non-empty target_root.")
 
     if projection_mode == "mcp_file_link":
-        errors.extend(_validate_source_preference(entry_id, entry.get("source_preference"), governance_root))
+        errors.extend(
+            _validate_source_preference(
+                entry_id,
+                entry.get("source_preference"),
+                governance_root,
+                validate_content=validate_content,
+            )
+        )
         target_path = entry.get("target_path")
         if not isinstance(target_path, str) or not target_path.strip():
             errors.append(f"runtime-projections.json entry '{entry_id}' requires non-empty target_path.")
 
     if projection_mode == "settings_file_link":
         settings_errors, settings_notes = _validate_settings_source(
-            entry_id, entry.get("source_path"), governance_root
+            entry_id,
+            entry.get("source_path"),
+            governance_root,
+            validate_content=validate_content,
         )
         errors.extend(settings_errors)
         notes.extend(settings_notes)
@@ -263,7 +285,7 @@ def _validate_entry(
                 f"runtime-projections.json entry '{entry_id}' with projection_mode 'skip' requires a non-empty reason."
             )
 
-    if support_level in {"compatibility", "manual", "unsupported", "reserved"} and default_enabled:
+    if support_level in {"manual", "unsupported", "reserved"} and default_enabled:
         errors.append(
             f"runtime-projections.json entry '{entry_id}' must not enable non-official projections by default."
         )
@@ -272,7 +294,10 @@ def _validate_entry(
 
 
 def check_runtime_projection_manifest(
-    repo_root: Path, governance_root: Path
+    repo_root: Path,
+    governance_root: Path,
+    *,
+    validate_content_for_asset_classes: Set[str] | None = None,
 ) -> Tuple[List[str], List[str]]:
     del repo_root
     errors: List[str] = []
@@ -308,6 +333,18 @@ def check_runtime_projection_manifest(
         errors.append("runtime-projections.json asset_classes must be an object.")
         return errors, notes
 
+    if validate_content_for_asset_classes is None:
+        content_asset_classes = set(RUNTIME_PROJECTION_ALLOWED_MODES_BY_ASSET_CLASS)
+    else:
+        content_asset_classes = validate_content_for_asset_classes
+        unsupported = content_asset_classes.difference(RUNTIME_PROJECTION_ALLOWED_MODES_BY_ASSET_CLASS)
+        if unsupported:
+            errors.append(
+                "runtime-projections.json content validation requested unsupported asset classes: "
+                + ", ".join(sorted(unsupported))
+            )
+            return errors, notes
+
     seen_ids: Set[str] = set()
     for asset_class, allowed_modes in RUNTIME_PROJECTION_ALLOWED_MODES_BY_ASSET_CLASS.items():
         entries = asset_classes.get(asset_class)
@@ -316,7 +353,13 @@ def check_runtime_projection_manifest(
             continue
         for idx, entry in enumerate(entries, start=1):
             entry_errors, entry_notes = _validate_entry(
-                asset_class, idx, entry, allowed_modes, governance_root, seen_ids
+                asset_class,
+                idx,
+                entry,
+                allowed_modes,
+                governance_root,
+                seen_ids,
+                asset_class in content_asset_classes,
             )
             errors.extend(entry_errors)
             notes.extend(entry_notes)

@@ -40,7 +40,7 @@ Here's your restart prompt (copy/paste into a new chat/model):
 
 Hard gates (copy/paste scaffold sourced from AGENTS.md):
 - Read and follow `AGENTS.md`; if it is inaccessible, request it before doing any work.
-- Execute the current-work session gate before any non-trivial plan, review, council output, implementation, or repo mutation.
+- Execute the docs-first authority gate before any non-trivial plan, review, council output, implementation, or repo mutation.
 - Derive task instructions from declared SSOT owners; if ownership is unknown or conflicting, stop and report the authority gap before acting.
 
 Goal:
@@ -91,7 +91,7 @@ Here's your restart prompt (copy/paste into a new chat/model):
 
 Hard gates (copy/paste scaffold sourced from AGENTS.md):
 - Read and follow `AGENTS.md`; if it is inaccessible, request it before doing any work.
-- Execute the current-work session gate before any non-trivial plan, review, council output, implementation, or repo mutation.
+- Execute the docs-first authority gate before any non-trivial plan, review, council output, implementation, or repo mutation.
 - Derive task instructions from declared SSOT owners; if ownership is unknown or conflicting, stop and report the authority gap before acting.
 
 Goal: Add Excel validation for duplicate invoice IDs

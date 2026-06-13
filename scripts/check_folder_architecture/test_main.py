@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import shutil
+import subprocess
 import sys
 import tempfile
 import textwrap
@@ -27,6 +28,7 @@ sys.modules[SPEC.name] = MODULE
 SPEC.loader.exec_module(MODULE)
 
 check_governance_owned_contracts = MODULE._check_governance_owned_contracts
+iter_repo_python_files = MODULE._iter_repo_python_files
 load_scope_manifest = MODULE._load_scope_manifest
 python_entrypoint_filename = MODULE._python_entrypoint_filename
 TMP_ROOT = Path(tempfile.gettempdir()) / "agents-md-check-folder-architecture-tests"
@@ -108,6 +110,37 @@ def _write_minimal_governance_tree(governance_root: Path) -> None:
     )
 
 class FolderArchitectureBoundaryTests(unittest.TestCase):
+    @unittest.skipIf(shutil.which("git") is None, "git is not available in PATH.")
+    def test_git_enumeration_skips_deleted_tracked_python_files(self) -> None:
+        with _temporary_workspace() as repo_root:
+            subprocess.run(["git", "init"], cwd=repo_root, check=True, capture_output=True, text=True, timeout=10)
+            tracked_file = repo_root / "scripts/deleted/deleted_main.py"
+            _write(tracked_file, "from __future__ import annotations\n")
+            subprocess.run(["git", "add", str(tracked_file)], cwd=repo_root, check=True, capture_output=True, text=True, timeout=10)
+            tracked_file.unlink()
+
+            issues = []
+            python_files = iter_repo_python_files(repo_root, issues)
+
+            self.assertEqual([], issues)
+            self.assertNotIn(tracked_file, python_files)
+
+    @unittest.skipIf(shutil.which("git") is None, "git is not available in PATH.")
+    def test_git_enumeration_skips_deleted_tracked_python_file_replaced_by_directory(self) -> None:
+        with _temporary_workspace() as repo_root:
+            subprocess.run(["git", "init"], cwd=repo_root, check=True, capture_output=True, text=True, timeout=10)
+            tracked_path = repo_root / "scripts/replaced/replaced_main.py"
+            _write(tracked_path, "from __future__ import annotations\n")
+            subprocess.run(["git", "add", str(tracked_path)], cwd=repo_root, check=True, capture_output=True, text=True, timeout=10)
+            tracked_path.unlink()
+            tracked_path.mkdir()
+
+            issues = []
+            python_files = iter_repo_python_files(repo_root, issues)
+
+            self.assertEqual([], issues)
+            self.assertNotIn(tracked_path, python_files)
+
     def test_scope_manifest_rejects_drive_qualified_paths(self) -> None:
         with _temporary_workspace() as governance_root:
             _write(

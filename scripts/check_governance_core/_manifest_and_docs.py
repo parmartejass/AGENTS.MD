@@ -211,7 +211,6 @@ def _validate_project_docs_profile(manifest_text: str, paths_by_list: Dict[str, 
         "runbook",
         "playbook",
         "adr",
-        "current-work",
         "protected behavior",
         "protected-behavior",
         "data truth",
@@ -358,15 +357,11 @@ def check_docs_ssot(repo_root: Path, governance_root: Path) -> Tuple[List[str], 
 
 try:
     from ._project_authority_docs import (
-        _validate_project_authority_memory_docs,
         _validate_project_optional_leaf_routes,
-        _validate_record_shape,
         check_project_docs,
     )
 except ImportError:  # pragma: no cover - script-path execution
     from _project_authority_docs import (
-        _validate_project_authority_memory_docs,
         _validate_project_optional_leaf_routes,
-        _validate_record_shape,
         check_project_docs,
     )

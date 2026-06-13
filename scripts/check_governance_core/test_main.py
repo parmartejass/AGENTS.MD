@@ -4,7 +4,6 @@ import contextlib
 import importlib.util
 import io
 import sys
-import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -27,9 +26,6 @@ def _load_module(module_name: str, module_path: Path):
 if str(SCRIPT_ROOT) not in sys.path:
     sys.path.insert(0, str(SCRIPT_ROOT))
 
-from _test_helpers import write_text
-
-CHANGE_RECORDS = _load_module("check_governance_core_change_records", SCRIPT_ROOT / "_change_records.py")
 GOVERNANCE_RESEARCH = _load_module(
     "governance_autoresearch",
     REPO_ROOT / "X-Bookmarks Import/skills/governance-autoresearch/scripts/governance_research.py",
@@ -39,30 +35,6 @@ ACTIVE_RESEARCH_FILES = (
     "docs/agents/mcp/00-mcp-standards/mcp-standards.md",
     "docs/agents/platforms/00-platform-runtime-standards/platform-runtime-standards.md",
 )
-
-
-class ChangeRecordReferenceTests(unittest.TestCase):
-    def test_readme_checks_reference_resolves_through_existing_readme(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            repo_root = Path(tmp_dir)
-            write_text(repo_root / "README.md", "# Checks\n")
-
-            self.assertTrue(CHANGE_RECORDS._reference_target_exists(repo_root, "README.md#checks"))
-            self.assertTrue(CHANGE_RECORDS._reference_target_exists(repo_root, ".governance/README.md#checks"))
-
-    def test_readme_checks_reference_does_not_mask_missing_readme(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            repo_root = Path(tmp_dir)
-
-            self.assertFalse(CHANGE_RECORDS._reference_target_exists(repo_root, "README.md#checks"))
-
-    def test_invalid_reference_targets_are_rejected(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            repo_root = Path(tmp_dir)
-            write_text(repo_root / "README.md", "# Checks\n")
-
-            self.assertFalse(CHANGE_RECORDS._reference_target_exists(repo_root, "../README.md#checks"))
-            self.assertFalse(CHANGE_RECORDS._reference_target_exists(repo_root, "/README.md#checks"))
 
 
 class GovernanceResearchTests(unittest.TestCase):

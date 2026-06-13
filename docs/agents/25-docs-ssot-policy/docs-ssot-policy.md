@@ -13,17 +13,23 @@ Follow the file/folder SSOT rule in `AGENTS.md`.
 This doc governs how documentation participates in that structure; it does not redefine the core SSOT rule.
 Universal instruction derivation across prompts, plans, checklists, examples, generated artifacts, and downstream scaffolds is owned by `AGENTS.md`; this doc applies that owner contract only to docs surfaces.
 
+Authority role:
+- `AGENTS.md` owns the always-on docs-modularity hard gate for documentation under `docs/`.
+- This doc owns delegated docs-family mechanics under that gate: placement, headers, routers, public leaves, project-doc placement, owner-doc promotion, optional leaf routing, and drift-prevention boundaries.
+- `scripts/entrypoint_contracts.json` owns docs router and public leaf filename pattern facts.
+- Use this doc whenever docs are added, moved, split, routed, or promoted into project authority records.
+
 ## Bounded Project Authority Memory
 Project docs record only declared durable authority records that constrain future agent behavior until explicitly superseded. This is a docs-first authority path, not a broad memory system.
 
 The boundary is:
 - preserve what changes future allowed behavior
-- reject raw transcript/session memory, temporary plans, discarded ideas, and intermediate debugging noise
+- reject raw working evidence, discarded ideas, and intermediate debugging noise unless a selected durable fact is promoted into its owning doc
 - facts are owned by their declared source of truth, not by file type
 - route to code/config/data/workflow owners by identifier when those owners hold the fact
 - allow project docs or doc-owned artifacts to own facts only when explicitly declared as the SSOT with validation and update triggers
 - keep each promoted fact in one project-doc owner
-- do not create parallel project memory, session history, transcript, or authority-memory doc trees; use the required project-doc branches and triggered leaves below
+- keep required project-doc branches as the baseline, and add future project truth docs only when routed with a declared owner, scope, update trigger, and verification witness
 
 Durable means binding across future sessions until superseded. Ephemeral commands, exploration, local scratch work, and routine task mechanics are non-authority by default unless they create, change, supersede, or rely on a declared authority record.
 
@@ -35,14 +41,12 @@ Authority-changing actions use this classification:
 - `SUPERSEDE`: replace an older authority through an explicit supersession link
 - `ESCALATE`: stop for user/council review because owner, durability, or conflict is not clear
 
-Placement:
+Baseline placement:
 - Durable project intent, stable objective, acceptance criteria, non-goals, and verification intent: `docs/project/goal/goal.md`
-- Active-work authority record: mandatory leaf `docs/project/goal/current-work.md`; owned fields and lifecycle are declared in the mandatory goal-branch leaves below.
 - Project-specific protected boundaries: `docs/project/rules/rules.md`
 - Verified behavior, implementation rationale, accepted tradeoffs, owner graph, and protected behavior invariants: `docs/project/architecture/architecture.md` and triggered leaf `docs/project/architecture/protected-behavior.md`
 - Data-truth ownership, provenance, validation expectations, schemas, source artifacts, mappings, config/default/constant ownership, sample-data authority, workbook/header truth, machine paths, and external-system field authority: `docs/project/data-truth/data-truth.md`
-- Durable operational learnings and concise change/supersession notes: `docs/project/learning/learning.md` and triggered leaf `docs/project/learning/changelog.md`
-- Structured evidence artifacts: `docs/project/change-records/*.json`
+- Durable operational learnings and recurring pitfalls, not per-change history: `docs/project/learning/learning.md`
 
 Promotion rule: if a candidate record does not name the future behavior it changes, its owner, and its verification or supersession trigger, keep it out of project docs.
 
@@ -55,43 +59,54 @@ Precedence:
 Verified behavior records must include evidence, command or artifact, commit/version/date when available, and a re-verification trigger. A verification claim without a trigger can go stale silently and must not be treated as permanent proof.
 
 Required project-doc branches:
-- `goal/`: durable project intent/objective and mandatory current-work handoff/status.
+- `goal/`: durable project intent/objective.
 - `rules/`: standing project-specific do/don't rules.
 - `architecture/`: architecture, authority graph, implementation rationale, and triggered protected-behavior records.
 - `data-truth/`: data-truth ownership, provenance, validation, and routing.
-- `learning/`: durable operational learnings and triggered authority changelog.
+- `learning/`: durable operational learnings and recurring pitfalls; not a change-history surface.
+- Additional project-doc branches are allowed when the docs SSOT policy routes them as declared owner docs with scope, update trigger, and verification witness.
 
-Mandatory goal-branch leaves:
+Project-doc creation contract:
+- `docs/agents/playbooks/project-docs-template/project-docs-template.md` owns the required scaffold contract for creating baseline project-doc branches, baseline root docs, and branch-local owner-subdoc scaffold, including what each root doc must own, must not own, and how its initial jurisdiction/index shape is formed.
+- This policy owns cross-doc mechanics and validation boundaries; do not duplicate the template contract here.
+
+Root docs are jurisdiction/index docs:
+- Use the creation shape owned by `docs/agents/playbooks/project-docs-template/project-docs-template.md`.
+- Do not force every branch truth into the root doc.
+- Do not make a root doc own all project truth for its branch when a stable cluster needs a smaller owner.
+
+Branch-local owner subdocs:
+- Live under the existing project-doc jurisdiction branch that owns the truth.
+- Follow the creation and scaffold contract owned by `docs/agents/playbooks/project-docs-template/project-docs-template.md`.
+- This policy validates cross-doc mechanics: routed placement, required headers, no orphan subdocs, and structural boundaries without semantic category enforcement.
+
+Mandatory goal-branch leaf:
 - `docs/project/goal/goal.md` must exist and owns durable project intent, objective, acceptance criteria, non-goals, and verification intent.
-- `docs/project/goal/current-work.md` must exist and owns the active-work authority record only: live work status, bounded exact-prompt witness, prompt-safety decision and equality witness, derived work-item goal statement, source-derived plan, handoff/checkpoint state, blockers, implementation records, stale/rejected prompt and plan reconciliation, truth-layer witnesses, review confirmation, closure handoff, next safe action, and the no-active-work reset state.
-- Keep the canonical path `docs/project/goal/current-work.md` for stable routing; the human-facing title may be `Current Work Authority` when that improves clarity. Do not create `plan.md`, `.cursor/plans`, transcript, session-memory, or parallel authority trees for active-work planning.
-- The current-work prompt/goal witness is recorded before non-trivial planning, review, council output, implementation, or mutation. Plans, reviews, and council summaries are downstream artifacts until their selected facts are promoted into `current-work.md`; they may not become the first place where the user's controlling intent or accepted plan is preserved.
-- Exact user prompts may be recorded in `current-work.md` only as bounded active-work input witnesses. The prompt section must stay at or below 4000 characters. If a prompt contains secrets, credentials, PII, customer data, or oversized pasted artifacts, stop before writing it and request a redacted prompt or safe substitute; record the prompt-safety decision, evidence, and prompt equality witness.
-- The `Derived Plan` section in `current-work.md` is the source-derived plan authority for active work until closure. Each plan item records its status (`planned`, `in_progress`, `completed`, `skipped`, `deferred`, or `rejected`), prompt/goal link, SSOT owner, target files or docs, and witness.
-- Before work is marked `ready-to-clear`, `current-work.md` must show implementation records, stale/rejected prompt and plan reconciliation, SSOT/truth-layer witnesses using the `AGENTS.md` terms Runtime truth, Semantic truth, and Recorded truth, review confirmation that fulfills the recorded prompt and work-item goal, a changelog witness for authority-changing work, and commit/push closure handoff (`pushed:<remote/ref>`, `PR:<url>`, or `not-required + reason:<reason>`). `committed:<sha>` may be recorded while work remains active, but it is not sufficient for `ready-to-clear`. The changelog witness must resolve to the current-work ID unless it is explicitly `not-required + reason:<reason>`, and the tracked artifact witness must match the actual git status when the target is a git repo.
-- When no work is active, `current-work.md` must use the canonical no-active-work state and must not retain active prompt, goal, plan, implementation, closure, or review-fulfillment residue. Completion folds durable outcomes into owner docs or change records as needed, then resets `current-work.md`; completed task logs do not remain there.
+- If user intent changes durable project objective, acceptance criteria, non-goals, or verification intent, update `goal.md`. If it changes another durable fact, update the owning project doc for that fact. If it is temporary task coordination, do not store it in project docs.
+- Raw prompts containing secrets, credentials, PII, customer data, or oversized pasted artifacts must not be stored in tracked docs. When a durable fact must be recorded, use a redacted durable statement in the owning doc.
+- Runtime status and review state may be used as evidence during review, but they do not own project truth. Before claiming closure, verify that every durable authority-changing fact is promoted into its owner doc.
+- Commit reconciliation checks docs-first truth against the intended commit set. Changed owner docs must either be doc-only steering truth or have matching implementation and verification evidence. Changed implementation must be backed by existing or updated owner truth when it changes durable behavior. Missing routes, orphan docs, stale duplicate truth, and dead artifacts introduced by the same change are owner-scoped fixes when intent is clear; unclear intent, ownership, scope, deletion, or risk requires `hold: <reason>`.
 
 Triggered leaves:
 - Create `docs/project/architecture/protected-behavior.md` when behavior is user-protected, regression-sensitive, intentionally preserved, or replaceable only under an equivalence rule.
-- Create `docs/project/learning/changelog.md` when a durable authority record is added, superseded, retired, weakened, or changed.
 - Absence of an optional leaf means no project-doc record is declared in that leaf. It does not prove no runtime behavior, active work, or change exists elsewhere; agents must still check the relevant declared owners for the task.
 
 Decision tree:
 1. Ask: "What prior truth must affect this change?"
 2. Classify it:
    - binding goal, accepted intent, objective, acceptance criteria, non-goal, or verification intent -> `goal/goal.md`
-   - active-work record field or lifecycle item declared in the mandatory goal-branch leaves above -> `goal/current-work.md`
    - standing project rule -> `rules/rules.md`
    - architecture/rationale/mechanism -> `architecture/architecture.md`
    - protected observable behavior -> `architecture/protected-behavior.md`
    - data value, mapping, schema, workbook/header truth, config/default, threshold, path, source artifact, sample data, or external field -> `data-truth/data-truth.md` or the routed data owner
    - reusable verified lesson -> `learning/learning.md`
-   - accepted authority-changing change, tradeoff, supersession, owner change, final change declaration, or commit/push state for that authority change -> `learning/changelog.md`
+   - accepted authority-changing change, tradeoff, supersession, owner change, final change declaration, or verification intent -> the highest declared owner doc for the fact
 3. Update only the owner of each fact. If a doc is not the owner, route to the owner.
-4. Do not copy large mappings, defaults, headers, tables, or config values into narrative docs unless that doc or a doc-owned artifact is the declared owner.
+4. Do not copy large mappings, defaults, headers, tables, config values, or non-owner summaries into narrative docs unless that doc is the declared owner of that current truth.
 
 Validation boundary:
-- Scripts may validate required files, routers, headers, route links, record IDs, allowed status values, local reference shape, and required record fields.
+- Scripts may validate required baseline branches, branch routers, routed branch-local subdocs, markdown headers and update triggers, route links, local reference shape, and orphan subdoc absence.
+- Scripts must not enforce closed truth-kind lists, exact subdoc names, semantic categories, brittle text scans, or require every branch to have subdocs immediately.
 - Council/manual review decides whether the declared owner is correct, whether a record is durable enough, whether a doc duplicates a non-owner fact, and whether protected-behavior equivalence is proven.
 - Checker-green means structure passed; it is not semantic approval.
 
