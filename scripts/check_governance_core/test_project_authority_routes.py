@@ -40,11 +40,12 @@ def _write_minimal_project_docs(repo_root: Path, *, extra_project_routes: str = 
 - [rules/rules_index.md](rules/rules_index.md) - Rules. Required when: checking rules.
 - [architecture/architecture_index.md](architecture/architecture_index.md) - Architecture. Required when: checking architecture.
 - [data-truth/data-truth_index.md](data-truth/data-truth_index.md) - Data truth. Required when: checking data truth.
+- [changelog/changelog_index.md](changelog/changelog_index.md) - Changelog. Required when: checking closure records.
 - [learning/learning_index.md](learning/learning_index.md) - Learning. Required when: checking learning.
 {extra_project_routes}
 """.lstrip(),
     )
-    for folder in ("goal", "rules", "architecture", "data-truth", "learning"):
+    for folder in ("goal", "rules", "architecture", "data-truth", "changelog", "learning"):
         router_name = f"{folder}_index.md"
         leaf_name = f"{folder}.md"
         write_text(
@@ -122,6 +123,15 @@ update_trigger: steering truth changes
             errors = MANIFEST_AND_DOCS.check_project_docs(repo_root, "", REPO_ROOT)
 
             self.assertFalse(any("steering-truth" in error for error in errors), errors)
+
+    def test_changelog_branch_is_required_and_routed_as_closure_owner(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            repo_root = Path(tmp_dir)
+            _write_minimal_project_docs(repo_root)
+
+            errors = MANIFEST_AND_DOCS.check_project_docs(repo_root, "", REPO_ROOT)
+
+            self.assertFalse(any("changelog" in error for error in errors), errors)
 
     def test_branch_local_subdoc_fails_when_orphan(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:

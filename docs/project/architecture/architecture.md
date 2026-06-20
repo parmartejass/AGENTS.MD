@@ -8,7 +8,7 @@ update_trigger: repo layout, injection profiles, or validation scripts change
 
 ## Boundary
 - This root doc owns project architecture pointers, responsibility splits, authority graph summaries, and structural relationships.
-- It does not own durable project goal, reusable governance policy, data-truth records, operational learnings, runtime projection payloads, or work-status records.
+- It does not own durable project goal, reusable governance policy, data-truth records, tracked closure records, operational learnings, runtime projection payloads, or work-status records.
 
 ## When to create a branch-local owner subdoc
 - Create an architecture subdoc when a stable structural truth cluster needs its own intent, boundary, invariant, change rule, and verification.
@@ -33,8 +33,8 @@ update_trigger: repo layout, injection profiles, or validation scripts change
 - Context injection routing: `agents-manifest.yaml`
 - Docs policy and headers: `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`
 - Bounded project authority memory policy/detail: `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`
-- Project truth authority vs non-owner evidence surfaces: `SSOT-DEC-004` in `docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md`
-- Changelog closure witness routing: `SSOT-DEC-004` owns valid/invalid surfaces; `docs/agents/90-release-checklist/release-checklist.md` owns field template/order.
+- Project truth authority, tracked closure records, and non-owner evidence surfaces: `SSOT-DEC-004` in `docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md`
+- Changelog closure records: `docs/project/changelog/changelog.md` owns tracked closure-record facts; `SSOT-DEC-004` owns valid/invalid closure-record surfaces; `docs/agents/90-release-checklist/release-checklist.md` owns field template/order.
 - Durable project intent, objective, acceptance criteria, non-goals, and verification intent: `docs/project/goal/goal.md`
 - Protected behavior records: branch-local architecture subdoc when concrete observable protected behavior exists.
 - Project data-truth records: `docs/project/data-truth/data-truth.md`
@@ -63,7 +63,7 @@ update_trigger: repo layout, injection profiles, or validation scripts change
 - `docs/agents/skills/` -> reusable skill bundles and projected skill runtime assets
 - `docs/agents/settings/` -> shared settings examples and local-secret boundary
 - `docs/agents/mcp/` -> canonical non-secret MCP payloads
-- `docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md` `SSOT-DEC-004` -> project-local docs route durable facts into declared `docs/project/` owner docs; working evidence and closure evidence remain non-owner evidence unless promoted into the declared owner; `Changelog` valid/invalid surfaces route through the decision record.
+- `docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md` `SSOT-DEC-004` -> project-local docs route durable facts into declared `docs/project/` owner docs; `docs/project/changelog/changelog.md` owns tracked closure-record facts after owner promotion; working evidence and mirror closure evidence remain non-owner evidence unless promoted into the declared owner.
 - `docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md` -> allows `X-Bookmarks Import/` as a non-owner workspace exception; `scripts/check_folder_architecture/scope.json` records that exception for checker scope without making it a canonical governance root
 
 ## Current Modularity Witness Boundary
@@ -71,9 +71,9 @@ update_trigger: repo layout, injection profiles, or validation scripts change
 - Not claimed: language-general import enforcement, broad hardcoded decision-fact scanning, typed config boundary scanning, or selector runtime witnesses without separate structured owners.
 
 ## Retired Checker Contracts
-- Change-record artifact validation is retired: `scripts/check_change_records.ps1`, `scripts/check_governance_core --only-change-records`, `scripts/check_governance_core --require-records`, `docs/agents/schemas/change-record.schema.json`, and `docs/project/change-records/` are not current public checker contracts.
+- Retired change-record checker surfaces are governed by `SSOT-DEC-004`.
 - Replacement verification path: route durable facts through the owning project docs and run the README "Checks" project-doc, docs-router, and governance-core commands.
-- Downstream callers must use the current README "Checks" command list instead of the retired change-record contract.
+- Downstream callers must use the current README "Checks" command list.
 
 ## Outputs
 - A vendored governance pack under `.governance/` in downstream repos, with project docs under `docs/project/` and governance docs under `.governance/docs/agents/`.

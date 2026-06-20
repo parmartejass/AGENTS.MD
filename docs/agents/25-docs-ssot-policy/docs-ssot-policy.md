@@ -46,6 +46,7 @@ Baseline placement:
 - Project-specific protected boundaries: `docs/project/rules/rules.md`
 - Verified behavior, implementation rationale, accepted tradeoffs, owner graph, and protected behavior invariants: `docs/project/architecture/architecture.md` and triggered leaf `docs/project/architecture/protected-behavior.md`
 - Data-truth ownership, provenance, validation expectations, schemas, source artifacts, mappings, config/default/constant ownership, sample-data authority, workbook/header truth, machine paths, and external-system field authority: `docs/project/data-truth/data-truth.md`
+- Tracked closure records for completed non-trivial work: `docs/project/changelog/changelog.md`
 - Durable operational learnings and recurring pitfalls, not per-change history: `docs/project/learning/learning.md`
 
 Promotion rule: if a candidate record does not name the future behavior it changes, its owner, and its verification or supersession trigger, keep it out of project docs.
@@ -63,6 +64,7 @@ Required project-doc branches:
 - `rules/`: standing project-specific do/don't rules.
 - `architecture/`: architecture, authority graph, implementation rationale, and triggered protected-behavior records.
 - `data-truth/`: data-truth ownership, provenance, validation, and routing.
+- `changelog/`: tracked closure records for completed non-trivial work.
 - `learning/`: durable operational learnings and recurring pitfalls; not a change-history surface.
 - Additional project-doc branches are allowed when the docs SSOT policy routes them as declared owner docs with scope, update trigger, and verification witness.
 
@@ -85,7 +87,7 @@ Mandatory goal-branch leaf:
 - If user intent changes durable project objective, acceptance criteria, non-goals, or verification intent, update `goal.md`. If it changes another durable fact, update the owning project doc for that fact. If it is temporary task coordination, do not store it in project docs.
 - Raw prompts containing secrets, credentials, PII, customer data, or oversized pasted artifacts must not be stored in tracked docs. When a durable fact must be recorded, use a redacted durable statement in the owning doc.
 - Runtime status and review state may be used as evidence during review, but they do not own project truth. Before claiming closure, verify that every durable authority-changing fact is promoted into its owner doc.
-- `Changelog` placement and valid/invalid surfaces are governed by `SSOT-DEC-004`; field template/order is governed by `docs/agents/90-release-checklist/release-checklist.md`.
+- `docs/project/changelog/changelog.md` owns tracked `Changelog` closure records; valid/invalid mirror surfaces are governed by `SSOT-DEC-004`; field template/order is governed by `docs/agents/90-release-checklist/release-checklist.md`.
 - Durable facts referenced by `Changelog` resolve to their declared owner docs/code/config/data/workflow authority before closure.
 - Commit reconciliation checks docs-first truth against the intended commit set. Changed owner docs must either be doc-only steering truth or have matching implementation and verification evidence. Changed implementation must be backed by existing or updated owner truth when it changes durable behavior. Missing routes, orphan docs, stale duplicate truth, and dead artifacts introduced by the same change are owner-scoped fixes when intent is clear; unclear intent, ownership, scope, deletion, or risk requires `hold: <reason>`.
 
@@ -102,7 +104,8 @@ Decision tree:
    - protected observable behavior -> `architecture/protected-behavior.md`
    - data value, mapping, schema, workbook/header truth, config/default, threshold, path, source artifact, sample data, or external field -> `data-truth/data-truth.md` or the routed data owner
    - reusable verified lesson -> `learning/learning.md`
-   - accepted authority-changing change, tradeoff, supersession, owner change, final change declaration, or verification intent -> the highest declared owner doc for the fact
+   - closure-record fact for completed non-trivial work -> `changelog/changelog.md`
+   - accepted authority-changing behavior, tradeoff, supersession, owner change, implementation rationale, or verification intent -> the highest declared owner doc for the fact; the `Changelog` may reference that owner but must not substitute for it
 3. Update only the owner of each fact. If a doc is not the owner, route to the owner.
 4. Do not copy large mappings, defaults, headers, tables, config values, or non-owner summaries into narrative docs unless that doc is the declared owner of that current truth.
 

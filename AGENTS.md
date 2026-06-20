@@ -204,7 +204,7 @@ Default posture:
 7) **Verify** with deterministic tools (tests/lint/run) or provide deterministic manual checks
    when tools are unavailable.
 8) **Report**: what changed, where SSOT lives, council findings, and evidence of verification.
-   - For completed non-trivial work, include the `Changelog` closure witness from `docs/agents/90-release-checklist/release-checklist.md` after durable facts are promoted to their owners; valid surfaces are owned by `SSOT-DEC-004`.
+   - For completed non-trivial work, update the tracked project `Changelog` closure record after durable facts are promoted to their owners; closure-record ownership and valid mirror surfaces are owned by `SSOT-DEC-004`, and field template/order routes to `docs/agents/90-release-checklist/release-checklist.md`.
 
 ## Context Injection Procedure (Hard Gate)
 
@@ -535,6 +535,7 @@ Baseline required project docs include:
 - `docs/project/rules/rules.md` (project do/don't rules; router at `docs/project/rules/rules_index.md`)
 - `docs/project/architecture/architecture.md` (SSOT pointers: entrypoints/modules/workflows; router at `docs/project/architecture/architecture_index.md`)
 - `docs/project/data-truth/data-truth.md` (data-truth ownership/provenance/validation routing; router at `docs/project/data-truth/data-truth_index.md`)
+- `docs/project/changelog/changelog.md` (tracked closure records; router at `docs/project/changelog/changelog_index.md`)
 - `docs/project/learning/learning.md` (operational learnings and pitfalls; router at `docs/project/learning/learning_index.md`)
 
 `docs/project/goal/goal.md` owns durable project intent, objective, acceptance criteria, non-goals, and verification intent. Working evidence remains non-authority unless a durable fact is promoted into the declared owning project doc routed by the docs SSOT policy.

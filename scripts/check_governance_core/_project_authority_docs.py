@@ -97,6 +97,8 @@ def check_project_docs(repo_root: Path, governance_rel_path: str, governance_roo
         "docs/project/architecture/architecture.md",
         "docs/project/data-truth/data-truth_index.md",
         "docs/project/data-truth/data-truth.md",
+        "docs/project/changelog/changelog_index.md",
+        "docs/project/changelog/changelog.md",
         "docs/project/learning/learning_index.md",
         "docs/project/learning/learning.md",
     ]
@@ -127,12 +129,12 @@ def check_project_docs(repo_root: Path, governance_rel_path: str, governance_roo
         project_targets, route_errors = extract_route_targets(project_router.read_text(encoding="utf-8"))
         for issue in route_errors:
             errors.append(f"{project_router}: {issue}")
-        for child in ("goal", "rules", "architecture", "data-truth", "learning"):
+        for child in ("goal", "rules", "architecture", "data-truth", "changelog", "learning"):
             expected = f"{child}/{resolve_docs_router_filename(child, docs_contract)}"
             if expected not in project_targets:
                 errors.append(f"docs/project/project_index.md must reference {expected}")
         errors.extend(_validate_project_doc_branch_routes(repo_root, docs_contract, project_targets))
-    for folder_name in ("goal", "rules", "architecture", "data-truth", "learning"):
+    for folder_name in ("goal", "rules", "architecture", "data-truth", "changelog", "learning"):
         dir_path = repo_root / "docs/project" / folder_name
         router_name = resolve_docs_router_filename(folder_name, docs_contract)
         router_path = dir_path / router_name

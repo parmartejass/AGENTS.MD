@@ -156,47 +156,55 @@ Each active decision record must include:
   - Any proposal to reintroduce `index.md` as the universal docs router contract
   - Any proposal to rename or repurpose `SKILL.md` or `mcp.json` under this contract family
 
-### SSOT-DEC-004 - Project truth authority vs non-owner evidence
+### SSOT-DEC-004 - Project truth authority, closure records, and non-owner evidence
 - Status: active
-- Scope: project-doc truth ownership, evidence boundaries, and `Changelog` closure-witness surfaces for repos using this governance pack
+- Scope: project-doc truth ownership, tracked `Changelog` closure-record ownership, evidence boundaries, and non-owner mirror surfaces for repos using this governance pack
 - Canonical owner:
   - Authority-boundary decision: this decision record (`SSOT-DEC-004`)
   - Governing required-doc and owner-doc promotion contract: `AGENTS.md`
   - Placement and owner-doc promotion mechanics: `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`
   - Project-doc scaffold shape: `docs/agents/playbooks/project-docs-template/project-docs-template.md`
-  - `Changelog` field template/order: `docs/agents/90-release-checklist/release-checklist.md`
+  - Project-local tracked closure-record owner: `docs/project/changelog/changelog.md`
+  - `Changelog` closure-record field template/order: `docs/agents/90-release-checklist/release-checklist.md`
 - Allowed non-owner locations:
   - `docs/project/goal/goal.md` owns durable project intent, objective, acceptance criteria, non-goals, and verification intent.
   - Other `docs/project/` owner docs own their declared durable project truth under `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`.
-  - Temporary local planning notes, PR/review evidence, git history, task coordination artifacts, working evidence, and closure evidence may support review, but they are evidence only unless selected durable facts are promoted into a declared owner doc.
-  - Valid `Changelog` surfaces: final agent reports, PR/release descriptions, and release/checklist outputs after durable facts are promoted to their owners; field template/order routes to `docs/agents/90-release-checklist/release-checklist.md`.
+  - `docs/project/changelog/changelog.md` owns tracked closure-record facts only: change ID/date/status, closure statement, owner-promotion references, changed surfaces grouped by owner, verification witness/result, residual risks/follow-up, and commit/PR reference.
+  - Temporary local planning notes, PR/review evidence, git history, task coordination artifacts, working evidence, and closure evidence may support review, but they are evidence only unless selected durable facts are promoted into a declared owner doc or closure facts are recorded in the tracked `Changelog`.
+  - Valid `Changelog` mirror surfaces: final agent reports, PR/release descriptions, and release/checklist outputs after durable facts are promoted to their owners and the tracked project `Changelog` is updated or marked `N/A + reason`; field template/order routes to `docs/agents/90-release-checklist/release-checklist.md`.
   - Template/example project-doc instances may show the same durable owner-doc shape under their own example project roots, but they do not define policy.
 - Forbidden duplicates:
   - Do not require, route, scaffold, or recreate a separate project-doc truth owner outside the docs SSOT declared owner-doc path.
-  - Do not use `Changelog` as a project-truth owner or store it in `docs/project/changelog*`, per-change tracked changelog files by default, restored `docs/project/change-records/`, restored change-record schemas, or restored change-record checker flags.
+  - Do not use `Changelog` as the owner for behavior, invariants, project intent, architecture, rules, data truth, reusable governance policy, implementation rationale, active work, raw prompts, transcripts, or unpromoted working evidence.
+  - Do not store closure records in per-change tracked changelog files by default, `docs/project/learning/changelog.md`, restored `docs/project/change-records/`, restored change-record schemas, or restored change-record checker flags.
   - Do not store raw prompts containing secrets, credentials, PII, customer data, or oversized pasted artifacts in tracked docs.
   - Do not treat non-owner working evidence as project truth.
 - Coordinated update set:
   - `AGENTS.md`
   - `README.md`
+  - `agents-manifest.yaml`
   - `docs/agents/20-sources-of-truth-map/sources-of-truth-map.md`
   - `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`
   - `docs/agents/90-release-checklist/release-checklist.md`
   - `docs/agents/playbooks/project-docs-template/project-docs-template.md`
   - `docs/project/project_index.md`
   - `docs/project/architecture/architecture.md`
+  - `docs/project/changelog/changelog_index.md`
+  - `docs/project/changelog/changelog.md`
   - `docs/project/goal/goal_index.md`
   - `docs/project/goal/goal.md`
+  - `docs/project/learning/learning.md`
   - `scripts/check_governance_core/` project-doc validator contracts/tests, including `_project_authority_docs.py`, `_repo_and_governance.py`, and related tests
   - `templates/python-dual-entry/docs/project/`
 - Verification witness:
   - Project-doc checks pass with durable truth routed through declared owner docs.
+  - Tracked `Changelog` closure records reference owner-promotion targets for durable facts or `N/A + reason`.
   - Active docs route authority-changing facts to declared owner docs instead of non-owner working evidence.
   - New project truth docs are accepted only through the docs SSOT declared-owner path.
   - Docs router validation has no active route to a non-owner project-truth surface.
-  - Retired change-record files/directories remain absent, and retired checker flags remain absent from public command surfaces.
+  - Retired change-record files/directories remain absent, retired checker flags remain absent from public command surfaces, and no per-change tracked changelog-file tree is recreated.
   - Text audit confirms active project docs do not define a duplicate project-truth authority outside declared owner docs.
 - Review trigger:
   - Any proposal to add a separate project truth owner outside the docs SSOT declared-owner path.
   - Any proposal to move durable project intent out of `goal.md`, weaken owner-doc promotion, or treat a non-owner evidence surface as project-truth authority.
-  - Any proposal to add `Changelog` storage outside the valid surface set, copy the release-checklist field template into non-owner docs, or restore retired change-record contracts.
+  - Any proposal to add `Changelog` storage outside the tracked project `Changelog` owner and valid mirror surface set, copy the release-checklist field template into non-owner docs, or restore retired change-record contracts.

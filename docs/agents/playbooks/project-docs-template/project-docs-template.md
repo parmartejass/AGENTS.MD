@@ -23,6 +23,7 @@ These outputs are the project-doc creation contract owned by this playbook. The 
 - `docs/project/rules/rules_index.md` and `docs/project/rules/rules.md`
 - `docs/project/architecture/architecture_index.md` and `docs/project/architecture/architecture.md`
 - `docs/project/data-truth/data-truth_index.md` and `docs/project/data-truth/data-truth.md`
+- `docs/project/changelog/changelog_index.md` and `docs/project/changelog/changelog.md`
 - `docs/project/learning/learning_index.md` and `docs/project/learning/learning.md`
 
 Required references:
@@ -38,6 +39,7 @@ Required root-doc ownership:
 - `docs/project/architecture/architecture.md`: project boundaries, owner graph, responsibility splits, input-to-output flow, coupling boundaries, and structural relationships.
 - `docs/project/rules/rules.md`: deterministic project-specific do/don't constraints and why they exist.
 - `docs/project/data-truth/data-truth.md`: data-truth jurisdiction and routing to concrete owners such as schemas, config/defaults, source artifacts, samples, and external systems.
+- `docs/project/changelog/changelog.md`: tracked closure records for completed non-trivial work after durable facts are promoted to their owners.
 - `docs/project/learning/learning.md`: reusable operational learnings and recurring pitfalls; not change history.
 
 Required root-doc shape:
@@ -91,6 +93,7 @@ Ensure `README.md` contains (at minimum):
 - [docs/project/rules/rules_index.md](rules/rules_index.md) - Project-specific rules that supplement `AGENTS.md`. Required when: checking project-local do/don't rules.
 - [docs/project/architecture/architecture_index.md](architecture/architecture_index.md) - Architecture, SSOT pointers, and protected behavior records. Required when: locating owners, entrypoints, protected invariants, or authority relationships.
 - [docs/project/data-truth/data-truth_index.md](data-truth/data-truth_index.md) - Data-truth ownership, provenance, validation, and routing. Required when: locating declared data/config/constant/default/sample/workbook/external-system truth owners.
+- [docs/project/changelog/changelog_index.md](changelog/changelog_index.md) - Tracked closure records for completed non-trivial work. Required when: closing non-trivial work or reviewing what changed and where durable facts were promoted.
 - [docs/project/learning/learning_index.md](learning/learning_index.md) - Durable operational learnings and recurring pitfalls. Required when: checking prior lessons or recurring friction.
 ```
 
@@ -313,6 +316,40 @@ update_trigger: data-truth ownership, provenance, validation, or routing changes
 
 ## Verification
 - README "Checks" owns the deterministic project-doc and docs-router verification commands.
+```
+
+### `docs/project/changelog/changelog_index.md`
+```md
+# Changelog Branch Index
+
+- [changelog.md](changelog.md) - Tracked closure records for completed non-trivial work. Required when: closing non-trivial work or reviewing what changed and where durable facts were promoted.
+```
+
+### `docs/project/changelog/changelog.md`
+```md
+---
+doc_type: reference
+ssot_owner: docs/project/changelog/changelog.md
+update_trigger: non-trivial work closes OR closure-record field contract changes
+---
+
+# Changelog
+
+## Boundary
+- This branch owns tracked closure-record facts for completed non-trivial work.
+- This branch does not own behavior, invariants, project goals, rules, data truth, architecture, implementation rationale, active work, raw prompts, transcripts, or unpromoted working evidence.
+
+## Invariant
+- Each closure record references the owning docs/code/config/data/workflow authority for durable facts, or records `N/A + reason`.
+- A closure record must not substitute for owner-doc promotion.
+- Raw secrets, credentials, PII, customer data, and oversized pasted artifacts must not be stored here.
+
+## Field Contract
+- Closure-record field template/order is owned by `docs/agents/90-release-checklist/release-checklist.md`.
+- Entries must follow that owner instead of redefining the field template here.
+
+## Entries
+- None currently declared.
 ```
 
 ### `docs/project/learning/learning_index.md`

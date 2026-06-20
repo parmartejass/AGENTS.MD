@@ -36,9 +36,10 @@ update_trigger: release gates change
 - Docs do not duplicate facts; they reference identifiers and owners.
 - Comments are "why-only" and do not restate logic/defaults.
 
-## Changelog (closure witness)
+## Changelog (tracked closure record)
 - Use after completed non-trivial work promotes durable facts to their owning docs/code/config/data/workflow authority.
-- Valid-surface authority: `SSOT-DEC-004`.
+- Tracked project owner and valid mirror-surface authority: `SSOT-DEC-004`.
+- Tracked project path when project docs are available: `docs/project/changelog/changelog.md`.
 - Field template/order:
   - Change ID/date/status:
   - Closure statement:

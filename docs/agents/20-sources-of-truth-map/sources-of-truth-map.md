@@ -93,6 +93,7 @@ Owner: the existing `docs/project/` branch authorities, routed from `docs/projec
 - `docs/project/rules/` owns project-specific protected boundaries.
 - `docs/project/architecture/` owns authority pointers, verified behavior references, implementation rationale, accepted tradeoffs, and protected behavior invariants.
 - `docs/project/data-truth/` owns project data-truth ownership, provenance, validation expectations, and routing to source artifacts, config/default/constant owners, schemas, samples, workbooks, and external systems.
+- `docs/project/changelog/` owns tracked closure-record facts for completed non-trivial work after durable facts are promoted to their owners.
 - `docs/project/learning/` owns reusable operational learnings only; change-specific what/how/why and supersession truth belongs in the highest owner doc for that fact.
 - Working evidence is not a project-memory owner by default; promote only durable facts into the owning SSOT docs.
 
@@ -138,4 +139,4 @@ Owner: exactly one place.
 - known work reconciliation: `planned`, `eligible`, `executed`, `skipped`, `failed`
 - user-visible status/reporting consumes workflow outcomes and reason codes; UI/CLI/report surfaces must not redefine success, failure, skip, or no-op semantics
 - user-facing summaries include accepted input/scope, progress/current phase for long work, terminal result, produced artifacts, skip/failure reason, required user action, and run/report/log pointer when applicable
-- `Changelog` closure witness: valid/invalid surfaces owned by `SSOT-DEC-004`; field template/order owned by `docs/agents/90-release-checklist/release-checklist.md`
+- `Changelog` closure records: tracked project owner and valid mirror surfaces owned by `SSOT-DEC-004`; field template/order owned by `docs/agents/90-release-checklist/release-checklist.md`

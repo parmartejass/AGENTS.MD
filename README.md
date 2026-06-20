@@ -21,8 +21,8 @@ When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` an
 
 ## Project docs (this repo)
 
-- Entry point: `docs/project/project_index.md` (goal, rules, architecture/protected behavior, data-truth, learning)
-- Project docs provide bounded authority memory only for durable truths that change future allowed behavior.
+- Entry point: `docs/project/project_index.md` (goal, rules, architecture/protected behavior, data-truth, changelog, learning)
+- Project docs provide bounded authority memory for durable truths that change future allowed behavior plus tracked closure records for completed non-trivial work.
 - Facts are owned by declared SSOT owners, not by file type; project docs may own data/config/constant/default facts when explicitly declared and validated.
 
 ## Repo-owned agent assets
@@ -91,6 +91,9 @@ When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` an
 |     |- project_index.md
 |     |- architecture/
 |     |  |- architecture_index.md
+|     |- changelog/
+|     |  |- changelog_index.md
+|     |  |- changelog.md
 |     |- data-truth/
 |     |  |- data-truth_index.md
 |     |  |- data-truth.md

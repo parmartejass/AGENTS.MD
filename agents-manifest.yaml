@@ -385,6 +385,11 @@ profiles:
         - "project data truth"
         - "project data-truth"
         - "docs/project/data-truth/data-truth.md"
+        - "project changelog"
+        - "docs/project/changelog/changelog.md"
+        - "closure record"
+        - "closure records"
+        - "tracked closure"
         - "docs source artifact"
         - "authority accepted tradeoff"
         - "project authority supersession"
@@ -402,6 +407,7 @@ profiles:
       - "docs/agents/25-docs-ssot-policy/docs-ssot-policy.md"
       - "docs/agents/20-sources-of-truth-map/sources-of-truth-map.md"
       - "docs/agents/playbooks/project-docs-template/project-docs-template.md"
+      - "docs/agents/90-release-checklist/release-checklist.md"
 
   governance_improvement:
     detect:
@@ -433,6 +439,7 @@ profiles:
       - "docs/agents/25-docs-ssot-policy/docs-ssot-policy.md"
       - "docs/agents/35-coding-principles/coding-principles.md"
       - "docs/agents/05-context-retrieval/context-retrieval.md"
+      - "docs/agents/90-release-checklist/release-checklist.md"
       - "docs/agents/settings/00-settings-standards/settings-standards.md"
       - "docs/agents/15-stuck-in-loop-generate-fresh-restart-prompt/stuck-in-loop-generate-fresh-restart-prompt.md"
       - "docs/agents/playbooks/governance-learnings-template/governance-learnings-template.md"
