@@ -118,7 +118,7 @@ Each active decision record must include:
 - Canonical owner:
   - Governing hard gate for code/docs modularity: `AGENTS.md`
   - Human-readable policy owner for docs-family behavior: `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`
-  - Human-readable delegated policy owner for runtime-code family mechanics: `docs/agents/35-authority-bounded-modules/authority-bounded-modules.md`
+  - Human-readable delegated policy owner for coding-principles and runtime-code family mechanics: `docs/agents/35-coding-principles/coding-principles.md`
   - Machine-readable filename registry for contract families: `scripts/entrypoint_contracts.json`
 - Allowed non-owner locations:
   - Router-linked public leaf markdown docs inside the same docs folder authority
@@ -132,9 +132,8 @@ Each active decision record must include:
 - Coordinated update set:
   - `AGENTS.md`
   - `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`
-  - `docs/agents/35-authority-bounded-modules/authority-bounded-modules.md`
+  - `docs/agents/35-coding-principles/coding-principles.md`
   - `docs/agents/playbooks/project-docs-template/project-docs-template.md`
-  - `docs/agents/playbooks/design-principles-checklist/design-principles-checklist.md`
   - `docs/agents/workflow-registry/workflow-registry.md`
   - `docs/project/architecture/architecture.md`
   - `agents-manifest.yaml`
@@ -159,20 +158,22 @@ Each active decision record must include:
 
 ### SSOT-DEC-004 - Project truth authority vs non-owner evidence
 - Status: active
-- Scope: project-doc truth ownership for repos using this governance pack, including the boundary between declared owner docs and non-owner evidence surfaces
+- Scope: project-doc truth ownership, evidence boundaries, and `Changelog` closure-witness surfaces for repos using this governance pack
 - Canonical owner:
   - Authority-boundary decision: this decision record (`SSOT-DEC-004`)
   - Governing required-doc and owner-doc promotion contract: `AGENTS.md`
   - Placement and owner-doc promotion mechanics: `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`
-  - Scaffold shape: `docs/agents/playbooks/project-docs-template/project-docs-template.md`
+  - Project-doc scaffold shape: `docs/agents/playbooks/project-docs-template/project-docs-template.md`
+  - `Changelog` field template/order: `docs/agents/90-release-checklist/release-checklist.md`
 - Allowed non-owner locations:
   - `docs/project/goal/goal.md` owns durable project intent, objective, acceptance criteria, non-goals, and verification intent.
   - Other `docs/project/` owner docs own their declared durable project truth under `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`.
   - Temporary local planning notes, PR/review evidence, git history, task coordination artifacts, working evidence, and closure evidence may support review, but they are evidence only unless selected durable facts are promoted into a declared owner doc.
+  - Valid `Changelog` surfaces: final agent reports, PR/release descriptions, and release/checklist outputs after durable facts are promoted to their owners; field template/order routes to `docs/agents/90-release-checklist/release-checklist.md`.
   - Template/example project-doc instances may show the same durable owner-doc shape under their own example project roots, but they do not define policy.
 - Forbidden duplicates:
   - Do not require, route, scaffold, or recreate a separate project-doc truth owner outside the docs SSOT declared owner-doc path.
-  - Do not create changelog-like project truth ledgers, steering-truth meta-docs, work-status surfaces, broad history surfaces, or catch-all project-truth docs.
+  - Do not use `Changelog` as a project-truth owner or store it in `docs/project/changelog*`, per-change tracked changelog files by default, restored `docs/project/change-records/`, restored change-record schemas, or restored change-record checker flags.
   - Do not store raw prompts containing secrets, credentials, PII, customer data, or oversized pasted artifacts in tracked docs.
   - Do not treat non-owner working evidence as project truth.
 - Coordinated update set:
@@ -180,6 +181,7 @@ Each active decision record must include:
   - `README.md`
   - `docs/agents/20-sources-of-truth-map/sources-of-truth-map.md`
   - `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`
+  - `docs/agents/90-release-checklist/release-checklist.md`
   - `docs/agents/playbooks/project-docs-template/project-docs-template.md`
   - `docs/project/project_index.md`
   - `docs/project/architecture/architecture.md`
@@ -192,7 +194,9 @@ Each active decision record must include:
   - Active docs route authority-changing facts to declared owner docs instead of non-owner working evidence.
   - New project truth docs are accepted only through the docs SSOT declared-owner path.
   - Docs router validation has no active route to a non-owner project-truth surface.
+  - Retired change-record files/directories remain absent, and retired checker flags remain absent from public command surfaces.
   - Text audit confirms active project docs do not define a duplicate project-truth authority outside declared owner docs.
 - Review trigger:
   - Any proposal to add a separate project truth owner outside the docs SSOT declared-owner path.
   - Any proposal to move durable project intent out of `goal.md`, weaken owner-doc promotion, or treat a non-owner evidence surface as project-truth authority.
+  - Any proposal to add `Changelog` storage outside the valid surface set, copy the release-checklist field template into non-owner docs, or restore retired change-record contracts.

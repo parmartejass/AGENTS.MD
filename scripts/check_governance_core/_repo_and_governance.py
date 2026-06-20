@@ -20,11 +20,9 @@ TRACKED_SECRET_PATH_PATTERNS = (
         re.IGNORECASE,
     ),
 )
-UNRESOLVED_CITATION_PATTERNS = (
-    "cite",
-    "entity",
-    "image_group",
-)
+UNRESOLVED_CITATION_PATTERNS = ("cite", "entity", "image_group")
+
+
 def check_repo_hygiene(repo_root: Path) -> List[str]:
     errors: List[str] = []
     if not (repo_root / ".git").exists():

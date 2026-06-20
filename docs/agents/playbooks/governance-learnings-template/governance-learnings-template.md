@@ -190,7 +190,7 @@ Decision-grade brief (required before learnings; use this exact label order):
 Council summary block (required before Step 4; follow `AGENTS.md` "Subagent Council (Hard Gate)"):
 - council_run_id:
 - phase (`pre_change` | `post_change`):
-- intent_coverage (`ssot_duplication`, `silent_error`, `edge_case`, `resource_security_perf`):
+- intent_coverage (`ssot_duplication`, `silent_error`, `edge_case`, `resource_security_perf`, `coding_principles_authority_design`):
 - reviewers (id, role, scope):
 - findings (severity, location, issue, evidence, recommendation):
 - conflicts:
@@ -198,6 +198,7 @@ Council summary block (required before Step 4; follow `AGENTS.md` "Subagent Coun
 - residual_risks:
 - go_no_go (`go` | `hold`):
 - verification_links:
+- authority_application (`authority_inputs`, `applied_obligations`, `decision_basis`, `evidence`):
 - profile_doc_coverage (when `AGENTS.md` Profile-Aware Context Coverage applies):
 
 Severity rubric (for findings):
@@ -234,7 +235,7 @@ Steps:
    - Use `rg` for verification and record search terms used when practical.
    - Mark status as `ALREADY_COVERED`, `PARTIAL`, or `MISSING`.
 4) Council review (required before edits):
-   - Run the Subagent Council per `AGENTS.md` "Subagent Council (Hard Gate)" with minimum intention coverage (SSOT/duplication, silent-error scan, edge-case scan, resource/security/perf).
+   - Run the Subagent Council per `AGENTS.md` "Subagent Council (Hard Gate)" with its minimum intention coverage.
    - Merge findings into one council summary block using the required fields above.
    - For each HIGH/MEDIUM finding, include at least one evidence item (R or D) and one action (apply/defer + rationale).
    - If `go_no_go` is `hold`, stop and ask before editing.

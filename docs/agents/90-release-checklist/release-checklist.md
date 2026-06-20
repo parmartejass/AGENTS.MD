@@ -35,3 +35,15 @@ update_trigger: release gates change
 ## Docs + comments
 - Docs do not duplicate facts; they reference identifiers and owners.
 - Comments are "why-only" and do not restate logic/defaults.
+
+## Changelog (closure witness)
+- Use after completed non-trivial work promotes durable facts to their owning docs/code/config/data/workflow authority.
+- Valid-surface authority: `SSOT-DEC-004`.
+- Field template/order:
+  - Change ID/date/status:
+  - Closure statement:
+  - Owner promotion references for durable facts or `N/A + reason`:
+  - Changed surfaces grouped by owner:
+  - Verification command/manual witness and result:
+  - Residual risks/follow-up:
+  - Commit/PR reference or `N/A + reason`:

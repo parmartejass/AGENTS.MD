@@ -39,9 +39,9 @@ semantic_queries:
   bugfix:
     - "Where is the failing functionality implemented?"
     - "What SSOT owns this behavior?"
-  design_review:
-    - "Where are module boundaries and authority contracts defined?"
-    - "Where are design principles and modularity checks codified?"
+  coding_principles:
+    - "Where are coding authority design, SSOT jurisdiction, and module contracts defined?"
+    - "Where are coding principles, structural minimality, and post-diff purification codified?"
   io_batch:
     - "Where is high-volume file I/O handled in this repo?"
     - "What SSOT owns batching/chunking/caching for file processing?"
@@ -345,7 +345,7 @@ profiles:
       - "docs/agents/00-principles/principles.md"
       - "docs/agents/10-repo-discovery/repo-discovery.md"
       - "docs/agents/30-logging-errors/logging-errors.md"
-      - "docs/agents/35-authority-bounded-modules/authority-bounded-modules.md"
+      - "docs/agents/35-coding-principles/coding-principles.md"
       - "docs/agents/playbooks/bugfix-template/bugfix-template.md"
       - "docs/agents/playbooks/rca-methods-template/rca-methods-template.md"
 
@@ -431,12 +431,11 @@ profiles:
       - "docs/agents/20-sources-of-truth-map/sources-of-truth-map.md"
       - "docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md"
       - "docs/agents/25-docs-ssot-policy/docs-ssot-policy.md"
-      - "docs/agents/35-authority-bounded-modules/authority-bounded-modules.md"
+      - "docs/agents/35-coding-principles/coding-principles.md"
       - "docs/agents/05-context-retrieval/context-retrieval.md"
       - "docs/agents/settings/00-settings-standards/settings-standards.md"
       - "docs/agents/15-stuck-in-loop-generate-fresh-restart-prompt/stuck-in-loop-generate-fresh-restart-prompt.md"
       - "docs/agents/playbooks/governance-learnings-template/governance-learnings-template.md"
-      - "docs/agents/playbooks/design-principles-checklist/design-principles-checklist.md"
       - "docs/agents/playbooks/rca-methods-template/rca-methods-template.md"
       - "docs/project/project_index.md"
       - "docs/project/learning/learning.md"
@@ -461,14 +460,28 @@ profiles:
       - "docs/agents/30-logging-errors/logging-errors.md"
       - "docs/agents/05-context-retrieval/context-retrieval.md"
 
-  design_review:
+  coding_principles:
     detect:
       keywords:
         - "design review"
-        - "module"
-        - "modularity"
+        - "coding design rules"
+        - "coding principles"
+        - "authority design"
+        - "SSOT jurisdiction"
+        - "ssot jurisdiction"
+        - "jurisdictional purification"
+        - "jurisdiction map"
+        - "drift ledger"
+        - "source-level fix point"
+        - "prune jurisdictionally"
+        - "wrong-owner behavior"
+        - "non-owner patch"
+        - "council jurisdiction witness"
+        - "post-diff purification"
+        - "authority-correct design"
         - "code modularity"
         - "coding modularity"
+        - "modularity"
         - "coding rules"
         - "module boundary"
         - "authority boundary"
@@ -478,18 +491,17 @@ profiles:
         - "public entrypoint"
         - "single public entrypoint"
         - "entrypoint contract"
-        - "hardcoded enforcement"
-        - "patch-heavy"
-        - "loc reduction"
+        - "literal ownership"
+        - "owner-owned validator"
+        - "owner-owned validation"
         - "structural minimality"
-        - "smallest possible"
+        - "behavior-preservation witness"
         - "smallest authority-correct"
+        - "solid principles"
+        - "dry ownership"
         - "orchestration-only"
-        - "reusability"
         - "high cohesion"
         - "low coupling"
-        - "solid"
-        - "dry"
         - "kiss"
         - "yagni"
         - "separation of concerns"
@@ -501,8 +513,8 @@ profiles:
         - "scripts/check_governance_core/**/*.py"
         - "templates/python-dual-entry/myapp/**/*.py"
     inject:
-      - "docs/agents/35-authority-bounded-modules/authority-bounded-modules.md"
-      - "docs/agents/playbooks/design-principles-checklist/design-principles-checklist.md"
+      - "docs/agents/35-coding-principles/coding-principles.md"
+      - "docs/agents/20-sources-of-truth-map/sources-of-truth-map.md"
 
   skills_task:
     detect:

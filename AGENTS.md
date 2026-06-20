@@ -95,10 +95,16 @@ Implications:
 - Each invariant must have a witness: what is measured, where it is recorded, and the pass criteria.
 - Witnesses must be deterministically verifiable via tools or explicit manual checks.
 
+### Authority-Constrained Reasoning (Hard Gate)
+- Use authority inputs as binding minimum constraints for every decision-critical claim. A stronger task-specific design is allowed only when it is explicitly authority-preserving and does not change future allowed behavior without an owner update.
+- For every non-trivial plan, implementation, review, remediation, or final decision, record an authority-application witness with `authority_inputs`, `applied_obligations`, `decision_basis`, and `evidence`.
+- Classify each decision-critical design move, recommendation, finding, or go/no-go basis as `authority_required`, `authority_preserving`, `owner_update_required`, `authority_conflict`, or `unsupported`.
+- Fail closed with `hold` for missing relevant authority inputs or obligations, decision-critical `unsupported`, `authority_conflict`, or unresolved `owner_update_required`; "read and followed docs" is not a witness.
+
 ### Authority Graph (Required for non-trivial systems)
 (Non-trivial: >1 workflow entrypoint, OR >1 SSOT owner, OR external resource dependencies such as COM/DB/network)
 - Maintain a single authoritative owner per decision-critical fact/state (see SSOT section).
-- If code is split into modules/packages, align module boundaries with authority boundaries and expose a single explicit public contract per authority (see `docs/agents/35-authority-bounded-modules/authority-bounded-modules.md`).
+- If code is split into modules/packages, align module boundaries with authority boundaries and expose a single explicit public contract per authority (see `docs/agents/35-coding-principles/coding-principles.md`).
 - Record the authority graph in `docs/project/architecture/architecture.md` or the workflow registry; no orphan docs.
 - All reads/writes must go through the authority; no shadow logic or one-off duplication.
 
@@ -198,6 +204,7 @@ Default posture:
 7) **Verify** with deterministic tools (tests/lint/run) or provide deterministic manual checks
    when tools are unavailable.
 8) **Report**: what changed, where SSOT lives, council findings, and evidence of verification.
+   - For completed non-trivial work, include the `Changelog` closure witness from `docs/agents/90-release-checklist/release-checklist.md` after durable facts are promoted to their owners; valid surfaces are owned by `SSOT-DEC-004`.
 
 ## Context Injection Procedure (Hard Gate)
 
@@ -230,6 +237,7 @@ Each council must cover these intentions (one or more subagents may cover multip
 - **Silent-error scan**: identify missing validation, silent failure paths, and "silently skip" patterns (violation of Non-Negotiable #4).
 - **Edge-case scan**: identify boundary conditions and pre/post-change failure modes.
 - **Resource/security/perf risks**: look for leaks, unsafe inputs, timeouts, and performance regressions.
+- **Coding principles / authority-design review**: apply `docs/agents/35-coding-principles/coding-principles.md` for implementation-code scope to review planned and implemented code for authority-correct design, SSOT jurisdiction, duplicate/substitute logic, contract boundaries, and post-diff purification.
 
 Optional intentions (add as needed): integration/compatibility across modules and entrypoints, data migration/backward compatibility, test/verification gaps.
 
@@ -245,8 +253,8 @@ Coverage may be one subagent per matched profile, or fewer subagents when one re
 
 When profile-aware coverage applies, every subagent prompt MUST include:
 - assigned profile(s), assigned intention(s), review scope, and resolved injected docs or doc groups from the current manifest-resolution witness;
-- a directive to read or verify the assigned profile docs before reviewing;
-- required `profile_doc_coverage` output: docs used, docs skipped, inaccessible docs, skip reasons, and `go_no_go`.
+- a directive to read or verify the assigned profile docs and apply `Authority-Constrained Reasoning (Hard Gate)` before reviewing;
+- required `profile_doc_coverage` output: docs used, docs skipped, inaccessible docs, skip reasons, authority-application witness, and `go_no_go`.
 
 A subagent that cannot confirm required assigned profile-doc coverage MUST return `go_no_go = hold`.
 
@@ -271,7 +279,7 @@ No maximum: scale up as needed.
 - Full council summary fields (for non-micro changes):
   - `council_run_id`
   - `phase` (`pre_change` | `post_change`)
-  - `intent_coverage` (`ssot_duplication`, `silent_error`, `edge_case`, `resource_security_perf`)
+  - `intent_coverage` (`ssot_duplication`, `silent_error`, `edge_case`, `resource_security_perf`, `coding_principles_authority_design`)
   - `reviewers` (id, role, scope)
   - `findings` (severity, location, issue, evidence, recommendation)
   - `conflicts` (if any)
@@ -279,12 +287,28 @@ No maximum: scale up as needed.
   - `residual_risks`
   - `go_no_go` (`go` | `hold`)
   - `verification_links` (README checks and/or deterministic manual witness)
+  - `authority_application` (`authority_inputs`, `applied_obligations`, `decision_basis`, `evidence`) for assigned authority docs
   - `profile_doc_coverage` when Profile-Aware Context Coverage applies (matched profiles, resolved injected docs or doc groups, reviewer assignments, inaccessible docs, omissions/reasons, reduced-coverage acceptance if any)
 - Micro edits or formatting-only changes may use an abbreviated summary:
   - `intent_coverage`
   - `findings` (or explicit `No findings`)
   - `residual_risks` (or `none observed`)
   - `go_no_go` (`go` | `hold`)
+
+### Council SSOT Jurisdiction Requirement
+Council reviewers produce SSOT jurisdiction evidence for assigned owners; findings must be traceable to authority inputs and deterministic witnesses.
+
+When assigned authority docs, reviewers must return:
+- `assigned_authority_docs`: exact authority docs or owner identifiers used.
+- `applied_obligations`: concrete obligations from those authorities, with source section, scope, status, and evidence.
+- `jurisdiction_map_delta`: owner boundaries affected by the reviewed change.
+- `drift_surfaces`: duplicate, stale, shadow, patch, compatibility, fallback, checker-specific, test-only, or wrong-owner surfaces found, classified against the assigned owner.
+- `owner_level_fix`: the owning jurisdiction to strengthen, including the owner contract or witness that prevents recurrence.
+- `prune_targets`: non-owner code/docs/tests/scripts/prompts/reports/checker logic to delete, move, or reroute.
+- `witness_required`: tests/checks/manual evidence needed to prove the owner boundary is restored.
+- `go_no_go`: `hold` for missing, conflicting, inaccessible, unknown, or unapplied authority obligations.
+
+Reviewers may add stronger task-specific reasoning beyond assigned docs, but must classify it as authority-preserving unless it changes future allowed behavior, in which case it requires owner update. Unsupported or conflicting recommendations cannot be treated as binding.
 
 ### Conflict Resolution + Closure Gates (Hard Gate)
 - If reviewers conflict on severity, root cause, fix placement, or risk disposition and the conflict could materially change implementation, do not proceed until reconciled.
@@ -303,7 +327,7 @@ You are explicitly authorized to spawn subagents as needed to satisfy AGENTS.md 
 Auto-edit for governance learnings is allowed only when the governance learnings playbook is **explicitly invoked**; otherwise, produce proposals only for governance learnings.
 
 Council review is required before any auto-edit:
-- Run the council with minimum intention coverage (SSOT/duplication, silent-error scan, edge-case scan, resource/security/perf).
+- Run the council with the minimum intention coverage from "Subagent Council (Hard Gate)".
 - Merge findings; if conflicts or gaps remain, pause and ask before editing.
 
 Confirmation gate (for governance learnings auto-edit):
@@ -349,9 +373,23 @@ Hard rules:
 - Classify each source before deriving obligations: owner, routed support, reference/example, scaffold, generated artifact, or user intent.
 - Only a declared owner defines obligations. Non-owner text routes, cites, illustrates, scaffolds, or records evidence; it does not create policy, weaken policy, broaden policy, or select runtime behavior.
 - Derived statements must preserve the owner's scope, preconditions, ordering, optionality/defaultability, allowed states, terminal outcomes, and verification witness. If the owner declares exact terms, states, phases, reason codes, or outcome values, use those owner-declared terms or cite the owner instead of restating them.
+- Derived normative statements must use deterministic obligation language. Binding requirements must use explicit required/prohibited terms such as `must`, `must not`, `required`, `prohibited`, `fail`, or `hold`. Permission terms such as `may` or `allowed` may define only a bounded permission with a declared owner, conditions, and witness. Advisory terms such as `should`, `prefer`, `can`, or `likely` must not define requirements, gate behavior, or weaken an owner obligation. If a statement is optional, it must name the decision owner, the conditions for choosing it, and the witness that proves the choice stayed within owner scope.
 - User prompts provide intent, scope, and acceptance criteria. Repo owners constrain allowed behavior. A conflict between prompt intent and a declared owner is an authority conflict, not permission to synthesize a replacement rule.
 - Generated plans, checklists, prompt packs, summaries, and examples are non-authoritative unless each normative item cites or routes to the owner that makes it binding.
 - Missing owner, conflicting owners, unknown optionality/defaultability, missing witness, or unclear precedence is an authority gap. Stop and report the gap before editing or executing; do not infer, duplicate, downgrade, or continue through a substitute path.
+
+### 1B) SSOT Jurisdiction and Purification (Hard Gate)
+SSOT jurisdiction is the authority boundary that decides where each decision-critical fact, rule, state, side effect, lifecycle, public contract, output, witness, review finding, and verification obligation is allowed to be defined, changed, interpreted, enforced, or retired.
+
+For every non-trivial task, the requested file, feature, symptom, review topic, user-facing behavior, or dirty-worktree diff is only the entry point into the authority graph, not the scope ceiling. Before planning, reviewing, editing, testing, or reporting, identify the highest owning jurisdiction for each decision-critical fact, rule, state, side effect, lifecycle, public contract, output, witness, and verification obligation in scope.
+
+Non-owner surfaces may route, call, adapt, display, assert, or witness owner behavior only. They must not define, infer, duplicate, weaken, override, preserve, or patch around owner semantics.
+
+Treat duplication, drift, stale references, shadow contracts, compatibility paths, wrappers, local predicates, checker-specific logic, and test-only allowances as jurisdiction defects when they preserve or create non-owner authority.
+
+Jurisdictional pruning restores owner alignment: remove, move, or rewrite those defects through the correct owner. If existing code, docs, tests, scripts, prompts, reports, wrappers, compatibility paths, checker logic, or council findings exist only because the owner contract is missing, weak, stale, bypassed, or ambiguous, fix the owning jurisdiction and delete, move, or reroute the non-owner patch.
+
+Missing, conflicting, or unclear jurisdiction is a `hold`, not permission to continue locally.
 
 ### 2) No Duplicates (Operational Meaning)
 Duplication includes:
@@ -434,70 +472,16 @@ GUI updates must occur on the main/UI thread only:
 - Never trade away correctness, determinism, data integrity, edge-case safety, logging, or guaranteed cleanup for speed; keep concurrency bounded and cancellation-aware.
 - Verify claimed speedups with deterministic evidence (benchmark/timing on representative inputs when feasible) or complexity reasoning, plus output-equivalence and failure-path witnesses; avoid premature micro-optimizations.
 
-### 11) Module Architecture — Mandatory Rules
-These rules are NON-NEGOTIABLE. Violating any rule is a failed task.
+### 11) Coding Architecture — Hard Gate
+Implementation code has one coding-rule jurisdiction: `docs/agents/35-coding-principles/coding-principles.md`.
 
-Authority role:
-- This section is the always-on code-modularity hard gate for implementation code in scope.
-- `docs/agents/35-authority-bounded-modules/authority-bounded-modules.md` owns the delegated runtime-code module-contract mechanics under this gate; consult it when adding, reviewing, or refactoring feature folders, public entrypoints, orchestration boundaries, or dependency direction.
-- `scripts/entrypoint_contracts.json` owns public contract filename pattern facts; `scripts/check_folder_architecture/scope.json` owns the current checker-readable enforcement scope.
-- `agents-manifest.yaml` owns routing to supporting modularity docs. If routing does not inject a support doc but implementation code is in scope, this `AGENTS.md` hard gate still applies.
-
-Scope:
-- Apply this section to implementation code that owns runtime behavior, workflow logic, or reusable runtime contracts.
-- Launch-only PowerShell/shell wrappers and Python runtime shims such as `__main__.py` may exist only as zero-logic delegates into the canonical folder contract. A script with owner-declared runtime-selection or validation responsibility must expose that responsibility through its declared owner/contract instead of being treated as a launcher shim.
-- Config payloads, fixtures, schemas, and generated artifacts do not become feature folders unless they start owning runtime behavior.
-
-Rule 1 - Every feature is a folder:
-- Every distinct piece of runtime functionality gets its own authority folder and one registry-resolved public entrypoint. Use `docs/agents/35-authority-bounded-modules/authority-bounded-modules.md` for the delegated boundary mechanics.
-
-Rule 2 - Every folder has exactly one public entry point:
-- Consumers use the folder entrypoint only; internal files remain private implementation details. Public contract filename patterns are owned by `scripts/entrypoint_contracts.json`.
-
-Rule 3 - The parent entrypoint is the only connector:
-- Parent entrypoints wire child authorities and pass plain data. Children must not import parents or siblings; hidden cross-folder coupling is a failed task.
-
-Rule 3A - Orchestration is runtime coordination only:
-- Orchestration code may order already-authoritative steps, pass plain data between authority entrypoints, enforce the workflow state machine, record phase transitions/outcomes, and invoke bounded cleanup.
-- Orchestration code MUST NOT own business rules, validation predicates, constants/defaults, backend-selection rules, lifecycle policies, retry policy, GUI-thread safety, COM safety, subprocess safety, or UI/checkbox semantics.
-- Any decision-critical branch in orchestration must call a named authority-owned rule/config/lifecycle contract and record the selected authority path before execution.
-- After validation, execution, commit, or cleanup failure, orchestration must emit the terminal outcome and stop that branch; it must not continue through an alternate backend, legacy path, substitute subprocess, substitute workflow step, or hidden compatibility branch.
-
-Rule 4 - Public contracts take plain data in and return plain data out:
-- Public contracts accept and return plain data only. Live handles/resources stay behind the owning boundary.
-
-Rule 5 - I/O stays at the boundary:
-- I/O stays at boundary adapters or entrypoint wiring; pure logic functions do not perform I/O.
-
-Rule 6 - No file exceeds 400 LOC:
-- A file approaching 400 LOC is doing too much and MUST be decomposed by responsibility.
-- Default split target: add private files inside the same folder first.
-- Create a new child folder only when the responsibility becomes independently owned behavior.
-
-Rule 7 - `shared/` is a dictionary, not a connector:
-- `shared/` is optional and may contain only data shapes or pure/stateless utilities; it must not become a second authority or connector.
-
-Rule 8 - Deletion test:
-- Before completion, deleting one feature folder should break only its parent entrypoint. Sibling breakage is a coupling violation.
-
-Rule 9 - Depth when necessary, not flat by default:
-- Apply the same authority-folder rules recursively when a child folder gains independently owned behavior.
-
-Rule 10 - Contract changes require explicit approval:
-- Public entrypoint contract changes require explicit current/proposed contract and caller impact before approval. Private internals may change when the public contract stays stable.
-
-Rule 11 - Structural minimality is the default:
-- Before adding code, identify the code authority owner, public entrypoint/contract, relevant config/data/schema source, affected invariants, and behavior-preservation witness; promote only durable authority facts to the owning project doc.
-- Choose the first implementation path through existing owner contracts, registries, schemas, config, or entrypoints. Repeated local conditionals or checker-specific patch logic require owner-level justification.
-- Treat numeric LOC-reduction targets as pressure toward structural minimality, never as permission to weaken correctness, explicit failure, witnesses, or SSOT ownership.
-- Detailed structural-minimality mechanics and review questions live in `docs/agents/35-authority-bounded-modules/authority-bounded-modules.md` and `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`.
-
-Supporting design constraints (mandatory):
-- Keep high cohesion + low coupling.
-- Apply DRY, KISS, YAGNI, Separation of Concerns, and Law of Demeter inside the folder-contract model.
-- Use explicit parameter/constructor injection instead of service locators.
-- No runtime discovery, dynamic import, or eval for wiring.
-- Keep folder entrypoints thin, import-safe, and orchestration-only; private internals hold the detailed logic.
+Hard gate:
+- Apply `docs/agents/35-coding-principles/coding-principles.md` before planning, adding, reviewing, refactoring, purifying, or wiring implementation code that owns runtime behavior, workflow logic, or reusable runtime contracts.
+- Preserve one owner, one registry-resolved public entrypoint, plain-data contracts, parent-owned composition, explicit outcomes, bounded cleanup, and deterministic witnesses for each implementation-code authority.
+- Route detailed coding mechanics, including folder contracts, dependency direction, orchestration limits, I/O boundaries, file-size decomposition, contract-change approval, structural minimality, adapters, post-diff purification, and deletion-test witnesses, to `docs/agents/35-coding-principles/coding-principles.md`.
+- Use `scripts/entrypoint_contracts.json` for public contract filename pattern facts, `scripts/check_folder_architecture/scope.json` for checker-readable enforcement scope, and `agents-manifest.yaml` for task routing.
+- When implementation code is in scope, the coding-principles reviewer prompt must include the current coding-principles authority doc path: `docs/agents/35-coding-principles/coding-principles.md`.
+- Missing, conflicting, or inaccessible coding authority inputs require `hold: <reason>`.
 
 ## Governance Templates (Required)
 

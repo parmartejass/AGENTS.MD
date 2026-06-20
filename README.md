@@ -75,12 +75,10 @@ When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` an
 |  |  |- agents_index.md
 |  |  |- 00-principles/
 |  |  |  |- principles_index.md
-|  |  |- 35-authority-bounded-modules/
-|  |  |  |- authority-bounded-modules_index.md
+|  |  |- 35-coding-principles/
+|  |  |  |- coding-principles_index.md
 |  |  |- playbooks/
 |  |  |  |- playbooks_index.md
-|  |  |  |- design-principles-checklist/
-|  |  |  |  |- design-principles-checklist_index.md
 |  |  |- platforms/
 |  |  |  |- platforms_index.md
 |  |  |  |- 00-platform-runtime-standards/

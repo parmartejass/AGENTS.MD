@@ -286,3 +286,13 @@ def validate_registry_paths(payload: dict[str, Any]) -> List[str]:
     else:
         errors.append("entrypoint-contract registry must define ssot_owner.")
     return errors
+
+
+def ssot_owner_path_from_payload(payload: dict[str, Any], family: str) -> str | None:
+    ssot_owner = payload.get("ssot_owner")
+    if not isinstance(ssot_owner, dict):
+        return None
+    owner = ssot_owner.get(family)
+    if not isinstance(owner, str) or not owner.strip():
+        return None
+    return owner

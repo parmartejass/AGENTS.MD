@@ -85,6 +85,8 @@ Mandatory goal-branch leaf:
 - If user intent changes durable project objective, acceptance criteria, non-goals, or verification intent, update `goal.md`. If it changes another durable fact, update the owning project doc for that fact. If it is temporary task coordination, do not store it in project docs.
 - Raw prompts containing secrets, credentials, PII, customer data, or oversized pasted artifacts must not be stored in tracked docs. When a durable fact must be recorded, use a redacted durable statement in the owning doc.
 - Runtime status and review state may be used as evidence during review, but they do not own project truth. Before claiming closure, verify that every durable authority-changing fact is promoted into its owner doc.
+- `Changelog` placement and valid/invalid surfaces are governed by `SSOT-DEC-004`; field template/order is governed by `docs/agents/90-release-checklist/release-checklist.md`.
+- Durable facts referenced by `Changelog` resolve to their declared owner docs/code/config/data/workflow authority before closure.
 - Commit reconciliation checks docs-first truth against the intended commit set. Changed owner docs must either be doc-only steering truth or have matching implementation and verification evidence. Changed implementation must be backed by existing or updated owner truth when it changes durable behavior. Missing routes, orphan docs, stale duplicate truth, and dead artifacts introduced by the same change are owner-scoped fixes when intent is clear; unclear intent, ownership, scope, deletion, or risk requires `hold: <reason>`.
 
 Triggered leaves:

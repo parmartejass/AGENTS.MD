@@ -33,7 +33,8 @@ update_trigger: repo layout, injection profiles, or validation scripts change
 - Context injection routing: `agents-manifest.yaml`
 - Docs policy and headers: `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`
 - Bounded project authority memory policy/detail: `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`
-- Project truth authority vs active work/status ledgers: `SSOT-DEC-004` in `docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md`
+- Project truth authority vs non-owner evidence surfaces: `SSOT-DEC-004` in `docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md`
+- Changelog closure witness routing: `SSOT-DEC-004` owns valid/invalid surfaces; `docs/agents/90-release-checklist/release-checklist.md` owns field template/order.
 - Durable project intent, objective, acceptance criteria, non-goals, and verification intent: `docs/project/goal/goal.md`
 - Protected behavior records: branch-local architecture subdoc when concrete observable protected behavior exists.
 - Project data-truth records: `docs/project/data-truth/data-truth.md`
@@ -49,11 +50,11 @@ update_trigger: repo layout, injection profiles, or validation scripts change
 - Reference implementation (dual-entry template): `templates/python-dual-entry/`
 
 ## Authority graph (owners -> dependents)
-- `AGENTS.md` -> always-on governance hard gates, including code modularity for implementation code and docs modularity for `docs/`; supporting docs, project docs, and checks must not weaken or fork it.
+- `AGENTS.md` -> always-on governance hard gates, including the coding hard-gate trigger for implementation code and docs modularity for `docs/`; supporting docs, project docs, and checks must not weaken or fork it.
 - `agents-manifest.yaml` -> context injection procedure in `AGENTS.md` and supporting retrieval guidance
 - `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md` -> `scripts/check_governance_core/_manifest_and_docs.py`; `scripts/check_docs_ssot.ps1` is a thin wrapper
 - `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md` -> bounded project authority-memory policy/detail; project-doc leaves own the routed records declared by that policy
-- `docs/agents/35-authority-bounded-modules/authority-bounded-modules.md` -> delegated runtime-code module-contract mechanics under the `AGENTS.md` code-modularity gate; `scripts/check_folder_architecture/check_folder_architecture_main.py` enforces the current checker-readable subset from `scripts/check_folder_architecture/scope.json`
+- `docs/agents/35-coding-principles/coding-principles.md` -> single delegated coding-principles and runtime-code authority-design mechanics jurisdiction under the `AGENTS.md` coding hard-gate trigger; `scripts/check_folder_architecture/check_folder_architecture_main.py` enforces the current checker-readable subset from `scripts/check_folder_architecture/scope.json`
 - `scripts/entrypoint_contracts.json` -> docs router/primary-leaf derivation in `scripts/check_governance_core/_manifest_and_docs.py`; `scripts/check_docs_ssot.ps1` and `scripts/check_project_docs.ps1` are thin wrappers, `scripts/check_docs_router_contract/check_docs_router_contract_main.py` is the contract-test surface, and runtime public-entrypoint derivation is enforced by `scripts/check_folder_architecture/check_folder_architecture_main.py`
 - `scripts/check_governance_core/` -> project-doc, manifest/docs, and governance marker checks in `scripts/check_governance_core/check_governance_core_main.py`, `_project_authority_docs.py`, `_manifest_and_docs.py`, and `_repo_and_governance.py`
 - `scripts/_python_check_runner.ps1` -> Python-backed PowerShell check wrappers; owns the explicit interpreter selection order and selected-path witness
@@ -62,7 +63,7 @@ update_trigger: repo layout, injection profiles, or validation scripts change
 - `docs/agents/skills/` -> reusable skill bundles and projected skill runtime assets
 - `docs/agents/settings/` -> shared settings examples and local-secret boundary
 - `docs/agents/mcp/` -> canonical non-secret MCP payloads
-- `docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md` `SSOT-DEC-004` -> project-local docs route durable facts into declared `docs/project/` owner docs; active work/status ledgers are evidence-only and not project-truth authorities.
+- `docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md` `SSOT-DEC-004` -> project-local docs route durable facts into declared `docs/project/` owner docs; working evidence and closure evidence remain non-owner evidence unless promoted into the declared owner; `Changelog` valid/invalid surfaces route through the decision record.
 - `docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md` -> allows `X-Bookmarks Import/` as a non-owner workspace exception; `scripts/check_folder_architecture/scope.json` records that exception for checker scope without making it a canonical governance root
 
 ## Current Modularity Witness Boundary

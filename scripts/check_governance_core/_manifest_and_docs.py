@@ -4,6 +4,8 @@ import re
 from pathlib import Path
 from typing import Dict, List, Tuple
 
+SOURCES_OF_TRUTH_MAP_DOC = "docs/agents/20-sources-of-truth-map/sources-of-truth-map.md"
+
 try:
     from ._docs_routes import extract_route_targets, is_header_exempt_markdown, targets_child
     from ._entrypoint_contracts import (
@@ -11,6 +13,7 @@ try:
         load_entrypoint_contracts,
         resolve_docs_router_filename,
         resolve_primary_leaf_filename,
+        ssot_owner_path_from_payload,
         validate_registry_paths,
     )
 except ImportError:  # pragma: no cover - script-path execution
@@ -20,8 +23,30 @@ except ImportError:  # pragma: no cover - script-path execution
         load_entrypoint_contracts,
         resolve_docs_router_filename,
         resolve_primary_leaf_filename,
+        ssot_owner_path_from_payload,
         validate_registry_paths,
     )
+
+
+def _profile_block(manifest_text: str, profile_name: str) -> str:
+    match = re.search(
+        rf"(?ms)^  {re.escape(profile_name)}:\n(?P<body>.*?)(?=^  [A-Za-z0-9_]+:\n|^\S|\Z)",
+        manifest_text,
+    )
+    return match.group("body") if match else ""
+
+
+def _detect_values_from_profile(profile_block: str, list_name: str) -> List[str]:
+    match = re.search(r"(?ms)^    detect:\n(?P<body>.*?)(?=^    inject:|^  [A-Za-z0-9_]+:|^\S|\Z)", profile_block)
+    if not match:
+        return []
+    values_match = re.search(
+        rf"(?ms)^      {re.escape(list_name)}:\n(?P<body>.*?)(?=^      [A-Za-z0-9_]+:|^    inject:|^  [A-Za-z0-9_]+:|^\S|\Z)",
+        match.group("body"),
+    )
+    if not values_match:
+        return []
+    return re.findall(r'^\s+-\s+"([^"]+)"\s*$', values_match.group("body"), flags=re.MULTILINE)
 
 
 def check_agents_manifest(governance_root: Path) -> List[str]:
@@ -130,6 +155,21 @@ def check_agents_manifest(governance_root: Path) -> List[str]:
             "docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md"
         )
 
+    registry_payload, registry_errors = load_entrypoint_contracts(governance_root)
+    errors.extend(registry_errors)
+    coding_principles_doc = ssot_owner_path_from_payload(registry_payload, "runtime_code")
+    if not coding_principles_doc:
+        errors.append("scripts/entrypoint_contracts.json must define ssot_owner.runtime_code")
+
+    coding_principles_inject = paths_by_list.get("profiles.coding_principles.inject")
+    if coding_principles_inject is None:
+        errors.append("Missing profiles.coding_principles.inject list in agents-manifest.yaml")
+    else:
+        if coding_principles_doc and coding_principles_doc not in coding_principles_inject:
+            errors.append(f"profiles.coding_principles.inject must include {coding_principles_doc}")
+        if SOURCES_OF_TRUTH_MAP_DOC not in coding_principles_inject:
+            errors.append(f"profiles.coding_principles.inject must include {SOURCES_OF_TRUTH_MAP_DOC}")
+
     all_paths = set()
     for list_key, values in paths_by_list.items():
         seen = set()
@@ -148,40 +188,6 @@ def check_agents_manifest(governance_root: Path) -> List[str]:
     errors.extend(_validate_project_docs_profile(manifest_text, paths_by_list))
 
     return errors
-
-
-def _profile_block(manifest_text: str, profile_name: str) -> str:
-    match = re.search(
-        rf"(?ms)^  {re.escape(profile_name)}:\n(?P<body>.*?)(?=^  [A-Za-z0-9_]+:\n|^\S|\Z)",
-        manifest_text,
-    )
-    return match.group("body") if match else ""
-
-
-def _detect_keywords_from_profile(profile_block: str) -> List[str]:
-    match = re.search(r"(?ms)^    detect:\n(?P<body>.*?)(?=^    inject:|^  [A-Za-z0-9_]+:|^\S|\Z)", profile_block)
-    if not match:
-        return []
-    keywords_match = re.search(
-        r"(?ms)^      keywords:\n(?P<body>.*?)(?=^      [A-Za-z0-9_]+:|^    inject:|^  [A-Za-z0-9_]+:|^\S|\Z)",
-        match.group("body"),
-    )
-    if not keywords_match:
-        return []
-    return re.findall(r'^\s+-\s+"([^"]+)"\s*$', keywords_match.group("body"), flags=re.MULTILINE)
-
-
-def _detect_file_globs_from_profile(profile_block: str) -> List[str]:
-    match = re.search(r"(?ms)^    detect:\n(?P<body>.*?)(?=^    inject:|^  [A-Za-z0-9_]+:|^\S|\Z)", profile_block)
-    if not match:
-        return []
-    file_globs_match = re.search(
-        r"(?ms)^      file_globs:\n(?P<body>.*?)(?=^      [A-Za-z0-9_]+:|^    inject:|^  [A-Za-z0-9_]+:|^\S|\Z)",
-        match.group("body"),
-    )
-    if not file_globs_match:
-        return []
-    return re.findall(r'^\s+-\s+"([^"]+)"\s*$', file_globs_match.group("body"), flags=re.MULTILINE)
 
 
 def _validate_project_docs_profile(manifest_text: str, paths_by_list: Dict[str, List[str]]) -> List[str]:
@@ -217,12 +223,12 @@ def _validate_project_docs_profile(manifest_text: str, paths_by_list: Dict[str, 
         "data-truth",
         "authority supersession",
     }
-    for keyword in _detect_keywords_from_profile(profile):
+    for keyword in _detect_values_from_profile(profile, "keywords"):
         if keyword.lower() in broad_keywords:
             errors.append(f"profiles.project_docs.detect keyword is too broad: {keyword}")
 
     required_file_globs = {"README.md", "docs/project/**/*.md"}
-    project_docs_file_globs = set(_detect_file_globs_from_profile(profile))
+    project_docs_file_globs = set(_detect_values_from_profile(profile, "file_globs"))
     for file_glob in sorted(required_file_globs - project_docs_file_globs):
         errors.append(f"profiles.project_docs.detect.file_globs must include {file_glob}")
 

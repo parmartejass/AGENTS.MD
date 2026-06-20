@@ -68,5 +68,5 @@ This template is a prompting scaffold.
 - guard check (full suite or smoke suite confirming nothing else broke):
 - owner-doc promotion target and witness for durable authority-changing outcomes:
 - if behavior changed: shift-left prevention updates (tests/design/contracts/observability):
-- modularity decision (if new logic introduced; use the decomposition record in `design-principles-checklist.md`):
+- modularity decision (if new logic introduced; cite `docs/agents/35-coding-principles/coding-principles.md` owner sections):
 - security/resource/perf scan (notes):

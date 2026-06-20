@@ -60,13 +60,22 @@ Owner: the workflow entrypoint owns the selected-path record unless the repo dec
 - failure after selection produces a terminal outcome; runtime code must not switch to a substitute path
 - Python-backed PowerShell script interpreter resolution owner: `scripts/_python_check_runner.ps1` (`-PythonExe`, otherwise `python3`, then `python`, Python 3.11+ required, selected path printed before execution). This covers checker wrappers and runtime-projection TOML validation.
 
-## Module boundaries + contracts
+## Coding principles / module boundaries + contracts
 Owner by decision-critical fact.
-- code-modularity hard gate: `AGENTS.md`
-- delegated runtime-code module-contract mechanics: `docs/agents/35-authority-bounded-modules/authority-bounded-modules.md`
+- coding hard-gate trigger and precedence: `AGENTS.md`
+- delegated coding-principles and runtime-code authority-design mechanics: `docs/agents/35-coding-principles/coding-principles.md`
+- SSOT jurisdiction and post-diff purification mechanics for implementation code: `docs/agents/35-coding-principles/coding-principles.md`
 - public contract filename pattern facts: `scripts/entrypoint_contracts.json`
 - authority boundaries recorded in `docs/project/architecture/architecture.md` (project root)
 - module contracts defined in the authority module entrypoint
+
+## SSOT jurisdiction and purification
+Owner by decision-critical fact.
+- always-on jurisdiction hard-gate trigger and precedence: `AGENTS.md`
+- implementation-code jurisdiction mechanics, drift ledgers, source-level fix points, deletion/reroute plans, and post-diff purification mechanics: `docs/agents/35-coding-principles/coding-principles.md`
+- docs placement and non-owner doc boundaries: `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`
+- task-signal routing for jurisdiction/purification work: `agents-manifest.yaml`
+- project-local owner graph records: `docs/project/architecture/architecture.md`
 
 ## Context injection (supporting docs selection)
 Owner: `agents-manifest.yaml`
@@ -129,3 +138,4 @@ Owner: exactly one place.
 - known work reconciliation: `planned`, `eligible`, `executed`, `skipped`, `failed`
 - user-visible status/reporting consumes workflow outcomes and reason codes; UI/CLI/report surfaces must not redefine success, failure, skip, or no-op semantics
 - user-facing summaries include accepted input/scope, progress/current phase for long work, terminal result, produced artifacts, skip/failure reason, required user action, and run/report/log pointer when applicable
+- `Changelog` closure witness: valid/invalid surfaces owned by `SSOT-DEC-004`; field template/order owned by `docs/agents/90-release-checklist/release-checklist.md`

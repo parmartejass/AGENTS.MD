@@ -57,7 +57,7 @@ GOVERNANCE_FILES = [
     "docs/agents/20-sources-of-truth-map/sources-of-truth-map.md",
     "docs/agents/25-docs-ssot-policy/docs-ssot-policy.md",
     "docs/agents/30-logging-errors/logging-errors.md",
-    "docs/agents/35-authority-bounded-modules/authority-bounded-modules.md",
+    "docs/agents/35-coding-principles/coding-principles.md",
     "docs/agents/40-config-constants/config-constants.md",
     "docs/agents/70-io-data-integrity/io-data-integrity.md",
     "docs/agents/80-testing-real-files/testing-real-files.md",
@@ -70,7 +70,6 @@ GOVERNANCE_FILES = [
     "docs/agents/settings/00-settings-standards/settings-standards.md",
     "docs/agents/playbooks/rca-methods-template/rca-methods-template.md",
     "docs/agents/playbooks/bugfix-template/bugfix-template.md",
-    "docs/agents/playbooks/design-principles-checklist/design-principles-checklist.md",
     "docs/agents/playbooks/governance-learnings-template/governance-learnings-template.md",
     "docs/agents/playbooks/ai-coding-prompt-template/ai-coding-prompt-template.md",
 ]
@@ -83,7 +82,10 @@ FILE_TOPIC_MAP = {
     "docs/agents/20-sources-of-truth-map/sources-of-truth-map.md": ["single source of truth code", "SSOT software architecture"],
     "docs/agents/25-docs-ssot-policy/docs-ssot-policy.md": ["documentation as code", "docs single source of truth"],
     "docs/agents/30-logging-errors/logging-errors.md": ["AI agent error handling", "coding agent logging observability"],
-    "docs/agents/35-authority-bounded-modules/authority-bounded-modules.md": ["module boundaries authority", "bounded context software"],
+    "docs/agents/35-coding-principles/coding-principles.md": [
+        "coding principles authority design",
+        "SSOT jurisdiction software",
+    ],
     "docs/agents/40-config-constants/config-constants.md": ["configuration management constants", "config as code"],
     "docs/agents/70-io-data-integrity/io-data-integrity.md": ["data integrity file processing", "IO safety coding agent"],
     "docs/agents/80-testing-real-files/testing-real-files.md": ["AI agent testing strategy", "coding agent test automation"],
@@ -99,7 +101,6 @@ FILE_TOPIC_MAP = {
     "docs/agents/settings/00-settings-standards/settings-standards.md": ["agent settings configuration", "coding agent permissions"],
     "docs/agents/playbooks/rca-methods-template/rca-methods-template.md": ["root cause analysis AI", "RCA debugging agent"],
     "docs/agents/playbooks/bugfix-template/bugfix-template.md": ["AI bugfix workflow", "agent debugging template"],
-    "docs/agents/playbooks/design-principles-checklist/design-principles-checklist.md": ["software design principles AI", "SOLID DRY agent coding"],
     "docs/agents/playbooks/governance-learnings-template/governance-learnings-template.md": ["governance framework learnings", "AI governance improvement"],
     "docs/agents/playbooks/ai-coding-prompt-template/ai-coding-prompt-template.md": ["AI coding prompt engineering", "agent prompt template"],
 }

@@ -42,6 +42,7 @@ class ManifestAndDocsPublicCheckTests(unittest.TestCase):
         manifest_paths = [
             "AGENTS.md",
             "docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md",
+            "docs/agents/35-coding-principles/coding-principles.md",
             "docs/project/project_index.md",
             "docs/agents/25-docs-ssot-policy/docs-ssot-policy.md",
             "docs/agents/20-sources-of-truth-map/sources-of-truth-map.md",
@@ -50,6 +51,10 @@ class ManifestAndDocsPublicCheckTests(unittest.TestCase):
             manifest_paths.append("docs/agents/playbooks/project-docs-template/project-docs-template.md")
         for rel_path in manifest_paths:
             write_text(governance_root / rel_path, "# Test\n")
+        write_text(
+            governance_root / "scripts/entrypoint_contracts.json",
+            (REPO_ROOT / "scripts/entrypoint_contracts.json").read_text(encoding="utf-8"),
+        )
 
         file_globs = "\n".join(f'        - "{file_glob}"' for file_glob in project_docs_file_globs)
         project_docs_inject = [
@@ -76,6 +81,15 @@ profiles:
       file_globs: []
     inject:
       - "docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md"
+  coding_principles:
+    detect:
+      keywords:
+        - "coding principles"
+      code_patterns: []
+      file_globs: []
+    inject:
+      - "docs/agents/35-coding-principles/coding-principles.md"
+      - "docs/agents/20-sources-of-truth-map/sources-of-truth-map.md"
   project_docs:
     detect:
       keywords:
@@ -128,6 +142,35 @@ profiles:
                 errors,
             )
 
+    def test_check_agents_manifest_requires_coding_principles_owner_injects(self) -> None:
+        cases = (
+            (
+                '      - "docs/agents/35-coding-principles/coding-principles.md"\n'
+                '      - "docs/agents/20-sources-of-truth-map/sources-of-truth-map.md"',
+                '      - "docs/agents/20-sources-of-truth-map/sources-of-truth-map.md"',
+                "profiles.coding_principles.inject must include docs/agents/35-coding-principles/coding-principles.md",
+            ),
+            (
+                '      - "docs/agents/20-sources-of-truth-map/sources-of-truth-map.md"\n  project_docs:',
+                "  project_docs:",
+                "profiles.coding_principles.inject must include docs/agents/20-sources-of-truth-map/sources-of-truth-map.md",
+            ),
+        )
+        for old, new, expected in cases:
+            with self.subTest(expected=expected):
+                with tempfile.TemporaryDirectory() as tmp_dir:
+                    governance_root = Path(tmp_dir)
+                    self._write_minimal_manifest_tree(governance_root)
+                    manifest_path = governance_root / "agents-manifest.yaml"
+                    write_text(
+                        manifest_path,
+                        manifest_path.read_text(encoding="utf-8").replace(old, new, 1),
+                    )
+
+                    errors = MANIFEST_AND_DOCS.check_agents_manifest(governance_root)
+
+                    self.assertTrue(any(expected in error for error in errors), errors)
+
     def test_check_docs_ssot_rejects_missing_leaf_header(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             repo_root = Path(tmp_dir)
@@ -154,5 +197,3 @@ profiles:
             self.assertTrue(any("Missing doc header (doc_type)" in error for error in errors), errors)
             self.assertTrue(any("Missing doc header (ssot_owner)" in error for error in errors), errors)
             self.assertTrue(any("Missing doc header (update_trigger)" in error for error in errors), errors)
-
-

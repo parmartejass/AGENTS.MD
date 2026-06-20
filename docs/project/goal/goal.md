@@ -29,7 +29,7 @@ update_trigger: repo objective, structure, or required checks change
 
 ## Current Summary
 - The governance repo maintains a reusable governance pack.
-- Project-truth authority vs active work/status ledgers is governed by `SSOT-DEC-004` in `docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md`.
+- Project truth authority vs non-owner evidence surfaces is governed by `SSOT-DEC-004` in `docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md`.
 
 ## Branch-local owner subdocs
 - None currently declared.

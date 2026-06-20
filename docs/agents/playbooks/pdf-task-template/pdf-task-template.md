@@ -19,7 +19,7 @@ This template is a prompting scaffold.
 - if bugfix/regression: fill `docs/agents/playbooks/bugfix-template/bugfix-template.md`.
 - if feature/behavior change: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" behavior-change/new-feature minimums (including shift-left baseline).
 - if refactor/behavior-neutral: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" behavior-neutral minimums.
-- if new logic is introduced: apply `AGENTS.md` "Module Architecture — Mandatory Rules" (use `docs/agents/playbooks/design-principles-checklist/design-principles-checklist.md`).
+- if new logic is introduced: apply `docs/agents/35-coding-principles/coding-principles.md` under the `AGENTS.md` coding hard gate.
 
 Non-goals:
 - This is not a library specification. Library notes are examples; verify in your environment.
@@ -112,4 +112,3 @@ Use multiple witnesses; size alone is a heuristic.
 - [ ] Failure path: remove one input or include an unreadable PDF; ensure explicit FAILED with reason.
 - [ ] Retry path (if implemented): confirm witnesses do not drift across attempts for identical inputs.
 - [ ] Verification commands come from README.md "Checks" (or deterministic manual steps are recorded).
-
