@@ -32,7 +32,7 @@ Change classification:
 
 Repo context (verified):
 - Files to read first:
-- Existing SSOT owners to extend:
+- Existing SSOT jurisdictions and owners to reuse under `AGENTS.md` Non-Negotiable #1:
 - Entrypoint/workflow this must be wired through:
 - Injection profiles matched (from `agents-manifest.yaml`):
 - README.md "Checks" reviewed:
@@ -125,7 +125,7 @@ Run artifacts (must create/update these files):
 Phase 1 — Review (no edits):
 - Enumerate all relevant instances/entrypoints/call-sites/config/constants/rules/tests/scenarios linked to the request.
 - Produce a verified file list to read next + `rg` search terms you used.
-- Identify SSOT owners to extend (no parallel utilities/docs).
+- Identify SSOT jurisdictions and owners to reuse under `AGENTS.md` Non-Negotiable #1 (no parallel utilities/docs).
 - If ambiguity remains that would change code materially: stop and ask 1–3 questions.
 
 Phase 2 — Implement (minimal diff):

@@ -6,7 +6,7 @@ update_trigger: discovery signals or SSOT adoption rules change
 
 # 10 — Repo Discovery (Mandatory Before Writing)
 
-Goal: find existing SSOT owners and adopt them instead of creating parallel modules/docs.
+Goal: find existing SSOT jurisdictions and owners and adopt them instead of creating parallel modules/docs.
 
 ## What to search for
 
@@ -37,5 +37,5 @@ Use `agents-manifest.yaml` profile `gui_task` detection lists (keep them SSOT in
 - `workflow`, `pipeline`, `runner`, `dispatcher`, `run_`, `main()`
 
 ## Decision rules
-- If an SSOT owner exists for a responsibility: extend it.
-- If it does not exist: create one minimally and wire all call sites through it.
+- Apply `AGENTS.md` Non-Negotiable #1 "SSOT jurisdiction and duplication pruning rule" after discovery.
+- If no SSOT jurisdiction exists for a responsibility under that rule, create one minimally and wire all call sites through it.

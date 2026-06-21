@@ -7,7 +7,7 @@ update_trigger: log schema fields or reason code taxonomy changes
 # Standard Log Schema (Required when logs are emitted)
 
 - Logging policy in "Logging + Explicit Failure" (AGENTS.md Non-Negotiable #4) still applies (no print, module logger, explicit failures).
-- The log schema is SSOT: define one owner and extend it; do not fork schemas.
+- The log schema follows `AGENTS.md` Non-Negotiable #1 "SSOT jurisdiction and duplication pruning rule"; do not fork schemas.
 
 ## Run-level record (run_start, run_end)
 - ts (ISO8601)

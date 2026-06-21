@@ -32,7 +32,7 @@ Launch-only PowerShell/shell wrappers and Python runtime shims such as `__main__
 Config payloads, fixtures, schemas, and generated artifacts do not become feature folders unless they start owning runtime behavior.
 
 ## SSOT Jurisdiction Mechanics
-SSOT jurisdiction is an always-on design rule for implementation work. Implementation-code capability, workflow, checker, generator, UI, adapter, config, schema, validation, and test changes must preserve one owning jurisdiction for each decision-critical fact, rule, state, side effect, lifecycle, public contract, output, witness, and verification obligation. Docs routers, docs placement, and documentation-only changes route to `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md` unless they also change implementation-code behavior.
+This section is the implementation-code mechanism for the `AGENTS.md` SSOT jurisdiction and duplication pruning rule. SSOT jurisdiction is an always-on design rule for implementation work. Implementation-code capability, workflow, checker, generator, UI, adapter, config, schema, validation, and test changes must preserve one owning jurisdiction for each decision-critical fact, rule, state, side effect, lifecycle, public contract, output, witness, and verification obligation. Docs routers, docs placement, and documentation-only changes route to `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md` unless they also change implementation-code behavior.
 
 Before non-trivial implementation, review, remediation, refactor, or post-diff cleanup, build or derive:
 - `jurisdiction_map`: decision-critical fact/state/effect/lifecycle/output/witness -> owner -> public contract.
@@ -67,7 +67,7 @@ If the owner is missing or conflicting, stop at the authority gap. Do not patch 
 
 ## Authority-Correct Design Standard
 - One authority owns each decision-critical responsibility.
-- Select the real SSOT owner first; then move or keep behavior there.
+- Select the real SSOT jurisdiction and owner first; then move or keep behavior there.
 - Preserve intended behavior while deleting duplicate, substitute, fallback, temporary, or non-authoritative logic.
 - Valid boundary adapters are allowed when they adapt external I/O or platform APIs for the owning authority; they must not own business rules, config defaults, lifecycle policy, or runtime-path selection unless that is their declared authority.
 - Orchestration code coordinates already-authoritative steps. It must call rule/config/lifecycle/runtime-path owners instead of implementing their decisions locally.
@@ -108,7 +108,7 @@ If the owner is missing or conflicting, stop at the authority gap. Do not patch 
 - Before adding logic to folder entrypoints, record the decomposition decision and witness against this doc's owner sections in the task plan, council summary, or review output.
 - Keep files under 400 LOC. A file approaching 400 LOC is decomposed by responsibility before closure.
 - Apply SOLID/DI, DRY, KISS, YAGNI, Separation of Concerns, and Law of Demeter inside the authority-folder model.
-- LOC reduction is valid evidence only when correctness, explicit failure, witnesses, and SSOT ownership remain intact. Numeric LOC targets are evidence pressure, not quotas.
+- LOC reduction is valid evidence only when correctness, explicit failure, witnesses, and SSOT jurisdiction/ownership remain intact. Numeric LOC targets are evidence pressure, not quotas.
 - Any remaining LOC increase must be justified by required behavior, stronger validation, stronger observability, or clearer authority boundaries.
 
 ## Contract Change Gate

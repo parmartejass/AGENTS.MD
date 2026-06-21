@@ -102,7 +102,7 @@ Implications:
 - Fail closed with `hold` for missing relevant authority inputs or obligations, decision-critical `unsupported`, `authority_conflict`, or unresolved `owner_update_required`; "read and followed docs" is not a witness.
 
 ### Authority Graph (Required for non-trivial systems)
-(Non-trivial: >1 workflow entrypoint, OR >1 SSOT owner, OR external resource dependencies such as COM/DB/network)
+(Non-trivial: >1 workflow entrypoint, OR >1 SSOT jurisdiction, OR external resource dependencies such as COM/DB/network)
 - Maintain a single authoritative owner per decision-critical fact/state (see SSOT section).
 - If code is split into modules/packages, align module boundaries with authority boundaries and expose a single explicit public contract per authority (see `docs/agents/35-coding-principles/coding-principles.md`).
 - Record the authority graph in `docs/project/architecture/architecture.md` or the workflow registry; no orphan docs.
@@ -193,7 +193,7 @@ Default posture:
    - Before staging, committing, pushing, or preparing a PR, reconcile the intended commit set against owner docs, changed code/config/tests, deleted/new files, and verification evidence. Fix owner-scoped issues that are clearly within the requested change. Proceed only when docs, implementation, and verification agree. If intent, ownership, scope, deletion, or risk cannot be resolved from repo evidence, STOP with `hold: <reason>` and ask the user; otherwise report `ready`.
    - Before final closure, ensure every durable authority-changing outcome has been promoted into its highest owning project doc with a deterministic witness. Do not use non-owner working evidence to compensate for missing owner-doc promotion.
 1) **Restate goal + acceptance criteria** (1-5 bullets).
-2) **Discover** relevant files and existing SSOT owners (constants/config/rules/workflows/etc).
+2) **Discover** relevant files and existing SSOT jurisdictions and concrete owners (constants/config/rules/workflows/etc).
    - **MUST** consult `agents-manifest.yaml` and execute the Context Injection Procedure (see below).
    - Use `docs/agents/10-repo-discovery/repo-discovery.md` for discovery search terms and SSOT adoption rules.
    - MUST ensure project docs exist and are read (start with `README.md` and `docs/project/project_index.md`; create missing docs per "Documentation SSOT Policy").
@@ -233,7 +233,7 @@ Purpose: force independent, intention-based review so silent errors, edge cases,
 
 ### Intention-based roles (minimum coverage)
 Each council must cover these intentions (one or more subagents may cover multiple intentions):
-- **SSOT/duplication alignment**: ensure existing owners are extended and no new duplicate authorities are introduced.
+- **SSOT jurisdiction and duplication pruning**: identify the highest applicable SSOT jurisdiction, reuse its concrete owner contract, and prune or reroute duplicate, drift, shadow, wrong-owner, or non-authoritative surfaces.
 - **Silent-error scan**: identify missing validation, silent failure paths, and "silently skip" patterns (violation of Non-Negotiable #4).
 - **Edge-case scan**: identify boundary conditions and pre/post-change failure modes.
 - **Resource/security/perf risks**: look for leaks, unsafe inputs, timeouts, and performance regressions.
@@ -245,7 +245,7 @@ Optional intentions (add as needed): integration/compatibility across modules an
 After the Context Injection Procedure resolves matched profiles and injected files from `agents-manifest.yaml`, council planning must account for that manifest-resolution witness.
 
 Profile-aware coverage is required when any of these are true:
-- the task is large, cross-cutting, high-risk, or touches multiple authority owners;
+- the task is large, cross-cutting, high-risk, or touches multiple SSOT jurisdictions or authority owners;
 - one or more manifest profiles match and any resolved injected docs are decision-critical to planning or review;
 - the task changes `AGENTS.md`, `agents-manifest.yaml`, context injection, council policy, or governance routing.
 
@@ -279,7 +279,7 @@ No maximum: scale up as needed.
 - Full council summary fields (for non-micro changes):
   - `council_run_id`
   - `phase` (`pre_change` | `post_change`)
-  - `intent_coverage` (`ssot_duplication`, `silent_error`, `edge_case`, `resource_security_perf`, `coding_principles_authority_design`)
+  - `intent_coverage` (`ssot_duplication` = SSOT jurisdiction and duplication pruning, `silent_error`, `edge_case`, `resource_security_perf`, `coding_principles_authority_design`)
   - `reviewers` (id, role, scope)
   - `findings` (severity, location, issue, evidence, recommendation)
   - `conflicts` (if any)
@@ -296,16 +296,16 @@ No maximum: scale up as needed.
   - `go_no_go` (`go` | `hold`)
 
 ### Council SSOT Jurisdiction Requirement
-Council reviewers produce SSOT jurisdiction evidence for assigned owners; findings must be traceable to authority inputs and deterministic witnesses.
+Council reviewers produce SSOT jurisdiction evidence for assigned jurisdictions and their concrete owners; findings must be traceable to authority inputs and deterministic witnesses.
 
 When assigned authority docs, reviewers must return:
-- `assigned_authority_docs`: exact authority docs or owner identifiers used.
+- `assigned_authority_docs`: exact SSOT jurisdiction records, authority docs, or owner identifiers used.
 - `applied_obligations`: concrete obligations from those authorities, with source section, scope, status, and evidence.
-- `jurisdiction_map_delta`: owner boundaries affected by the reviewed change.
-- `drift_surfaces`: duplicate, stale, shadow, patch, compatibility, fallback, checker-specific, test-only, or wrong-owner surfaces found, classified against the assigned owner.
-- `owner_level_fix`: the owning jurisdiction to strengthen, including the owner contract or witness that prevents recurrence.
+- `jurisdiction_map_delta`: SSOT jurisdiction boundaries affected by the reviewed change.
+- `drift_surfaces`: duplicate, stale, shadow, patch, compatibility, fallback, checker-specific, test-only, or wrong-owner surfaces found, classified against the assigned SSOT jurisdiction and concrete owner.
+- `jurisdiction_level_fix`: the owning SSOT jurisdiction to strengthen, including the owner contract or witness that prevents recurrence.
 - `prune_targets`: non-owner code/docs/tests/scripts/prompts/reports/checker logic to delete, move, or reroute.
-- `witness_required`: tests/checks/manual evidence needed to prove the owner boundary is restored.
+- `witness_required`: tests/checks/manual evidence needed to prove the SSOT jurisdiction boundary is restored.
 - `go_no_go`: `hold` for missing, conflicting, inaccessible, unknown, or unapplied authority obligations.
 
 Reviewers may add stronger task-specific reasoning beyond assigned docs, but must classify it as authority-preserving unless it changes future allowed behavior, in which case it requires owner update. Unsupported or conflicting recommendations cannot be treated as binding.
@@ -331,7 +331,7 @@ Council review is required before any auto-edit:
 - Merge findings; if conflicts or gaps remain, pause and ask before editing.
 
 Confirmation gate (for governance learnings auto-edit):
-- If a proposed governance change is not grounded in existing `AGENTS.md` authority (new rule/invariant/SSOT owner), ask for explicit confirmation before editing.
+- If a proposed governance change is not grounded in existing `AGENTS.md` authority (new rule/invariant/SSOT jurisdiction or owner), ask for explicit confirmation before editing.
 - For governance learnings auto-edit, edits to `AGENTS.md` always require explicit confirmation, except changes limited to the "Confirmation gate" subsection above.
 
 Scope:
@@ -353,6 +353,8 @@ For every concept, there must be exactly one authoritative definition:
 - Excel lifecycle management (open/close/quit/verify/kill)
 - GUI queue/drain + cancellation pattern
 
+**SSOT jurisdiction and duplication pruning rule:** before defining, changing, or consuming any responsibility, locate the highest current SSOT jurisdiction and its concrete owner; reuse that jurisdiction through the owner's declared public contract, owner doc, registry, schema, config, validator, workflow entrypoint, or data authority; when behavior or guidance is missing, weak, or stale, patch that owner and rewire all callers, docs, tests, scripts, checkers, and generated artifacts to consume it; delete or reroute duplicate, stale, shadow, wrapper, fallback, checker-specific, test-only, and wrong-owner surfaces; if no jurisdiction exists, create the minimal owner and wire every use site through that owner.
+
 Workflow/orchestration ownership means runtime coordination only. A workflow owner may load a validated runtime plan, sequence already-authoritative steps, call rule/config/constant owners, call I/O or lifecycle adapters, pass plain data to child entrypoints, select the declared runtime path when that selection is its contract, and emit run outcomes. It MUST NOT own, duplicate, or reinterpret child-stage business rules, validation predicates, constants, schema, config keys/defaults, backend-selection rules, lifecycle policy, or UI/checkbox semantics.
 
 Data-facing truth must not be hardcoded in runtime logic, workflow orchestration, scripts, docs, or config-repair code. Business/source data, user-facing mappings, workbook/sheet/header truth, portal fields, machine-specific paths, and other changing operational facts must come from input artifacts, declared config/constants, external systems, or the owning data authority. Business logic may consume only the validated value exposed by that owner; it must not embed a private copy.
@@ -360,11 +362,10 @@ Data-facing truth must not be hardcoded in runtime logic, workflow orchestration
 **File/folder structure IS SSOT enforcement.** Related artifacts sharing the same authority boundary MUST live under the same parent folder. Broader domains may contain multiple artifact-class roots only when a governance authority decision explicitly records one canonical owner plus any allowed non-owner workspace paths. When adding new files, find the existing SSOT parent first. When discovering scattered files that belong to the same authority boundary, refactor them into their SSOT parent before proceeding with other work.
 
 Hard rules:
-- If an SSOT already exists in the repo for a responsibility, **extend it** — do not create a parallel file/folder.
-- If related files are scattered across multiple locations, **consolidate them under one parent** as part of the current change.
-- Do not create parallel utilities/modules/docs/skills for the same ownership.
+- Apply the SSOT jurisdiction and duplication pruning rule before adding files, helpers, docs, tests, scripts, skills, config, or runtime paths.
+- If related files sharing one authority boundary are scattered across multiple locations, **consolidate them under the existing SSOT parent** as part of the current change.
 - A non-owner workspace path is allowed only when a governance authority decision records the canonical owner, the allowed non-owner path, and the forbidden duplicates. This is hierarchical authority, not parallel authority.
-- Every new file must answer: "Which existing SSOT parent does this belong under?" If none exists, create one and move any related scattered files into it.
+- Every new file must answer: "Which existing SSOT jurisdiction and parent does this belong under?" Resolve that through the SSOT jurisdiction and duplication pruning rule.
 
 ### 1A) Instruction Derivation Gate (Hard Gate)
 Every agent-authored normative statement must derive from a declared SSOT owner before it is treated as an instruction, requirement, checklist item, plan step, prompt scaffold, doc record, or user-facing obligation.
@@ -495,7 +496,7 @@ Full schema: `docs/agents/playbooks/log-schema-template/log-schema-template.md`.
 
 Rules (also enforced by Non-Negotiable #4):
 - No `print()`; use module-level logging.
-- The log schema is SSOT: define one owner and extend it; do not fork schemas.
+- The log schema follows the SSOT jurisdiction and duplication pruning rule; do not fork schemas.
 - Reason codes: maintain a single enum owner (module or config). Extend there only.
 
 ## Self‑Decision Procedure (Repo‑Agnostic)
@@ -511,11 +512,10 @@ Search the repo for existing owners of:
 - existing docs conventions
 
 ### B) Adoption Rule
-If ownership exists, extend it. Do not introduce parallel ownership.
+Apply Non-Negotiable #1 "SSOT jurisdiction and duplication pruning rule" to adopt, patch, rewire, or prune the current jurisdiction and owner without creating parallel ownership.
 
 ### C) Creation Rule (Only If Missing)
-If no SSOT exists for a responsibility, create one minimally (one module per responsibility, not one-per-function),
-and wire all new features through it.
+If no SSOT jurisdiction exists for a responsibility under that rule, create one minimally (one module per responsibility, not one-per-function), and wire all new features through it.
 
 ## Documentation SSOT Policy (Hard Gate)
 

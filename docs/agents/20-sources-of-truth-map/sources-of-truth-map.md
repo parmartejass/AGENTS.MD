@@ -11,7 +11,7 @@ Use `docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md` for go
 
 ## File/Folder Structure Rule
 This map follows the file/folder SSOT rule in `AGENTS.md`.
-Use the sections below to identify the current SSOT parent for a concept; keep the full policy and enforcement wording in `AGENTS.md`.
+Use the sections below to identify the current SSOT jurisdiction and parent for a concept; keep the jurisdiction, duplication-pruning, and enforcement wording in `AGENTS.md`.
 
 ## Constants (literals)
 Owner: exactly one place.

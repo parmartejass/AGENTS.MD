@@ -15,7 +15,7 @@ This protocol is supporting guidance only (non-normative) and is intended to pre
 1) **Modeling** the system: inputs, outputs, side effects, boundaries.
 2) **Tracing to Authority** (root-cause uplift):
    - Use `docs/agents/playbooks/rca-methods-template/rca-methods-template.md` for method steps/examples.
-3) **Mapping SSOT owners** (constants/config/rules/workflows/lifecycle utilities) and extending them (no parallel ownership).
+3) **Mapping SSOT jurisdictions and owners** (constants/config/rules/workflows/lifecycle utilities) and applying `AGENTS.md` Non-Negotiable #1 without parallel ownership.
 4) **Deriving task authority** when the output is non-trivial:
    - Identify the minimum control artifact needed before final output can be trusted, such as an authority map, source map, extraction ledger, validation matrix, patch plan, or test fixture.
    - Generate the final output from that artifact and verify against it before claiming proof.

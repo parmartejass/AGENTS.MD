@@ -190,7 +190,7 @@ Decision-grade brief (required before learnings; use this exact label order):
 Council summary block (required before Step 4; follow `AGENTS.md` "Subagent Council (Hard Gate)"):
 - council_run_id:
 - phase (`pre_change` | `post_change`):
-- intent_coverage (`ssot_duplication`, `silent_error`, `edge_case`, `resource_security_perf`, `coding_principles_authority_design`):
+- intent_coverage (`ssot_duplication` = SSOT jurisdiction and duplication pruning, `silent_error`, `edge_case`, `resource_security_perf`, `coding_principles_authority_design`):
 - reviewers (id, role, scope):
 - findings (severity, location, issue, evidence, recommendation):
 - conflicts:
