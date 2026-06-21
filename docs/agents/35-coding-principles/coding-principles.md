@@ -106,9 +106,12 @@ If the owner is missing or conflicting, stop at the authority gap. Do not patch 
 - If any boundary signal is present, create or extend private files or child folders under the same authority parent before adding entrypoint logic; if no signal is present, keep the logic in the entrypoint with a rationale.
 - Reusable mechanics must be promoted or extended only when boundary signals show the capability can be reused, tested, or changed independently while caller-feature policy remains in the feature owner; request-specific logic must stay in its current authority with a rationale.
 - Before adding logic to folder entrypoints, record the decomposition decision and witness against this doc's owner sections in the task plan, council summary, or review output.
-- Keep files under 400 LOC. A file approaching 400 LOC is decomposed by responsibility before closure.
+- A file that exceeds 400 LOC, or that the current change would make exceed 400 LOC, is a coding-principles trigger for the affected responsibility; before closure, apply this whole doc as with any patch, bugfix, feature change, addition, removal, refactor, or wiring change.
+- The decision scope is the affected responsibility across all applicable owners, contracts, entrypoints, and call sites.
+- The recorded decomposition decision and witness must apply the SSOT Jurisdiction Mechanics, Pre-Change Coding Design Review, Authority-Correct Design Standard, Module and Folder Contracts, Orchestration Boundaries, Dependency Direction, and Structural Minimality sections to choose the correct owner and change shape before code is moved.
+- The decision must account for applicable current-module, parent/higher workflow, feature-folder, reusable-mechanics, `shared/`, script/checker, config/schema/data-owner, adapter, public-entrypoint, external-adapter, duplicate-pruning, deletion, and reroute boundaries.
 - Apply SOLID/DI, DRY, KISS, YAGNI, Separation of Concerns, and Law of Demeter inside the authority-folder model.
-- LOC reduction is valid evidence only when correctness, explicit failure, witnesses, and SSOT jurisdiction/ownership remain intact. Numeric LOC targets are evidence pressure, not quotas.
+- LOC reduction is valid closure evidence only when correctness, validation, explicit outcomes, observability, witnesses, SSOT jurisdiction/routing, and public-contract clarity remain intact. Numeric LOC targets are evidence pressure for authority-preserving decomposition.
 - Any remaining LOC increase must be justified by required behavior, stronger validation, stronger observability, or clearer authority boundaries.
 
 ## Contract Change Gate

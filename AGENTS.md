@@ -101,6 +101,10 @@ Implications:
 - Classify each decision-critical design move, recommendation, finding, or go/no-go basis as `authority_required`, `authority_preserving`, `owner_update_required`, `authority_conflict`, or `unsupported`.
 - Fail closed with `hold` for missing relevant authority inputs or obligations, decision-critical `unsupported`, `authority_conflict`, or unresolved `owner_update_required`; "read and followed docs" is not a witness.
 
+### Scannable Output Shape (Hard Gate)
+- Non-trivial plans, reviews, implementation records, prompt scaffolds, council summaries, and final reports must use a task-derived scannable structure, not undifferentiated prose.
+- Make decision-critical inputs, SSOT owners, decisions/changes, evidence/witnesses, risks, status/go-no-go, and gaps/unknowns visually detectable; tiny conversational responses may stay prose-only when none of those are in scope.
+
 ### Authority Graph (Required for non-trivial systems)
 (Non-trivial: >1 workflow entrypoint, OR >1 SSOT jurisdiction, OR external resource dependencies such as COM/DB/network)
 - Maintain a single authoritative owner per decision-critical fact/state (see SSOT section).
