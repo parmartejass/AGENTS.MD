@@ -482,9 +482,9 @@ Implementation code has one coding-rule jurisdiction: `docs/agents/35-coding-pri
 
 Hard gate:
 - Apply `docs/agents/35-coding-principles/coding-principles.md` before planning, adding, reviewing, refactoring, purifying, or wiring implementation code that owns runtime behavior, workflow logic, or reusable runtime contracts.
-- Preserve one owner, one registry-resolved public entrypoint, plain-data contracts, parent-owned composition, explicit outcomes, bounded cleanup, and deterministic witnesses for each implementation-code authority.
+- Preserve one owner, one owner-resolved public entrypoint, plain-data contracts, parent-owned composition, explicit outcomes, bounded cleanup, and deterministic witnesses for each implementation-code authority.
 - Route detailed coding mechanics, including folder contracts, dependency direction, orchestration limits, I/O boundaries, file-size decomposition, contract-change approval, structural minimality, adapters, post-diff purification, and deletion-test witnesses, to `docs/agents/35-coding-principles/coding-principles.md`.
-- Use `scripts/entrypoint_contracts.json` for public contract filename pattern facts, `scripts/check_folder_architecture/scope.json` for checker-readable enforcement scope, and `agents-manifest.yaml` for task routing.
+- Use `scripts/check_governance_core/_docs_routes.py` for docs router/public-leaf filename facts, `scripts/check_folder_architecture/check_folder_architecture_main.py` for Python script entrypoint filename enforcement, `scripts/check_folder_architecture/scope.json` for checker-readable enforcement scope, and `agents-manifest.yaml` for task routing.
 - When implementation code is in scope, the coding-principles reviewer prompt must include the current coding-principles authority doc path: `docs/agents/35-coding-principles/coding-principles.md`.
 - Missing, conflicting, or inaccessible coding authority inputs require `hold: <reason>`.
 
@@ -558,7 +558,7 @@ Policy/detail SSOT: `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`
 Scaffold/template SSOT: `docs/agents/playbooks/project-docs-template/project-docs-template.md`
 
 All project docs must:
-- Follow the required doc header (except router files resolved from `scripts/entrypoint_contracts.json`).
+- Follow the required doc header (except router files resolved by `scripts/check_governance_core/_docs_routes.py`).
 - Reference SSOT owners by identifier (code/config/workflow entrypoints) rather than duplicating literals/rules.
 - Stay minimal and precise (prefer short bullet lists; avoid long prose).
 - Avoid duplicating governance rules: reference `AGENTS.md` instead of copying its requirements.
@@ -567,9 +567,9 @@ All project docs must:
 Authority role:
 - This section is the always-on docs-modularity hard gate for documentation structure under `docs/`.
 - `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md` owns delegated docs-family mechanics under this gate: headers, router behavior, public leaf placement, project-doc placement, owner-doc promotion, and optional leaf placement.
-- `scripts/entrypoint_contracts.json` owns docs router and public leaf filename pattern facts.
+- `scripts/check_governance_core/_docs_routes.py` owns docs router and public leaf filename pattern facts.
 
-- Every `docs/` folder must expose the registry-resolved router contract and route to direct children without becoming the narrative owner.
+- Every `docs/` folder must expose the owner-resolved router contract and route to direct children without becoming the narrative owner.
 - Narrative facts live in router-linked public leaf docs under the owning folder authority; parent routers route downward and do not restate child rules, literals, or contracts in full.
 - Artifact/payload folders remain navigable through the router contract even when they expose no narrative leaf.
 - Apply the detailed docs-router/header/public-leaf mechanics from `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`; do not fork those mechanics here.
@@ -603,5 +603,3 @@ Comments drift quickly; keep them "why-only":
 ## Supporting Docs
 
 Start here: `docs/agents/agents_index.md`
-
-Reference templates (routing): `templates/templates_index.md`

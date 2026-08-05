@@ -50,7 +50,7 @@ Each active decision record must include:
   - Secret-bearing files such as `.x_token.json` must remain untracked and must not define canonical guidance.
 - Forbidden duplicates:
   - No tracked second `x-api-data-access/SKILL.md` outside `docs/agents/skills/x-api-data-access/`.
-  - Do not point docs or runtime projection tooling at `X-Bookmarks Import/` as the canonical root for reusable skill bundles.
+  - Do not point docs or tooling at `X-Bookmarks Import/` as the canonical root for reusable skill bundles.
 - Coordinated update set:
   - `docs/agents/skills/00-skill-standards/skill-standards.md`
   - `docs/agents/skills/10-platform-adapters/platform-adapters.md`
@@ -66,52 +66,6 @@ Each active decision record must include:
   - Any proposal to move canonical X skill ownership away from `docs/agents/skills/`.
   - Any proposal to treat `X-Bookmarks Import/` as a tracked governance asset root rather than a non-authority workspace.
 
-### SSOT-DEC-002 - Runtime projection authority vs projected runtime targets
-- Status: active
-- Scope: repo-owned agent assets projected into project-local or explicitly declared user-home runtime paths
-- Canonical owner:
-  - Concrete runtime target mapping: `docs/agents/platforms/runtime-projections.json`
-  - Canonical source asset roots: `docs/agents/skills/`, `docs/agents/settings/`, `docs/agents/mcp/`
-- Allowed non-owner locations:
-  - Runtime targets declared in `docs/agents/platforms/runtime-projections.json`, including project dotpaths such as `.agents/skills/`, `.codex/config.toml`, `.claude/settings.json`, `.cursor/mcp.json`, `.cursor/cli.json`, and `.mcp.json`
-  - Explicit user-home targets declared in `docs/agents/platforms/runtime-projections.json`, such as `{HOME}/.agents/skills`
-  - Generated or linked runtime projections created by `docs/agents/link_repo_assets.ps1` or `scripts/setup_repo_platform_assets.ps1`
-  - Legacy local subagent runtime paths such as `.claude/agents/` and `.codex/agents/` may exist only as non-authoritative local/platform surfaces; they are not repo-owned projections and stale copies must be removed or managed outside this runtime-projection authority.
-  - `.cursor/plans/` may contain tracked Cursor planning records for this governance source repo; it is not a runtime projection target, is not governed by `runtime-projections.json`, and is not a project truth owner unless selected durable facts are promoted into the owning project doc.
-- Retired scope:
-  - ACP placeholders, automation runbooks, integration note branches, generated analyses, and PR-control-plane templates are retired in this cleanup; any still-current durable truth belongs in the highest owning project doc.
-  - Repo-owned subagent source docs and runtime adapters under `docs/agents/subagents/` are retired; canonical agent instructions remain in `AGENTS.md` and context routing remains in `agents-manifest.yaml`.
-- Forbidden duplicates:
-  - Do not treat projected runtime files or folders as canonical owners for platform settings, MCP definitions, or skills.
-  - Do not restate concrete runtime mapping facts in `README.md` or `docs/project/platform-runtime-status/platform-runtime-status.md` as parallel authorities.
-  - Do not create second canonical asset roots outside the `docs/agents/` source owners listed above.
-- Coordinated update set:
-  - `README.md`
-  - `agents-manifest.yaml`
-  - `docs/agents/agents_index.md`
-  - `docs/agents/20-sources-of-truth-map/sources-of-truth-map.md`
-  - `docs/agents/skills/00-skill-standards/skill-standards.md`
-  - `docs/agents/platforms/runtime-projections.json`
-  - `docs/agents/platforms/00-platform-runtime-standards/platform-runtime-standards.md`
-  - `docs/agents/mcp/00-mcp-standards/mcp-standards.md`
-  - `docs/agents/settings/00-settings-standards/settings-standards.md`
-  - `docs/agents/settings/codex/config.toml`
-  - `docs/agents/link_repo_assets.ps1`
-  - `scripts/setup_repo_platform_assets.ps1`
-  - `docs/project/platform-runtime-status/platform-runtime-status.md`
-  - `docs/project/architecture/architecture.md`
-  - `scripts/check_repo_hygiene.ps1`
-  - `scripts/check_governance_core/check_governance_core_main.py`
-- Verification witness:
-  - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/setup_repo_platform_assets.ps1 -Force` completes for supported defaults.
-  - `docs/project/platform-runtime-status/platform-runtime-status.md` references runtime projections and source owners rather than restating concrete mapping facts as SSOT.
-  - Projected runtime paths continue to resolve from the source owners declared in `docs/agents/platforms/runtime-projections.json`.
-  - Retired `.claude/agents/` and `.codex/agents/` runtime paths are documented as local-only legacy surfaces, not canonical source roots or projection targets.
-- Review trigger:
-  - Any proposal to add or remove a projected runtime target.
-  - Any proposal to move a runtime surface between project-local, user-home, manual, or official support levels.
-  - Any proposal to treat a projected runtime path as a canonical owner rather than a non-owner projection.
-
 ### SSOT-DEC-003 - Docs router authority vs canonical narrative leaf docs
 - Status: active
 - Scope: folder-owned public contract naming for runtime code and docs, with docs-specific router and public-leaf behavior under `docs/`
@@ -119,14 +73,15 @@ Each active decision record must include:
   - Governing hard gate for code/docs modularity: `AGENTS.md`
   - Human-readable policy owner for docs-family behavior: `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`
   - Human-readable delegated policy owner for coding-principles and runtime-code family mechanics: `docs/agents/35-coding-principles/coding-principles.md`
-  - Machine-readable filename registry for contract families: `scripts/entrypoint_contracts.json`
+  - Docs router and public-leaf filename facts: `scripts/check_governance_core/_docs_routes.py`
+  - Python script entrypoint filename enforcement: `scripts/check_folder_architecture/check_folder_architecture_main.py`
 - Allowed non-owner locations:
   - Router-linked public leaf markdown docs inside the same docs folder authority
   - Router-only docs folders that are artifact-first and only catalog payload children such as JSON, TOML, generated outputs, or dated evidence subfolders
   - Deeper runtime identity contracts such as `SKILL.md` and `mcp.json`, which remain owned by their existing authorities and are out of scope for this naming contract
 - Forbidden duplicates:
-  - Do not reintroduce `index.md` as the universal docs router contract after the registry-backed cutover
-  - Do not keep `scripts/migrated_router_leaves.json` or any replacement leaf-name registry once filename derivation is handled by `scripts/entrypoint_contracts.json`
+  - Do not reintroduce `index.md` as the universal docs router contract.
+  - Do not keep `scripts/migrated_router_leaves.json` or any replacement leaf-name registry once filename derivation is handled by `scripts/check_governance_core/_docs_routes.py`.
   - Do not hardcode runtime or docs contract filenames independently in validators, README guidance, templates, or policy docs
   - Do not create competing public contract files inside one folder authority unless an explicit contract-family exception already owns them
 - Coordinated update set:
@@ -138,21 +93,17 @@ Each active decision record must include:
   - `docs/project/architecture/architecture.md`
   - `agents-manifest.yaml`
   - `README.md`
-  - `scripts/entrypoint_contracts.json`
-  - `scripts/check_docs_ssot.ps1`
-  - `scripts/check_project_docs.ps1`
+  - `scripts/check_governance_core/_docs_routes.py`
   - `scripts/check_docs_router_contract/check_docs_router_contract_main.py`
   - `scripts/check_governance_core/_manifest_and_docs.py`
   - `scripts/check_folder_architecture/check_folder_architecture_main.py`
-  - `templates/python-dual-entry/README.md`
 - Verification witness:
-  - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_docs_ssot.ps1` passes
-  - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_project_docs.ps1` passes
-  - `python3 scripts/check_folder_architecture/check_folder_architecture_main.py` passes
-  - `python3 scripts/check_governance_core/check_governance_core_main.py` passes
-  - `python3 scripts/check_docs_router_contract/check_docs_router_contract_main.py` passes, including the negative cases where a router points to a missing primary leaf doc or contains non-routing content
+  - `python3 scripts/check_docs_router_contract/check_docs_router_contract_main.py` passes, including the negative cases where a router points to a missing primary leaf doc or contains non-routing content.
+  - `python3 scripts/check_folder_architecture/check_folder_architecture_main.py` passes.
+  - `python3 scripts/check_governance_core/check_governance_core_main.py` passes.
 - Review trigger:
-  - Any proposal to change a contract-family filename pattern without updating `scripts/entrypoint_contracts.json`
+  - Any proposal to change a docs router/public-leaf filename pattern without updating `scripts/check_governance_core/_docs_routes.py`.
+  - Any proposal to change Python script entrypoint filename enforcement without updating `scripts/check_folder_architecture/check_folder_architecture_main.py`.
   - Any proposal to reintroduce `index.md` as the universal docs router contract
   - Any proposal to rename or repurpose `SKILL.md` or `mcp.json` under this contract family
 
@@ -172,7 +123,6 @@ Each active decision record must include:
   - `docs/project/changelog/changelog.md` owns tracked closure-record facts only: change ID/date/status, closure statement, owner-promotion references, changed surfaces grouped by owner, verification witness/result, residual risks/follow-up, and commit/PR reference.
   - Temporary local planning notes, PR/review evidence, git history, task coordination artifacts, working evidence, and closure evidence may support review, but they are evidence only unless selected durable facts are promoted into a declared owner doc or closure facts are recorded in the tracked `Changelog`.
   - Valid `Changelog` mirror surfaces: final agent reports, PR/release descriptions, and release/checklist outputs after durable facts are promoted to their owners and the tracked project `Changelog` is updated or marked `N/A + reason`; field template/order routes to `docs/agents/90-release-checklist/release-checklist.md`.
-  - Template/example project-doc instances may show the same durable owner-doc shape under their own example project roots, but they do not define policy.
 - Forbidden duplicates:
   - Do not require, route, scaffold, or recreate a separate project-doc truth owner outside the docs SSOT declared owner-doc path.
   - Do not use `Changelog` as the owner for behavior, invariants, project intent, architecture, rules, data truth, reusable governance policy, implementation rationale, active work, raw prompts, transcripts, or unpromoted working evidence.
@@ -195,7 +145,6 @@ Each active decision record must include:
   - `docs/project/goal/goal.md`
   - `docs/project/learning/learning.md`
   - `scripts/check_governance_core/` project-doc validator contracts/tests, including `_project_authority_docs.py`, `_repo_and_governance.py`, and related tests
-  - `templates/python-dual-entry/docs/project/`
 - Verification witness:
   - Project-doc checks pass with durable truth routed through declared owner docs.
   - Tracked `Changelog` closure records reference owner-promotion targets for durable facts or `N/A + reason`.

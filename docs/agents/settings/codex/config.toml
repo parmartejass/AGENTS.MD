@@ -1,5 +1,5 @@
 # Shared project-scoped Codex settings for this repository.
-# Keep user-global auth/history/preferences in ~/.codex/config.toml.
+# Keep user-global auth/history/preferences in the user-owned Codex home config.
 
 approval_policy = "on-request"
 sandbox_mode = "workspace-write"

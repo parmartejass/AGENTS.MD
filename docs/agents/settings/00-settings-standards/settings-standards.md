@@ -1,7 +1,7 @@
 ---
 doc_type: policy
 ssot_owner: docs/agents/settings/00-settings-standards/settings-standards.md
-update_trigger: shared settings owners, runtime paths, or local-override rules change
+update_trigger: shared settings owners or local-override rules change
 ---
 
 # Settings Standards (SSOT)
@@ -9,25 +9,24 @@ update_trigger: shared settings owners, runtime paths, or local-override rules c
 ## Definition
 - Repo-owned shared platform settings live under `docs/agents/settings/`.
 - Canonical settings files must be direct source files, not embedded payloads in docs or scripts.
-- Exact runtime mappings and support levels live in `docs/agents/platforms/runtime-projections.json`.
+- Runtime installation is consumer-owned; this repo no longer tracks root runtime copies or projection mappings.
 
 ## Invariants
 - Only project-scoped, non-secret, intentionally shared settings may be repo-owned.
-- Runtime settings targets are linked projections of canonical repo files.
+- Shared settings payloads are source assets only.
 - Machine-local override files remain user-owned and unmanaged.
-- Settings automation must fail closed on conflicting non-link targets.
-- Shared settings content must be validated before linking when the file format is machine-parseable.
+- Shared settings content must remain machine-parseable when the file format supports deterministic parsing.
 
 ## Supported shared settings
-- Cursor project CLI permissions: `docs/agents/settings/cursor/cli.json` -> `.cursor/cli.json`
-- Claude shared project settings: `docs/agents/settings/claude-code/settings.json` -> `.claude/settings.json`
-- Codex shared project config: `docs/agents/settings/codex/config.toml` -> `.codex/config.toml`
+- Cursor project CLI permissions source: `docs/agents/settings/cursor/cli.json`
+- Claude shared project settings source: `docs/agents/settings/claude-code/settings.json`
+- Codex shared project config source: `docs/agents/settings/codex/config.toml`
 
 ## Local-only boundary
 - `.claude/settings.local.json` is machine-local and must never be repo-linked or tracked.
-- User-home config files remain outside repo-owned projection scope unless a future verified contract explicitly adopts them.
+- User-home config files remain outside repo ownership unless a future verified contract explicitly adopts them.
 
 ## Editing rule
 - Edit canonical settings under `docs/agents/settings/**`.
-- Do not edit projected runtime settings files as standalone authorities.
-- If a platform settings contract changes, update this file, `docs/agents/platforms/runtime-projections.json`, the relevant dated platform note, and `docs/agents/link_repo_assets.ps1` together.
+- Do not treat consumer runtime settings files as repo-owned authorities.
+- If a platform settings source contract changes, update this file and the affected source payload branch together.

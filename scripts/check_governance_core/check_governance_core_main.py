@@ -3,10 +3,10 @@
 Cross-platform governance checks.
 
 This script consolidates cross-platform governance checks:
-1) check_agents_manifest.ps1
-2) check_docs_ssot.ps1
-3) check_project_docs.ps1
-4) check_repo_hygiene.ps1
+1) agents manifest validation
+2) docs SSOT validation
+3) project docs validation
+4) repo hygiene validation
 5) docs unresolved citation placeholders
 6) governance learnings playbook hard-gate parity
 7) optional strict python safety mode
@@ -36,7 +36,6 @@ try:
         check_repo_hygiene,
         check_subagent_council_profile_coverage,
     )
-    from ._runtime_projection import check_runtime_projection_manifest
     from ._shared import PYTHON_SAFETY_TIMEOUT_SEC, configure_logging, context, logger
 except ImportError:  # pragma: no cover - script-path execution
     from _instruction_derivation import check_instruction_derivation_gate
@@ -49,7 +48,6 @@ except ImportError:  # pragma: no cover - script-path execution
         check_repo_hygiene,
         check_subagent_council_profile_coverage,
     )
-    from _runtime_projection import check_runtime_projection_manifest
     from _shared import PYTHON_SAFETY_TIMEOUT_SEC, configure_logging, context, logger
 
 
@@ -117,27 +115,9 @@ def main(argv: Sequence[str]) -> int:
         help="Run only project docs linkage/routing checks.",
     )
     parser.add_argument(
-        "--only-runtime-projection",
-        action="store_true",
-        help="Run only runtime projection manifest checks.",
-    )
-    parser.add_argument(
-        "--runtime-projection-include",
-        action="append",
-        default=[],
-        help=(
-            "Validate runtime projection source/content only for the named asset class. "
-            "May be passed multiple times; manifest structure is still validated globally."
-        ),
-    )
-    parser.add_argument(
         "--fail-on-safety-warnings",
         action="store_true",
         help="Run scripts/check_python_safety/check_python_safety_main.py with --fail-on-warnings.",
-    )
-    parser.add_argument(
-        "--success-marker",
-        help="Emit this opaque marker only after the requested validator mode completes successfully.",
     )
     args = parser.parse_args(argv)
 
@@ -149,12 +129,10 @@ def main(argv: Sequence[str]) -> int:
         logger.error("ERROR: %s", err)
         return 1
 
-    narrow_modes = [args.only_docs_ssot, args.only_project_docs, args.only_runtime_projection]
+    narrow_modes = [args.only_docs_ssot, args.only_project_docs]
     if sum(1 for enabled in narrow_modes if enabled) > 1:
         logger.error("ERROR: Choose only one narrow check mode.")
         return 1
-
-    runtime_projection_content_scope = set(args.runtime_projection_include) or None
 
     if args.only_docs_ssot:
         docs_errors, docs_notes = check_docs_ssot(repo_root, governance_root)
@@ -166,7 +144,6 @@ def main(argv: Sequence[str]) -> int:
         logger.info("Docs SSOT checks passed.")
         for note in docs_notes:
             logger.info(note)
-        _emit_success_marker(args.success_marker)
         return 0
 
     if args.only_project_docs:
@@ -177,35 +154,9 @@ def main(argv: Sequence[str]) -> int:
             logger.error("Project docs checks failed: %s issue(s).", len(project_docs_errors))
             return 1
         logger.info("Project docs checks passed.")
-        _emit_success_marker(args.success_marker)
-        return 0
-
-    if args.only_runtime_projection:
-        runtime_projection_errors, runtime_projection_notes = check_runtime_projection_manifest(
-            repo_root,
-            governance_root,
-            validate_content_for_asset_classes=runtime_projection_content_scope,
-        )
-        if runtime_projection_errors:
-            for issue in runtime_projection_errors:
-                logger.error("ERROR: %s", issue)
-            logger.error(
-                "Runtime projection manifest checks failed: %s issue(s).",
-                len(runtime_projection_errors),
-            )
-            return 1
-        logger.info("Runtime projection manifest checks passed.")
-        for note in runtime_projection_notes:
-            logger.info(note)
-        _emit_success_marker(args.success_marker)
         return 0
 
     docs_errors, docs_notes = check_docs_ssot(repo_root, governance_root)
-    runtime_projection_errors, runtime_projection_notes = check_runtime_projection_manifest(
-        repo_root,
-        governance_root,
-        validate_content_for_asset_classes=runtime_projection_content_scope,
-    )
     total_errors = 0
     for errors, success_message, notes in (
         (check_agents_manifest(governance_root), "Agents manifest checks passed.", []),
@@ -218,7 +169,6 @@ def main(argv: Sequence[str]) -> int:
         (check_subagent_council_profile_coverage(governance_root), "Subagent council profile-coverage checks passed.", []),
         (check_docs_first_prompt_classification(governance_root), "Docs-first prompt-classification checks passed.", []),
         (check_governance_authority_decisions(governance_root), "Governance authority decision registry checks passed.", []),
-        (runtime_projection_errors, "Runtime projection manifest checks passed.", runtime_projection_notes),
     ):
         if errors:
             for issue in errors:
@@ -247,13 +197,7 @@ def main(argv: Sequence[str]) -> int:
         return 1
 
     logger.info("Governance core checks passed.")
-    _emit_success_marker(args.success_marker)
     return 0
-
-
-def _emit_success_marker(marker: str | None) -> None:
-    if marker:
-        logger.info("VALIDATOR_SUCCESS_MARKER: %s", marker)
 
 
 if __name__ == "__main__":

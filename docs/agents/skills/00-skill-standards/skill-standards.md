@@ -49,8 +49,8 @@ update_trigger: skill standards change OR new platform support requirements emer
 
 ## Runtime Use
 - Repo-owned skill bundles are canonical source assets in this pack.
-- Runtime projections are declared in `docs/agents/platforms/runtime-projections.json` and created or repaired by `docs/agents/link_repo_assets.ps1` through the setup wrapper.
-- Runtime locations are projections, not canonical governance owners.
+- Runtime installation is consumer-owned; this repo no longer tracks runtime projection mappings or root runtime copies.
+- Runtime locations are not canonical governance owners.
 
 ## Operating Rules
 - Edit the canonical repo bundle first.

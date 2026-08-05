@@ -1,2 +1,0 @@
-"""Runner folder contract package."""
-

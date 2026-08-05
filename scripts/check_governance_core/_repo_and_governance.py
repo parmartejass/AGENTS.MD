@@ -62,14 +62,6 @@ def check_repo_hygiene(repo_root: Path) -> List[str]:
         if re.search(r"(^|/)\.DS_Store$", norm) or re.search(r"(^|/)Thumbs\.db$", norm):
             errors.append(f"Tracked OS noise file: {path}")
             continue
-        if norm.startswith("templates/python-dual-entry/tests/output/") and (
-            norm != "templates/python-dual-entry/tests/output/.gitkeep"
-        ):
-            errors.append(
-                "Tracked template runtime output file (must be ignored; "
-                f"docs/generated/ governance artifacts are allowed): {path}"
-            )
-            continue
         if norm.startswith("X-Bookmarks Import/data/"):
             errors.append(f"Tracked secret-like or workspace-local file: {path}")
             continue

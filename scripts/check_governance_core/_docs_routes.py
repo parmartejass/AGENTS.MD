@@ -5,6 +5,30 @@ from pathlib import Path
 from typing import List, Sequence, Tuple
 from urllib.parse import unquote
 
+DOCS_IDENTITY_FILES = ("SKILL.md", "mcp.json")
+MINIMUM_PUBLIC_LEAF_COUNT = 1
+_NUMBERED_GOVERNANCE_FOLDER = re.compile(r"^[0-9]{2}-(?P<authority>.+)$")
+_DATED_EVIDENCE_FOLDER = re.compile(r"^[0-9]{4}-[0-9]{2}-[0-9]{2}-.+$")
+
+
+def resolve_docs_authority(folder_name: str) -> str:
+    numbered = _NUMBERED_GOVERNANCE_FOLDER.match(folder_name)
+    if numbered:
+        return str(numbered.group("authority"))
+    if _DATED_EVIDENCE_FOLDER.match(folder_name):
+        return "evidence"
+    return folder_name
+
+
+def resolve_docs_router_filename(folder_name: str) -> str:
+    return f"{resolve_docs_authority(folder_name)}_index.md"
+
+
+def resolve_primary_leaf_filename(folder_name: str) -> str:
+    if _DATED_EVIDENCE_FOLDER.match(folder_name):
+        return "evidence.md"
+    return f"{resolve_docs_authority(folder_name)}.md"
+
 
 def normalize_link_target(raw_target: str) -> str:
     target = unquote(raw_target.strip())

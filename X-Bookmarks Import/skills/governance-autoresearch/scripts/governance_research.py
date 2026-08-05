@@ -64,7 +64,6 @@ GOVERNANCE_FILES = [
     "docs/agents/90-release-checklist/release-checklist.md",
     "docs/agents/workflow-registry/workflow-registry.md",
     "docs/agents/mcp/00-mcp-standards/mcp-standards.md",
-    "docs/agents/platforms/00-platform-runtime-standards/platform-runtime-standards.md",
     "docs/agents/skills/00-skill-standards/skill-standards.md",
     "docs/agents/skills/10-platform-adapters/platform-adapters.md",
     "docs/agents/settings/00-settings-standards/settings-standards.md",
@@ -92,10 +91,6 @@ FILE_TOPIC_MAP = {
     "docs/agents/90-release-checklist/release-checklist.md": ["release checklist automation", "CI CD agent workflow"],
     "docs/agents/workflow-registry/workflow-registry.md": ["workflow state machine", "agent workflow orchestration"],
     "docs/agents/mcp/00-mcp-standards/mcp-standards.md": ["MCP configuration security", "model context protocol agent tools"],
-    "docs/agents/platforms/00-platform-runtime-standards/platform-runtime-standards.md": [
-        "AI agent runtime projection",
-        "coding agent platform runtime standards",
-    ],
     "docs/agents/skills/00-skill-standards/skill-standards.md": ["Claude Code skills", "AI agent skills standard"],
     "docs/agents/skills/10-platform-adapters/platform-adapters.md": ["multi-platform agent", "agent platform adapter"],
     "docs/agents/settings/00-settings-standards/settings-standards.md": ["agent settings configuration", "coding agent permissions"],

@@ -6,12 +6,11 @@ import sys
 from pathlib import Path, PurePosixPath
 from _enumeration import iter_repo_python_files as _iter_repo_python_files
 from _issues import Issue, PythonRoot
-from _imports import TreeSpec, check_parent_only_imports
 logger = logging.getLogger(__name__)
 SCOPE_MANIFEST_PATH = "scripts/check_folder_architecture/scope.json"
-ENTRYPOINT_CONTRACTS_PATH = "scripts/entrypoint_contracts.json"
 VALID_SCOPE_MODES = {"allow_non_owner", "enforce", "support"}
 MAX_PYTHON_FILE_LINES = 400
+EXCLUDED_SCRIPT_FEATURE_DIRS = {"__pycache__"}
 def _configure_logging() -> None:
     handler = logging.StreamHandler(stream=sys.stdout)
     handler.setFormatter(logging.Formatter("%(message)s"))
@@ -25,9 +24,6 @@ def _check_exists(root: Path, rel_path: str, issues: list[Issue]) -> None:
         issues.append(Issue(path=rel_path, message="Missing required folder contract path."))
 
 
-def _check_absent(root: Path, rel_path: str, issues: list[Issue]) -> None:
-    if (root / rel_path).exists():
-        issues.append(Issue(path=rel_path, message="Legacy flat runtime file must be removed or folderized."))
 def _check_text_contains(
     root: Path,
     rel_path: str,
@@ -54,77 +50,8 @@ def _read_text_file(path: Path, rel_path: str, issues: list[Issue]) -> str | Non
     except (OSError, UnicodeDecodeError) as exc:
         issues.append(Issue(path=rel_path, message=f"Failed to read file for architecture check: {exc}"))
         return None
-def _load_entrypoint_contracts(governance_root: Path, issues: list[Issue]) -> dict[str, object]:
-    registry_path = governance_root / ENTRYPOINT_CONTRACTS_PATH
-    rel_path = registry_path.relative_to(governance_root).as_posix()
-    raw = _read_text_file(registry_path, rel_path, issues)
-    if raw is None:
-        return {}
-    try:
-        return json.loads(raw)
-    except json.JSONDecodeError as exc:
-        issues.append(Issue(path=rel_path, message=f"Invalid JSON in entrypoint registry: {exc}"))
-        return {}
-def _registry_string(
-    payload: dict[str, object],
-    path_parts: tuple[str, ...],
-    *,
-    issues: list[Issue],
-    registry_rel_path: str,
-) -> str | None:
-    current: object = payload
-    rendered_path = ".".join(path_parts)
-    for part in path_parts:
-        if not isinstance(current, dict) or part not in current:
-            issues.append(
-                Issue(
-                    path=registry_rel_path,
-                    message=f"Missing entrypoint registry key '{rendered_path}'.",
-                )
-            )
-            return None
-        current = current[part]
-    if not isinstance(current, str) or not current.strip():
-        issues.append(
-            Issue(
-                path=registry_rel_path,
-                message=f"Entry point registry key '{rendered_path}' must be a non-empty string.",
-            )
-        )
-        return None
-    return current
-def _python_entrypoint_filename(
-    folder_name: str, governance_root: Path, issues: list[Issue]
-) -> str | None:
-    payload = _load_entrypoint_contracts(governance_root, issues)
-    if not payload:
-        return None
-    registry_rel_path = ENTRYPOINT_CONTRACTS_PATH
-    pattern = _registry_string(
-        payload,
-        ("runtime_code", "filename_pattern"),
-        issues=issues,
-        registry_rel_path=registry_rel_path,
-    )
-    entrypoint_token = _registry_string(
-        payload,
-        ("runtime_code", "languages", "python", "artifact_kinds", "executable", "entrypoint_token"),
-        issues=issues,
-        registry_rel_path=registry_rel_path,
-    )
-    extension = _registry_string(
-        payload,
-        ("runtime_code", "languages", "python", "artifact_kinds", "executable", "extension"),
-        issues=issues,
-        registry_rel_path=registry_rel_path,
-    )
-    if pattern is None or entrypoint_token is None or extension is None:
-        return None
-    return (
-        pattern.replace("<authority>", folder_name)
-        .replace("<entrypoint_token>", entrypoint_token)
-        .replace("<extension>", extension)
-    )
+def python_entrypoint_filename(folder_name: str) -> str:
+    return f"{folder_name}_main.py"
 def _load_scope_manifest(governance_root: Path, issues: list[Issue]) -> list[PythonRoot]:
     manifest_path = governance_root / SCOPE_MANIFEST_PATH
     rel_path = manifest_path.relative_to(governance_root).as_posix()
@@ -242,7 +169,22 @@ def _check_python_file_line_limits(validation_root: Path, python_files: list[Pat
                     message=f"Python file exceeds {MAX_PYTHON_FILE_LINES} LOC hard gate: {line_count} lines.",
                 )
             )
-def _check_scripts_root(root: Path, governance_root: Path, issues: list[Issue]) -> None:
+def _has_direct_python_file(folder: Path) -> bool:
+    return any(child.is_file() and child.suffix == ".py" for child in folder.iterdir())
+
+
+def _discover_script_feature_folders(scripts_root: Path) -> list[Path]:
+    return [
+        child
+        for child in sorted(scripts_root.iterdir(), key=lambda path: path.name.lower())
+        if child.is_dir()
+        and not child.name.startswith(".")
+        and child.name not in EXCLUDED_SCRIPT_FEATURE_DIRS
+        and _has_direct_python_file(child)
+    ]
+
+
+def _check_scripts_root(root: Path, issues: list[Issue]) -> None:
     scripts_root = root / "scripts"
     if not scripts_root.is_dir():
         issues.append(Issue(path="scripts", message="Scripts root is missing."))
@@ -254,61 +196,9 @@ def _check_scripts_root(root: Path, governance_root: Path, issues: list[Issue]) 
                 message="Top-level Python script found; move behavior behind scripts/<feature>/<authority>_main.py.",
             )
         )
-    required_paths: list[str] = []
-    for folder_name in (
-        "check_docs_router_contract",
-        "check_folder_architecture",
-        "check_governance_core",
-        "check_python_safety",
-    ):
-        entrypoint = _python_entrypoint_filename(folder_name, governance_root, issues)
-        if entrypoint is None:
-            continue
-        required_paths.append(f"scripts/{folder_name}/{entrypoint}")
-    for required in required_paths:
+    for feature_dir in _discover_script_feature_folders(scripts_root):
+        required = f"scripts/{feature_dir.name}/{python_entrypoint_filename(feature_dir.name)}"
         _check_exists(root, required, issues)
-def _check_dual_entry_template(root: Path, issues: list[Issue]) -> None:
-    required_paths = (
-        "templates/python-dual-entry/myapp/myapp_main.py",
-        "templates/python-dual-entry/myapp/cli/cli_main.py",
-        "templates/python-dual-entry/myapp/core/core_main.py",
-        "templates/python-dual-entry/myapp/gui/gui_main.py",
-        "templates/python-dual-entry/myapp/runner/runner_main.py",
-        "templates/python-dual-entry/myapp/runner/validation.py",
-        "templates/python-dual-entry/myapp/runner/workflows.py",
-        "templates/python-dual-entry/myapp/runner/text_transform.py",
-    )
-    for rel_path in required_paths:
-        _check_exists(root, rel_path, issues)
-    for legacy in (
-        "templates/python-dual-entry/myapp/main.py",
-        "templates/python-dual-entry/myapp/cli/main.py",
-        "templates/python-dual-entry/myapp/core/main.py",
-        "templates/python-dual-entry/myapp/gui/main.py",
-        "templates/python-dual-entry/myapp/runner/main.py",
-        "templates/python-dual-entry/myapp/cli_app.py",
-        "templates/python-dual-entry/myapp/gui_app.py",
-        "templates/python-dual-entry/myapp/runner.py",
-        "templates/python-dual-entry/myapp/workflows.py",
-        "templates/python-dual-entry/myapp/workflows/main.py",
-        "templates/python-dual-entry/myapp/core/validators.py",
-        "templates/python-dual-entry/myapp/core/text_transform.py",
-    ):
-        _check_absent(root, legacy, issues)
-    _check_text_contains(
-        root,
-        "templates/python-dual-entry/myapp/myapp_main.py",
-        required=["from myapp.cli.cli_main import build_cli_request, has_cli_intent", "from myapp.gui.gui_main import start_gui"],
-        forbidden=["myapp.cli_app", "myapp.gui_app"],
-        issues=issues,
-    )
-    _check_text_contains(
-        root,
-        "templates/python-dual-entry/myapp/runner/runner_main.py",
-        required=["from .validation import validate_job_config", "from .workflows import get_workflow"],
-        forbidden=["from myapp.core.validators import", "from myapp.workflows import", "from myapp.core.core_main import validate_job_config"],
-        issues=issues,
-    )
 def _check_scope_manifest_reference(root: Path, issues: list[Issue]) -> None:
     _check_text_contains(
         root,
@@ -324,18 +214,7 @@ def _check_governance_owned_contracts(repo_root: Path, governance_root: Path, is
     python_files = _iter_repo_python_files(validation_root, issues)
     _check_python_scope(validation_root, governance_root, python_files, issues)
     _check_python_file_line_limits(validation_root, python_files, issues)
-    _check_scripts_root(validation_root, governance_root, issues)
-    _check_dual_entry_template(validation_root, issues)
-    check_parent_only_imports(
-        validation_root,
-        TreeSpec(
-            tree_root="templates/python-dual-entry/myapp",
-            parent_main="templates/python-dual-entry/myapp/myapp_main.py",
-            module_prefix="myapp",
-            child_dirs=("cli", "core", "gui", "runner"),
-        ),
-        issues,
-    )
+    _check_scripts_root(validation_root, issues)
     if repo_root == governance_root:
         _check_scope_manifest_reference(repo_root, issues)
 def main(argv: list[str] | None = None) -> int:

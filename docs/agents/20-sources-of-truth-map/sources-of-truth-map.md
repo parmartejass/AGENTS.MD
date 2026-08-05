@@ -58,14 +58,13 @@ Owner: the workflow entrypoint owns the selected-path record unless the repo dec
 - selected runtime path, backend, library, or execution mode
 - selection must be recorded before execution and referenced by owner path
 - failure after selection produces a terminal outcome; runtime code must not switch to a substitute path
-- Python-backed PowerShell script interpreter resolution owner: `scripts/_python_check_runner.ps1` (`-PythonExe`, otherwise `python3`, then `python`, Python 3.11+ required, selected path printed before execution). This covers checker wrappers and runtime-projection TOML validation.
 
 ## Coding principles / module boundaries + contracts
 Owner by decision-critical fact.
 - coding hard-gate trigger and precedence: `AGENTS.md`
 - delegated coding-principles and runtime-code authority-design mechanics: `docs/agents/35-coding-principles/coding-principles.md`
 - SSOT jurisdiction and post-diff purification mechanics for implementation code: `docs/agents/35-coding-principles/coding-principles.md`
-- public contract filename pattern facts: `scripts/entrypoint_contracts.json`
+- Python script public entrypoint filename enforcement: `scripts/check_folder_architecture/check_folder_architecture_main.py`
 - authority boundaries recorded in `docs/project/architecture/architecture.md` (project root)
 - module contracts defined in the authority module entrypoint
 
@@ -85,7 +84,7 @@ Owner: `agents-manifest.yaml`
 Owner by decision-critical fact.
 - docs-modularity hard gate: `AGENTS.md`
 - delegated docs-family mechanics: `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`
-- docs router and public leaf filename pattern facts: `scripts/entrypoint_contracts.json`
+- docs router and public leaf filename pattern facts: `scripts/check_governance_core/_docs_routes.py`
 
 ## Bounded project authority memory
 Owner: the existing `docs/project/` branch authorities, routed from `docs/project/project_index.md`.
@@ -103,17 +102,18 @@ Owner: `docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md`
 - canonical owner + allowed non-owner locations + forbidden duplicates + coordinated migration or update set
 - project-local adoption details remain in `docs/project/architecture/architecture.md`
 
-## Repo-owned agent assets and runtime projections
-Owner: `docs/agents/platforms/runtime-projections.json` + source asset roots under `docs/agents/`
-- source roots own reusable skills, shared settings, and MCP payloads
-- runtime projection targets are declared once in `docs/agents/platforms/runtime-projections.json`
-- projected dotpaths are non-owner runtime surfaces; do not treat them as canonical source roots
+## Repo-owned agent source assets
+Owner: source asset roots under `docs/agents/`
+- `docs/agents/skills/` owns reusable skill bundles.
+- `docs/agents/settings/` owns shared non-secret settings payloads.
+- `docs/agents/mcp/` owns shared non-secret MCP payloads.
+- Runtime installation is consumer-owned; tracked root runtime copies and repo-owned projection mappings are retired.
 
 ## Runtime config and secret boundary
 Owner: `docs/agents/settings/00-settings-standards/settings-standards.md`
 - repo-owned settings examples must be non-secret
 - MCP credentials, tokens, and machine identities remain user-owned and ignored
-- projected settings files must stay non-secret and derive from the declared source owners
+- shared settings source files must stay non-secret and parseable by their owning format
 
 ## Excel COM lifecycle
 Owner: exactly one implementation.

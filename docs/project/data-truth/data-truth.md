@@ -13,11 +13,11 @@ update_trigger: data-truth ownership, provenance, validation, or routing changes
 
 ## Boundary
 - This branch owns project-local data-truth routing and provenance notes when a project doc is the declared owner.
-- This branch does not own reusable governance policy, runtime projection mappings, or code/config constants that already have declared owners.
+- This branch does not own reusable governance policy or code/config constants that already have declared owners.
 
 ## Current Summary
 - No project-owned data-truth cluster is currently declared in this governance-pack repo.
-- Existing code, config, schemas, runtime projection manifests, and templates remain the owners for their own concrete facts unless a future project-doc owner is explicitly routed here.
+- Existing code, config, schemas, and source assets remain the owners for their own concrete facts unless a future project-doc owner is explicitly routed here.
 
 ## When to create a branch-local owner subdoc
 - Create a data-truth subdoc when a stable project data/config/constant/default/source-artifact cluster needs its own intent, boundary, invariant, change rule, verification, and references.

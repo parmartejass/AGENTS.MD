@@ -15,7 +15,6 @@ from uuid import uuid4
 
 SCRIPT_ROOT = Path(__file__).resolve().parent
 MODULE_PATH = SCRIPT_ROOT / "check_folder_architecture_main.py"
-ENTRYPOINT_REGISTRY_PATH = SCRIPT_ROOT.parent / "entrypoint_contracts.json"
 if str(SCRIPT_ROOT) not in sys.path:
     sys.path.insert(0, str(SCRIPT_ROOT))
 
@@ -30,7 +29,7 @@ SPEC.loader.exec_module(MODULE)
 check_governance_owned_contracts = MODULE._check_governance_owned_contracts
 iter_repo_python_files = MODULE._iter_repo_python_files
 load_scope_manifest = MODULE._load_scope_manifest
-python_entrypoint_filename = MODULE._python_entrypoint_filename
+python_entrypoint_filename = MODULE.python_entrypoint_filename
 TMP_ROOT = Path(tempfile.gettempdir()) / "agents-md-check-folder-architecture-tests"
 
 
@@ -54,10 +53,6 @@ def _temporary_workspace():
 
 def _write_minimal_governance_tree(governance_root: Path) -> None:
     _write(
-        governance_root / "scripts/entrypoint_contracts.json",
-        ENTRYPOINT_REGISTRY_PATH.read_text(encoding="utf-8"),
-    )
-    _write(
         governance_root / "scripts/check_folder_architecture/scope.json",
         json.dumps(
             {
@@ -65,11 +60,6 @@ def _write_minimal_governance_tree(governance_root: Path) -> None:
                 "python_roots": [
                     {
                         "path": "scripts",
-                        "enforcement_mode": "enforce",
-                        "owner": "scripts/check_folder_architecture/check_folder_architecture_main.py",
-                    },
-                    {
-                        "path": "templates/python-dual-entry/myapp",
                         "enforcement_mode": "enforce",
                         "owner": "scripts/check_folder_architecture/check_folder_architecture_main.py",
                     },
@@ -84,30 +74,8 @@ def _write_minimal_governance_tree(governance_root: Path) -> None:
         "scripts/check_folder_architecture/check_folder_architecture_main.py",
         "scripts/check_governance_core/check_governance_core_main.py",
         "scripts/check_python_safety/check_python_safety_main.py",
-        "templates/python-dual-entry/myapp/cli/cli_main.py",
-        "templates/python-dual-entry/myapp/core/core_main.py",
-        "templates/python-dual-entry/myapp/gui/gui_main.py",
-        "templates/python-dual-entry/myapp/myapp_main.py",
-        "templates/python-dual-entry/myapp/runner/validation.py",
-        "templates/python-dual-entry/myapp/runner/workflows.py",
-        "templates/python-dual-entry/myapp/runner/text_transform.py",
     ):
         _write(governance_root / rel_path, "from __future__ import annotations\n")
-
-    _write(
-        governance_root / "templates/python-dual-entry/myapp/myapp_main.py",
-        """
-        from myapp.cli.cli_main import build_cli_request, has_cli_intent
-        from myapp.gui.gui_main import start_gui
-        """,
-    )
-    _write(
-        governance_root / "templates/python-dual-entry/myapp/runner/runner_main.py",
-        """
-        from .validation import validate_job_config
-        from .workflows import get_workflow
-        """,
-    )
 
 class FolderArchitectureBoundaryTests(unittest.TestCase):
     @unittest.skipIf(shutil.which("git") is None, "git is not available in PATH.")
@@ -195,37 +163,55 @@ class FolderArchitectureBoundaryTests(unittest.TestCase):
                 issues,
             )
 
-    def test_invalid_registry_returns_none_and_issue(self) -> None:
-        with _temporary_workspace() as tmp_root:
-            governance_root = tmp_root
+    def test_python_entrypoint_filename_uses_direct_contract(self) -> None:
+        self.assertEqual("billing_main.py", python_entrypoint_filename("billing"))
+
+    def test_discovered_script_feature_requires_main_entrypoint(self) -> None:
+        with _temporary_workspace() as repo_root:
+            _write_minimal_governance_tree(repo_root)
+            _write(repo_root / "scripts/reporting/helper.py", "from __future__ import annotations\n")
             _write(
-                governance_root / "scripts/entrypoint_contracts.json",
-                """
-                {
-                  "version": 1,
-                  "runtime_code": {
-                    "filename_pattern": "<authority>_<entrypoint_token>.<extension>",
-                    "languages": {
-                      "python": {
-                        "artifact_kinds": {
-                          "executable": {
-                            "extension": "py"
-                          }
-                        }
-                      }
-                    }
-                  },
-                  "docs": {}
-                }
-                """,
+                repo_root / "docs/project/architecture/architecture.md",
+                f"# Architecture\n\n- {MODULE.SCOPE_MANIFEST_PATH}\n",
             )
 
             issues = []
-            resolved = python_entrypoint_filename("billing", governance_root, issues)
+            check_governance_owned_contracts(repo_root, repo_root, issues)
 
-            self.assertIsNone(resolved)
             self.assertTrue(
-                any("entrypoint_token" in issue.message for issue in issues),
+                any(issue.path == "scripts/reporting/reporting_main.py" for issue in issues),
+                issues,
+            )
+
+    def test_discovered_script_feature_passes_with_main_entrypoint(self) -> None:
+        with _temporary_workspace() as repo_root:
+            _write_minimal_governance_tree(repo_root)
+            _write(repo_root / "scripts/reporting/reporting_main.py", "from __future__ import annotations\n")
+            _write(
+                repo_root / "docs/project/architecture/architecture.md",
+                f"# Architecture\n\n- {MODULE.SCOPE_MANIFEST_PATH}\n",
+            )
+
+            issues = []
+            check_governance_owned_contracts(repo_root, repo_root, issues)
+
+            self.assertEqual([], issues)
+
+    def test_script_feature_discovery_is_direct_child_only(self) -> None:
+        with _temporary_workspace() as repo_root:
+            _write_minimal_governance_tree(repo_root)
+            _write(repo_root / "scripts/reporting/reporting_main.py", "from __future__ import annotations\n")
+            _write(repo_root / "scripts/reporting/nested/helper.py", "from __future__ import annotations\n")
+            _write(
+                repo_root / "docs/project/architecture/architecture.md",
+                f"# Architecture\n\n- {MODULE.SCOPE_MANIFEST_PATH}\n",
+            )
+
+            issues = []
+            check_governance_owned_contracts(repo_root, repo_root, issues)
+
+            self.assertFalse(
+                any(issue.path == "scripts/reporting/nested/nested_main.py" for issue in issues),
                 issues,
             )
 

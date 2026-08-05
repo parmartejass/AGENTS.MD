@@ -23,7 +23,7 @@ update_trigger: new operational learnings/pitfalls discovered in real use
 
 ## Common pitfalls
 - Python may not be runnable on some machines (Windows Store app aliases). Ensure `python` resolves to Python 3.11+ so the README-listed Python checks can run.
-- Generated artifacts (e.g., `__pycache__/`, `*.pyc`, template outputs) must not be committed.
+- Generated artifacts (e.g., `__pycache__/`, `*.pyc`, local outputs) must not be committed.
 
 ## Session-backed decisions
 - 2026-05-31: ChatGPT framework/docs-structure conversations were treated as evidence for thinking principles, not standalone authority. Durable principles were promoted to `AGENTS.md` and `docs/agents/00-principles/principles.md`; this note records only the evidence source and placement decision.
@@ -40,7 +40,7 @@ update_trigger: new operational learnings/pitfalls discovered in real use
 - Generic framework content was not promoted to policy authority; existing owners in `AGENTS.md` remain canonical.
 
 ## Verification tips
-- If a repo adopts this pack, run `.governance/scripts/check_project_docs.ps1 -RepoRoot .` early to ensure docs+README linkage is in place.
+- If a repo adopts this pack, run `.governance/scripts/check_governance_core/check_governance_core_main.py --repo-root . --only-project-docs` early to ensure docs+README linkage is in place.
 - Keep external-service connection procedures in the owning skill or integration folder rather than `docs/project/`.
 
 ## Debugging references

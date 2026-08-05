@@ -7,16 +7,6 @@
       "owner": "scripts/check_folder_architecture/check_folder_architecture_main.py"
     },
     {
-      "path": "templates/python-dual-entry/myapp",
-      "enforcement_mode": "enforce",
-      "owner": "scripts/check_folder_architecture/check_folder_architecture_main.py"
-    },
-    {
-      "path": "templates/python-dual-entry/tests",
-      "enforcement_mode": "support",
-      "owner": "templates/python-dual-entry/README.md"
-    },
-    {
       "path": "X-Bookmarks Import",
       "enforcement_mode": "allow_non_owner",
       "owner": "docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md#SSOT-DEC-001"

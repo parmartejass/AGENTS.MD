@@ -2,23 +2,9 @@ from __future__ import annotations
 from pathlib import Path
 from typing import List
 try:
-    from ._docs_routes import extract_route_targets
-    from ._entrypoint_contracts import (
-        docs_contract_from_payload,
-        load_entrypoint_contracts,
-        resolve_docs_router_filename,
-        resolve_primary_leaf_filename,
-        validate_registry_paths,
-    )
+    from ._docs_routes import extract_route_targets, resolve_docs_router_filename, resolve_primary_leaf_filename
 except ImportError:  # pragma: no cover - script-path execution
-    from _docs_routes import extract_route_targets
-    from _entrypoint_contracts import (
-        docs_contract_from_payload,
-        load_entrypoint_contracts,
-        resolve_docs_router_filename,
-        resolve_primary_leaf_filename,
-        validate_registry_paths,
-    )
+    from _docs_routes import extract_route_targets, resolve_docs_router_filename, resolve_primary_leaf_filename
 
 
 def _validate_project_optional_leaf_routes(repo_root: Path) -> List[str]:
@@ -45,14 +31,14 @@ def _validate_project_optional_leaf_routes(repo_root: Path) -> List[str]:
     return errors
 
 
-def _validate_project_doc_branch_routes(repo_root: Path, docs_contract, project_targets: List[str]) -> List[str]:
+def _validate_project_doc_branch_routes(repo_root: Path, project_targets: List[str]) -> List[str]:
     errors: List[str] = []
     project_root = repo_root / "docs/project"
     if not project_root.is_dir():
         return errors
 
     for branch in sorted(path for path in project_root.iterdir() if path.is_dir()):
-        router_name = resolve_docs_router_filename(branch.name, docs_contract)
+        router_name = resolve_docs_router_filename(branch.name)
         router_path = branch / router_name
         expected_project_route = f"{branch.name}/{router_name}"
         if expected_project_route not in project_targets:
@@ -77,12 +63,6 @@ def _validate_project_doc_branch_routes(repo_root: Path, docs_contract, project_
 
 def check_project_docs(repo_root: Path, governance_rel_path: str, governance_root: Path) -> List[str]:
     errors: List[str] = []
-    payload, registry_errors = load_entrypoint_contracts(governance_root)
-    errors.extend(registry_errors)
-    errors.extend(validate_registry_paths(payload) if payload else [])
-    if errors:
-        return errors
-    docs_contract = docs_contract_from_payload(payload)
     policy_path = governance_root / "docs/agents/25-docs-ssot-policy/docs-ssot-policy.md"
     if not policy_path.is_file():
         errors.append(f"Missing docs SSOT policy: {policy_path}")
@@ -113,11 +93,8 @@ def check_project_docs(repo_root: Path, governance_rel_path: str, governance_roo
         required_refs = [
             "docs/project/project_index.md",
             "AGENTS.md",
-            f"{governance_prefix}scripts/check_docs_ssot.ps1",
+            f"{governance_prefix}scripts/check_governance_core/check_governance_core_main.py",
             f"{governance_prefix}scripts/check_docs_router_contract/check_docs_router_contract_main.py",
-            f"{governance_prefix}scripts/check_agents_manifest.ps1",
-            f"{governance_prefix}scripts/check_project_docs.ps1",
-            f"{governance_prefix}scripts/check_repo_hygiene.ps1",
             f"{governance_prefix}scripts/check_folder_architecture/check_folder_architecture_main.py",
             f"{governance_prefix}scripts/check_python_safety/check_python_safety_main.py",
         ]
@@ -130,13 +107,13 @@ def check_project_docs(repo_root: Path, governance_rel_path: str, governance_roo
         for issue in route_errors:
             errors.append(f"{project_router}: {issue}")
         for child in ("goal", "rules", "architecture", "data-truth", "changelog", "learning"):
-            expected = f"{child}/{resolve_docs_router_filename(child, docs_contract)}"
+            expected = f"{child}/{resolve_docs_router_filename(child)}"
             if expected not in project_targets:
                 errors.append(f"docs/project/project_index.md must reference {expected}")
-        errors.extend(_validate_project_doc_branch_routes(repo_root, docs_contract, project_targets))
+        errors.extend(_validate_project_doc_branch_routes(repo_root, project_targets))
     for folder_name in ("goal", "rules", "architecture", "data-truth", "changelog", "learning"):
         dir_path = repo_root / "docs/project" / folder_name
-        router_name = resolve_docs_router_filename(folder_name, docs_contract)
+        router_name = resolve_docs_router_filename(folder_name)
         router_path = dir_path / router_name
         if not router_path.is_file():
             errors.append(f"Missing required file: {router_path.relative_to(repo_root).as_posix()}")
@@ -144,7 +121,7 @@ def check_project_docs(repo_root: Path, governance_rel_path: str, governance_roo
         route_targets, route_errors = extract_route_targets(router_path.read_text(encoding="utf-8"))
         for issue in route_errors:
             errors.append(f"{router_path.relative_to(repo_root).as_posix()}: {issue}")
-        expected_leaf = resolve_primary_leaf_filename(folder_name, docs_contract)
+        expected_leaf = resolve_primary_leaf_filename(folder_name)
         if expected_leaf not in route_targets:
             errors.append(f"{router_path.relative_to(repo_root).as_posix()} must reference {expected_leaf}")
     errors.extend(_validate_project_optional_leaf_routes(repo_root))

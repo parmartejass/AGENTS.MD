@@ -33,9 +33,6 @@ semantic_queries:
   gui_task:
     - "How is GUI thread safety enforced?"
     - "Where is the queue/drain pattern implemented?"
-  dual_entry_template:
-    - "How does the CLI vs GUI entry dispatcher work?"
-    - "Where are workflow scenarios registered?"
   bugfix:
     - "Where is the failing functionality implemented?"
     - "What SSOT owns this behavior?"
@@ -303,32 +300,6 @@ profiles:
       - "docs/agents/30-logging-errors/logging-errors.md"
       - "docs/agents/40-config-constants/config-constants.md"
 
-  dual_entry_template:
-    detect:
-      keywords:
-        - "dual-entry"
-        - "dual entry"
-        - "entry dispatcher"
-        - "__main__.py"
-        - "cli"
-        - "gui"
-        - "scenario"
-        - "scenarios"
-        - "pytest"
-        - "unittest"
-      code_patterns:
-        - "run_job("
-        - "python -m"
-      file_globs:
-        - "templates/python-dual-entry/**"
-    inject:
-      - "docs/agents/85-dual-entry-template/dual-entry-template.md"
-      - "docs/agents/workflow-registry/workflow-registry.md"
-      - "docs/agents/80-testing-real-files/testing-real-files.md"
-      - "docs/agents/60-gui-threading/gui-threading.md"
-      - "docs/agents/30-logging-errors/logging-errors.md"
-      - "docs/agents/40-config-constants/config-constants.md"
-
   bugfix:
     detect:
       keywords:
@@ -518,7 +489,6 @@ profiles:
       file_globs:
         - "scripts/check_folder_architecture/**/*.py"
         - "scripts/check_governance_core/**/*.py"
-        - "templates/python-dual-entry/myapp/**/*.py"
     inject:
       - "docs/agents/35-coding-principles/coding-principles.md"
       - "docs/agents/20-sources-of-truth-map/sources-of-truth-map.md"

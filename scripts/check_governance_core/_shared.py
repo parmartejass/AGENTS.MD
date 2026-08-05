@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-import json
 import logging
 import os
 import sys
-import tomllib
 from pathlib import Path
-from typing import Any, List, Tuple
+from typing import Tuple
 
 logger = logging.getLogger(__name__)
 GIT_LS_FILES_TIMEOUT_SEC = 30
@@ -25,22 +23,6 @@ def resolve_path(path: str | None, default: Path) -> Path:
     if not path:
         return default.resolve()
     return Path(path).expanduser().resolve()
-
-
-def is_non_empty(value: Any) -> bool:
-    if value is None:
-        return False
-    if isinstance(value, str):
-        return bool(value.strip())
-    if isinstance(value, (list, tuple, set, dict)):
-        return len(value) > 0
-    return True
-
-
-def as_non_empty_list(value: Any) -> List[Any]:
-    if not isinstance(value, list):
-        return []
-    return [item for item in value if is_non_empty(item)]
 
 
 def context(
@@ -68,21 +50,3 @@ def context(
 
     governance_rel = "" if rel in {".", ""} else rel
     return repo_root, governance_root, governance_rel
-
-
-def load_json(path: Path) -> Any:
-    try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except OSError as exc:
-        raise RuntimeError(f"Failed to read JSON file {path}: {exc}") from exc
-    except json.JSONDecodeError as exc:
-        raise RuntimeError(f"Failed to parse JSON file {path}: {exc}") from exc
-
-
-def load_toml(path: Path) -> Any:
-    try:
-        return tomllib.loads(path.read_text(encoding="utf-8"))
-    except OSError as exc:
-        raise RuntimeError(f"Failed to read TOML file {path}: {exc}") from exc
-    except tomllib.TOMLDecodeError as exc:  # type: ignore[attr-defined]
-        raise RuntimeError(f"Failed to parse TOML file {path}: {exc}") from exc

@@ -51,11 +51,6 @@ class ManifestAndDocsPublicCheckTests(unittest.TestCase):
             manifest_paths.append("docs/agents/playbooks/project-docs-template/project-docs-template.md")
         for rel_path in manifest_paths:
             write_text(governance_root / rel_path, "# Test\n")
-        write_text(
-            governance_root / "scripts/entrypoint_contracts.json",
-            (REPO_ROOT / "scripts/entrypoint_contracts.json").read_text(encoding="utf-8"),
-        )
-
         file_globs = "\n".join(f'        - "{file_glob}"' for file_glob in project_docs_file_globs)
         project_docs_inject = [
             "docs/project/project_index.md",

@@ -15,12 +15,9 @@
 - [60-gui-threading/gui-threading_index.md](60-gui-threading/gui-threading_index.md) - GUI threading policy. Required when: GUI or main-thread updates are involved.
 - [70-io-data-integrity/io-data-integrity_index.md](70-io-data-integrity/io-data-integrity_index.md) - I/O integrity policy. Required when: file processing or batch writes are changed.
 - [80-testing-real-files/testing-real-files_index.md](80-testing-real-files/testing-real-files_index.md) - Real-file testing guidance. Required when: I/O changes need fixture-backed verification.
-- [85-dual-entry-template/dual-entry-template_index.md](85-dual-entry-template/dual-entry-template_index.md) - Dual-entry reference template guidance. Required when: copying or adapting the GUI+CLI template.
 - [90-release-checklist/release-checklist_index.md](90-release-checklist/release-checklist_index.md) - Final release/merge checklist. Required when: doing the last verification pass before merge.
-- [`link_repo_assets.ps1`](link_repo_assets.ps1) - Repo-owned asset linker. Required when: projecting skills, settings, or MCP assets into runtime locations.
 - [mcp/mcp_index.md](mcp/mcp_index.md) - MCP asset branch. Required when: repo-owned MCP config assets change.
-- [platforms/platforms_index.md](platforms/platforms_index.md) - Platform runtime notes branch. Required when: runtime support levels, dated platform evidence, or projection rules change.
 - [playbooks/playbooks_index.md](playbooks/playbooks_index.md) - Playbook branch. Required when: a task needs a structured scaffold or template.
-- [settings/settings_index.md](settings/settings_index.md) - Shared settings branch. Required when: repo-owned settings payloads or settings projections change.
+- [settings/settings_index.md](settings/settings_index.md) - Shared settings branch. Required when: repo-owned settings payloads change.
 - [skills/skills_index.md](skills/skills_index.md) - Skill branch. Required when: repo-owned reusable skill bundles or platform adapters change.
 - [workflow-registry/workflow-registry_index.md](workflow-registry/workflow-registry_index.md) - Workflow indexing standard. Required when: defining how workflows are named, surfaced, and cataloged.

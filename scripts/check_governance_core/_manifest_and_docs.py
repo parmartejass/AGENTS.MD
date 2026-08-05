@@ -7,24 +7,24 @@ from typing import Dict, List, Tuple
 SOURCES_OF_TRUTH_MAP_DOC = "docs/agents/20-sources-of-truth-map/sources-of-truth-map.md"
 
 try:
-    from ._docs_routes import extract_route_targets, is_header_exempt_markdown, targets_child
-    from ._entrypoint_contracts import (
-        docs_contract_from_payload,
-        load_entrypoint_contracts,
+    from ._docs_routes import (
+        DOCS_IDENTITY_FILES,
+        MINIMUM_PUBLIC_LEAF_COUNT,
+        extract_route_targets,
+        is_header_exempt_markdown,
         resolve_docs_router_filename,
         resolve_primary_leaf_filename,
-        ssot_owner_path_from_payload,
-        validate_registry_paths,
+        targets_child,
     )
 except ImportError:  # pragma: no cover - script-path execution
-    from _docs_routes import extract_route_targets, is_header_exempt_markdown, targets_child
-    from _entrypoint_contracts import (
-        docs_contract_from_payload,
-        load_entrypoint_contracts,
+    from _docs_routes import (
+        DOCS_IDENTITY_FILES,
+        MINIMUM_PUBLIC_LEAF_COUNT,
+        extract_route_targets,
+        is_header_exempt_markdown,
         resolve_docs_router_filename,
         resolve_primary_leaf_filename,
-        ssot_owner_path_from_payload,
-        validate_registry_paths,
+        targets_child,
     )
 
 
@@ -155,11 +155,7 @@ def check_agents_manifest(governance_root: Path) -> List[str]:
             "docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md"
         )
 
-    registry_payload, registry_errors = load_entrypoint_contracts(governance_root)
-    errors.extend(registry_errors)
-    coding_principles_doc = ssot_owner_path_from_payload(registry_payload, "runtime_code")
-    if not coding_principles_doc:
-        errors.append("scripts/entrypoint_contracts.json must define ssot_owner.runtime_code")
+    coding_principles_doc = "docs/agents/35-coding-principles/coding-principles.md"
 
     coding_principles_inject = paths_by_list.get("profiles.coding_principles.inject")
     if coding_principles_inject is None:
@@ -271,18 +267,11 @@ def check_docs_ssot(repo_root: Path, governance_root: Path) -> Tuple[List[str], 
         part.strip() for part in re.sub(r"^doc_type:\s*", "", enum_line).split("|") if part.strip()
     }
 
-    payload, registry_errors = load_entrypoint_contracts(governance_root)
-    errors.extend(registry_errors)
-    errors.extend(validate_registry_paths(payload) if payload else [])
-    if errors:
-        return errors, warnings
-
-    docs_contract = docs_contract_from_payload(payload)
     doc_dirs = [docs_root]
     doc_dirs.extend(sorted((path for path in docs_root.rglob("*") if path.is_dir()), key=lambda p: p.as_posix()))
 
     for dir_path in doc_dirs:
-        router_name = resolve_docs_router_filename(dir_path.name, docs_contract)
+        router_name = resolve_docs_router_filename(dir_path.name)
         router_path = dir_path / router_name
         if not router_path.is_file():
             errors.append(f"Missing folder router: {router_path}")
@@ -304,31 +293,31 @@ def check_docs_ssot(repo_root: Path, governance_root: Path) -> Tuple[List[str], 
             for child in direct_children
             if child.is_file()
             and child.suffix.lower() == ".md"
-            and child.name not in docs_contract.identity_files
+            and child.name not in DOCS_IDENTITY_FILES
         ]
-        expected_primary_leaf = resolve_primary_leaf_filename(dir_path.name, docs_contract)
+        expected_primary_leaf = resolve_primary_leaf_filename(dir_path.name)
         artifact_first = len(public_markdown_children) == 0
         if not artifact_first:
-            if len(public_markdown_children) < docs_contract.minimum_public_leaf_count:
-                errors.append(f"{dir_path}: expected at least {docs_contract.minimum_public_leaf_count} public leaf doc(s).")
+            if len(public_markdown_children) < MINIMUM_PUBLIC_LEAF_COUNT:
+                errors.append(f"{dir_path}: expected at least {MINIMUM_PUBLIC_LEAF_COUNT} public leaf doc(s).")
             public_leaf_names = {child.name for child in public_markdown_children}
             if expected_primary_leaf not in public_leaf_names:
                 errors.append(f"{dir_path}: missing canonical public leaf '{expected_primary_leaf}'.")
         for child in direct_children:
-            child_router = resolve_docs_router_filename(child.name, docs_contract) if child.is_dir() else ""
+            child_router = resolve_docs_router_filename(child.name) if child.is_dir() else ""
             if not targets_child(route_targets, child, child_router_filename=child_router):
                 errors.append(f"{router_path}: missing route for direct child '{child.name}'.")
         if artifact_first and any(target.endswith(".md") for target in route_targets):
             leaf_targets = [
                 target
                 for target in route_targets
-                if target.endswith(".md") and "/" not in target and target not in docs_contract.identity_files
+                if target.endswith(".md") and "/" not in target and target not in DOCS_IDENTITY_FILES
             ]
             if leaf_targets:
                 errors.append(f"{router_path}: router-only folders must not expose public leaf markdown targets.")
     for md_file in docs_root.rglob("*.md"):
         rel = md_file.relative_to(docs_root).as_posix()
-        router_name = resolve_docs_router_filename(md_file.parent.name, docs_contract)
+        router_name = resolve_docs_router_filename(md_file.parent.name)
         if md_file.name == router_name:
             continue
         if is_header_exempt_markdown(rel):

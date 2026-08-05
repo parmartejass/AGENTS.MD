@@ -13,7 +13,7 @@ If any wording conflicts with `AGENTS.md`, `AGENTS.md` wins.
 ## Authority Role
 - `AGENTS.md` owns the always-on coding hard-gate trigger, conflict precedence, and Subagent Council requirement.
 - This doc owns delegated coding-principles mechanics for implementation code: authority owner selection, SSOT jurisdiction, module/folder contracts, dependency direction, structural minimality, post-diff purification, and coding-design witnesses.
-- `scripts/entrypoint_contracts.json` owns public contract filename pattern facts.
+- `scripts/check_folder_architecture/check_folder_architecture_main.py` owns Python script public entrypoint filename enforcement.
 - `scripts/check_folder_architecture/scope.json` owns the current checker-readable enforcement scope.
 - This doc must be applied whenever implementation code is planned, added, reviewed, refactored, decomposed, purified, or wired across authority boundaries.
 
@@ -74,9 +74,9 @@ If the owner is missing or conflicting, stop at the authority gap. Do not patch 
 - UI, CLI, prompts, and checkboxes provide intent inputs; they do not own business rules, constants, config meaning, or workflow eligibility.
 
 ## Module and Folder Contracts
-- Every distinct runtime capability is represented by an authority folder with exactly one registry-resolved public entrypoint file.
-- Runtime public contract filenames are resolved by `scripts/entrypoint_contracts.json`.
-- When another language or artifact kind needs a public contract, add the contract family to `scripts/entrypoint_contracts.json` and record the adopted authority boundary in `docs/project/architecture/architecture.md`.
+- Every distinct runtime capability is represented by an authority folder with exactly one owner-resolved public entrypoint file.
+- Direct Python feature folders under `scripts/` expose `scripts/<feature>/<feature>_main.py`; `scripts/check_folder_architecture/check_folder_architecture_main.py` enforces the checker-readable subset.
+- When another language or artifact kind needs a public contract, record the adopted authority boundary in `docs/project/architecture/architecture.md` and add a deterministic checker witness before consumers rely on it.
 - Internal files and child folders are private implementation details unless they become separately declared authorities.
 - Consumers use the folder entrypoint only; no deep imports, sibling imports, or child-to-parent imports.
 - Public contracts accept and return plain data. Live handles and external resources stay behind the owning boundary.

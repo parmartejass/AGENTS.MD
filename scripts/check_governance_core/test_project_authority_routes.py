@@ -207,7 +207,6 @@ update_trigger: routed owner changes
     def test_project_docs_requires_docs_ssot_policy_file(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             governance_root = Path(tmp_dir)
-            write_text(governance_root / "scripts/entrypoint_contracts.json", (REPO_ROOT / "scripts/entrypoint_contracts.json").read_text(encoding="utf-8"))
 
             errors = MANIFEST_AND_DOCS.check_project_docs(Path(tmp_dir), "", governance_root)
 

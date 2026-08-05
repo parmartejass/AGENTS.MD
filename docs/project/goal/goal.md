@@ -14,6 +14,7 @@ update_trigger: repo objective, structure, or required checks change
 - Context injection remains deterministic via `agents-manifest.yaml`.
 - Repo checks pass (single command SSOT: `README.md` section "Checks").
 - Project docs remain a docs-first truth surface for this governance repo's durable intent, owner pointers, tracked closure records, and verification records without duplicating reusable governance policy.
+- Repo-owned runtime projections, tracked root runtime copies, and reference application templates are retired; reusable source assets remain under `docs/agents/`.
 
 ## Durable intent
 - Implement docs-first truth through declared owners: reusable governance policy lives in `AGENTS.md` and `docs/agents/`, while repo-local project authority records live under `docs/project/`.
@@ -36,7 +37,7 @@ update_trigger: repo objective, structure, or required checks change
 - None currently declared.
 
 ## Non-goals
-- This repo does not define domain business logic; templates are reference implementations only.
+- This repo does not define domain business logic.
 - Project docs must not restate reusable governance rules already owned by `AGENTS.md` or `docs/agents/`.
 
 ## Verification
