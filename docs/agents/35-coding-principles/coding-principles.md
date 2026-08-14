@@ -13,8 +13,7 @@ If any wording conflicts with `AGENTS.md`, `AGENTS.md` wins.
 ## Authority Role
 - `AGENTS.md` owns the always-on coding hard-gate trigger, conflict precedence, and Subagent Council requirement.
 - This doc owns delegated coding-principles mechanics for implementation code: authority owner selection, SSOT jurisdiction, module/folder contracts, dependency direction, structural minimality, post-diff purification, and coding-design witnesses.
-- `scripts/check_folder_architecture/check_folder_architecture_main.py` owns Python script public entrypoint filename enforcement.
-- `scripts/check_folder_architecture/scope.json` owns the current checker-readable enforcement scope.
+- `scripts/check_governance_core/check_governance_core_main.py` owns the single public validation contract, including Python script public-entrypoint enforcement.
 - This doc must be applied whenever implementation code is planned, added, reviewed, refactored, decomposed, purified, or wired across authority boundaries.
 
 ## Owner Routing
@@ -75,7 +74,7 @@ If the owner is missing or conflicting, stop at the authority gap. Do not patch 
 
 ## Module and Folder Contracts
 - Every distinct runtime capability is represented by an authority folder with exactly one owner-resolved public entrypoint file.
-- Direct Python feature folders under `scripts/` expose `scripts/<feature>/<feature>_main.py`; `scripts/check_folder_architecture/check_folder_architecture_main.py` enforces the checker-readable subset.
+- Direct Python feature folders under `scripts/` expose `scripts/<feature>/<feature>_main.py`; the governance-core public contract enforces this structural rule.
 - When another language or artifact kind needs a public contract, record the adopted authority boundary in `docs/project/architecture/architecture.md` and add a deterministic checker witness before consumers rely on it.
 - Internal files and child folders are private implementation details unless they become separately declared authorities.
 - Consumers use the folder entrypoint only; no deep imports, sibling imports, or child-to-parent imports.

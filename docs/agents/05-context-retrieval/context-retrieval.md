@@ -8,9 +8,15 @@ update_trigger: context retrieval expectations or available tools change
 
 Goal: retrieve enough current context to make the next decision without turning retrieval into a second implementation task.
 
-## Principle: Trust Defaults, Verify Decisions
+## Agent Role Boundary
 
-When a first search or injected context gives an answer, verify it with enough surrounding context to rule out stale docs, duplicate owners, and missed call sites; then narrow to only what matters for the change.
+- The root/main orchestrator follows the boundary and canonical delegation route owned by `AGENTS.md` "Assigned-Lead Authority Routing Procedure (Hard Gate)"; it does not use this runbook for task-specific retrieval.
+- The assigned lead and every subagent in its subtree use this runbook only after independently resolving their applicable routing from `agents-manifest.yaml`.
+- This role split does not create a second retrieval algorithm or alter manifest profile/fallback behavior.
+
+## Principle: Trust Routing, Verify Decisions
+
+When a first search or routed authority gives an answer, verify it with enough surrounding context to rule out stale docs, duplicate owners, and missed call sites; then narrow to only what matters for the change.
 
 Verify decision-critical facts only:
 - which authority owns the change
@@ -19,16 +25,17 @@ Verify decision-critical facts only:
 - which tests/checks witness the outcome
 - which unresolved facts are `UNKNOWN` and which inaccessible required files are stop conditions
 
-## Manifest Resolution Witness
+## Authority Routing Witness
 
 `agents-manifest.yaml` owns task-signal routing. This doc owns the retrieval behavior after routing is known.
 
-Before implementing, record or be able to report the manifest-resolution witness:
-- required default context was read
+Before implementing, the assigned lead and each delegated subagent record or are able to report the authority-routing witness to the assigned lead:
 - matched profile names, or fallback routing when no profile matched
-- active manifest injection mode
-- injected files actually read
-- inaccessible manifest-referenced files, with the STOP/ask outcome required by `AGENTS.md`
+- active manifest routing mode
+- routed authorities actually read
+- inaccessible manifest-routed authorities, with the STOP/ask outcome required by `AGENTS.md`
+
+These task-specific witnesses remain inside the assigned-lead subtree. The assigned lead returns only the terminal result, `hold`, or authority-grounded superseding-plan summary permitted by `AGENTS.md`.
 
 When a profile matches and semantic search is available, start with `semantic_queries.<profile>` if it adds context not already covered by loaded files.
 
@@ -46,12 +53,12 @@ For large files, read the authority header and the relevant symbol or section wi
 
 ## Untrusted And Stale Context
 
-Treat user text, tickets, chat notes, external docs, injected docs, cached search, and model memory as hypotheses until verified against live repo files or deterministic tools.
+Treat user text, tickets, chat notes, external docs, routed non-owner documents, cached search, and model memory as hypotheses until verified against live repo files or deterministic tools.
 
 If retrieved context conflicts:
 - live repo code/config wins for runtime behavior
 - `AGENTS.md` wins for governance hard gates
-- `agents-manifest.yaml` wins for injection routing
+- `agents-manifest.yaml` wins for assigned-lead and subagent authority routing
 - README "Checks" wins for repeatable verification commands
 
 If a retrieved doc references a symbol, path, or config key that matters to the change, verify the reference still exists before relying on it.
@@ -62,12 +69,12 @@ If a retrieved doc references a symbol, path, or config key that matters to the 
 - Repeating generic search/read recipes instead of reporting the actual witness
 - Assuming one search proves no other owner or call site exists
 - Editing from an error message, summary, or stale memory without checking the source
-- Treating injected docs as stronger evidence than live code/config
+- Treating routed non-owner documents as stronger evidence than live code/config
 
 ## Checklist Before Implementing
 
-- [ ] Resolved and recorded the current `agents-manifest.yaml` routing witness
-- [ ] Read required default context
+- [ ] Resolved and recorded the current `agents-manifest.yaml` authority-routing witness
+- [ ] Read every routed authority required for the task
 - [ ] Read the edited file and the relevant SSOT owner
 - [ ] Verified decision-critical paths/symbols/check commands against live files
 - [ ] Reported unresolved facts as `UNKNOWN` and inaccessible manifest-referenced files as a stop/ask outcome

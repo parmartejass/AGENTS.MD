@@ -11,8 +11,11 @@ update_trigger: repo objective, structure, or required checks change
 
 ## Acceptance criteria
 - Governance SSOT is `AGENTS.md` and remains authoritative.
-- Context injection remains deterministic via `agents-manifest.yaml`.
+- `AGENTS.md` owns the exact three root authorities; `agents-manifest.yaml` deterministically routes only assigned-lead and subagent task authorities.
+- The root/main reads and follows only `AGENTS.md` and its three declared root authorities, delegates once, and receives only a terminal result, `hold`, or authority-grounded superseding-plan summary, while the assigned lead owns all task-specific routing, council, execution, verification, and closure work inside its subtree.
 - Repo checks pass (single command SSOT: `README.md` section "Checks").
+- Governance-core consumers use one documented plain-data public API; check ordering and reconciliation have one engine owner, and private checker modules remain replaceable without consumer migration.
+- Governance research consumers resolve `AGENTS.md` and the complete router-linked governance Markdown corpus through that public API; task-routing membership never substitutes for document topology.
 - Project docs remain a docs-first truth surface for this governance repo's durable intent, owner pointers, tracked closure records, and verification records without duplicating reusable governance policy.
 - Repo-owned runtime projections, tracked root runtime copies, and reference application templates are retired; reusable source assets remain under `docs/agents/`.
 

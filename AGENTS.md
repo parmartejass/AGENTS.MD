@@ -180,10 +180,14 @@ Large rewrites are risk amplification unless all are true:
 Default posture:
 - prefer targeted refactors that consolidate authority and add witnesses
 
-## Mandatory Execution Loop (Follow For Every Task)
+## Mandatory Execution Loop (Assigned Lead Only)
 
-0) **Docs-first authority gate**:
-   - After required loader/context-injection reads and before producing a non-trivial plan, review, council prompt/summary, implementation, or other repo-mutating work, identify the controlling user-authored intent, classify the facts that would change future allowed behavior, and route only durable authority facts to their highest owning project doc.
+The root/main orchestrator does not execute this loop. It retains the complete controlling user intent, delegates once under the Assigned-Lead Authority Routing Procedure, receives only the assigned lead's terminal result, `hold`, or authority-grounded superseding-plan summary, and reports it. It MUST NOT perform or prepare task discovery, planning, authority selection, council work, implementation, or verification.
+
+The assigned lead executes the complete loop below, coordinates every required subagent inside its subtree, and owns task completion evidence.
+
+0) **Assigned-lead docs-first authority gate**:
+   - After required authority routing and before producing a non-trivial plan, review, council prompt/summary, implementation, or other repo-mutating work, identify the controlling user-authored intent, classify the facts that would change future allowed behavior, and route only durable authority facts to their highest owning project doc.
    - Classify user intent before project-doc promotion:
      - Basic task: no project-doc update is required when the request does not change future allowed behavior.
      - Durable truth: promote the durable fact to the owning project doc before or with implementation.
@@ -198,135 +202,123 @@ Default posture:
    - Before final closure, ensure every durable authority-changing outcome has been promoted into its highest owning project doc with a deterministic witness. Do not use non-owner working evidence to compensate for missing owner-doc promotion.
 1) **Restate goal + acceptance criteria** (1-5 bullets).
 2) **Discover** relevant files and existing SSOT jurisdictions and concrete owners (constants/config/rules/workflows/etc).
-   - **MUST** consult `agents-manifest.yaml` and execute the Context Injection Procedure (see below).
+   - The assigned lead **MUST** consult `agents-manifest.yaml` and execute the Assigned-Lead Authority Routing Procedure below before task-specific reasoning.
    - Use `docs/agents/10-repo-discovery/repo-discovery.md` for discovery search terms and SSOT adoption rules.
    - MUST ensure project docs exist and are read (start with `README.md` and `docs/project/project_index.md`; create missing docs per "Documentation SSOT Policy").
 3) **Decompose** into atomic, independently verifiable subtasks.
-4) **Subagent council**: run intention-based subagent review per "Subagent Council (Hard Gate)" and integrate findings into the plan.
+4) **Subagent council**: the assigned lead runs intention-based review inside its subtree per "Subagent Council (Hard Gate)" and integrates the merged findings into the plan.
 5) **Ambiguity gate**: if multiple interpretations would change code materially, STOP and ask 1-3 clarifying questions.
 6) **Implement minimally**: smallest diff that satisfies acceptance criteria; no bundled refactors.
 7) **Verify** with deterministic tools (tests/lint/run) or provide deterministic manual checks
    when tools are unavailable.
-8) **Report**: what changed, where SSOT lives, council findings, and evidence of verification.
+8) **Return**: provide the root/main orchestrator only the terminal result, `hold`, or authority-grounded superseding-plan summary required by the Assigned-Lead Authority Routing Procedure. Do not return reviewer records, profile/fallback details, routed-authority lists, or task-specific authority-routing witnesses to the root/main orchestrator.
    - For completed non-trivial work, update the tracked project `Changelog` closure record after durable facts are promoted to their owners; closure-record ownership and valid mirror surfaces are owned by `SSOT-DEC-004`, and field template/order routes to `docs/agents/90-release-checklist/release-checklist.md`.
 
-## Context Injection Procedure (Hard Gate)
+## Assigned-Lead Authority Routing Procedure (Hard Gate)
 
-Before reasoning or implementing, agents MUST:
+Read and follow these authorities:
+- `docs/agents/00-principles/principles.md`
+- `docs/agents/05-context-retrieval/context-retrieval.md`
+- `docs/agents/20-sources-of-truth-map/sources-of-truth-map.md`
+
+The root/main orchestrator reads and follows only `AGENTS.md` and the three authorities listed above. It MUST NOT open or scan `agents-manifest.yaml`, resolve or inspect task authorities, profiles, or fallback routing, read task-specific governance authorities, perform task-specific reasoning or execution, or receive/read reviewer, profile, fallback, routed-authority, authority-routing, or authority-application witnesses.
+
+The root/main orchestrator retains the complete controlling user intent and sends it to one assigned lead with this canonical delegation line (sole owner):
+
+> Use agents-manifest.yaml triggers to read and follow all applicable governance authorities, fulfill the supplied intent under those authorities, and return the compliant result or an authority-grounded superseding plan.
+
+<!-- governance-root-contract: authorities=3 sha256=7e970a08b2e32060f74d20301fb7b7f9525272cc0f284d9be9fe8d5d136ee20d -->
+
+The assigned lead MUST read `agents-manifest.yaml`, execute the routing procedure below, execute the complete Mandatory Execution Loop, coordinate all required council and execution work within its subtree, fulfill the supplied intent, and return only the permitted terminal summary. Every council reviewer or other subagent delegated an intention by the assigned lead MUST independently execute this routing procedure for that intention and report its full result and witnesses only to the assigned lead.
+
+Before task-specific reasoning or work, the assigned lead and each subagent in its subtree MUST:
 
 1) Read `agents-manifest.yaml` and resolve any referenced paths relative to the governance root (directory containing the manifest), per **Path Resolution (SSOT)** above.
 2) Determine matching profiles by evaluating each profile's `detect` signals against the task:
    - `detect.keywords`: case-insensitive substring match on the user prompt and any referenced file contents.
    - `detect.code_patterns`: regex/substrings matched against code in scope.
    - `detect.file_globs`: match against files referenced and/or being edited.
-   - `detect.signals`: explicit signals provided by the harness/user.
+   - `detect.signals`: explicit signals provided by the user or execution environment.
    - If semantic search is available and a profile matches, start with `agents-manifest.yaml:semantic_queries.<profile>` when present (see `docs/agents/05-context-retrieval/context-retrieval.md`).
-3) READ all files from `default_inject`.
-4) If one or more profiles match, READ the union of all matching profiles' `inject` lists (unless `agents-manifest.yaml:injection_mode` specifies otherwise). If no profiles match, READ `fallback_inject` (if defined).
+3) If one or more profiles match, READ the routed authorities from matching profiles according to `agents-manifest.yaml:routing_mode`. If no profile matches, READ `fallback_authorities`.
+4) For `union`, de-duplicate routed authorities in stable profile-declaration and list order. For `first_match`, use the earliest matching profile in declaration order.
 5) Follow context retrieval best practices in `docs/agents/05-context-retrieval/context-retrieval.md`.
 
-If any referenced file is not accessible, STOP and ask the user to paste it.
+If any referenced file is not accessible, STOP and return `hold` plus the missing path and required user action through the assigned lead. The root/main orchestrator MUST NOT compensate by opening the manifest or task-specific source.
 
 ## Subagent Council (Hard Gate)
 
-Purpose: force independent, intention-based review so silent errors, edge cases, and SSOT alignment issues are surfaced before decisions or implementation. There is no maximum number of subagents.
+### SRP Authority and Supersession
 
-### When required
-- Mandatory for: discussions that shape design/behavior, new features, behavior changes, bug/error diagnosis or fixes, code reviews, refactors that impact behavior, and governance changes.
-- Small edits still require at least one review subagent; use the minimum scope if the change is clearly behavior-neutral.
+- This section is the sole policy owner for council activation, dispatch, independent review, evidence, reconciliation, and closure. Its role contracts supersede prior scattered council-specific wording for coverage, sizing, timing, output, jurisdiction review, conflict handling, closure, and dispatch authorization without relaxing any obligation.
+- Downstream docs, prompts, tests, and checkers MUST route to or witness this contract and MUST NOT redefine it.
+- Single responsibilities are fixed: the assigned lead activates, scopes, dispatches, merges, and gates the council inside its subtree; each reviewer independently resolves context, reviews its assigned intentions, and returns evidence to the assigned lead; the merged council summary records every reviewer result and the reconciled decision. The root/main orchestrator performs none of these responsibilities and receives none of the council records.
+- This section consumes but does not redefine the Assigned-Lead Authority Routing Procedure, `agents-manifest.yaml` routing data, `Authority-Constrained Reasoning (Hard Gate)`, implementation-code mechanics in `docs/agents/35-coding-principles/coding-principles.md`, or README verification commands.
+- Purpose: force independent, intention-based review so silent errors, edge cases, resource/security/performance risks, and SSOT alignment defects are surfaced before decisions or implementation.
 
-### Intention-based roles (minimum coverage)
-Each council must cover these intentions (one or more subagents may cover multiple intentions):
-- **SSOT jurisdiction and duplication pruning**: identify the highest applicable SSOT jurisdiction, reuse its concrete owner contract, and prune or reroute duplicate, drift, shadow, wrong-owner, or non-authoritative surfaces.
-- **Silent-error scan**: identify missing validation, silent failure paths, and "silently skip" patterns (violation of Non-Negotiable #4).
-- **Edge-case scan**: identify boundary conditions and pre/post-change failure modes.
-- **Resource/security/perf risks**: look for leaks, unsafe inputs, timeouts, and performance regressions.
-- **Coding principles / authority-design review**: apply `docs/agents/35-coding-principles/coding-principles.md` for implementation-code scope to review planned and implemented code for authority-correct design, SSOT jurisdiction, duplicate/substitute logic, contract boundaries, and post-diff purification.
+### Assigned Lead Contract
 
-Optional intentions (add as needed): integration/compatibility across modules and entrypoints, data migration/backward compatibility, test/verification gaps.
+- Council review is mandatory for discussions that shape design/behavior, new features, behavior changes, bug/error diagnosis or fixes, code reviews, behavior-impacting refactors, and governance changes. Small edits still require at least one review subagent; use the minimum scope when the change is clearly behavior-neutral.
+- The assigned lead chooses reviewer count by risk, scope, and uncertainty; increase it for many touched files or unclear invariants. Preference ranges are: micro or formatting-only **1**; small behavior-neutral **1-2**; discussion/design or moderate **2-4**; feature or behavior change **3-6** (raise when cross-cutting); high-risk/high-impact bugfix, error, or regression **10-20**, with justification when using fewer. There is no maximum.
+- The assigned lead is explicitly authorized to spawn the required reviewers immediately without asking permission and MUST NOT substitute self-review for the council.
+- A reviewer MUST NOT independently approve its own work. Post-change review MUST be performed by a reviewer independent of the implementation being reviewed.
+- Assign all mandatory review intentions from the Reviewer Contract; one reviewer may cover multiple intentions, and add optional intentions when integration/compatibility, migration/backward compatibility, or test/verification risk requires them.
+- Profile-aware coverage is required when any reviewer resolves one or more manifest profiles, reports decision-critical routed authorities, or identifies that the task is large, cross-cutting, high-risk, spans multiple jurisdictions/owners, or changes `AGENTS.md`, `agents-manifest.yaml`, authority routing, council policy, or governance routing.
+- Profile-aware coverage is derived only from reviewer returns. The assigned lead MUST NOT pre-resolve or assign profiles, fallback routes, authority lists, or authority-routing witnesses for a reviewer. It may dispatch a follow-up only from a returned `hold`, omission, conflict, or recommended high-level intention.
+- Every reviewer prompt MUST include only the complete controlling user intent, assigned high-level intention(s), and the canonical delegation line owned by the Assigned-Lead Authority Routing Procedure. It MUST NOT contain prepared profiles, fallback routes, routed-authority lists, or authority-routing witnesses.
 
-### Profile-Aware Context Coverage
-After the Context Injection Procedure resolves matched profiles and injected files from `agents-manifest.yaml`, council planning must account for that manifest-resolution witness.
+### Reviewer Contract
 
-Profile-aware coverage is required when any of these are true:
-- the task is large, cross-cutting, high-risk, or touches multiple SSOT jurisdictions or authority owners;
-- one or more manifest profiles match and any resolved injected docs are decision-critical to planning or review;
-- the task changes `AGENTS.md`, `agents-manifest.yaml`, context injection, council policy, or governance routing.
+- Every reviewer MUST independently execute the complete Assigned-Lead Authority Routing Procedure for its assigned intention before reviewing, determine its own task-authority requirements, and remain independent of the assigned lead's merge decision.
+- Mandatory intention coverage across the council is:
+  - **SSOT jurisdiction and duplication pruning**: identify the highest applicable jurisdiction and concrete owner, then prune or reroute duplicate, drift, shadow, wrong-owner, or non-authoritative surfaces.
+  - **Silent-error scan**: identify missing validation, silent failure paths, and "silently skip" patterns prohibited by Non-Negotiable #4.
+  - **Edge-case scan**: identify boundary conditions and pre/post-change failure modes.
+  - **Resource/security/perf risks**: identify leaks, unsafe inputs, timeouts, and performance regressions.
+  - **Coding principles / authority-design review**: for implementation-code scope, apply `docs/agents/35-coding-principles/coding-principles.md` to planned and implemented code for authority-correct design, SSOT jurisdiction, duplicate/substitute logic, contract boundaries, and post-diff purification.
+- Reviewers may add stronger task-specific reasoning beyond assigned docs only when classified as authority-preserving; a change to future allowed behavior requires an owner update. Unsupported or conflicting recommendations are non-binding.
+- A reviewer MUST NOT rely on an assigned-lead-supplied profile, fallback route, routed-authority list, or authority-routing witness. If its prompt contains prepared task-specific routing, it MUST record the role-boundary violation and return `go_no_go = hold`.
+- A reviewer that cannot confirm its self-resolved profile-authority coverage MUST return `go_no_go = hold`. If a required routed authority or reviewer/runtime path is unavailable, record `SKIPPED`/`UNKNOWN` plus reason in `profile_authority_coverage` and return `hold` unless the user explicitly accepts reduced coverage.
 
-Coverage may be one subagent per matched profile, or fewer subagents when one reviewer is explicitly assigned multiple profiles. The merged council summary must make the profile-to-reviewer/doc mapping auditable. Do not copy profile names or injected doc lists into this policy; use the current resolved manifest witness.
+### Evidence Contract
 
-When profile-aware coverage applies, every subagent prompt MUST include:
-- assigned profile(s), assigned intention(s), review scope, and resolved injected docs or doc groups from the current manifest-resolution witness;
-- a directive to read or verify the assigned profile docs and apply `Authority-Constrained Reasoning (Hard Gate)` before reviewing;
-- required `profile_doc_coverage` output: docs used, docs skipped, inaccessible docs, skip reasons, authority-application witness, and `go_no_go`.
-
-A subagent that cannot confirm required assigned profile-doc coverage MUST return `go_no_go = hold`.
-
-If a required profile doc or required reviewer/runtime path is unavailable, record `SKIPPED`/`UNKNOWN` + reason in `profile_doc_coverage` and set `go_no_go = hold` unless the user explicitly accepts reduced coverage.
-
-### Council sizing (preference ranges, not caps)
-Choose size based on risk, scope, and uncertainty. Increase when the change touches many files or unclear invariants.
-- Micro edits or formatting-only: **1** (minimum review).
-- Small behavior-neutral change: **1-2**.
-- Discussion/design or moderate change: **2-4**.
-- Feature addition or behavior change: **3-6** (raise if cross-cutting).
-- Bugfix/error/regression: **10-20** when risk/impact is high; if smaller, justify the reduced scope.
-No maximum: scale up as needed.
-
-### Timing
-- **Pre-change**: run the council before decisions or implementation and update the plan.
-- **Post-change**: run a brief independent scan (at least one reviewer) before final response to catch newly introduced silent errors or edge cases.
-  - Exception (proportionality): post-change review may be waived for doc-only or formatting-only changes when pre-change council coverage is recorded and verification evidence is deterministic.
-
-### Required council output (Hard Gate)
-- Every required council run MUST produce one merged council summary.
-- Full council summary fields (for non-micro changes):
+- Every reviewer result MUST be preserved or losslessly represented in the merged council summary by the assigned lead; no finding, authority obligation, evidence item, profile-coverage result, risk, or disposition may be dropped. The root/main orchestrator MUST NOT receive or read reviewer records or the merged council summary.
+- Reviewer findings MUST be traceable to authority inputs and deterministic witnesses.
+- When a reviewer resolves authority docs, its record MUST include:
+  - `assigned_authority_docs`: exact SSOT jurisdiction records, authority docs, or owner identifiers used.
+  - `applied_obligations`: concrete obligations with source section, scope, status, and evidence.
+  - `jurisdiction_map_delta`: affected SSOT jurisdiction boundaries.
+  - `drift_surfaces`: duplicate, stale, shadow, patch, compatibility, fallback, checker-specific, test-only, or wrong-owner surfaces classified against the jurisdiction and owner.
+  - `jurisdiction_level_fix`: owning jurisdiction, owner contract, or witness to strengthen.
+  - `prune_targets`: non-owner code/docs/tests/scripts/prompts/reports/checker logic to delete, move, or reroute.
+  - `witness_required`: tests, checks, or deterministic manual evidence required to prove restoration.
+  - `go_no_go`: `hold` for missing, conflicting, inaccessible, unknown, or unapplied authority obligations.
+- Every reviewer record MUST include `profile_authority_coverage`: matched profiles or explicit fallback resolution, routed authorities, authorities applied, authorities skipped, inaccessible authorities, skip reasons, authority-application witness, omissions, reduced-coverage acceptance if any, and `go_no_go`.
+- The merged `reviewers` and `profile_authority_coverage` fields MUST make reviewer-returned profile/authority provenance auditable without assigned-lead-created profile assignments.
+- Every required council run MUST produce one merged council summary owned by the assigned lead. For non-micro changes it MUST include:
   - `council_run_id`
   - `phase` (`pre_change` | `post_change`)
-  - `intent_coverage` (`ssot_duplication` = SSOT jurisdiction and duplication pruning, `silent_error`, `edge_case`, `resource_security_perf`, `coding_principles_authority_design`)
-  - `reviewers` (id, role, scope)
-  - `findings` (severity, location, issue, evidence, recommendation)
-  - `conflicts` (if any)
-  - `reconciliation_decision` (accepted/rejected/deferred + rationale)
+  - `intent_coverage` (`ssot_duplication`, `silent_error`, `edge_case`, `resource_security_perf`, `coding_principles_authority_design`)
+  - `reviewers` (id, role, scope, and reviewer-record mapping)
+  - `findings` (severity, location, issue, evidence, recommendation, reviewer, and disposition)
+  - `conflicts`
+  - `reconciliation_decision` (accepted/rejected/deferred plus rationale)
   - `residual_risks`
   - `go_no_go` (`go` | `hold`)
-  - `verification_links` (README checks and/or deterministic manual witness)
-  - `authority_application` (`authority_inputs`, `applied_obligations`, `decision_basis`, `evidence`) for assigned authority docs
-  - `profile_doc_coverage` when Profile-Aware Context Coverage applies (matched profiles, resolved injected docs or doc groups, reviewer assignments, inaccessible docs, omissions/reasons, reduced-coverage acceptance if any)
-- Micro edits or formatting-only changes may use an abbreviated summary:
-  - `intent_coverage`
-  - `findings` (or explicit `No findings`)
-  - `residual_risks` (or `none observed`)
-  - `go_no_go` (`go` | `hold`)
+  - `verification_links` (README checks and/or deterministic manual witnesses)
+  - `authority_application` (`authority_inputs`, `applied_obligations`, `decision_basis`, `evidence`)
+  - `profile_authority_coverage` (reviewer-reported matched profiles or fallback, routed authorities/groups, reviewer provenance, inaccessible authorities, omissions/reasons, and reduced-coverage acceptance if any)
+- Micro or formatting-only changes may use an abbreviated merged summary containing `intent_coverage`, `findings` (or explicit `No findings`), `residual_risks` (or `none observed`), and `go_no_go` (`go` | `hold`).
 
-### Council SSOT Jurisdiction Requirement
-Council reviewers produce SSOT jurisdiction evidence for assigned jurisdictions and their concrete owners; findings must be traceable to authority inputs and deterministic witnesses.
+### Reconciliation and Closure
 
-When assigned authority docs, reviewers must return:
-- `assigned_authority_docs`: exact SSOT jurisdiction records, authority docs, or owner identifiers used.
-- `applied_obligations`: concrete obligations from those authorities, with source section, scope, status, and evidence.
-- `jurisdiction_map_delta`: SSOT jurisdiction boundaries affected by the reviewed change.
-- `drift_surfaces`: duplicate, stale, shadow, patch, compatibility, fallback, checker-specific, test-only, or wrong-owner surfaces found, classified against the assigned SSOT jurisdiction and concrete owner.
-- `jurisdiction_level_fix`: the owning SSOT jurisdiction to strengthen, including the owner contract or witness that prevents recurrence.
-- `prune_targets`: non-owner code/docs/tests/scripts/prompts/reports/checker logic to delete, move, or reroute.
-- `witness_required`: tests/checks/manual evidence needed to prove the SSOT jurisdiction boundary is restored.
-- `go_no_go`: `hold` for missing, conflicting, inaccessible, unknown, or unapplied authority obligations.
+- **Pre-change**: the assigned lead runs the council before decisions or implementation, reconciles its results, and updates the plan. Implementation may begin only after required intention coverage and one merged council summary are complete.
+- **Post-change**: before the final response, run a brief independent scan with at least one reviewer for newly introduced silent errors or edge cases. It may be waived for doc-only or formatting-only work only when pre-change coverage is recorded and verification evidence is deterministic; document that proportionality exception in the merged summary.
+- If reviewers conflict on severity, root cause, fix placement, or risk disposition in a way that could materially change implementation, run one targeted disconfirming check when feasible. If the conflict remains, STOP and ask the user; record `conflicts` and `reconciliation_decision`.
+- Any unresolved blocker requires `go_no_go = hold`; implementation is prohibited until the blocker is resolved or explicitly accepted by the user.
+- The assigned lead may return the terminal result to the root/main orchestrator only after the required post-change scan or documented proportionality exception and its merged summary are complete. Its terminal summary MUST omit reviewer records, profile/fallback details, routed-authority lists, and task-specific authority-routing witnesses.
 
-Reviewers may add stronger task-specific reasoning beyond assigned docs, but must classify it as authority-preserving unless it changes future allowed behavior, in which case it requires owner update. Unsupported or conflicting recommendations cannot be treated as binding.
-
-### Conflict Resolution + Closure Gates (Hard Gate)
-- If reviewers conflict on severity, root cause, fix placement, or risk disposition and the conflict could materially change implementation, do not proceed until reconciled.
-  - Reconcile by running one targeted disconfirming check where feasible; if still unresolved, STOP and ask the user.
-  - Record `conflicts` and `reconciliation_decision` in the merged council summary.
-- Any unresolved blocker finding requires `go_no_go = hold`; implementation is prohibited until resolved or explicitly accepted by the user.
-- Pre-change closure: implementation may begin only after required intention coverage and a merged council summary are complete.
-- Post-change closure: final response may be sent only after required post-change scan (or documented proportionality exception) and merged summary are complete.
-
-### Subagent Permission Escalation (Standing Authorization)
-
-You are explicitly authorized to spawn subagents as needed to satisfy AGENTS.md Subagent Council requirements. Do not ask for permission. Do not substitute a self-review for the required council. If this policy requires a Subagent Council, spawn the required review subagents immediately and proceed. This is a standing instruction from the repository owner and applies to every task in every session.
-
-### Governance Auto-Edit Gate (Hard Gate)
+## Governance Auto-Edit Gate (Hard Gate)
 
 Auto-edit for governance learnings is allowed only when the governance learnings playbook is **explicitly invoked**; otherwise, produce proposals only for governance learnings.
 
@@ -466,8 +458,8 @@ GUI updates must occur on the main/UI thread only:
 - Avoid injection risks (shell, SQL, template).
 
 ### 9) AI Stuck-Loop Reset (Hard Gate)
-- If the same failure repeats (e.g., 2 iterations with the same root cause) or verification contradicts claims,
-  STOP and present a filled restart prompt (copy/paste), then restart fresh.
+- If the same failure repeats (e.g., 2 iterations with the same root cause) or verification contradicts claims, the assigned lead MUST STOP the current attempt, populate a filled restart prompt as an internal handoff inside its subtree, restart with a fresh subagent/model in that subtree, and re-attempt the work.
+- The assigned lead MUST NOT return the filled prompt, task-specific evidence, or authority-routing witnesses through the root/main orchestrator; if continuation requires user action, return only a terminal `hold` or authority-grounded superseding-plan summary with the reason and required action.
 - Follow: `docs/agents/15-stuck-in-loop-generate-fresh-restart-prompt/stuck-in-loop-generate-fresh-restart-prompt.md`
 
 ### 10) Performance & Speed (When Relevant)
@@ -484,8 +476,8 @@ Hard gate:
 - Apply `docs/agents/35-coding-principles/coding-principles.md` before planning, adding, reviewing, refactoring, purifying, or wiring implementation code that owns runtime behavior, workflow logic, or reusable runtime contracts.
 - Preserve one owner, one owner-resolved public entrypoint, plain-data contracts, parent-owned composition, explicit outcomes, bounded cleanup, and deterministic witnesses for each implementation-code authority.
 - Route detailed coding mechanics, including folder contracts, dependency direction, orchestration limits, I/O boundaries, file-size decomposition, contract-change approval, structural minimality, adapters, post-diff purification, and deletion-test witnesses, to `docs/agents/35-coding-principles/coding-principles.md`.
-- Use `scripts/check_governance_core/_docs_routes.py` for docs router/public-leaf filename facts, `scripts/check_folder_architecture/check_folder_architecture_main.py` for Python script entrypoint filename enforcement, `scripts/check_folder_architecture/scope.json` for checker-readable enforcement scope, and `agents-manifest.yaml` for task routing.
-- When implementation code is in scope, the coding-principles reviewer prompt must include the current coding-principles authority doc path: `docs/agents/35-coding-principles/coding-principles.md`.
+- Use the `scripts/check_governance_core/check_governance_core_main.py` public contract for governance, docs, repository structure, and Python-safety validation, and `agents-manifest.yaml` for task routing.
+- When implementation code is in scope, the coding-principles reviewer MUST independently resolve and apply the coding-principles authority through the Assigned-Lead Authority Routing Procedure; the assigned lead MUST NOT supply the authority path in the reviewer prompt.
 - Missing, conflicting, or inaccessible coding authority inputs require `hold: <reason>`.
 
 ## Governance Templates (Required)
@@ -558,7 +550,7 @@ Policy/detail SSOT: `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`
 Scaffold/template SSOT: `docs/agents/playbooks/project-docs-template/project-docs-template.md`
 
 All project docs must:
-- Follow the required doc header (except router files resolved by `scripts/check_governance_core/_docs_routes.py`).
+- Follow the required doc header (except router files resolved by the `scripts/check_governance_core/check_governance_core_main.py` public contract).
 - Reference SSOT owners by identifier (code/config/workflow entrypoints) rather than duplicating literals/rules.
 - Stay minimal and precise (prefer short bullet lists; avoid long prose).
 - Avoid duplicating governance rules: reference `AGENTS.md` instead of copying its requirements.
@@ -567,7 +559,7 @@ All project docs must:
 Authority role:
 - This section is the always-on docs-modularity hard gate for documentation structure under `docs/`.
 - `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md` owns delegated docs-family mechanics under this gate: headers, router behavior, public leaf placement, project-doc placement, owner-doc promotion, and optional leaf placement.
-- `scripts/check_governance_core/_docs_routes.py` owns docs router and public leaf filename pattern facts.
+- `scripts/check_governance_core/check_governance_core_main.py` owns the public docs router and public-leaf validation contract; its private modules are replaceable implementation details.
 
 - Every `docs/` folder must expose the owner-resolved router contract and route to direct children without becoming the narrative owner.
 - Narrative facts live in router-linked public leaf docs under the owning folder authority; parent routers route downward and do not restate child rules, literals, or contracts in full.

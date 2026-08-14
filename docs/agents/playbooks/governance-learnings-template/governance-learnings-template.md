@@ -20,7 +20,7 @@ Use this playbook to have an AI assistant review a work session and extract repe
 - You want new governance policy invented from scratch without evidence.
 
 ## Definitions
-- Learning: a repeatable pitfall, missing invariant, missing witness/check, missing SSOT owner, missing template, or missing injection profile that would prevent future errors if codified.
+- Learning: a repeatable pitfall, missing invariant, missing witness/check, missing SSOT owner, missing template, or missing authority-routing profile that would prevent future errors if codified.
 - Governance-level learning: a learning that changes reusable agent behavior across tasks/repos because it affects `AGENTS.md` hard gates, SSOT owners, invariants, witnesses, manifest routing, docs routing, safety, deterministic checks, or reusable governance playbooks.
 - Evidence handoff: a bounded, redacted summary of session evidence. It can support promotion decisions, but it is not itself a governance delta.
 - Noise: task-local, tool-budget, temporary execution preference, weak-evidence, or non-governance instruction that should not create a governance update.
@@ -28,14 +28,14 @@ Use this playbook to have an AI assistant review a work session and extract repe
 ## Quickstart checklist (recommended)
 1. Confirm required context is accessible:
    - Read `AGENTS.md`.
-   - Resolve the current task routing from `agents-manifest.yaml`.
-   - Read the routed owner docs and record the manifest-resolution witness.
+   - Have the assigned lead follow `AGENTS.md` "Assigned-Lead Authority Routing Procedure (Hard Gate)" and resolve the current task routing from `agents-manifest.yaml`.
+   - Keep all task-specific routing and council evidence inside the assigned-lead subtree.
 2. Confirm whether governance auto-edit is authorized for this session.
 3. Collect evidence inputs; if none are available, request a Session Recap using the schema in this file.
 
 ## Authority References
 - Global hard gates, council requirements, and governance auto-edit rules are owned by `AGENTS.md`.
-- Context-routing facts are owned by `agents-manifest.yaml`; this playbook must not keep a local injected-doc list.
+- Task-authority-routing facts are owned by `agents-manifest.yaml`; this playbook must not keep a local routed-authority list.
 - Docs placement, router behavior, and non-owner-doc limits are owned by `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`.
 - This playbook owns the promotion/noise gate, evidence record shape, and copy/paste prompt scaffold for governance-learning work.
 
@@ -65,7 +65,7 @@ Promote a candidate to de-duplication only when verified evidence shows a reusab
 - `AGENTS.md` hard gates or execution loops
 - SSOT ownership, authority boundaries, or duplicate-authority prevention
 - invariants, witnesses, deterministic checks, or README Checks alignment
-- manifest/context injection routing
+- manifest authority routing
 - docs routing, playbook structure, or governance template behavior
 - safety, resource cleanup, explicit failure, or no-silent-skip behavior
 - repeatable cross-repo agent behavior that future agents must preserve
@@ -95,7 +95,7 @@ Example rejection:
 
 ## Preflight checklist (required before Step 1)
 - AGENTS access confirmed.
-- Manifest routing resolved and injected files read.
+- Manifest routing resolved and routed authorities read.
 - Auto-edit authorization status known.
 
 ## Severity rubric (for council findings)
@@ -117,7 +117,7 @@ Example rejection:
 ```text
 Hard gates (copy/paste scaffold sourced from AGENTS.md):
 - Read and follow `AGENTS.md`; if it is inaccessible, request it before doing any work.
-- Execute the `AGENTS.md` Context Injection Procedure using the current `agents-manifest.yaml`.
+- Root/main delegation and the assigned-lead workflow MUST follow `AGENTS.md` "Assigned-Lead Authority Routing Procedure (Hard Gate)"; use its live canonical delegation line instead of copying it here.
 - Execute the docs-first authority gate before any non-trivial plan, review, council output, implementation, or repo mutation.
 - For governance auto-edit, apply the `AGENTS.md` Governance Auto-Edit Gate and Subagent Council before editing.
 - Derive task instructions from declared SSOT owners; if ownership is unknown or conflicting, stop and report the authority gap before acting.
@@ -133,7 +133,7 @@ Field completion rule:
 
 Preflight checklist (required before Step 1):
 - AGENTS access confirmed.
-- Manifest routing resolved and injected files read.
+- Manifest routing resolved and routed authorities read.
 - Auto-edit authorization status known.
 
 Evidence inputs (provide if available; if none, write `None provided`):
@@ -155,10 +155,10 @@ If you cannot see the full session history:
   - What I wish had existed in governance beforehand:
 - Wait for the recap before continuing.
 
-Required repo context (read at minimum):
+Assigned-lead repo context (read at minimum after manifest routing):
 - `AGENTS.md`
 - Current routing from `agents-manifest.yaml`.
-- Files injected by the matched profile or fallback routing.
+- Authorities routed by the matched profile or fallback routing.
 - Any owner docs referenced by candidate evidence.
 - If a required file is inaccessible (permissions/tooling), stop and request it; do not infer missing contents.
 - If a required file is truly missing and `AGENTS.md` requires creation, create it only in authorized proposal/auto-edit flow.
@@ -187,19 +187,8 @@ Decision-grade brief (required before learnings; use this exact label order):
 - Confidence gate summary (claim-level VERIFIED/UNVERIFIED status):
 - Change Contract alignment (map to `AGENTS.md` template sections; do not duplicate full contract):
 
-Council summary block (required before Step 4; follow `AGENTS.md` "Subagent Council (Hard Gate)"):
-- council_run_id:
-- phase (`pre_change` | `post_change`):
-- intent_coverage (`ssot_duplication` = SSOT jurisdiction and duplication pruning, `silent_error`, `edge_case`, `resource_security_perf`, `coding_principles_authority_design`):
-- reviewers (id, role, scope):
-- findings (severity, location, issue, evidence, recommendation):
-- conflicts:
-- reconciliation_decision:
-- residual_risks:
-- go_no_go (`go` | `hold`):
-- verification_links:
-- authority_application (`authority_inputs`, `applied_obligations`, `decision_basis`, `evidence`):
-- profile_doc_coverage (when `AGENTS.md` Profile-Aware Context Coverage applies):
+Council review output (required before Step 4):
+- Use the exact reviewer-record and merged-summary Evidence Contract in `AGENTS.md` "Subagent Council (Hard Gate)"; do not reproduce or redefine that schema here.
 
 Severity rubric (for findings):
 - HIGH: blocker risk that can cause incorrect governance edits, policy drift, or unsafe execution sequence.
@@ -235,8 +224,8 @@ Steps:
    - Use `rg` for verification and record search terms used when practical.
    - Mark status as `ALREADY_COVERED`, `PARTIAL`, or `MISSING`.
 4) Council review (required before edits):
-   - Run the Subagent Council per `AGENTS.md` "Subagent Council (Hard Gate)" with its minimum intention coverage.
-   - Merge findings into one council summary block using the required fields above.
+   - The assigned lead runs the Subagent Council inside its subtree per `AGENTS.md` "Subagent Council (Hard Gate)" with its minimum intention coverage.
+   - Preserve reviewer records and merge findings using the exact Evidence Contract owned by that section.
    - For each HIGH/MEDIUM finding, include at least one evidence item (R or D) and one action (apply/defer + rationale).
    - If `go_no_go` is `hold`, stop and ask before editing.
    - If conflicts or gaps remain, pause and ask before editing.
@@ -266,7 +255,7 @@ Steps:
    - P2/P3 backlog
    - Already-covered (no action)
    - Rejected noise by gate status
-   - Manifest/injection improvements (if any)
+- Authority-routing improvements (if any)
    - Open questions/unknowns
    - UNVERIFIED items cannot be promoted as P1.
 

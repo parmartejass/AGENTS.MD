@@ -1,203 +1,227 @@
 #!/usr/bin/env python3
-"""
-Cross-platform governance checks.
+"""Stable public API and CLI adapter for governance-core validation.
 
-This script consolidates cross-platform governance checks:
-1) agents manifest validation
-2) docs SSOT validation
-3) project docs validation
-4) repo hygiene validation
-5) docs unresolved citation placeholders
-6) governance learnings playbook hard-gate parity
-7) optional strict python safety mode
-8) instruction derivation scaffold validation
+Programmatic contract:
+    run_checks(request) -> plain dictionary
+
+The request accepts ``repo_root``, ``governance_root``, ``mode`` (``full``,
+``docs``, or ``project_docs``), and ``fail_on_safety_warnings``. Validation is
+read-only; strict mode promotes Python-safety warnings to failures. Invalid
+requests and unexpected failures are returned as
+explicit FAILED_VALIDATION/FAILED results; callers do not import private files.
 """
 
 from __future__ import annotations
 
 import argparse
-import subprocess
+import logging
 import sys
+from collections.abc import Mapping, Sequence
 from pathlib import Path
-from typing import List, Sequence, Tuple
-
-if sys.version_info < (3, 11):
-    sys.stderr.write("FAILED_VALIDATION: Python 3.11+ is required for governance core checks.\n")
-    raise SystemExit(1)
-
-try:
-    from ._instruction_derivation import check_instruction_derivation_gate
-    from ._manifest_and_docs import check_agents_manifest, check_docs_ssot, check_project_docs
-    from ._repo_and_governance import (
-        check_docs_for_unresolved_citations,
-        check_docs_first_prompt_classification,
-        check_governance_authority_decisions,
-        check_governance_playbook_hard_gates,
-        check_repo_hygiene,
-        check_subagent_council_profile_coverage,
-    )
-    from ._shared import PYTHON_SAFETY_TIMEOUT_SEC, configure_logging, context, logger
-except ImportError:  # pragma: no cover - script-path execution
-    from _instruction_derivation import check_instruction_derivation_gate
-    from _manifest_and_docs import check_agents_manifest, check_docs_ssot, check_project_docs
-    from _repo_and_governance import (
-        check_docs_for_unresolved_citations,
-        check_docs_first_prompt_classification,
-        check_governance_authority_decisions,
-        check_governance_playbook_hard_gates,
-        check_repo_hygiene,
-        check_subagent_council_profile_coverage,
-    )
-    from _shared import PYTHON_SAFETY_TIMEOUT_SEC, configure_logging, context, logger
 
 
-def _run_python_safety_check(
-    repo_root: Path, governance_root: Path, *, fail_on_warnings: bool
-) -> Tuple[List[str], List[str]]:
-    errors: List[str] = []
-    notes: List[str] = []
+REPO_IMPORT_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_IMPORT_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_IMPORT_ROOT))
 
-    safety_script = governance_root / "scripts/check_python_safety/check_python_safety_main.py"
-    if not safety_script.is_file():
-        return [f"Missing Python safety script: {safety_script}"], notes
+from scripts.check_governance_core._engine import execute, resolve_documents_request  # noqa: E402
 
-    cmd = [sys.executable, str(safety_script), "--root", str(repo_root)]
-    if fail_on_warnings:
-        cmd.append("--fail-on-warnings")
 
+logger = logging.getLogger("check_governance_core")
+
+
+def _validate_root_fields(request: Mapping[str, object]) -> str | None:
+    for field in ("repo_root", "governance_root"):
+        value = request.get(field)
+        if value is not None and not isinstance(value, (str, Path)):
+            return f"{field} must be a path string, Path, or null"
+        if field in request and isinstance(value, (str, Path)) and not str(value).strip():
+            return f"{field} must not be empty when provided"
+    return None
+
+
+def _validate_check_request(request: Mapping[str, object]) -> str | None:
+    root_error = _validate_root_fields(request)
+    if root_error:
+        return root_error
+    mode = request.get("mode", "full")
+    if not isinstance(mode, str):
+        return "mode must be a string"
+    strict = request.get("fail_on_safety_warnings", False)
+    if not isinstance(strict, bool):
+        return "fail_on_safety_warnings must be a boolean"
+    return None
+
+
+def run_checks(request: Mapping[str, object]) -> dict[str, object]:
+    """Run deterministic checks through the only supported programmatic boundary.
+
+    Inputs and outputs contain plain data only. The function does not mutate the
+    caller's mapping. Unsupported keys are rejected so extension remains an
+    explicit public-contract change.
+    """
+
+    if not isinstance(request, Mapping):
+        return {
+            "api_version": 1,
+            "status": "FAILED_VALIDATION",
+            "checks": [],
+            "planned": [],
+            "eligible": [],
+            "executed": [],
+            "skipped": [],
+            "failed": [],
+            "errors": ["request must be a mapping"],
+            "warnings": [],
+        }
+    allowed = {"repo_root", "governance_root", "mode", "fail_on_safety_warnings"}
+    unknown = sorted(str(key) for key in request if key not in allowed)
+    if unknown:
+        return {
+            "api_version": 1,
+            "status": "FAILED_VALIDATION",
+            "checks": [],
+            "planned": [],
+            "eligible": [],
+            "executed": [],
+            "skipped": [],
+            "failed": [],
+            "errors": [f"unsupported request key(s): {', '.join(unknown)}"],
+            "warnings": [],
+        }
+    validation_error = _validate_check_request(request)
+    if validation_error:
+        return {
+            "api_version": 1,
+            "status": "FAILED_VALIDATION",
+            "checks": [],
+            "planned": [],
+            "eligible": [],
+            "executed": [],
+            "skipped": [],
+            "failed": [],
+            "errors": [validation_error],
+            "warnings": [],
+        }
     try:
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            cwd=repo_root,
-            timeout=PYTHON_SAFETY_TIMEOUT_SEC,
-        )
-    except FileNotFoundError:
-        return ["Python interpreter not found while running scripts/check_python_safety/check_python_safety_main.py."], notes
-    except subprocess.TimeoutExpired:
-        return [f"scripts/check_python_safety/check_python_safety_main.py timed out after {PYTHON_SAFETY_TIMEOUT_SEC}s."], notes
+        return execute(dict(request))
+    except ValueError as exc:
+        return {
+            "api_version": 1,
+            "status": "FAILED_VALIDATION",
+            "checks": [],
+            "planned": [],
+            "eligible": [],
+            "executed": [],
+            "skipped": [],
+            "failed": [],
+            "errors": [str(exc)],
+            "warnings": [],
+        }
+    except Exception as exc:  # public boundary converts crashes into explicit failure
+        return {
+            "api_version": 1,
+            "status": "FAILED",
+            "checks": [],
+            "planned": [],
+            "eligible": [],
+            "executed": [],
+            "skipped": [],
+            "failed": [],
+            "errors": [f"internal governance-check failure: {type(exc).__name__}: {exc}"],
+            "warnings": [],
+        }
 
-    notes.extend((result.stdout or "").splitlines())
-    if result.returncode != 0:
-        stderr = (result.stderr or "").strip()
-        if stderr:
-            notes.append(stderr)
-        errors.append(
-            "Python safety baseline check failed. "
-            "Run scripts/check_python_safety/check_python_safety_main.py directly for details."
-        )
-    return errors, notes
+
+def resolve_documents(request: Mapping[str, object]) -> dict[str, object]:
+    """Return the canonical router-owned governance research corpus.
+
+    Accepted inputs are ``repo_root`` and ``governance_root``. The read-only
+    result contains ``api_version``, terminal ``status``, ``AGENTS.md`` followed
+    by ordered terminal Markdown leaves reachable from
+    ``docs/agents/agents_index.md``, and ``errors``. Routing-manifest membership
+    does not define this corpus. Invalid, aliased, escaped, missing, cyclic, or
+    duplicate topology returns an empty document list and explicit failure.
+    """
+
+    if not isinstance(request, Mapping):
+        return {
+            "api_version": 1,
+            "status": "FAILED_VALIDATION",
+            "documents": [],
+            "errors": ["request must be a mapping"],
+        }
+    unknown = sorted(str(key) for key in request if key not in {"repo_root", "governance_root"})
+    if unknown:
+        return {
+            "api_version": 1,
+            "status": "FAILED_VALIDATION",
+            "documents": [],
+            "errors": [f"unsupported request key(s): {', '.join(unknown)}"],
+        }
+    root_error = _validate_root_fields(request)
+    if root_error:
+        return {
+            "api_version": 1,
+            "status": "FAILED_VALIDATION",
+            "documents": [],
+            "errors": [root_error],
+        }
+    try:
+        return resolve_documents_request(dict(request))
+    except ValueError as exc:
+        return {
+            "api_version": 1,
+            "status": "FAILED_VALIDATION",
+            "documents": [],
+            "errors": [str(exc)],
+        }
+    except Exception as exc:
+        return {
+            "api_version": 1,
+            "status": "FAILED",
+            "documents": [],
+            "errors": [f"internal governance-document resolution failure: {type(exc).__name__}: {exc}"],
+        }
+
+
+def _configure_logging() -> None:
+    handler = logging.StreamHandler(stream=sys.stdout)
+    handler.setFormatter(logging.Formatter("%(message)s"))
+    logger.handlers.clear()
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
 
 
 def main(argv: Sequence[str]) -> int:
-    configure_logging()
-    parser = argparse.ArgumentParser(
-        description=(
-            "Run cross-platform governance checks for manifest/docs/project-docs/hygiene, "
-            "governance playbook parity, and unresolved citation markers."
-        )
-    )
-    parser.add_argument("--repo-root", help="Target repo root (default: governance root).")
-    parser.add_argument(
-        "--governance-root",
-        help="Governance root that contains AGENTS.md and agents-manifest.yaml "
-        "(default: parent of this script).",
-    )
-    parser.add_argument(
-        "--only-docs-ssot",
-        action="store_true",
-        help="Run only docs SSOT/router/header checks.",
-    )
-    parser.add_argument(
-        "--only-project-docs",
-        action="store_true",
-        help="Run only project docs linkage/routing checks.",
-    )
-    parser.add_argument(
-        "--fail-on-safety-warnings",
-        action="store_true",
-        help="Run scripts/check_python_safety/check_python_safety_main.py with --fail-on-warnings.",
-    )
+    _configure_logging()
+    parser = argparse.ArgumentParser(description="Run the governance-core public validation contract.")
+    parser.add_argument("--repo-root")
+    parser.add_argument("--governance-root")
+    modes = parser.add_mutually_exclusive_group()
+    modes.add_argument("--only-docs-ssot", action="store_true")
+    modes.add_argument("--only-project-docs", action="store_true")
+    parser.add_argument("--fail-on-safety-warnings", action="store_true")
     args = parser.parse_args(argv)
-
-    try:
-        repo_root, governance_root, governance_rel = context(
-            args.repo_root, args.governance_root, Path(__file__).resolve().parent
-        )
-    except RuntimeError as err:
-        logger.error("ERROR: %s", err)
-        return 1
-
-    narrow_modes = [args.only_docs_ssot, args.only_project_docs]
-    if sum(1 for enabled in narrow_modes if enabled) > 1:
-        logger.error("ERROR: Choose only one narrow check mode.")
-        return 1
-
-    if args.only_docs_ssot:
-        docs_errors, docs_notes = check_docs_ssot(repo_root, governance_root)
-        if docs_errors:
-            for issue in docs_errors:
-                logger.error("ERROR: %s", issue)
-            logger.error("Docs SSOT checks failed: %s issue(s).", len(docs_errors))
-            return 1
-        logger.info("Docs SSOT checks passed.")
-        for note in docs_notes:
-            logger.info(note)
-        return 0
-
-    if args.only_project_docs:
-        project_docs_errors = check_project_docs(repo_root, governance_rel, governance_root)
-        if project_docs_errors:
-            for issue in project_docs_errors:
-                logger.error("ERROR: %s", issue)
-            logger.error("Project docs checks failed: %s issue(s).", len(project_docs_errors))
-            return 1
-        logger.info("Project docs checks passed.")
-        return 0
-
-    docs_errors, docs_notes = check_docs_ssot(repo_root, governance_root)
-    total_errors = 0
-    for errors, success_message, notes in (
-        (check_agents_manifest(governance_root), "Agents manifest checks passed.", []),
-        (docs_errors, "Docs SSOT checks passed.", docs_notes),
-        (check_project_docs(repo_root, governance_rel, governance_root), "Project docs checks passed.", []),
-        (check_repo_hygiene(repo_root), "Repo hygiene checks passed.", []),
-        (check_docs_for_unresolved_citations(repo_root), "Docs unresolved-citation checks passed.", []),
-        (check_governance_playbook_hard_gates(governance_root), "Governance playbook authority-scaffold checks passed.", []),
-        (check_instruction_derivation_gate(governance_root), "Instruction derivation scaffold checks passed.", []),
-        (check_subagent_council_profile_coverage(governance_root), "Subagent council profile-coverage checks passed.", []),
-        (check_docs_first_prompt_classification(governance_root), "Docs-first prompt-classification checks passed.", []),
-        (check_governance_authority_decisions(governance_root), "Governance authority decision registry checks passed.", []),
-    ):
-        if errors:
-            for issue in errors:
-                logger.error("ERROR: %s", issue)
-            total_errors += len(errors)
-        elif success_message:
-            logger.info(success_message)
-        for note in notes:
-            logger.info(note)
-
-    if args.fail_on_safety_warnings:
-        safety_errors, safety_notes = _run_python_safety_check(
-            repo_root, governance_root, fail_on_warnings=True
-        )
-        for note in safety_notes:
-            logger.info(note)
-        if safety_errors:
-            for issue in safety_errors:
-                logger.error("ERROR: %s", issue)
-            total_errors += len(safety_errors)
-        else:
-            logger.info("Python safety strict-mode checks passed.")
-
-    if total_errors > 0:
-        logger.error("Governance core checks failed: %s issue(s).", total_errors)
-        return 1
-
-    logger.info("Governance core checks passed.")
-    return 0
+    mode = "docs" if args.only_docs_ssot else "project_docs" if args.only_project_docs else "full"
+    result = run_checks(
+        {
+            "repo_root": args.repo_root,
+            "governance_root": args.governance_root,
+            "mode": mode,
+            "fail_on_safety_warnings": args.fail_on_safety_warnings,
+        }
+    )
+    for record in result.get("checks", []):
+        logger.info("%s: %s", record["id"], record["status"])
+        for warning in record["warnings"]:
+            logger.warning("WARNING: %s", warning)
+        for error in record["errors"]:
+            logger.error("ERROR: %s", error)
+    for error in result.get("errors", []) if not result.get("checks") else []:
+        logger.error("ERROR: %s", error)
+    logger.info("Governance core: %s", result["status"])
+    return 0 if result["status"] == "PASSED" else 1
 
 
 if __name__ == "__main__":

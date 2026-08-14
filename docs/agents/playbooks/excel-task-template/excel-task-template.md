@@ -8,7 +8,7 @@ update_trigger: Excel lifecycle, library-selection, performance, or reporting ex
 
 Use when:
 - Task matches profile `excel_automation` in `agents-manifest.yaml`.
-- If using Excel COM automation (`win32com`/`xlwings`), profile `excel_com` also applies and injects `docs/agents/50-excel-com-lifecycle/excel-com-lifecycle.md`.
+- If using Excel COM automation (`win32com`/`xlwings`), profile `excel_com` also applies and routes `docs/agents/50-excel-com-lifecycle/excel-com-lifecycle.md`.
 
 ## Library selection authority (required)
 - Use `docs/agents/playbooks/excel-library-selection-playbook/excel-library-selection-playbook.md` as the single owner for:

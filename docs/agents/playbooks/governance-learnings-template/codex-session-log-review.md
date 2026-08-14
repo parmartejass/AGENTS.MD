@@ -16,7 +16,7 @@ This file owns evidence acquisition only. It does not decide whether evidence be
 
 - Evidence collection owner: this file.
 - Governance promotion/rejection owner: `governance-learnings-template.md` Promotion / Noise Gate.
-- Context routing owner: `agents-manifest.yaml`.
+- Authority-routing owner: `agents-manifest.yaml`.
 - Privacy/redaction baseline: `docs/agents/30-logging-errors/logging-errors.md`.
 
 Do not encode concept-specific search terms in this playbook. The run supplies the concept query.

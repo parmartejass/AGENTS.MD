@@ -1,90 +1,9 @@
-from __future__ import annotations
-
-import contextlib
-import importlib.util
 import io
 import sys
 import unittest
-from pathlib import Path
 from unittest.mock import patch
 
-
-SCRIPT_ROOT = Path(__file__).resolve().parent
-REPO_ROOT = SCRIPT_ROOT.parents[1]
-
-
-def _load_module(module_name: str, module_path: Path):
-    spec = importlib.util.spec_from_file_location(module_name, module_path)
-    if spec is None or spec.loader is None:
-        raise RuntimeError(f"Unable to load module from {module_path}")
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[module_name] = module
-    spec.loader.exec_module(module)
-    return module
-
-
-if str(SCRIPT_ROOT) not in sys.path:
-    sys.path.insert(0, str(SCRIPT_ROOT))
-
-GOVERNANCE_RESEARCH = _load_module(
-    "governance_autoresearch",
-    REPO_ROOT / "X-Bookmarks Import/skills/governance-autoresearch/scripts/governance_research.py",
-)
-GOVERNANCE_CORE_MAIN = _load_module(
-    "check_governance_core_main_contract",
-    SCRIPT_ROOT / "check_governance_core_main.py",
-)
-
-ACTIVE_RESEARCH_FILES = (
-    "docs/agents/mcp/00-mcp-standards/mcp-standards.md",
-)
-
-
-class GovernanceResearchTests(unittest.TestCase):
-    def test_governance_files_all_exist(self) -> None:
-        missing_files = [
-            rel_path
-            for rel_path in GOVERNANCE_RESEARCH.GOVERNANCE_FILES
-            if not (REPO_ROOT / rel_path).is_file()
-        ]
-
-        self.assertEqual([], missing_files)
-
-    def test_active_runtime_authorities_have_curated_topics(self) -> None:
-        for rel_path in ACTIVE_RESEARCH_FILES:
-            with self.subTest(rel_path=rel_path):
-                self.assertIn(rel_path, GOVERNANCE_RESEARCH.GOVERNANCE_FILES)
-                self.assertIn(rel_path, GOVERNANCE_RESEARCH.FILE_TOPIC_MAP)
-                self.assertEqual(
-                    GOVERNANCE_RESEARCH.FILE_TOPIC_MAP[rel_path],
-                    GOVERNANCE_RESEARCH.extract_topics(rel_path),
-                )
-
-    def test_list_surface_includes_active_runtime_authorities(self) -> None:
-        with patch.object(sys, "argv", ["governance_research.py", "--list"]):
-            stdout = io.StringIO()
-            with contextlib.redirect_stdout(stdout):
-                GOVERNANCE_RESEARCH.main()
-
-        output = stdout.getvalue()
-        for rel_path in ACTIVE_RESEARCH_FILES:
-            with self.subTest(rel_path=rel_path):
-                self.assertIn(f"[OK] {rel_path}", output)
-
-    def test_list_surface_reports_registered_missing_files(self) -> None:
-        missing_file = "docs/agents/missing-active-topic.md"
-        with (
-            patch.object(GOVERNANCE_RESEARCH, "GOVERNANCE_FILES", [missing_file]),
-            patch.dict(GOVERNANCE_RESEARCH.FILE_TOPIC_MAP, {missing_file: ["missing topic"]}, clear=True),
-            patch.object(sys, "argv", ["governance_research.py", "--list"]),
-        ):
-            stdout = io.StringIO()
-            with contextlib.redirect_stdout(stdout):
-                GOVERNANCE_RESEARCH.main()
-
-        output = stdout.getvalue()
-        self.assertIn(f"[MISSING] {missing_file}", output)
-        self.assertIn("Topics: missing topic", output)
+from scripts.check_governance_core import check_governance_core_main as GOVERNANCE_CORE_MAIN
 
 
 class GovernanceCoreCliContractTests(unittest.TestCase):

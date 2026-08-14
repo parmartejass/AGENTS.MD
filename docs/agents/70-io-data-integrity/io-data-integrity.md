@@ -28,7 +28,7 @@ Automation must not “fix” data unless the spec explicitly requires it.
 - Retries must be **idempotent** for identical inputs; witness drift across attempts implies corruption.
 - Select one **most deterministic backend** from the current SSOT before execution; explicit error or integrity failure must produce a terminal failed/skipped outcome rather than switching to another backend.
 - Size checks on optimized formats must allow **tolerance** (ratio-based, repo-configurable) and must be paired with content-based witnesses (counts/IDs) where feasible.
-- For PDF-specific guidance: `docs/agents/playbooks/pdf-task-template/pdf-task-template.md` (inject via manifest profile `pdf_task`).
+- For PDF-specific guidance: `docs/agents/playbooks/pdf-task-template/pdf-task-template.md` (route through manifest profile `pdf_task`).
 
 ## Run outcomes
 Every processed item should record:

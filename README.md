@@ -5,18 +5,18 @@ This repository maintains a reusable, repo-agnostic governance pack for autonomo
 ## Canonical SSOT
 
 - Canonical policy: `AGENTS.md`
-- Context injection manifest: `agents-manifest.yaml`
+- Assigned-lead and subagent authority-routing manifest: `agents-manifest.yaml`
 - Cross-project authority decisions: `docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md`
-- Docs router filename contract: `scripts/check_governance_core/_docs_routes.py`
-- Python script entrypoint contract: `scripts/check_folder_architecture/check_folder_architecture_main.py`
+- Governance-core public API and docs router contract: `scripts/check_governance_core/check_governance_core_main.py`
+- Repository structure and Python-safety checks: `scripts/check_governance_core/check_governance_core_main.py`
 
 ## Read Order (Top-Down)
 
 1. `AGENTS.md` (authoritative rules and hard gates)
-2. `agents-manifest.yaml` (context injection and profile routing)
-3. `docs/agents/agents_index.md` (supporting branch map and when-to-read guidance)
-4. Task-specific supporting docs/playbooks under `docs/agents/`
-5. Project docs entrypoint: `docs/project/project_index.md` (goal, rules, architecture/protected behavior, data-truth, learning)
+2. The root/main reads and follows only `AGENTS.md` and the three authorities owned by its "Assigned-Lead Authority Routing Procedure (Hard Gate)".
+3. The root/main delegates once using the canonical line owned by that procedure.
+4. The assigned lead reads `agents-manifest.yaml`, resolves applicable task authorities, and owns the complete task/council workflow inside its subtree.
+5. `docs/agents/agents_index.md` and project docs are read by the assigned lead when manifest triggers or routed authorities apply.
 
 When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` and `.governance/agents-manifest.yaml`.
 
@@ -84,12 +84,8 @@ When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` an
 |     |- rules/
 |        |- rules_index.md
 |- scripts/
-|  |- check_folder_architecture/
-|  |  |- check_folder_architecture_main.py
 |  |- check_governance_core/
 |  |  |- check_governance_core_main.py
-|  |- check_python_safety/
-|  |  |- check_python_safety_main.py
 ```
 
 Project docs-first truth is owned by the durable project docs routed from `docs/project/project_index.md`; new project docs must be routed owner docs with declared scope, update triggers, and verification witnesses.
@@ -115,7 +111,7 @@ git submodule add -b main https://github.com/parmartejass/AGENTS.MD.git .governa
 
 ### Step 2: Create loader stubs at project root
 
-Create these files in your project root so every coding assistant/tool lands on the same governance SSOT. The loader body is intentionally minimal: `.governance/AGENTS.md` owns the hard gates and context-injection procedure, and `.governance/agents-manifest.yaml` owns routing facts.
+Create these files in your project root so every coding assistant/tool lands on the same governance SSOT. The loader body is intentionally minimal: `.governance/AGENTS.md` owns the hard gates, root authorities, and role boundary; `.governance/agents-manifest.yaml` owns assigned-lead and subagent task routing.
 
 Use this shared body for each loader:
 
@@ -126,7 +122,7 @@ Required loader:
 - Open and follow `.governance/AGENTS.md` before doing any work.
 - If `.governance/` is missing or empty in a fresh clone, run `git submodule update --init --recursive`.
 - If you cannot access repository files, request that the user paste `.governance/AGENTS.md`.
-- After reading `.governance/AGENTS.md`, execute its current Context Injection Procedure.
+- Follow the root/main boundary and canonical delegation route owned by `.governance/AGENTS.md` "Assigned-Lead Authority Routing Procedure (Hard Gate)"; the assigned lead owns all task-specific authority routing, council, execution, and verification work.
 - Project-specific docs remain under `docs/project/`.
 ```
 
@@ -222,21 +218,20 @@ Python checks require Python 3.11+.
 If your Python 3 binary is named `python`, replace `python3` with `python`.
 
 This repo:
-- Docs router contract regression test: `python3 scripts/check_docs_router_contract/check_docs_router_contract_main.py` (use `python` if `python3` is unavailable)
 - Docs SSOT header checks (all `docs/` except index pages): `python3 scripts/check_governance_core/check_governance_core_main.py --only-docs-ssot --repo-root . --governance-root .` (use `python` if `python3` is unavailable)
 - Project docs checks (required files + README linkage): `python3 scripts/check_governance_core/check_governance_core_main.py --only-project-docs --repo-root . --governance-root .` (use `python` if `python3` is unavailable)
-- Folder architecture checks (declared Python roots, explicit workspace exceptions, and script folder contracts): `python3 scripts/check_folder_architecture/check_folder_architecture_main.py` (use `python` if `python3` is unavailable)
-- Folder architecture regression tests (vendored governance boundary + scope): `python3 -m unittest -v scripts/check_folder_architecture/test_main.py` (use `python -m unittest -v ...` if `python3` is unavailable)
-- Cross-platform core governance checks (manifest + docs SSOT + project docs + governance authority decisions + hygiene + playbook parity + unresolved citation tokens): `python3 scripts/check_governance_core/check_governance_core_main.py` (use `python` if `python3` is unavailable)
+- Cross-platform governance checks (manifest, docs, project docs, repository hygiene/structure, and Python safety): `python3 scripts/check_governance_core/check_governance_core_main.py` (use `python` if `python3` is unavailable)
   - Core governance regression tests: `python3 -m unittest discover -s scripts/check_governance_core -p "test*.py" -v` (use `python -m unittest discover -s ...` if `python3` is unavailable)
   - Strict safety mode: `python3 scripts/check_governance_core/check_governance_core_main.py --fail-on-safety-warnings`
-- Python safety baseline checks: `python3 scripts/check_python_safety/check_python_safety_main.py` (add `--fail-on-warnings` to enforce warnings; use `python` if `python3` is unavailable)
 
 Target repo (submodule under `.governance/`):
-- Docs router contract regression test: `python3 .governance/scripts/check_docs_router_contract/check_docs_router_contract_main.py` (use `python` if `python3` is unavailable)
 - Docs SSOT header checks: `python3 .governance/scripts/check_governance_core/check_governance_core_main.py --repo-root . --only-docs-ssot` (use `python` if `python3` is unavailable)
 - Project docs checks: `python3 .governance/scripts/check_governance_core/check_governance_core_main.py --repo-root . --only-project-docs` (use `python` if `python3` is unavailable)
-- Folder architecture checks: `python3 .governance/scripts/check_folder_architecture/check_folder_architecture_main.py --root .` (use `python` if `python3` is unavailable)
-- Cross-platform core governance checks: `python3 .governance/scripts/check_governance_core/check_governance_core_main.py --repo-root .` (use `python` if `python3` is unavailable)
+- Cross-platform governance checks: `python3 .governance/scripts/check_governance_core/check_governance_core_main.py --repo-root .` (use `python` if `python3` is unavailable)
   - Strict safety mode: `python3 .governance/scripts/check_governance_core/check_governance_core_main.py --repo-root . --fail-on-safety-warnings`
-- Python safety baseline checks: `python3 .governance/scripts/check_python_safety/check_python_safety_main.py --root .` (add `--fail-on-warnings` to enforce warnings; use `python` if `python3` is unavailable)
+
+## Governance-core programmatic API
+
+`scripts.check_governance_core.check_governance_core_main` is the only supported programmatic boundary. `run_checks(request)` accepts optional `repo_root`, `governance_root`, `mode` (`full`, `docs`, or `project_docs`), and `fail_on_safety_warnings`; it returns a plain mapping with `api_version`, terminal `status`, ordered per-check records, reconciled `planned`/`eligible`/`executed`/`skipped`/`failed` check IDs, `errors`, and `warnings`. `resolve_documents(request)` accepts explicit contained, non-aliased roots and returns `AGENTS.md` followed by the deterministic depth-first terminal Markdown leaves reachable from `docs/agents/agents_index.md`; `agents-manifest.yaml` routes tasks and does not define the research corpus. Invalid, escaped, aliased, missing, cyclic, or duplicate topology fails explicitly with an empty document list, so consumers do not maintain shadow file lists.
+
+The API reads repository/governance files through one cached bounded filesystem inventory and uses bounded `git ls-files -z` only for owner-declared tracked-state rules. Git stdout and stderr are captured incrementally in bounded memory with a deadline and bounded cleanup; subprocess, capture, or cleanup failures produce explicit failed outcomes. Relevant readable file families reject aliases before consumers can open them and enforce byte limits only across files that family reads. Full mode composes all registered governance, docs, repository-structure, and Python-safety checks; narrow modes scan only their docs scope. Strict mode promotes safety warnings to failures. Generic `Popen` use remains a warning; Python safety keeps one explicit inventory-owner exception whose lifecycle is verified directly by failure-path tests. The API creates no temporary files and does not edit repository-owned files. Invalid inputs return `FAILED_VALIDATION`; check failures return `FAILED`. Consumers must not import private modules. Add a cohesive private handler plus one registry entry to extend checks; new request fields, modes, check IDs, or output fields require an intentional public-contract change with regression coverage.

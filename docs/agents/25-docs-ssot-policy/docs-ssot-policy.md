@@ -16,7 +16,7 @@ Universal instruction derivation across prompts, plans, checklists, examples, ge
 Authority role:
 - `AGENTS.md` owns the always-on docs-modularity hard gate for documentation under `docs/`.
 - This doc owns delegated docs-family mechanics under that gate: placement, headers, routers, public leaves, project-doc placement, owner-doc promotion, optional leaf routing, and drift-prevention boundaries.
-- `scripts/check_governance_core/_docs_routes.py` owns docs router and public leaf filename pattern facts.
+- `scripts/check_governance_core/check_governance_core_main.py` owns the public docs router and public-leaf validation contract.
 - Use this doc whenever docs are added, moved, split, routed, or promoted into project authority records.
 
 ## Bounded Project Authority Memory
@@ -116,8 +116,8 @@ Validation boundary:
 - Checker-green means structure passed; it is not semantic approval.
 
 ## Docs branch rule
-- The executable filename contract lives in `scripts/check_governance_core/_docs_routes.py`; this doc owns the docs-family behavior that contract encodes.
-- Every directory under `docs/` must contain the canonical router file resolved by `scripts/check_governance_core/_docs_routes.py`.
+- The executable filename contract is exposed by `scripts/check_governance_core/check_governance_core_main.py`; this doc owns the docs-family behavior that contract encodes.
+- Every directory under `docs/` must contain the canonical router file resolved by that public governance-core contract.
 - Docs routers follow the folder-owned pattern `<authority>_index.md` and must remain routing-only.
 - Router files must catalog direct children only and include a `Required when:` statement for each child.
 - Docs folders with narrative content must expose one-or-more router-linked public leaf markdown files in the same folder authority.
@@ -180,14 +180,14 @@ Operational agent assets under `docs/agents/` can coexist with governance docs w
 When mentioning a value, prefer the SSOT identifier name, not the literal.
 When describing a rule, reference the named rule function (or equivalent).
 
-## Context injection guardrails (avoid stale-doc confidence)
-Context injection should reduce bloat and prevent “random docs” from becoming implicit requirements:
-- Keep always-on manifest injection minimal; inject supporting docs via narrowly-scoped profiles.
-- Inject only authority owners and routers relevant to the task. Broad "all docs" context is a false-context risk.
-- Under-injection is also a defect: every task class must route to the owners required to avoid silently missing authority.
-- Project-doc profile injection may start with `docs/project/project_index.md`; agents must follow that router to any triggered owner leaf in scope instead of injecting optional leaves unconditionally.
-- Treat injected non-owner docs as supporting context only; verify behavior against the declared owner, whether code, config, artifact, external system, workbook, schema, or project doc.
-- If a manifest profile is too broad or too narrow to explain its relevance, fix the profile before relying on injected context.
+## Authority-routing guardrails (avoid stale-doc confidence)
+Authority routing should reduce bloat and prevent “random docs” from becoming implicit requirements:
+- Keep root/main authority membership owned by `AGENTS.md`; the assigned lead and its subtree route task-specific authorities through narrowly scoped manifest profiles.
+- Route only authority owners and routers relevant to the task. Broad "all docs" routing is a false-context risk.
+- Under-routing is also a defect: every task class must route to the owners required to avoid silently missing authority.
+- Project-doc profile routing may start with `docs/project/project_index.md`; agents must follow that router to any triggered owner leaf in scope instead of routing optional leaves unconditionally.
+- Treat routed non-owner docs as supporting context only; verify behavior against the declared owner, whether code, config, artifact, external system, workbook, schema, or project doc.
+- If a manifest profile is too broad or too narrow to explain its relevance, fix the profile before relying on routed authorities.
 - Create project-specific docs only for declared authority records or routed handoff/runbook needs, keep them minimal, and reference other SSOT owners by identifier (do not re-encode constants/rules owned elsewhere).
-- If a doc might drift, tighten its `update_trigger` and avoid adding it to broad/always-on injection.
+- If a doc might drift, tighten its `update_trigger` and avoid adding it to broad profile routing.
 - When tooling supports it, anchor doc sections to source code locations so changes in the referenced code surface stale docs automatically (e.g., code-anchored linters).

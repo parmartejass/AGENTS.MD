@@ -18,6 +18,7 @@ Use when:
 ```
 Hard gates (copy/paste scaffold sourced from AGENTS.md):
 - Read and follow `AGENTS.md`; if it is inaccessible, ask for it before doing any work.
+- Root/main delegation and the assigned-lead workflow MUST follow `AGENTS.md` "Assigned-Lead Authority Routing Procedure (Hard Gate)"; use its live canonical delegation line instead of copying it here.
 - Execute the docs-first authority gate before any non-trivial plan, review, council output, implementation, or repo mutation.
 - Derive task instructions from declared SSOT owners; if ownership is unknown or conflicting, stop and report the authority gap before acting.
 
@@ -30,11 +31,11 @@ Acceptance criteria:
 Change classification:
 - Blast radius (modules/workflows/users):
 
-Repo context (verified):
-- Files to read first:
-- Existing SSOT jurisdictions and owners to reuse under `AGENTS.md` Non-Negotiable #1:
-- Entrypoint/workflow this must be wired through:
-- Injection profiles matched (from `agents-manifest.yaml`):
+Assigned-lead authority-routing witness (complete after manifest routing; do not prefill in the root/main prompt):
+- Resolved profiles or fallback:
+- Routed authorities read:
+- Existing SSOT jurisdictions and owners:
+- Entrypoint/workflow:
 - README.md "Checks" reviewed:
 
 First-principles artifacts:
@@ -110,7 +111,7 @@ The loop prompt must:
 ```
 Hard gates (copy/paste scaffold sourced from AGENTS.md):
 - Read and follow `AGENTS.md`; if it is inaccessible, ask for it before doing any work.
-- Execute the current `AGENTS.md` Mandatory Execution Loop and Context Injection Procedure.
+- Root/main delegation and the assigned-lead workflow MUST follow `AGENTS.md` "Assigned-Lead Authority Routing Procedure (Hard Gate)"; use its live canonical delegation line instead of copying it here.
 - Execute the docs-first authority gate before any non-trivial plan, review, council output, implementation, or repo mutation.
 - Derive task instructions from declared SSOT owners; if ownership is unknown or conflicting, stop and report the authority gap before acting.
 
@@ -122,7 +123,7 @@ Run artifacts (must create/update these files):
 - loop prompt (this file): <path to loop_prompt.md>
 - confirmation file: <path to run_confirmation.xml>
 
-Phase 1 — Review (no edits):
+Phase 1 — Assigned-lead review (no edits):
 - Enumerate all relevant instances/entrypoints/call-sites/config/constants/rules/tests/scenarios linked to the request.
 - Produce a verified file list to read next + `rg` search terms you used.
 - Identify SSOT jurisdictions and owners to reuse under `AGENTS.md` Non-Negotiable #1 (no parallel utilities/docs).
@@ -149,7 +150,7 @@ Feature/behavior-change baseline (when Task type = feature):
 - Shift-left prevention checks per `AGENTS.md` "Verification Floors (Hard Gate)"
 
 Stop conditions:
-- If you detect the same failure twice with the same root cause, STOP and output the filled restart prompt template from `docs/agents/15-stuck-in-loop-generate-fresh-restart-prompt/stuck-in-loop-generate-fresh-restart-prompt.md`.
+- If you detect the same failure twice with the same root cause, follow `AGENTS.md` "AI Stuck-Loop Reset (Hard Gate)" and `docs/agents/15-stuck-in-loop-generate-fresh-restart-prompt/stuck-in-loop-generate-fresh-restart-prompt.md` to create the internal assigned-lead-subtree handoff; do not output the filled prompt or task-specific authority evidence through the root/main orchestrator.
 
 Completion protocol:
 - If (and only if) all verification commands pass:

@@ -73,15 +73,15 @@ Each active decision record must include:
   - Governing hard gate for code/docs modularity: `AGENTS.md`
   - Human-readable policy owner for docs-family behavior: `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`
   - Human-readable delegated policy owner for coding-principles and runtime-code family mechanics: `docs/agents/35-coding-principles/coding-principles.md`
-  - Docs router and public-leaf filename facts: `scripts/check_governance_core/_docs_routes.py`
-  - Python script entrypoint filename enforcement: `scripts/check_folder_architecture/check_folder_architecture_main.py`
+  - Docs router and public-leaf validation facts: `scripts/check_governance_core/check_governance_core_main.py` public contract
+  - Python script entrypoint filename enforcement: `scripts/check_governance_core/check_governance_core_main.py` public contract
 - Allowed non-owner locations:
   - Router-linked public leaf markdown docs inside the same docs folder authority
   - Router-only docs folders that are artifact-first and only catalog payload children such as JSON, TOML, generated outputs, or dated evidence subfolders
   - Deeper runtime identity contracts such as `SKILL.md` and `mcp.json`, which remain owned by their existing authorities and are out of scope for this naming contract
 - Forbidden duplicates:
   - Do not reintroduce `index.md` as the universal docs router contract.
-  - Do not keep `scripts/migrated_router_leaves.json` or any replacement leaf-name registry once filename derivation is handled by `scripts/check_governance_core/_docs_routes.py`.
+  - Do not keep `scripts/migrated_router_leaves.json` or any replacement leaf-name registry once filename derivation is handled by the governance-core public contract.
   - Do not hardcode runtime or docs contract filenames independently in validators, README guidance, templates, or policy docs
   - Do not create competing public contract files inside one folder authority unless an explicit contract-family exception already owns them
 - Coordinated update set:
@@ -93,17 +93,14 @@ Each active decision record must include:
   - `docs/project/architecture/architecture.md`
   - `agents-manifest.yaml`
   - `README.md`
-  - `scripts/check_governance_core/_docs_routes.py`
-  - `scripts/check_docs_router_contract/check_docs_router_contract_main.py`
-  - `scripts/check_governance_core/_manifest_and_docs.py`
-  - `scripts/check_folder_architecture/check_folder_architecture_main.py`
+  - `scripts/check_governance_core/check_governance_core_main.py`
+  - Public-contract regression tests under `scripts/check_governance_core/`
 - Verification witness:
-  - `python3 scripts/check_docs_router_contract/check_docs_router_contract_main.py` passes, including the negative cases where a router points to a missing primary leaf doc or contains non-routing content.
-  - `python3 scripts/check_folder_architecture/check_folder_architecture_main.py` passes.
+  - `python3 -m unittest discover -s scripts/check_governance_core -p "test*.py" -v` passes, including negative docs-router, repository-structure, and Python-safety cases.
   - `python3 scripts/check_governance_core/check_governance_core_main.py` passes.
 - Review trigger:
-  - Any proposal to change a docs router/public-leaf filename pattern without updating `scripts/check_governance_core/_docs_routes.py`.
-  - Any proposal to change Python script entrypoint filename enforcement without updating `scripts/check_folder_architecture/check_folder_architecture_main.py`.
+  - Any proposal to change a docs router/public-leaf filename pattern without updating the governance-core public contract and its regression fixtures.
+  - Any proposal to change Python script entrypoint filename enforcement without updating the governance-core public contract.
   - Any proposal to reintroduce `index.md` as the universal docs router contract
   - Any proposal to rename or repurpose `SKILL.md` or `mcp.json` under this contract family
 
@@ -144,7 +141,7 @@ Each active decision record must include:
   - `docs/project/goal/goal_index.md`
   - `docs/project/goal/goal.md`
   - `docs/project/learning/learning.md`
-  - `scripts/check_governance_core/` project-doc validator contracts/tests, including `_project_authority_docs.py`, `_repo_and_governance.py`, and related tests
+  - `scripts/check_governance_core/check_governance_core_main.py` public project-doc validator contract and public-API regression tests
 - Verification witness:
   - Project-doc checks pass with durable truth routed through declared owner docs.
   - Tracked `Changelog` closure records reference owner-promotion targets for durable facts or `N/A + reason`.

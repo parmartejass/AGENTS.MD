@@ -14,7 +14,7 @@ This is supporting guidance.
 - output "looks right" but verification contradicts it (phantom compliance)
 
 ## Stuck-loop reset protocol (must be deterministic)
-1) Re-run the Mandatory Execution Loop steps 1-5 explicitly:
+1) Have the assigned lead re-run `AGENTS.md` "Mandatory Execution Loop (Assigned Lead Only)" steps 1-5 explicitly inside its subtree:
    - restate goal + acceptance criteria
    - discover files and SSOT owners
    - decompose into atomic subtasks
@@ -22,10 +22,10 @@ This is supporting guidance.
    - run ambiguity gate (ask clarifying questions only if material ambiguity remains)
 2) Reproduce/verify the failure with deterministic tools; capture the exact command + output.
    Use README.md "Checks" (SSOT) when available.
-3) Populate the Restart Prompt Template below and present it as a copy-pasteable restart prompt.
-4) Restart in a fresh chat/model using that prompt, then re-attempt implementation minimally and re-run verification.
+3) The assigned lead populates the Restart Prompt Template below as an internal handoff inside its subtree; it MUST NOT return the filled prompt, task-specific evidence, or authority-routing witnesses through the root/main orchestrator.
+4) Restart with a fresh subagent/model inside the assigned-lead subtree using that prompt, then re-attempt implementation minimally and re-run verification. If continuation requires user action, return only a terminal `hold` or authority-grounded superseding-plan summary with the reason and required action.
 
-### Restart Prompt Template (fill, then present as copy/paste)
+### Restart Prompt Template (internal assigned-lead-subtree handoff)
 Filling rules (to prevent hallucinated context):
 - Goal/acceptance criteria come from the current conversation.
 - Repo facts must be verified (paths/symbols/config keys/commands). If not verified, write `Unknown`.
@@ -34,12 +34,13 @@ Filling rules (to prevent hallucinated context):
 - Include learned context so the restart does not repeat dead ends (attempt history + verified failure evidence).
 - If restarting without repo file access, include/paste `AGENTS.md` (authoritative) and any relevant file excerpts.
 
-Output format (copy/paste block):
+Internal handoff format (do not return through the root/main orchestrator):
 ```
 Here's your restart prompt (copy/paste into a new chat/model):
 
 Hard gates (copy/paste scaffold sourced from AGENTS.md):
 - Read and follow `AGENTS.md`; if it is inaccessible, request it before doing any work.
+- Root/main delegation and the assigned-lead workflow MUST follow `AGENTS.md` "Assigned-Lead Authority Routing Procedure (Hard Gate)"; use its live canonical delegation line instead of copying it here.
 - Execute the docs-first authority gate before any non-trivial plan, review, council output, implementation, or repo mutation.
 - Derive task instructions from declared SSOT owners; if ownership is unknown or conflicting, stop and report the authority gap before acting.
 
@@ -91,6 +92,7 @@ Here's your restart prompt (copy/paste into a new chat/model):
 
 Hard gates (copy/paste scaffold sourced from AGENTS.md):
 - Read and follow `AGENTS.md`; if it is inaccessible, request it before doing any work.
+- Root/main delegation and the assigned-lead workflow MUST follow `AGENTS.md` "Assigned-Lead Authority Routing Procedure (Hard Gate)"; use its live canonical delegation line instead of copying it here.
 - Execute the docs-first authority gate before any non-trivial plan, review, council output, implementation, or repo mutation.
 - Derive task instructions from declared SSOT owners; if ownership is unknown or conflicting, stop and report the authority gap before acting.
 

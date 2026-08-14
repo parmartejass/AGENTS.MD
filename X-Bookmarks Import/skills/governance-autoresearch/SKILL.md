@@ -91,7 +91,7 @@ Before applying, check:
 
 Run validation if available:
 ```bash
-python3 scripts/check_governance_core/main.py
+python3 scripts/check_governance_core/check_governance_core_main.py
 ```
 
 ### Step 5: Apply or Discard
@@ -125,7 +125,7 @@ python3 "X-Bookmarks Import/skills/governance-autoresearch/scripts/governance_re
 
 3. After all files, run full validation:
 ```bash
-python3 scripts/check_governance_core/main.py
+python3 scripts/check_governance_core/check_governance_core_main.py
 ```
 
 ## Scoring (How to Judge Quality)
@@ -139,7 +139,7 @@ A change is worth keeping if it meets ALL of:
 
 ## Rate Limit Awareness
 
-- X API recent search: 180 requests / 15 minutes
-- Each file uses 2-3 search queries
-- Full loop (~27 files) uses ~80 queries — well within limits
+- Current X API plan and recent-search capacity are external mutable facts; verify them through the canonical X API data-access authority and the active official plan before execution.
+- The script's `MAX_TOPICS_PER_FILE` owns the per-file search bound. Use the deterministic `--list` summary for the current router-discovered document count and derived full-loop upper bound before starting.
+- The full loop makes externally visible API calls; run it only when the calculated bound fits the active plan.
 - If rate-limited, wait and resume from the last file

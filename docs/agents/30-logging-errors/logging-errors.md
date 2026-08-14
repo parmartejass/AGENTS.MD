@@ -51,5 +51,5 @@ Maintain one owner for domain errors so failures are searchable and consistent, 
   - reflect partial failure at the run level (see `AGENTS.md` "Standard Log Schema (Required when logs are emitted)")
 
 ## Witnesses (enforcement)
-- **Static**: `scripts/check_python_safety/check_python_safety_main.py` flags `BARE_EXCEPT` and `SILENT_EXCEPT`, and warns on `EXCEPT_RETURN_LITERAL`.
+- **Static**: the Python-safety check behind `scripts/check_governance_core/check_governance_core_main.py` flags `BARE_EXCEPT` and `SILENT_EXCEPT`, and warns on `EXCEPT_RETURN_LITERAL`.
 - **Runtime**: emit per-item outcome records, user-visible terminal summary, and run summary with work-count reconciliation (see `AGENTS.md` "Standard Log Schema (Required when logs are emitted)").

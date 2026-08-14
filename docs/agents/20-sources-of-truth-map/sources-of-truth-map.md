@@ -64,7 +64,7 @@ Owner by decision-critical fact.
 - coding hard-gate trigger and precedence: `AGENTS.md`
 - delegated coding-principles and runtime-code authority-design mechanics: `docs/agents/35-coding-principles/coding-principles.md`
 - SSOT jurisdiction and post-diff purification mechanics for implementation code: `docs/agents/35-coding-principles/coding-principles.md`
-- Python script public entrypoint filename enforcement: `scripts/check_folder_architecture/check_folder_architecture_main.py`
+- Repository structure and Python script public-entrypoint enforcement: `scripts/check_governance_core/check_governance_core_main.py` public contract
 - authority boundaries recorded in `docs/project/architecture/architecture.md` (project root)
 - module contracts defined in the authority module entrypoint
 
@@ -76,15 +76,17 @@ Owner by decision-critical fact.
 - task-signal routing for jurisdiction/purification work: `agents-manifest.yaml`
 - project-local owner graph records: `docs/project/architecture/architecture.md`
 
-## Context injection (supporting docs selection)
-Owner: `agents-manifest.yaml`
-- task signal → which supporting docs/playbooks to load alongside `AGENTS.md`
+## Authority routing
+Owner by decision-critical fact.
+- root/main versus assigned-lead role boundary, required root authorities, canonical delegation line, and terminal-return boundary: `AGENTS.md`
+- assigned-lead/subagent task signal → authority routing: `agents-manifest.yaml`
+- assigned-lead-subtree retrieval and authority-routing witness mechanics: `docs/agents/05-context-retrieval/context-retrieval.md`
 
 ## Docs modularity / docs folder contracts
 Owner by decision-critical fact.
 - docs-modularity hard gate: `AGENTS.md`
 - delegated docs-family mechanics: `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`
-- docs router and public leaf filename pattern facts: `scripts/check_governance_core/_docs_routes.py`
+- docs router and public leaf validation facts: `scripts/check_governance_core/check_governance_core_main.py` public contract
 
 ## Bounded project authority memory
 Owner: the existing `docs/project/` branch authorities, routed from `docs/project/project_index.md`.
@@ -127,9 +129,10 @@ Owner: exactly one implementation.
 ## Agent instructions / prompt configuration
 Owner: `AGENTS.md` + `agents-manifest.yaml`
 - agent behavioral rules, constraints, and execution loops
+- root/main versus assigned-lead/subagent authority-routing and council responsibilities
 - instruction derivation rules for prompts, plans, checklists, generated artifacts, and downstream scaffolds
 - prompt/instruction content must not be scattered across ad-hoc files; consolidate in the governance root
-- context injection manifest is the single map from task signals to supporting docs
+- authority-routing manifest is the single map from assigned-lead/subagent task signals to routed authorities
 - controlling-intent handling is owned by `AGENTS.md`; durable project truth is owned by the appropriate `docs/project/` owner doc
 
 ## Run outcomes / reporting

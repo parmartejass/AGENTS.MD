@@ -19,16 +19,19 @@ from __future__ import annotations
 import logging
 import os
 import re
+import stat
 import sys
 import time
 from datetime import datetime, timedelta, timezone
-from pathlib import Path
+from functools import lru_cache
+from pathlib import Path, PurePosixPath
 
 
 X_BOOKMARKS_ROOT = Path(__file__).resolve().parents[3]
 REPO_ROOT = X_BOOKMARKS_ROOT.parent
-if str(X_BOOKMARKS_ROOT) not in sys.path:
-    sys.path.insert(0, str(X_BOOKMARKS_ROOT))
+for import_root in (X_BOOKMARKS_ROOT, REPO_ROOT):
+    if str(import_root) not in sys.path:
+        sys.path.insert(0, str(import_root))
 
 from x_runtime import (  # noqa: E402
     UsageError,
@@ -40,6 +43,7 @@ from x_runtime import (  # noqa: E402
     write_json_stdout,
     write_stdout_line,
 )
+from scripts.check_governance_core.check_governance_core_main import resolve_documents  # noqa: E402
 
 
 configure_logging()
@@ -47,58 +51,56 @@ logger = logging.getLogger(__name__)
 
 load_env(Path(__file__).resolve().parent)
 BEARER = os.environ.get("X_BEARER_TOKEN", "")
-MAX_RATE_LIMIT_RETRIES = 1
+MAX_TOPICS_PER_FILE = 3
 
-GOVERNANCE_FILES = [
-    "AGENTS.md",
-    "docs/agents/00-principles/principles.md",
-    "docs/agents/05-context-retrieval/context-retrieval.md",
-    "docs/agents/10-repo-discovery/repo-discovery.md",
-    "docs/agents/20-sources-of-truth-map/sources-of-truth-map.md",
-    "docs/agents/25-docs-ssot-policy/docs-ssot-policy.md",
-    "docs/agents/30-logging-errors/logging-errors.md",
-    "docs/agents/35-coding-principles/coding-principles.md",
-    "docs/agents/40-config-constants/config-constants.md",
-    "docs/agents/70-io-data-integrity/io-data-integrity.md",
-    "docs/agents/80-testing-real-files/testing-real-files.md",
-    "docs/agents/90-release-checklist/release-checklist.md",
-    "docs/agents/workflow-registry/workflow-registry.md",
-    "docs/agents/mcp/00-mcp-standards/mcp-standards.md",
-    "docs/agents/skills/00-skill-standards/skill-standards.md",
-    "docs/agents/skills/10-platform-adapters/platform-adapters.md",
-    "docs/agents/settings/00-settings-standards/settings-standards.md",
-    "docs/agents/playbooks/rca-methods-template/rca-methods-template.md",
-    "docs/agents/playbooks/bugfix-template/bugfix-template.md",
-    "docs/agents/playbooks/governance-learnings-template/governance-learnings-template.md",
-    "docs/agents/playbooks/ai-coding-prompt-template/ai-coding-prompt-template.md",
-]
+@lru_cache(maxsize=1)
+def governance_files() -> tuple[str, ...]:
+    resolved = resolve_documents({"repo_root": str(REPO_ROOT), "governance_root": str(REPO_ROOT)})
+    if resolved["status"] != "PASSED":
+        raise RuntimeError(f"Governance document resolution failed: {resolved['errors']}")
+    return tuple(str(value) for value in resolved["documents"])
 
-FILE_TOPIC_MAP = {
-    "AGENTS.md": ["AGENTS.md governance", "AI agent constitution rules"],
-    "docs/agents/00-principles/principles.md": ["AI agent first principles", "coding agent design principles"],
-    "docs/agents/05-context-retrieval/context-retrieval.md": ["AI agent context injection", "LLM context management coding"],
-    "docs/agents/10-repo-discovery/repo-discovery.md": ["AI agent repo discovery", "codebase exploration agent"],
-    "docs/agents/20-sources-of-truth-map/sources-of-truth-map.md": ["single source of truth code", "SSOT software architecture"],
-    "docs/agents/25-docs-ssot-policy/docs-ssot-policy.md": ["documentation as code", "docs single source of truth"],
-    "docs/agents/30-logging-errors/logging-errors.md": ["AI agent error handling", "coding agent logging observability"],
-    "docs/agents/35-coding-principles/coding-principles.md": [
-        "coding principles authority design",
-        "SSOT jurisdiction software",
-    ],
-    "docs/agents/40-config-constants/config-constants.md": ["configuration management constants", "config as code"],
-    "docs/agents/70-io-data-integrity/io-data-integrity.md": ["data integrity file processing", "IO safety coding agent"],
-    "docs/agents/80-testing-real-files/testing-real-files.md": ["AI agent testing strategy", "coding agent test automation"],
-    "docs/agents/90-release-checklist/release-checklist.md": ["release checklist automation", "CI CD agent workflow"],
-    "docs/agents/workflow-registry/workflow-registry.md": ["workflow state machine", "agent workflow orchestration"],
-    "docs/agents/mcp/00-mcp-standards/mcp-standards.md": ["MCP configuration security", "model context protocol agent tools"],
-    "docs/agents/skills/00-skill-standards/skill-standards.md": ["Claude Code skills", "AI agent skills standard"],
-    "docs/agents/skills/10-platform-adapters/platform-adapters.md": ["multi-platform agent", "agent platform adapter"],
-    "docs/agents/settings/00-settings-standards/settings-standards.md": ["agent settings configuration", "coding agent permissions"],
-    "docs/agents/playbooks/rca-methods-template/rca-methods-template.md": ["root cause analysis AI", "RCA debugging agent"],
-    "docs/agents/playbooks/bugfix-template/bugfix-template.md": ["AI bugfix workflow", "agent debugging template"],
-    "docs/agents/playbooks/governance-learnings-template/governance-learnings-template.md": ["governance framework learnings", "AI governance improvement"],
-    "docs/agents/playbooks/ai-coding-prompt-template/ai-coding-prompt-template.md": ["AI coding prompt engineering", "agent prompt template"],
-}
+
+@lru_cache(maxsize=1)
+def governance_file_set() -> frozenset[str]:
+    return frozenset(governance_files())
+
+
+def _maximum_full_loop_searches() -> int:
+    return len(governance_files()) * MAX_TOPICS_PER_FILE
+
+
+def resolve_governance_path(filepath: str | os.PathLike[str]) -> tuple[str, Path]:
+    value = os.fspath(filepath)
+    relative = PurePosixPath(value)
+    if (
+        not value
+        or "\\" in value
+        or ":" in value
+        or relative.is_absolute()
+        or relative.as_posix() != value
+        or any(part in {"", ".", ".."} or part != part.rstrip(" .") for part in relative.parts)
+    ):
+        raise UsageError(f"Governance path must be a canonical repository-relative path: {value!r}")
+    if value not in governance_file_set():
+        raise UsageError(f"Governance path is not in the canonical document corpus: {value}")
+    repo_root = REPO_ROOT.resolve()
+    current = repo_root
+    try:
+        for part in relative.parts:
+            current /= part
+            metadata = current.stat(follow_symlinks=False)
+            attributes = getattr(metadata, "st_file_attributes", 0)
+            reparse_flag = getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)
+            if current.is_symlink() or attributes & reparse_flag or (current.is_file() and metadata.st_nlink > 1):
+                raise UsageError(f"Governance path must not traverse an alias: {value}")
+        resolved = current.resolve(strict=True)
+        resolved.relative_to(repo_root)
+    except (OSError, ValueError) as exc:
+        raise UsageError(f"Governance path is unavailable or escapes the repository: {value}") from exc
+    if not resolved.is_file():
+        raise UsageError(f"Governance path is not a file: {value}")
+    return value, resolved
 
 
 def api_get(url: str, params: dict[str, str] | None = None):
@@ -112,21 +114,8 @@ def api_get(url: str, params: dict[str, str] | None = None):
     return response.status, response.data, response.headers
 
 
-def extract_topics(filepath):
-    """Get search topics for a governance file."""
-    normalized_path = Path(filepath).as_posix()
-    if normalized_path in FILE_TOPIC_MAP:
-        return FILE_TOPIC_MAP[normalized_path]
-
+def _extract_topics(normalized_path: str, content: str) -> list[str]:
     filename = Path(normalized_path).name
-    if filename in FILE_TOPIC_MAP:
-        return FILE_TOPIC_MAP[filename]
-
-    full_path = REPO_ROOT / filepath
-    if not full_path.exists():
-        return [filename.replace(".md", "").replace("-", " ")]
-
-    content = full_path.read_text(encoding="utf-8")
     headings = re.findall(r"^#{1,3}\s+(.+)$", content, re.MULTILINE)
     topics = []
     for heading in headings[:5]:
@@ -136,7 +125,13 @@ def extract_topics(filepath):
 
     if not topics:
         topics = [filename.replace(".md", "").replace("-", " ")]
-    return topics[:3]
+    return topics[:MAX_TOPICS_PER_FILE]
+
+
+def extract_topics(filepath):
+    """Get search topics for a governance file."""
+    normalized_path, full_path = resolve_governance_path(filepath)
+    return _extract_topics(normalized_path, full_path.read_text(encoding="utf-8"))
 
 
 def search_x(query, limit=30):
@@ -204,12 +199,9 @@ def search_x(query, limit=30):
 
 def research_file(filepath):
     """Research a governance file and output context for improvement."""
-    full_path = REPO_ROOT / filepath
-    if not full_path.exists():
-        raise UsageError(f"{filepath} not found")
-
-    topics = extract_topics(filepath)
+    normalized_path, full_path = resolve_governance_path(filepath)
     content = full_path.read_text(encoding="utf-8")
+    topics = _extract_topics(normalized_path, content)
     line_count = len(content.splitlines())
 
     logger.info("\n%s", "=" * 70)
@@ -239,7 +231,7 @@ def research_file(filepath):
     ext_links = list(dict.fromkeys(ext_links))[:10]
 
     return {
-        "file": filepath,
+        "file": normalized_path,
         "line_count": line_count,
         "topics_searched": topics,
         "total_results": len(unique),
@@ -264,11 +256,17 @@ def main():
         return
 
     if args[0] == "--list":
-        for governance_file in GOVERNANCE_FILES:
+        for governance_file in governance_files():
             exists = "OK" if (REPO_ROOT / governance_file).exists() else "MISSING"
             topics = extract_topics(governance_file)
             write_stdout_line(f"  [{exists}] {governance_file}")
             write_stdout_line(f"         Topics: {', '.join(topics)}")
+        write_stdout_line(
+            "Summary: "
+            f"documents={len(governance_files())}, "
+            f"max_topics_per_file={MAX_TOPICS_PER_FILE}, "
+            f"maximum_full_loop_searches={_maximum_full_loop_searches()}"
+        )
         return
 
     if not BEARER:
@@ -276,7 +274,7 @@ def main():
         raise SystemExit(1)
 
     if args[0] == "--all":
-        all_research = [research_file(governance_file) for governance_file in GOVERNANCE_FILES]
+        all_research = [research_file(governance_file) for governance_file in governance_files()]
         write_json_stdout(all_research)
         return
 

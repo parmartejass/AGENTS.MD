@@ -1,0 +1,18 @@
+version: 2
+ssot_owner: agents-manifest.yaml
+update_trigger: routes change
+description: >-
+  frozen failure fixture
+routing_mode: union
+fallback_authorities:
+  - 'docs/agents/other.md'
+semantic_queries:
+  sample:
+    - 'find the owner'
+profiles:
+  sample:
+    detect:
+      keywords:
+        - "sample" trailing
+    authorities:
+      - 'docs/agents/other.md'

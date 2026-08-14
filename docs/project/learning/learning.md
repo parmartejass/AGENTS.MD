@@ -34,7 +34,7 @@ update_trigger: new operational learnings/pitfalls discovered in real use
 ## Deep research synthesis (2026-02-23)
 - Source report was treated as `[CONTEXT: UNTRUSTED]`; the generated evidence branch was later retired.
 - Only SSOT-aligned deltas were adopted:
-  - strengthen `governance_improvement` context injection in `agents-manifest.yaml`
+  - strengthen `governance_improvement` authority routing in `agents-manifest.yaml`
   - add governance learnings hard-gate parity checks in `scripts/check_governance_core/check_governance_core_main.py`
   - reject unresolved citation placeholder tokens in `docs/` via `scripts/check_governance_core/check_governance_core_main.py`
 - Generic framework content was not promoted to policy authority; existing owners in `AGENTS.md` remain canonical.

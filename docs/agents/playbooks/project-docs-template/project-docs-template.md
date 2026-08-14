@@ -29,7 +29,7 @@ These outputs are the project-doc creation contract owned by this playbook. The 
 Required references:
 - README links to `docs/project/project_index.md`.
 - Project rules cite `AGENTS.md` instead of restating governance rules.
-- Routers and leaf docs follow the docs SSOT policy and `scripts/check_governance_core/_docs_routes.py`.
+- Routers and leaf docs follow the docs SSOT policy and the `scripts/check_governance_core/check_governance_core_main.py` public contract.
 
 ## Project-Doc Creation Contract (docs-first)
 Use the placement and promotion policy in `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`. This playbook owns the required creation contract for the baseline project-doc branches and their primary root docs.

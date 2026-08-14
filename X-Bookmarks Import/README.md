@@ -1,4 +1,4 @@
-# X Bookmarks Import (local harness)
+# X Bookmarks Import (local workflow)
 
 OAuth 2.0 PKCE helper to export your X (Twitter) bookmarks into `data/` (gitignored). SSOT for X API capability planning remains **`docs/agents/skills/x-api-data-access/`**; this folder does not ship a second copy of that bundle.
 

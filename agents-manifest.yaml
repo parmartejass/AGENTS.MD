@@ -1,18 +1,13 @@
-version: 1
-ssot_owner: AGENTS.md
-update_trigger: task profile signals or injected doc sets change
+version: 2
+ssot_owner: agents-manifest.yaml
+update_trigger: assigned-lead or subagent task signals or routed authorities change
 description: >-
-  Deterministic context-injection manifest for agents/tools. This is the single source of truth
-  for mapping task signals to which supporting docs/playbooks should be loaded alongside AGENTS.md.
+  Deterministic assigned-lead and subagent task-signal-to-authority routing manifest.
+  Root/main authorities and role boundaries are owned only by AGENTS.md.
 
-default_inject:
-  - "AGENTS.md"
-  - "docs/agents/05-context-retrieval/context-retrieval.md"
-  - "docs/agents/10-repo-discovery/repo-discovery.md"
+routing_mode: union # union | first_match
 
-injection_mode: union # union | first_match
-
-fallback_inject:
+fallback_authorities:
   - "docs/agents/10-repo-discovery/repo-discovery.md"
   - "docs/agents/30-logging-errors/logging-errors.md"
 
@@ -20,7 +15,7 @@ semantic_queries:
   # Pre-defined queries agents can use for embedding-based search when a profile matches.
   governance_improvement:
     - "Where are governance policies and core principles defined?"
-    - "How is context injection for governance docs configured?"
+    - "How is assigned-lead and subagent authority routing configured?"
   codex_session_log_review:
     - "How should local Codex session logs be reviewed for bounded evidence?"
     - "How are session-log findings handed off to governance-learning promotion review?"
@@ -94,7 +89,7 @@ profiles:
         - "*.xlsx"
         - "*.xlsm"
         - "*.xls"
-    inject:
+    authorities:
       - "docs/agents/40-config-constants/config-constants.md"
       - "docs/agents/30-logging-errors/logging-errors.md"
       - "docs/agents/70-io-data-integrity/io-data-integrity.md"
@@ -115,7 +110,7 @@ profiles:
         - "win32com.client"
         - "Dispatch("
       file_globs: []
-    inject:
+    authorities:
       - "docs/agents/50-excel-com-lifecycle/excel-com-lifecycle.md"
 
   gui_task:
@@ -144,7 +139,7 @@ profiles:
         - "mainloop("
         - "after("
       file_globs: []
-    inject:
+    authorities:
       - "docs/agents/60-gui-threading/gui-threading.md"
       - "docs/agents/30-logging-errors/logging-errors.md"
       - "docs/agents/playbooks/gui-task-template/gui-task-template.md"
@@ -212,7 +207,7 @@ profiles:
         - "*.zip"
         - "*.tar"
         - "*.tgz"
-    inject:
+    authorities:
       - "docs/agents/70-io-data-integrity/io-data-integrity.md"
       - "docs/agents/80-testing-real-files/testing-real-files.md"
       - "docs/agents/30-logging-errors/logging-errors.md"
@@ -241,7 +236,7 @@ profiles:
         - "**/pdf/**"
         - "**/merger.py"
         - "**/*merge*.py"
-    inject:
+    authorities:
       - "docs/agents/70-io-data-integrity/io-data-integrity.md"
       - "docs/agents/30-logging-errors/logging-errors.md"
       - "docs/agents/80-testing-real-files/testing-real-files.md"
@@ -274,7 +269,7 @@ profiles:
         - ".Cells("
         - ".cell("
       file_globs: []
-    inject:
+    authorities:
       - "docs/agents/playbooks/perf-hotspots-template/perf-hotspots-template.md"
 
   runtime_path:
@@ -295,8 +290,7 @@ profiles:
         - "secondary_backend"
         - "alternate backend"
       file_globs: []
-    inject:
-      - "docs/agents/20-sources-of-truth-map/sources-of-truth-map.md"
+    authorities:
       - "docs/agents/30-logging-errors/logging-errors.md"
       - "docs/agents/40-config-constants/config-constants.md"
 
@@ -312,8 +306,7 @@ profiles:
         - "crash"
       code_patterns: []
       file_globs: []
-    inject:
-      - "docs/agents/00-principles/principles.md"
+    authorities:
       - "docs/agents/10-repo-discovery/repo-discovery.md"
       - "docs/agents/30-logging-errors/logging-errors.md"
       - "docs/agents/35-coding-principles/coding-principles.md"
@@ -331,7 +324,7 @@ profiles:
         - "assistant"
       code_patterns: []
       file_globs: []
-    inject:
+    authorities:
       - "docs/agents/playbooks/ai-coding-prompt-template/ai-coding-prompt-template.md"
 
   project_docs:
@@ -373,10 +366,9 @@ profiles:
       file_globs:
         - "README.md"
         - "docs/project/**/*.md"
-    inject:
+    authorities:
       - "docs/project/project_index.md"
       - "docs/agents/25-docs-ssot-policy/docs-ssot-policy.md"
-      - "docs/agents/20-sources-of-truth-map/sources-of-truth-map.md"
       - "docs/agents/playbooks/project-docs-template/project-docs-template.md"
       - "docs/agents/90-release-checklist/release-checklist.md"
 
@@ -385,7 +377,7 @@ profiles:
       keywords:
         - "governance"
         - "agents-manifest"
-        - "context injection"
+        - "authority routing"
         - "ssot"
         - "authority decision"
         - "decision registry"
@@ -401,15 +393,12 @@ profiles:
         - "agents-manifest.yaml"
         - "docs/agents/**/*.md"
         - "docs/agents/settings/**/*.md"
-    inject:
+    authorities:
       - "README.md"
       - "docs/agents/agents_index.md"
-      - "docs/agents/00-principles/principles.md"
-      - "docs/agents/20-sources-of-truth-map/sources-of-truth-map.md"
       - "docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md"
       - "docs/agents/25-docs-ssot-policy/docs-ssot-policy.md"
       - "docs/agents/35-coding-principles/coding-principles.md"
-      - "docs/agents/05-context-retrieval/context-retrieval.md"
       - "docs/agents/90-release-checklist/release-checklist.md"
       - "docs/agents/settings/00-settings-standards/settings-standards.md"
       - "docs/agents/15-stuck-in-loop-generate-fresh-restart-prompt/stuck-in-loop-generate-fresh-restart-prompt.md"
@@ -432,11 +421,10 @@ profiles:
         - "last 24 hours of codex session"
       code_patterns: []
       file_globs: []
-    inject:
+    authorities:
       - "docs/agents/playbooks/governance-learnings-template/governance-learnings-template.md"
       - "docs/agents/playbooks/governance-learnings-template/codex-session-log-review.md"
       - "docs/agents/30-logging-errors/logging-errors.md"
-      - "docs/agents/05-context-retrieval/context-retrieval.md"
 
   coding_principles:
     detect:
@@ -487,11 +475,9 @@ profiles:
         - "dependency inversion"
       code_patterns: []
       file_globs:
-        - "scripts/check_folder_architecture/**/*.py"
         - "scripts/check_governance_core/**/*.py"
-    inject:
+    authorities:
       - "docs/agents/35-coding-principles/coding-principles.md"
-      - "docs/agents/20-sources-of-truth-map/sources-of-truth-map.md"
 
   skills_task:
     detect:
@@ -507,7 +493,7 @@ profiles:
       code_patterns: []
       file_globs:
         - "docs/agents/skills/**/*.md"
-    inject:
+    authorities:
       - "docs/agents/skills/00-skill-standards/skill-standards.md"
       - "docs/agents/skills/10-platform-adapters/platform-adapters.md"
 
@@ -516,5 +502,5 @@ profiles:
       signals:
         - "repeated_failure_same_root_cause_twice"
         - "verification_contradicts_claim"
-    inject:
+    authorities:
       - "docs/agents/15-stuck-in-loop-generate-fresh-restart-prompt/stuck-in-loop-generate-fresh-restart-prompt.md"
