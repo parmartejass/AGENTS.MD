@@ -1,67 +1,55 @@
 ---
 doc_type: policy
 ssot_owner: AGENTS.md
-update_trigger: AGENTS.md requirements or referenced section headings change
+update_trigger: constitutional application mechanics or their delegated owner routes change
 ---
 
 # 00 - Principles (First Principles)
 
-This doc extends the invariants in `AGENTS.md` with a practical first-principles operating protocol.
-It is supporting guidance only.
+`AGENTS.md` owns the Fundamental Principles and their binding force. This delegated application owner defines modeling, scope, authority-first correction, control-artifact selection, and design mechanics under those principles. Apply it before non-trivial work; it creates no second principles set or agent lifecycle.
 
-## Protocol (Model -> Proof -> Change)
-This protocol is supporting guidance only (non-normative) and is intended to prevent symptom-only fixes and reduce rework:
+## First-Principles Protocol (Hard Gate)
 
-1) **Modeling** the system: inputs, outputs, side effects, boundaries.
-2) **Tracing to Authority** (root-cause uplift):
-   - Use `docs/agents/playbooks/rca-methods-template/rca-methods-template.md` for method steps/examples.
-3) **Mapping SSOT jurisdictions and owners** (constants/config/rules/workflows/lifecycle utilities) and applying `AGENTS.md` Non-Negotiable #1 without parallel ownership.
-4) **Deriving task authority** when the output is non-trivial:
-   - Identify the minimum control artifact needed before final output can be trusted, such as an authority map, source map, extraction ledger, validation matrix, patch plan, or test fixture.
-   - Generate the final output from that artifact and verify against it before claiming proof.
-5) **Stating proof obligations**:
-   - Preconditions: what must be true before work begins
-   - Postconditions: what must be true after success
-   - Failure modes: what can go wrong and how it should fail (explicitly)
-   - Invariants + witnesses: define how correctness is measured and recorded
-6) **Choosing verification first**:
-   - Reference the repo-root `README.md` "Checks" (SSOT for commands).
-   - A tight deterministic check is typically preferred when it satisfies the verification floors and proves the proof obligations.
-   - A failure-path check is useful when feasible.
-7) **Minimal implementation** (smallest diff that satisfies acceptance criteria).
-8) **Verification and evidence reporting** (commands + outcomes, or deterministic manual checks if tooling is unavailable).
+Before implementing, explicitly define:
+- **Model and scope**: record the FP-04 and FP-07 inputs, boundaries, owners, consumers, and completion evidence.
+- **SSOT map**: record each decision-critical fact, state, side effect, and witness against its FP-12 owner and public contract.
+- **Root-cause uplift** (authority-first): for any defect or error, trace from symptom to the earliest defective authority/contract/boundary; fix there by adding or strengthening invariants/validation so the class of errors becomes structurally impossible; one authority fix prevents N errors. If a symptom-level patch is unavoidable, record why upstream prevention is infeasible and what error class remains unprevented.
+- **Structural consolidation** (authority-first): when multiple findings map to the same invariant/authority, treat them as one defect; consolidate the fix in that authority owner.
+- **Derived task authority** (authority-first): for any non-trivial output, first identify or create the minimum task-specific control artifact required to make the output trustworthy (for example an authority map, source map, extraction ledger, validation matrix, patch plan, or test fixture). The final output must be generated from and verified against that control artifact; do not treat the final output itself as the authority.
+- **Patch, do not fork authority**: when improving governance, docs structure, frameworks, prompts, or reusable procedures, update the current highest owning authority through an explicit patch/supersession path. Do not create disconnected framework versions, parallel docs, or replacement structures unless the user explicitly authorizes a new authority and the old authority is deprecated or superseded.
+- **Proof obligations**: preconditions/postconditions + failure modes to cover.
+- **Verification**: exact commands or deterministic manual checks (include at least one failure-path check when feasible).
+- **Resource bounds**: timeouts, cancellation, and guaranteed cleanup in `finally` for external resources.
+- **Performance constraints**: expected data sizes and speed targets; choose algorithm/I/O strategy accordingly, without weakening correctness or safety.
+- **Design principles (generation + maintenance)**: apply DRY, KISS, YAGNI, Separation of Concerns, and Law of Demeter alongside SOLID/DI; select the simplest complete design preserving explicit contracts and authority boundaries under FP-34.
+- **Defect vocabulary**: use the exact terms owned by `docs/agents/00-principles/diagnosis/diagnosis.md`.
+- **Shift-left quality** (mandatory for behavior changes/new features): convert reactive RCA learnings into proactive prevention via tests, design failure analysis, boundary contracts, static checks, and observability.
 
-## Preferred patterns
-- "Verify, then trust": confirm paths/symbols/dependencies with repo + tools.
-- "Patch, do not fork": improve the current highest owning authority through explicit patch/supersession; do not create disconnected framework versions or parallel docs.
-- Named rules for conditions (`is_*`, `require_*`, `validate_*`) in the appropriate SSOT owner to avoid duplicated `if` logic (see `docs/agents/20-sources-of-truth-map/sources-of-truth-map.md`).
-- Workflows orchestrate; UI and scripts call workflows.
-- Resource safety via context managers and `finally`.
+Supporting references:
+- First principles patterns: `docs/agents/00-principles/principles.md`
+- Concept -> owner map: `docs/agents/20-sources-of-truth-map/sources-of-truth-map.md`
 
-## Where to encode guidance
-- Core docs (`docs/agents/*.md`): principle-level policy and runbooks; avoid platform/tool specifics.
-- Playbooks (`docs/agents/playbooks/playbooks_index.md` and child branches): copy/paste templates and checklists.
-- Source-only assets (`docs/agents/skills/00-skill-standards/skill-standards.md`, `docs/agents/settings/00-settings-standards/settings-standards.md`): repo-owned reusable bundles and shared settings examples; reference core policy, do not duplicate it.
+## Application routes
+- Outcome, scope, model, and control-artifact evidence: `AGENTS.md` Fundamental Principles and First-Principles Protocol.
+- Defect localization and disconfirming experiments: `docs/agents/00-principles/diagnosis/diagnosis.md`; examples in `docs/agents/playbooks/rca-methods-template/rca-methods-template.md`.
+- Owner selection: `docs/agents/20-sources-of-truth-map/sources-of-truth-map.md`.
+- Full reads and bounded discovery: `docs/agents/05-context-retrieval/context-retrieval.md`.
+- Coding contracts and deletion/reroute witnesses: `docs/agents/35-coding-principles/coding-principles.md`.
+- Verification floors and invariant evidence: `docs/agents/00-principles/evidence/evidence.md`; repeatable commands: repo-root `README.md` Checks.
+- Council, execution, independent review, and terminal decisions: `Orchestration.md`.
+- Document placement: `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`.
+- I/O commit and recovery: `docs/agents/70-io-data-integrity/io-data-integrity.md` File handling rules.
+- External Excel ownership and cleanup: `docs/agents/50-excel-com-lifecycle/excel-com-lifecycle.md`.
 
-## Resource + speed discipline (reduce risk and time)
-- For speed/scale work: performance model, safe optimizations, bounded concurrency.
-- Bounded waits/timeouts and cancellation are required for blocking operations.
-- For write workflows: use the two-phase commit pattern (no writes before validation).
-- Transactional I/O (temp + atomic replace) is recommended where overwrites matter.
-- Fast/complete discovery is supported by `docs/agents/05-context-retrieval/context-retrieval.md`.
+## Non-normative examples
+The following worked examples illustrate the named owner contracts; they add no lifecycle or mandatory artifact beyond the task-specific acceptance criteria.
 
-## Communication (make work auditable)
-- Clearly separating verified facts from assumptions/unknowns improves auditability.
-- If ambiguity would materially change code, asking 1-3 clarifying questions reduces rework risk.
-- Verification evidence (commands + outcomes) or deterministic manual checks should be included.
+| Application | Concrete evidence example | Governing section |
+|---|---|---|
+| Model and proof | For an invoice export, identify source records and authorized destination; precondition: validated required fields; postcondition: exported keys reconcile with eligible keys; failure case: missing required field produces the declared failure without publishing output. | `AGENTS.md` First-Principles Protocol and Invariants + Witnesses |
+| Authority uplift | Two callers disagree on an eligibility rule. Locate its declared validator, correct that owner, reroute callers, and compare a frozen qualifying/nonqualifying fixture. | `AGENTS.md` First-Principles Protocol: Root-cause uplift and Structural consolidation; coding-principles SSOT Jurisdiction Mechanics |
+| Resource and write safety | A locked destination leaves the original intact; record validation, attempted promotion, failure, and cleanup. An external-resource case also records the owned handle/PID and cleanup result. | `AGENTS.md` Implementation Write State Machine + Two-Phase Commit and Resource Safety; I/O and COM owners in Application routes |
+| Performance | A bounded export records row count, I/O round trips, peak batch size, elapsed time, and output equivalence before claiming an improvement. | `AGENTS.md` Performance & Speed |
+| Auditability | Distinguish observed output (R), intended invariant (S), and recorded test/report (D); mark an unmeasured outcome Unknown and name its missing witness. | `AGENTS.md` First-Principles + SSOT + Evidence Model and Authority-Constrained Reasoning |
 
-## Council evidence discipline (supporting)
-- Council summaries are recorded-truth artifacts (D) that provide review witnesses for risk decisions.
-- For non-micro changes, use the full council output fields.
-- If `go_no_go` is `hold`, do not implement until reconciliation is complete or user risk acceptance is explicit.
-
-## Non-normative anti-pattern examples
-Examples (included here as guidance only):
-- Copy/paste helpers.
-- Duplicate constants/config defaults in multiple files/docs.
-- Multiple lifecycle implementations for the same external system (Excel, GUI queue/drain, etc.).
+Practical placement resolves through docs-policy Bounded Project Authority Memory and Operational asset carveouts: a playbook can carry the task scaffold, a reusable skill can carry its operator example, and a project owner records only the durable fact. Review objections and terminal decisions remain owned by `Orchestration.md` Principle review and Terminal decisions.

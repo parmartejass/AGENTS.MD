@@ -1,3 +1,3 @@
 # Docs SSOT Policy Branch Index
 
-- [docs-ssot-policy.md](docs-ssot-policy.md) - Canonical docs structure and drift-prevention policy. Required when: changing docs layout, router rules, doc headers, or migration behavior.
+- [docs-ssot-policy.md](docs-ssot-policy.md) - Docs foundation with delegated structure and drift-prevention mechanics. Required when: loading the AGENTS-declared foundations through Orchestration; apply its docs-family scope.

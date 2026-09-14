@@ -9,17 +9,13 @@ update_trigger: performance/speed guidance changes OR new recurring hotspot patt
 Use when:
 - Task matches profile `perf_hotspots` in `agents-manifest.yaml` (e.g., `iterrows`, per-cell Excel loops).
 
-## Change classification (required)
-- task type (feature|bugfix|refactor):
-- blast radius (modules/workflows/users):
-- if bugfix/regression: fill `docs/agents/playbooks/bugfix-template/bugfix-template.md`.
-- if feature/behavior change: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" behavior-change/new-feature minimums (including shift-left baseline).
-- if refactor/behavior-neutral: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" behavior-neutral minimums.
-- if new logic is introduced: apply `docs/agents/35-coding-principles/coding-principles.md` under the `AGENTS.md` coding hard gate.
+## Governing evidence
+
+This task scaffold applies `AGENTS.md` Fundamental Principles and Verification Floors. Record task type, blast radius, applicable owner obligations, and witnesses. Bugfix evidence uses `docs/agents/playbooks/bugfix-template/bugfix-template.md`; implementation design uses `docs/agents/35-coding-principles/coding-principles.md`. Agent lifecycle and authorization remain owned by `Orchestration.md`.
 
 ## Goal
-- Improve speed/throughput with the fastest safe correct method within validated workload, domain, resource, and workflow boundaries.
-- Do not trade away data integrity, deterministic behavior, user-facing feedback, cleanup, or logging for speed.
+- Required outcome and timing witness under `AGENTS.md` FP-02 and FP-03:
+- Applicable workload and preservation constraints:
 
 ## Hotspot identification (verify first)
 - What is slow (CPU vs I/O vs COM/network round-trips):
@@ -27,7 +23,7 @@ Use when:
 - Size model (rows/items/files; worst-case bounds):
 
 ## Safe optimization levers (pick the minimal set)
-- No safety/correctness trade-offs.
+- Governing performance contract and witness: `AGENTS.md` FP-03 and Performance & Speed.
 - Replace per-item round-trips with bulk operations (Excel: avoid per-cell COM calls; dataframes: avoid row-wise Python loops when a vectorized/groupby/join exists).
 - Cache expensive lookups deterministically (precompute maps/indices); define cache key/scope, max size, and invalidation when inputs/schema/ranges change.
 - Reduce repeated scans (compute bounds once; avoid repeated `rg`/directory walks/parse passes).
@@ -42,6 +38,7 @@ Use when:
 
 ## Evidence plan
 - Deterministic timing capture (same inputs, same environment): what is measured and where recorded.
+- FP-03 controllable-decision and applicable acknowledgment/status latency witnesses; uninstrumented model/platform timings explicitly unverified.
 - Workload/resource bounds: rows/items/files/bytes, memory/concurrency limits, queue/chunk/batch sizes.
 - Cache/batch witness: cache scope/key/invalidation and batch/chunk strategy used.
 - Complexity reasoning (big-O + dominant constants) when benchmarks aren’t feasible.

@@ -6,35 +6,21 @@ update_trigger: release gates change
 
 # 90 - Release Checklist
 
-## SSOT / No duplicates
-- Release gate: SSOT, no-duplication, and no-orphan checks.
-- If Excel/GUI: lifecycle and threading implementation checks.
-- If module boundaries changed: high cohesion + low coupling, no cycles.
-
-## Logging / Errors
-- No `print()`.
-- Exceptions are meaningful and include context.
-- No silent skips; skipped work records a reason.
-- Run the applicable README.md "Checks" section (this repo vs target repo/submodule) and ensure all listed commands pass.
-- For bugfix/regression releases, include bias-resistant debugging evidence package.
-- For behavior changes/new features, include shift-left baseline evidence.
-
-## Excel COM (if applicable)
-- Quit attempted and verified.
-- PID-scoped forced termination after verified graceful-quit failure is time-bounded.
-- Cleanup occurs in `finally`.
-
-## GUI (if applicable)
-- Queue + `after(...)` drain pattern enforced.
-- Shutdown/cancel event exists and is respected.
+## Release evidence routes
+Apply `AGENTS.md` FP-31 through FP-34 and Verification Floors. Release evidence MUST identify each applicable owner and its witness:
+- SSOT, contracts, dependency direction, and pruning: `docs/agents/35-coding-principles/coding-principles.md`.
+- Logging and explicit outcomes: `docs/agents/30-logging-errors/logging-errors.md`.
+- COM ownership and cleanup: `docs/agents/50-excel-com-lifecycle/excel-com-lifecycle.md` when COM is in scope.
+- UI thread and cancellation behavior: `docs/agents/60-gui-threading/gui-threading.md` when GUI work is in scope.
+- Documentation placement and owner promotion: `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`.
+- Repeatable verification commands: the applicable repository's README Checks.
+- Bugfix/regression evidence: `AGENTS.md` Bias-Resistant Debugging and Verification Floors, with the applicable README Checks witness.
+- Behavior-change/new-feature evidence: `AGENTS.md` Verification Floors and its shift-left quality baseline, with the applicable README Checks witness.
+- Review and terminal decisions: `Orchestration.md`.
 
 ## Rollback readiness
 - Confirm a rollback or revert path exists for the release (e.g., prior known-good commit, feature flag, or deploy revert command).
 - For behavior changes, verify rollback does not leave data in an inconsistent state.
-
-## Docs + comments
-- Docs do not duplicate facts; they reference identifiers and owners.
-- Comments are "why-only" and do not restate logic/defaults.
 
 ## Changelog (tracked closure record)
 - Use after completed non-trivial work promotes durable facts to their owning docs/code/config/data/workflow authority.

@@ -11,20 +11,11 @@ Use when:
 - If using Excel COM automation (`win32com`/`xlwings`), profile `excel_com` also applies and routes `docs/agents/50-excel-com-lifecycle/excel-com-lifecycle.md`.
 
 ## Library selection authority (required)
-- Use `docs/agents/playbooks/excel-library-selection-playbook/excel-library-selection-playbook.md` as the single owner for:
-  - cross-platform default vs COM escalation rules
-  - capability-to-library matrix
-  - single-library vs multi-library pipeline decisions
-  - speed/reliability/safety selection order
-- Do not duplicate library-selection rules in task docs; reference the canonical playbook and record your chosen path.
+- Record capability discovery, candidate evaluation, and selected owner/config through `docs/agents/playbooks/excel-library-selection-playbook/excel-library-selection-playbook.md`.
 
-## Change classification (required)
-- task type (feature|bugfix|refactor):
-- blast radius (modules/workflows/users):
-- if bugfix/regression: fill `docs/agents/playbooks/bugfix-template/bugfix-template.md`.
-- if feature/behavior change: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" behavior-change/new-feature minimums (including shift-left baseline).
-- if refactor/behavior-neutral: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" behavior-neutral minimums.
-- if new logic is introduced: apply `docs/agents/35-coding-principles/coding-principles.md` under the `AGENTS.md` coding hard gate.
+## Governing evidence
+
+This task scaffold applies `AGENTS.md` Fundamental Principles and Verification Floors. Record task type, blast radius, applicable owner obligations, and witnesses. Bugfix evidence uses `docs/agents/playbooks/bugfix-template/bugfix-template.md`; implementation design uses `docs/agents/35-coding-principles/coding-principles.md`. Agent lifecycle and authorization remain owned by `Orchestration.md`.
 
 ## Inputs
 - workbooks involved:
@@ -43,19 +34,19 @@ Use when:
 - run outcomes/report owner:
 
 ## Excel lifecycle plan
-- If using Excel COM: follow `docs/agents/50-excel-com-lifecycle/excel-com-lifecycle.md` (PID-tracked quit + bounded PID-scoped forced termination after verified graceful-quit failure, all in `finally`).
+- COM evidence owner: `docs/agents/50-excel-com-lifecycle/excel-com-lifecycle.md`.
 - start/open method:
 - PID tracking:
 - quit + verify:
 - forced termination cleanup (PID-validated + bounded timeout, after verified graceful-quit failure):
 
-## Performance & throughput plan (when relevant)
-- Never trade away safety/data integrity for speed.
+## Performance & throughput evidence
+- Governing performance contract and witness: `AGENTS.md` FP-03 and Performance & Speed.
 - Data size model (workbooks/sheets, rows/cols, formulas, expected runtime):
 - Bottleneck hypothesis (COM round-trips vs file I/O vs calculation):
 - Safe levers (pick the minimal set that applies):
   - Bulk read/write (avoid per-cell COM loops; minimize round-trips).
-  - Determine bounds once (prefer table/ListObject bounds; otherwise compute last used row/col with validation so no trailing data is missed).
+  - Record the source/schema/config-owned table or range bounds and validation proving no trailing data is missed.
   - Cache only validated required lookups/ranges (e.g., mapping dictionaries, parsed headers/ranges); define cache key/scope, max size, and invalidation when sheet/schema/data bounds change.
   - Batch/chunk processing with bounded memory, deterministic ordering, queue/backpressure if applicable, and cancellation/timeouts.
   - If toggling Excel settings (screen updating/calculation/events): restore in `finally` and log changes.

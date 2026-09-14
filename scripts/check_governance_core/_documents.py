@@ -47,6 +47,19 @@ class MarkdownDocument:
         )
         return parse_markdown(body)
 
+    def positive_integer_declaration(self, key: str, owner_label: str) -> tuple[int | None, list[str]]:
+        declarations = [
+            line for _number, line in self.operative_lines
+            if line.strip().startswith(key)
+        ]
+        match = re.fullmatch(rf"{re.escape(key)}: ([1-9][0-9]*)", declarations[0]) if len(declarations) == 1 else None
+        if match is None:
+            return None, [f"{owner_label} must declare exactly one positive {key}"]
+        try:
+            return int(match.group(1)), []
+        except ValueError:
+            return None, [f"{owner_label} {key} is not a supported integer"]
+
     def blockquotes(self) -> tuple[str, ...]:
         values: list[str] = []
         for _line_no, line in self.operative_lines:
@@ -58,15 +71,17 @@ class MarkdownDocument:
 
 class DocumentStore:
     def __init__(self) -> None:
+        self._resolved: dict[Path, Path] = {}
         self._text: dict[Path, tuple[str | None, str | None]] = {}
         self._markdown: dict[Path, tuple[MarkdownDocument | None, str | None]] = {}
 
     def read_text(self, path: Path) -> tuple[str | None, str | None]:
-        resolved = path.resolve()
+        resolved = self._resolve(path)
         if resolved in self._text:
             return self._text[resolved]
         try:
-            value = resolved.read_text(encoding="utf-8")
+            with resolved.open("r", encoding="utf-8", newline="") as handle:
+                value = handle.read()
             result: tuple[str | None, str | None] = (value, None)
         except FileNotFoundError:
             result = (None, f"Missing required file: {path}")
@@ -78,13 +93,18 @@ class DocumentStore:
         return result
 
     def markdown(self, path: Path) -> tuple[MarkdownDocument | None, str | None]:
-        resolved = path.resolve()
+        resolved = self._resolve(path)
         if resolved in self._markdown:
             return self._markdown[resolved]
         text, error = self.read_text(path)
         result = (parse_markdown(text), None) if text is not None else (None, error)
         self._markdown[resolved] = result
         return result
+
+    def _resolve(self, path: Path) -> Path:
+        if path not in self._resolved:
+            self._resolved[path] = path.resolve()
+        return self._resolved[path]
 
 
 def parse_markdown(text: str) -> MarkdownDocument:
@@ -323,16 +343,6 @@ def declared_doc_types(policy_text: str) -> tuple[str, ...]:
         return ()
     values = tuple(dict.fromkeys(matches[0].split("|")))
     return values if all(match.split("|") == list(values) for match in matches) else ()
-
-
-def code_paths(lines: Iterable[str], *, prefix: str) -> tuple[str, ...]:
-    values: list[str] = []
-    pattern = re.compile(r"`([^`]+)`")
-    for line in lines:
-        for value in pattern.findall(line):
-            if value.startswith(prefix):
-                values.append(value)
-    return tuple(values)
 
 
 def resolve_declared_file(root: Path, value: str) -> tuple[Path | None, str | None]:

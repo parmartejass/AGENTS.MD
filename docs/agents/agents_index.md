@@ -1,15 +1,14 @@
 # Agents Branch Index
 
 
-- [00-principles/principles_index.md](00-principles/principles_index.md) - First-principles operating guidance. Required when: modeling a task, defining invariants, or planning verification.
+- [00-principles/principles_index.md](00-principles/principles_index.md) - Delegated application, evidence, and diagnosis owners under the AGENTS.md Fundamental Principles. Required when: locating modeling, invariant, or verification mechanics.
 - [05-context-retrieval/context-retrieval_index.md](05-context-retrieval/context-retrieval_index.md) - Context retrieval guidance. Required when: choosing what files to read and how to keep discovery precise.
 - [10-repo-discovery/repo-discovery_index.md](10-repo-discovery/repo-discovery_index.md) - Repo discovery guidance. Required when: locating SSOT owners before implementation.
-- [15-stuck-in-loop-generate-fresh-restart-prompt/stuck-in-loop-generate-fresh-restart-prompt_index.md](15-stuck-in-loop-generate-fresh-restart-prompt/stuck-in-loop-generate-fresh-restart-prompt_index.md) - Restart prompt playbook. Required when: the same failure repeats twice or verification contradicts claims.
 - [20-sources-of-truth-map/sources-of-truth-map_index.md](20-sources-of-truth-map/sources-of-truth-map_index.md) - Concept-to-owner routing map. Required when: identifying which authority owns a concept.
 - [22-ssot-authority-decisions/ssot-authority-decisions_index.md](22-ssot-authority-decisions/ssot-authority-decisions_index.md) - Cross-project authority decisions (`docs/agents/22-ssot-authority-decisions/ssot-authority-decisions_index.md`). Required when: a mixed-owner or migration decision needs a canonical decision record.
-- [25-docs-ssot-policy/docs-ssot-policy_index.md](25-docs-ssot-policy/docs-ssot-policy_index.md) - Docs structure and drift-prevention policy. Required when: changing docs layout, headers, or doc routing rules.
+- [25-docs-ssot-policy/docs-ssot-policy_index.md](25-docs-ssot-policy/docs-ssot-policy_index.md) - Docs foundation and specialized structure policy. Required when: loading the AGENTS-declared foundations through Orchestration; apply its docs-family scope.
 - [30-logging-errors/logging-errors_index.md](30-logging-errors/logging-errors_index.md) - Logging and explicit-failure policy. Required when: changing logging, error handling, or skip/failure reporting.
-- [35-coding-principles/coding-principles_index.md](35-coding-principles/coding-principles_index.md) - Delegated coding-principles and runtime-code authority-design policy under the `AGENTS.md` coding hard gates. Required when: planning, implementing, reviewing, refactoring, or purifying implementation code.
+- [35-coding-principles/coding-principles_index.md](35-coding-principles/coding-principles_index.md) - Coding foundation and specialized implementation policy. Required when: loading the AGENTS-declared foundations through Orchestration; apply its implementation scope.
 - [40-config-constants/config-constants_index.md](40-config-constants/config-constants_index.md) - Config/constants ownership policy. Required when: adding or changing repeated literals, config keys, or defaults.
 - [50-excel-com-lifecycle/excel-com-lifecycle_index.md](50-excel-com-lifecycle/excel-com-lifecycle_index.md) - Excel COM lifecycle policy. Required when: Excel COM automation is in scope.
 - [60-gui-threading/gui-threading_index.md](60-gui-threading/gui-threading_index.md) - GUI threading policy. Required when: GUI or main-thread updates are involved.

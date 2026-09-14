@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 from scripts.check_governance_core._documents import (
     DocumentStore,
-    code_paths,
+    MarkdownDocument,
     declared_doc_types,
     frontmatter,
     primary_leaf_filename,
@@ -12,6 +13,26 @@ from scripts.check_governance_core._documents import (
     router_targets,
 )
 from scripts.check_governance_core._inventory import RepositoryInventory
+
+
+def _policy_document(
+    governance_root: Path, store: DocumentStore, inventory: RepositoryInventory,
+) -> tuple[MarkdownDocument | None, list[str]]:
+    path, error = inventory.validate_file(
+        governance_root / "docs/agents/25-docs-ssot-policy/docs-ssot-policy.md"
+    )
+    if error:
+        return None, [error]
+    assert path is not None
+    document, error = store.markdown(path)
+    return document, [error] if error else []
+
+
+def _documentation_line_limit(document: MarkdownDocument) -> tuple[int | None, list[str]]:
+    return document.positive_integer_declaration("documentation_line_limit", "Docs policy")
+
+def _physical_lines(text: str) -> int:
+    return text.count("\n") + int(bool(text) and not text.endswith("\n"))
 
 
 def _router(store: DocumentStore, path: Path) -> tuple[list[str], list[str]]:
@@ -33,22 +54,30 @@ def check_docs(
     docs_root = repo_root / "docs"
     if not docs_root.is_dir():
         return [f"Missing required docs directory: {docs_root}"], []
-    _markdown_files, markdown_error = inventory.markdown_files(docs_root)
+    markdown_files, markdown_error = inventory.markdown_files(repo_root)
     if markdown_error:
         return [markdown_error], []
-    policy = governance_root / "docs/agents/25-docs-ssot-policy/docs-ssot-policy.md"
-    policy_text, policy_error = store.read_text(policy)
-    if policy_error:
-        errors.append(policy_error)
-        policy_text = ""
-    allowed_doc_types = declared_doc_types(policy_text or "")
+    policy, policy_errors = _policy_document(governance_root, store, inventory)
+    errors.extend(policy_errors)
+    allowed_doc_types = declared_doc_types(policy.text if policy else "")
     if not allowed_doc_types:
-        errors.append(f"Docs policy does not declare one consistent doc_type domain: {policy}")
+        errors.append("Docs policy does not declare one consistent doc_type domain")
+    limit, limit_errors = _documentation_line_limit(policy) if policy else (None, [])
+    errors.extend(limit_errors)
+    for path in markdown_files:
+        text, read_error = store.read_text(path)
+        if read_error:
+            errors.append(read_error)
+        elif text is not None and limit is not None and _physical_lines(text) > limit:
+            errors.append(f"{path}: documentation exceeds owner-declared {limit}-line limit ({_physical_lines(text)} physical lines)")
 
     tree, inventory_error = inventory.tree_entries(docs_root)
     if inventory_error:
         return [inventory_error, *errors], []
-    entries = tuple(entry for entry in tree if entry.path == docs_root or docs_root in entry.path.parents)
+    entries = tree
+    children_by_parent: dict[Path, list] = {}
+    for entry in entries:
+        children_by_parent.setdefault(entry.path.parent, []).append(entry)
     directories = [docs_root, *(entry.path for entry in entries if entry.is_directory and entry.path != docs_root)]
     for directory in directories:
         router_name = router_filename(directory.name)
@@ -59,9 +88,8 @@ def check_docs(
             continue
         direct_children = [
             entry
-            for entry in entries
-            if entry.path.parent == directory
-            and entry.path.name != router_name
+            for entry in children_by_parent.get(directory, ())
+            if entry.path.name != router_name
             and not entry.path.name.startswith(".")
         ]
         leaves = [
@@ -111,12 +139,32 @@ def check_docs(
     return errors, []
 
 
-def _required_project_paths(agents_document) -> tuple[str, ...]:
-    section = agents_document.section("Documentation SSOT Policy (Hard Gate)", level=2)
+def _required_project_paths(policy: MarkdownDocument) -> tuple[tuple[str, ...], list[str]]:
+    section = policy.section("Required project-doc branches", level=2)
     if section is None:
-        return ()
-    values = code_paths((line for _line_no, line in section.operative_lines), prefix="docs/project/")
-    return tuple(dict.fromkeys(value for value in values if value.endswith(".md")))
+        return (), ["Docs policy must declare exactly one Required project-doc branches section"]
+    branches: list[str] = []
+    seen: set[str] = set()
+    errors: list[str] = []
+    for _number, line in section.operative_lines:
+        if not line.strip():
+            continue
+        match = re.fullmatch(r"- `([^`]+/)`: .+", line)
+        value = match.group(1)[:-1] if match else ""
+        if not value or any(char in value for char in '/\\:<>"|?*') or any(ord(char) < 32 for char in value) or value != value.strip() or value != value.rstrip(" .") or value in {".", ".."}:
+            errors.append(f"Docs policy has invalid required project branch: {line!r}")
+        elif value.casefold() in seen:
+            errors.append(f"Docs policy has duplicate required project branch: {value}")
+        else:
+            branches.append(value)
+            seen.add(value.casefold())
+    if not branches:
+        errors.append("Docs policy must declare at least one required project branch")
+    project = Path("docs/project")
+    paths = [str(project / router_filename(project.name)).replace("\\", "/")]
+    for branch in branches:
+        paths.extend((project / branch / name).as_posix() for name in (router_filename(branch), primary_leaf_filename(branch)))
+    return (() if errors else tuple(paths)), errors
 
 
 def check_project_docs(
@@ -131,20 +179,16 @@ def check_project_docs(
     _markdown_files, markdown_error = inventory.markdown_files(docs_root)
     if markdown_error:
         return [markdown_error]
-    agents_path, agents_validation_error = inventory.validate_file(governance_root / "AGENTS.md")
-    if agents_validation_error:
-        return [agents_validation_error]
-    assert agents_path is not None
-    agents, read_error = store.markdown(agents_path)
-    if read_error:
-        return [read_error]
-    assert agents is not None
-    required = _required_project_paths(agents)
-    if not required:
-        errors.append("AGENTS.md Documentation SSOT Policy does not expose required project-doc paths")
+    policy, policy_errors = _policy_document(governance_root, store, inventory)
+    if policy_errors:
+        return policy_errors
+    assert policy is not None
+    required, declaration_errors = _required_project_paths(policy)
+    errors.extend(declaration_errors)
     for relative in required:
-        if not (repo_root / relative).is_file():
-            errors.append(f"Missing required project doc: {relative}")
+        _path, error = inventory.validate_file(repo_root / relative)
+        if error:
+            errors.append(f"Missing or invalid required project doc: {relative}: {error}")
 
     readme_path, readme_validation_error = inventory.validate_file(repo_root / "README.md")
     if readme_validation_error:

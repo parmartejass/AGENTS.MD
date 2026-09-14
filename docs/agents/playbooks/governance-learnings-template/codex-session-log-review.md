@@ -61,14 +61,9 @@ This mode is still evidence acquisition only. It may recommend a candidate form 
 - "All available history if shorter" means the full inventory inside authorized roots or authorized source systems only. It must not expand root scope, scan `{HOME}` broadly, or read unapproved sources.
 - If the relative timeframe cannot be normalized deterministically, stop with `AMBIGUOUS_TIMEFRAME`.
 
-### Evidence Source Order
+### Evidence source discovery
 
-Use available evidence in this order, without silently omitting unavailable sources:
-
-1. Recent Codex sessions and task summaries from authorized log roots.
-2. Codex Memories and rollout summaries, only when the runtime exposes them and the user authorizes access.
-3. Chronicle, only when enabled and authorized; use it for discovery only.
-4. Existing skills, reusable assets, custom agents, automations, and projections, only through their current source owners.
+Resolve available evidence sources from the explicitly authorized roots and current runtime/source-owner contracts. Record the ordered source set and per-source budget before reading. Session logs, task summaries, memory/rollout services, activity-discovery services, and existing asset registries are examples to resolve, not a fixed capability inventory. Discovery-only evidence requires confirmation in its source system before high-confidence promotion.
 
 For each source, record one status:
 
@@ -95,7 +90,7 @@ Downgrade or defer when:
 
 - evidence is single-source, indirect, unconfirmed, or Chronicle-only
 - the workflow is one-off, ambiguous, sensitive, or poorly bounded
-- the candidate overlaps an existing skill or asset that should be extended instead
+- the candidate overlaps an existing owner that requires extension under `AGENTS.md` FP-08 and FP-09
 - the recommended form lacks a current owner or deterministic verification path
 
 ### Recommended Form Routing
@@ -107,7 +102,7 @@ Downgrade or defer when:
 - `skip`: use for one-off, sensitive, weakly evidenced, already-covered, or unsupported candidates.
 - `defer`: use when the workflow may be useful but needs more evidence, owner confirmation, or source-system verification.
 
-Prefer extending an existing asset over creating a new one. Every skipped or deferred candidate must include a reason.
+Apply `AGENTS.md` FP-08, FP-09, and FP-34 to extension versus creation. Every skipped or deferred candidate records reason and next action under FP-29.
 
 ### Packaging Shortlist Fields
 
@@ -135,7 +130,7 @@ Rules:
 - Resolve every selected root to an absolute path before scanning.
 - Reject traversal outside selected roots.
 - Do not scan broad home, drive, or repo roots implicitly.
-- If candidate roots are discovered, report them and wait for approval before reading files.
+- Resolve discovered candidates against current explicit root authorization under `AGENTS.md` FP-24 and FP-30. Roots outside that scope require authorization before reads; already-authorized roots do not require duplicate approval.
 - Do not persist raw logs or full transcripts into the repo.
 
 ## Deterministic Pipeline
@@ -160,7 +155,7 @@ Run these phases in order:
    - convert record timestamps to the requested timezone.
    - apply the inclusivity rule.
 6. Filter source records
-   - prefer user-authored message events.
+   - use user-authored message events as the default source-record filter declared by this acquisition contract; record any goal-required extension and its provenance.
    - exclude subagent dispatch prompts, tool payloads, and copied transcript noise unless the goal requires them.
 7. Search concepts
    - treat concept terms as data.
@@ -174,9 +169,9 @@ Run these phases in order:
    - report counts, selected snippets, statuses, unknowns, and rejected-noise candidates.
    - hand off only summarized, redacted evidence to `governance-learnings-template.md`.
 
-## Terminal States
+## Acquisition Result States
 
-Use exactly one terminal state:
+Return exactly one acquisition result in `terminal_state`; agent-workflow termination remains owned by `Orchestration.md`:
 
 - `FOUND`: complete search found relevant evidence.
 - `NOT_FOUND_AFTER_COMPLETE_SEARCH`: complete search found no relevant evidence.
@@ -240,7 +235,7 @@ Rank low or reject:
 ## Privacy Rules
 
 - Redact secrets, tokens, cookies, auth headers, emails, phone numbers, account IDs, and full user-home paths.
-- Prefer `<governance-root>`, `<project-root>`, `{HOME}`, or relative paths in output.
+- Replace private absolute roots with `<governance-root>`, `<project-root>`, `{HOME}`, or relative-path evidence as applicable.
 - Quote only short snippets needed to prove the finding.
 - Do not emit full transcripts.
 - Do not create repo-tracked evidence files unless the user explicitly asks and the content is redacted.

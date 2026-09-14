@@ -5,16 +5,11 @@ import unittest
 from pathlib import Path
 
 from scripts.check_governance_core.check_governance_core_main import resolve_documents
-
-
-def write(path: Path, text: str) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8", newline="") as handle:
-        handle.write(text)
+from scripts.check_governance_core._test_support import install_root_authorities, write
 
 
 def corpus_fixture(root: Path) -> None:
-    write(root / "AGENTS.md", "# Agent\n")
+    install_root_authorities(root)
     write(
         root / "docs/agents/agents_index.md",
         "# Agents\n\n"
@@ -61,6 +56,7 @@ class DocumentResolutionTests(unittest.TestCase):
             self.assertEqual(
                 [
                     "AGENTS.md",
+                    "Orchestration.md",
                     "docs/agents/mcp/00-mcp-standards/mcp-standards.md",
                     "docs/agents/workflow-registry/workflow-registry.md",
                 ],
@@ -93,14 +89,18 @@ class DocumentResolutionTests(unittest.TestCase):
             result = resolve_documents({"repo_root": str(root), "governance_root": str(root)})
             self.assertEqual("PASSED", result["status"], result)
             self.assertEqual(
-                ["AGENTS.md", "docs/agents/mcp/00-mcp-standards/mcp-standards.md"],
+                [
+                    "AGENTS.md",
+                    "Orchestration.md",
+                    "docs/agents/mcp/00-mcp-standards/mcp-standards.md",
+                ],
                 result["documents"],
             )
 
     def test_directory_route_without_canonical_child_router_fails(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
-            write(root / "AGENTS.md", "# Agent\n")
+            install_root_authorities(root)
             write(
                 root / "docs/agents/agents_index.md",
                 "# Agents\n\n- [MCP](mcp/) - MCP. Required when: using MCP.\n",
@@ -193,13 +193,13 @@ class DocumentResolutionTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             repo_root = Path(temp)
             governance_root = repo_root / ".governance"
-            write(governance_root / "AGENTS.md", "# Agent\n")
+            install_root_authorities(governance_root)
             write(governance_root / "docs/agents/agents_index.md", "# Agents\n")
             result = resolve_documents(
                 {"repo_root": str(repo_root), "governance_root": str(governance_root)}
             )
             self.assertEqual("PASSED", result["status"], result)
-            self.assertEqual(["AGENTS.md"], result["documents"])
+            self.assertEqual(["AGENTS.md", "Orchestration.md"], result["documents"])
 
 
 if __name__ == "__main__":

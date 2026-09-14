@@ -1,61 +1,21 @@
 from __future__ import annotations
 
+import os
+import re
 import tempfile
 import unittest
-import os
 from pathlib import Path
 from unittest.mock import patch
 
 from scripts.check_governance_core.check_governance_core_main import resolve_documents, run_checks
-from scripts.check_governance_core._documents import declared_doc_types, parse_markdown, router_targets
-from scripts.check_governance_core._docs_checks import check_docs
-from scripts.check_governance_core._documents import DocumentStore
-from scripts.check_governance_core._inventory import RepositoryInventory
-from scripts.check_governance_core._governance_checks import (
-    governance_contract_digest,
-    resolve_governance_contract,
-)
+from scripts.check_governance_core._test_support import install_foundations, live_principles_section, write
+
+
 FIXTURE_ROOT = Path(__file__).resolve().parent / "fixtures"
-ROOT_AUTHORITIES = (
-    "docs/agents/owner.md",
-    "docs/agents/context.md",
-    "docs/agents/map.md",
-)
-CANONICAL_DELEGATION = "Delegate through the owning contract."
-def write(path: Path, text: str | bytes) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    if isinstance(text, bytes):
-        with path.open("wb") as handle:
-            handle.write(text)
-    else:
-        with path.open("w", encoding="utf-8", newline="") as handle:
-            handle.write(text)
+
 
 def governance_fixture(root: Path, manifest: str) -> None:
-    witness = governance_contract_digest(ROOT_AUTHORITIES, CANONICAL_DELEGATION)
-    write(
-        root / "AGENTS.md",
-        f"""# Agent
-
-## Assigned-Lead Authority Routing Procedure (Hard Gate)
-
-Read and follow these authorities:
-- `docs/agents/owner.md`
-- `docs/agents/context.md`
-- `docs/agents/map.md`
-
-> {CANONICAL_DELEGATION}
-
-<!-- governance-root-contract: authorities=3 sha256={witness} -->
-
-## Documentation SSOT Policy (Hard Gate)
-
-Baseline required project docs include:
-- `docs/project/project_index.md`
-""",
-    )
-    for authority in ROOT_AUTHORITIES:
-        write(root / authority, "---\ndoc_type: policy\nssot_owner: AGENTS.md\nupdate_trigger: owner changes\n---\n")
+    install_foundations(root)
     write(root / "docs/agents/agents_index.md", "# Agents Index\n")
     write(root / "agents-manifest.yaml", manifest)
 
@@ -67,32 +27,75 @@ def valid_manifest(authority: str = "docs/agents/other.md") -> str:
 
 
 class PublicApiContractTests(unittest.TestCase):
-    def test_governance_owner_witness_rejects_membership_order_and_delegation_drift(self) -> None:
-        mutations = (
-            ("- `docs/agents/context.md`\n", ""),
-            (
-                "- `docs/agents/owner.md`\n- `docs/agents/context.md`\n",
-                "- `docs/agents/context.md`\n- `docs/agents/owner.md`\n",
-            ),
-            (CANONICAL_DELEGATION, "Delegate through a different contract."),
+    def test_principles_structure_reports_failures_through_governance_only(self) -> None:
+        source = live_principles_section()
+        block = re.search(
+            r"(?ms)^<!-- fundamental-principles:start -->\n.*?^<!-- fundamental-principles:end -->$",
+            source,
         )
-        for old, new in mutations:
-            with self.subTest(old=old), tempfile.TemporaryDirectory() as temp:
+        assert block is not None
+        entries = re.findall(r"(?m)^### FP-[0-9]{2}$", block.group(0))
+        declaration = re.search(r"`### FP-([0-9]{2})` through `### FP-([0-9]{2})`", source)
+        assert declaration is not None
+        cases = {
+            "valid": source,
+            "valid_blank_lines": source.replace("\n\n", "\n\n\n"),
+            "missing_block": source.replace(block.group(0), ""),
+            "duplicate_block": source + "\n" + block.group(0),
+            "duplicate_start": source + "\n<!-- fundamental-principles:start -->\n",
+            "duplicate_end": source + "\n<!-- fundamental-principles:end -->\n",
+            "reversed_markers": re.sub(r"(?m)^<!-- fundamental-principles:(start|end) -->$",
+                lambda match: "<!-- fundamental-principles:" + ("end" if match.group(1) == "start" else "start") + " -->", source),
+            "duplicate_id": source.replace(entries[1] + "\n", entries[0] + "\n"),
+            "non_must": source.replace("\nMUST ", "\nSHOULD ", 1),
+            "missing_tail": source[:source.rindex(entries[-1])] + "<!-- fundamental-principles:end -->\n",
+            "second_paragraph": source.replace("\nMUST ", "\nAdditional paragraph.\n\nMUST ", 1),
+            "fenced_block": source.replace(block.group(0), "```md\n" + block.group(0) + "\n```"),
+            "fenced_paragraph": source.replace("\nMUST ", "\n```md\nMUST ", 1),
+            "missing_declaration": source.replace(declaration.group(0), ""),
+            "duplicate_declaration": source.replace(declaration.group(0), declaration.group(0) * 2),
+            "reversed_declaration": source.replace(declaration.group(0),
+                f"`### FP-{declaration.group(2)}` through `### FP-{declaration.group(1)}`"),
+            "wrong_heading": source.replace(entries[0] + "\n", entries[0] + " title\n"),
+            "indented_heading": source.replace("\n" + entries[0] + "\n", "\n " + entries[0] + "\n"),
+        }
+        for name, value in cases.items():
+            with self.subTest(name=name), tempfile.TemporaryDirectory() as temp:
                 root = Path(temp)
                 governance_fixture(root, valid_manifest())
-                path = root / "AGENTS.md"
-                write(path, path.read_text(encoding="utf-8").replace(old, new))
-                contract = resolve_governance_contract(root, DocumentStore(), RepositoryInventory(root))
-                self.assertTrue(contract.errors, contract)
+                agents = root / "AGENTS.md"
+                write(agents, agents.read_text(encoding="utf-8").replace(source, value))
+                request = {"repo_root": str(root), "governance_root": str(root)}
+                result = run_checks(request)
+                record = next(item for item in result["checks"] if item["id"] == "governance")
+                valid = name.startswith("valid")
+                self.assertEqual("PASSED" if valid else "FAILED", record["status"], record)
+                self.assertFalse(any("unexpectedly" in error for error in record["errors"]), record)
+                self.assertEqual(result["planned"], [item["id"] for item in result["checks"]])
+                self.assertEqual(sorted(result["planned"]), sorted(result["executed"] + result["failed"]))
+                if not valid:
+                    self.assertTrue(any("Fundamental Principles" in error for error in record["errors"]), record)
+                    self.assertIn("governance", result["failed"])
+                resolved = resolve_documents(request)
+                self.assertEqual("PASSED", resolved["status"], resolved)
+                self.assertEqual(["AGENTS.md", "Orchestration.md"], resolved["documents"])
 
-    def test_unrelated_blockquote_does_not_change_governance_owner_contract(self) -> None:
+    def test_principles_expected_range_is_owned_by_agents_and_text_is_not_policy_copied(self) -> None:
+        source = live_principles_section()
+        entries = re.findall(r"(?m)^### FP-[0-9]{2}$", source)
+        declaration = re.search(r"`### FP-[0-9]{2}` through `### FP-[0-9]{2}`", source)
+        assert declaration is not None
+        changed = source[:source.rindex(entries[-1])] + "<!-- fundamental-principles:end -->\n"
+        changed = changed.replace(declaration.group(0), f"`{entries[0]}` through `{entries[-2]}`")
+        changed = re.sub(r"(?m)^MUST .+$", "MUST retain this synthetic structural witness.", changed)
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             governance_fixture(root, valid_manifest())
-            path = root / "AGENTS.md"
-            write(path, path.read_text(encoding="utf-8") + "\n## Unrelated\n\n> Example only.\n")
-            contract = resolve_governance_contract(root, DocumentStore(), RepositoryInventory(root))
-            self.assertEqual((), contract.errors, contract)
+            agents = root / "AGENTS.md"
+            write(agents, agents.read_text(encoding="utf-8").replace(source, changed))
+            result = run_checks({"repo_root": str(root), "governance_root": str(root)})
+            record = next(item for item in result["checks"] if item["id"] == "governance")
+            self.assertEqual("PASSED", record["status"], record)
 
     def test_decision_critical_governance_file_aliases_are_rejected(self) -> None:
         for filename in ("AGENTS.md", "agents-manifest.yaml"):
@@ -113,57 +116,8 @@ class PublicApiContractTests(unittest.TestCase):
                     result,
                 )
 
-    def test_project_docs_rejects_readme_alias_before_reading(self) -> None:
-        with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
-            governance_fixture(root, valid_manifest())
-            write(root / "docs/project/project_index.md", "# Project\n")
-            source = root / "README.md.source"
-            write(source, "# Test\n")
-            os.link(source, root / "README.md")
 
-            result = run_checks(
-                {
-                    "repo_root": str(root),
-                    "governance_root": str(root),
-                    "mode": "project_docs",
-                }
-            )
 
-            self.assertEqual("FAILED", result["status"], result)
-            self.assertTrue(
-                any("README.md" in error and "must not be an alias" in error for error in result["errors"]),
-                result,
-            )
-
-    def test_docs_mode_does_not_preload_the_repository_tree(self) -> None:
-        root = Path(__file__).resolve().parents[2]
-        seen: list[Path] = []
-        original = RepositoryInventory.tree_entries
-
-        def record(inventory: RepositoryInventory, scan_root: Path):
-            seen.append(scan_root.resolve())
-            return original(inventory, scan_root)
-
-        with patch.object(RepositoryInventory, "tree_entries", new=record):
-            result = run_checks(
-                {"repo_root": str(root), "governance_root": str(root), "mode": "docs"}
-            )
-
-        self.assertEqual("PASSED", result["status"], result)
-        self.assertNotIn(root.resolve(), seen)
-        self.assertIn((root / "docs").resolve(), seen)
-
-    def test_report_reconciles_the_selected_work_universe(self) -> None:
-        root = Path(__file__).resolve().parents[2]
-        result = run_checks(
-            {"repo_root": str(root), "governance_root": str(root), "mode": "docs"}
-        )
-        self.assertEqual(["docs"], result["planned"])
-        self.assertEqual(result["planned"], result["eligible"])
-        self.assertEqual(result["planned"], result["executed"])
-        self.assertEqual([], result["skipped"])
-        self.assertEqual([], result["failed"])
 
     def test_rejects_unknown_public_request_key(self) -> None:
         result = run_checks({"unexpected": True})
@@ -241,9 +195,12 @@ class PublicApiContractTests(unittest.TestCase):
 
     def test_root_authority_aliases_are_rejected_before_filesystem_lookup(self) -> None:
         aliases = (
-            "DOCS/AGENTS/OWNER.MD",
-            "docs/agents/owner.md ",
-            "docs/agents/owner.md:stream",
+            "AGENTS.md",
+            "Orchestration.md",
+            "AGENTS.MD",
+            "ORCHESTRATION.MD",
+            "Orchestration.md ",
+            "Orchestration.md:stream",
         )
         for alias in aliases:
             with self.subTest(alias=alias), tempfile.TemporaryDirectory() as temp:
@@ -266,57 +223,10 @@ class PublicApiContractTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             governance_fixture(root, valid_manifest("docs/agents/alias.md"))
-            os.link(root / "docs/agents/owner.md", root / "docs/agents/alias.md")
+            os.link(root / "Orchestration.md", root / "docs/agents/alias.md")
             result = run_checks({"repo_root": str(root), "governance_root": str(root)})
             manifest = next(record for record in result["checks"] if record["id"] == "manifest")
             self.assertEqual("FAILED", manifest["status"], manifest)
-
-    def test_root_authority_list_is_scoped_to_owner_section(self) -> None:
-        with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
-            governance_fixture(root, valid_manifest())
-            write(root / "docs/agents/other.md", "owner\n")
-            agents = (root / "AGENTS.md").read_text(encoding="utf-8")
-            agents = agents.replace(
-                "Read and follow these authorities:\n"
-                "- `docs/agents/owner.md`\n"
-                "- `docs/agents/context.md`\n"
-                "- `docs/agents/map.md`\n\n",
-                "",
-            ) + (
-                "\n## Unrelated\n\nRead and follow these authorities:\n"
-                "- `docs/agents/owner.md`\n"
-                "- `docs/agents/context.md`\n"
-                "- `docs/agents/map.md`\n"
-            )
-            write(root / "AGENTS.md", agents)
-            result = run_checks({"repo_root": str(root), "governance_root": str(root)})
-            governance = next(record for record in result["checks"] if record["id"] == "governance")
-            self.assertEqual("FAILED", governance["status"], governance)
-
-    def test_fenced_and_indented_headings_are_not_owner_sections(self) -> None:
-        for fake in (
-            "```md\n## Assigned-Lead Authority Routing Procedure (Hard Gate)\n```",
-            "    ## Assigned-Lead Authority Routing Procedure (Hard Gate)",
-        ):
-            with self.subTest(fake=fake), tempfile.TemporaryDirectory() as temp:
-                root = Path(temp)
-                governance_fixture(root, valid_manifest())
-                write(root / "AGENTS.md", f"# Agent\n\n{fake}\n")
-                result = run_checks({"repo_root": str(root), "governance_root": str(root)})
-                governance = next(record for record in result["checks"] if record["id"] == "governance")
-                self.assertEqual("FAILED", governance["status"], governance)
-
-    def test_one_to_three_space_heading_is_operative(self) -> None:
-        with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
-            governance_fixture(root, valid_manifest())
-            write(root / "docs/agents/other.md", "owner\n")
-            path = root / "AGENTS.md"
-            write(path, path.read_text(encoding="utf-8").replace("## Assigned-Lead", "   ## Assigned-Lead"))
-            result = run_checks({"repo_root": str(root), "governance_root": str(root)})
-            governance = next(record for record in result["checks"] if record["id"] == "governance")
-            self.assertEqual("PASSED", governance["status"], governance)
 
     def test_invalid_utf8_returns_explicit_issue(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -326,16 +236,6 @@ class PublicApiContractTests(unittest.TestCase):
             result = run_checks({"repo_root": str(root), "governance_root": str(root)})
             self.assertEqual("FAILED", result["status"])
             self.assertTrue(any("Invalid UTF-8" in error for error in result["errors"]), result)
-
-    def test_document_resolution_is_independent_of_agents_routing_contract(self) -> None:
-        with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
-            governance_fixture(root, valid_manifest())
-            write(root / "docs/agents/other.md", "owner\n")
-            write(root / "AGENTS.md", "# Missing owner section\n")
-            result = resolve_documents({"repo_root": str(root), "governance_root": str(root)})
-            self.assertEqual("PASSED", result["status"], result)
-            self.assertEqual(["AGENTS.md"], result["documents"])
 
     def test_document_resolution_rejects_invalid_root_types(self) -> None:
         for request in ({"repo_root": []}, {"governance_root": False}, {"repo_root": ""}):
@@ -357,42 +257,7 @@ class PublicApiContractTests(unittest.TestCase):
                 manifest = next(record for record in result["checks"] if record["id"] == "manifest")
                 self.assertEqual("FAILED", manifest["status"], manifest)
 
-    def test_router_target_and_doc_type_contract_helpers_reject_invalid_values(self) -> None:
-        router = parse_markdown(
-            "# Router\n\n- [ghost](ghost.md) - route. Required when: needed.\n"
-        )
-        targets, errors = router_targets(router)
-        self.assertEqual(["ghost.md"], targets)
-        self.assertEqual([], errors)
-        policy = "doc_type: policy|reference|runbook|playbook|decision|generated\n"
-        self.assertNotIn("nonsense", declared_doc_types(policy))
 
-    def test_docs_check_rejects_dead_router_target_and_invalid_doc_type(self) -> None:
-        with tempfile.TemporaryDirectory() as temp:
-            workspace = Path(temp)
-            repo_root = workspace / "repo"
-            governance_root = workspace / "governance"
-            write(
-                governance_root / "docs/agents/25-docs-ssot-policy/docs-ssot-policy.md",
-                "doc_type: policy|reference|runbook|playbook|decision|generated\n",
-            )
-            write(
-                repo_root / "docs/docs_index.md",
-                "# Docs\n\n- [docs](docs.md) - docs. Required when: reading docs.\n"
-                "- [ghost](ghost.md) - ghost. Required when: reading ghost.\n",
-            )
-            write(
-                repo_root / "docs/docs.md",
-                "---\ndoc_type: nonsense\nssot_owner: owner\nupdate_trigger: changes\n---\n\n# Docs\n",
-            )
-            errors, _warnings = check_docs(
-                repo_root,
-                governance_root,
-                DocumentStore(),
-                RepositoryInventory(repo_root),
-            )
-            self.assertTrue(any("ghost.md" in error for error in errors), errors)
-            self.assertTrue(any("unsupported doc_type" in error for error in errors), errors)
 
 
 if __name__ == "__main__":

@@ -1,597 +1,296 @@
 # AGENTS.md - Canonical Agent Constitution (SSOT / No Duplicates)
 
-This file is the single source of truth (SSOT) for **how any autonomous coding agent must operate in this repository**.
+This file is the constitutional source of truth for autonomous coding agents in this repository.
 
-Hard gate:
-- Do not write or modify code or documentation until this file has been read.
-- If repository files are not accessible, request that the user paste `AGENTS.md`.
-- If any other instruction file conflicts with this one, **`AGENTS.md` wins**.
+MUST follow the Mandatory Foundations declaration below; `Orchestration.md` owns role-specific loading, application, missing-source handling, and parent accountability. If instruction files conflict, **`AGENTS.md` wins**.
+
+<!-- orchestration-authority: Orchestration.md -->
+
+`Orchestration.md` is the sole owner of agent roles, read/mutation/delegation boundaries, the plan and council lifecycle, execution and review phases, correction limits, and terminal decisions. Supporting docs, manifests, prompts, and project docs must route to that owner without restating its workflow.
+
+Main is constitutionally the user's code-blind, single communication and decision hub. It preserves complete controlling intent, challenges drift, tracks workflow state, and alone declares terminal outcomes; its detailed contract is owned by `Orchestration.md`.
+
+## Fundamental Principles (Highest Repository Authority)
+
+These principles are the highest repository-internal authority. They supersede every weaker or conflicting statement in this file and every lower document, manifest, scaffold, projection, and agent-originated record. Higher-priority platform instructions remain controlling. Each lower document MUST retain binding authority within its declared SSOT jurisdiction, including its necessary rules, contracts, mechanics, examples, and verification requirements. Lower documents MUST NOT redefine, soften, duplicate, or conflict with these Fundamental Principles; constitutional precedence resolves conflicts without removing delegated authority or its necessary domain-specific instructions.
+
+This section owns the canonical structural contract: exactly one block delimited by standalone `<!-- fundamental-principles:start -->` and `<!-- fundamental-principles:end -->` lines; within it, consecutive unique `### FP-01` through `### FP-35` headings each precede exactly one blank-line-delimited paragraph beginning `MUST `. Identifiers provide stable owner-local references; the paragraphs retain their exact wording and order as authorized by the user. Structural validation checks this shape only; source equality and semantic compliance require their own evidence under FP-33.
+
+<!-- fundamental-principles:start -->
+
+### FP-01
+
+MUST enforce these instructions as binding decision, execution, and completion criteria throughout every analysis, plan, implementation, review, verification, and maintenance action. Reading or acknowledgment is not compliance.
+
+### FP-02
+
+MUST establish outcomes first, evaluate viable approaches against every governing constraint, and deepen reasoning or redesign until every outcome is satisfied. Never weaken outcomes to fit an implementation.
+
+### FP-03
+
+MUST enforce performance requirements as first-principles design constraints before selecting an approach: complete controllable routing, configuration, validation, and interface decisions within 100 milliseconds; acknowledge actions within 100 milliseconds; show active status beyond 500 milliseconds. Meet these limits through reasoning and architecture, never haste, weakened validation, or shortcuts.
+
+### FP-04
+
+MUST determine jurisdiction, ownership, magnitude, dependencies, blast radius, and affected consumers before acting.
+
+### FP-05
+
+MUST read every governing and touched source in full; trace owners, consumers, dependencies, verification, configuration, and documentation.
+
+### FP-06
+
+MUST convene an independent council before implementation or mutation; challenge the design against governing requirements and resolve every material objection before proceeding.
+
+### FP-07
+
+MUST define objectives, inputs, outputs, constraints, risks, failure states, side effects, and completion evidence before implementation.
+
+### FP-08
+
+MUST review and correct defects at their owning SSOT jurisdiction; enforce SRP, eliminate duplication and drift, and reuse or extend stable jurisdictions. You are authorized and required to rewrite, replace, consolidate, and delete in-scope code without further approval; migrate affected consumers, preserve required behavior and proven compatibility, and remove superseded implementations before completion.
+
+### FP-09
+
+MUST justify each proposed addition by what it replaces, extends, or makes obsolete; complete identified replacement and removal in the same change. An additive workaround that leaves the architectural defect active is incomplete.
+
+### FP-10
+
+MUST derive behavior only from explicit configuration, governing contracts, or user authority; never invent mutable rules.
+
+### FP-11
+
+MUST produce identical outcomes from identical validated inputs under unchanged maintained configuration.
+
+### FP-12
+
+MUST assign every mutable rule exactly one SSOT owner and eliminate duplicate authority.
+
+### FP-13
+
+MUST give every package one responsibility and one owner; assign each shared capability one stable contract. Every module or package of any size must expose exactly one stable public interface/API; internals must be private, fully hidden behind that interface, freely restructurable, and any caller dependency on them is a defect.
+
+### FP-14
+
+MUST define each contract’s inputs, outputs, authorized actions, side effects, errors, compatibility, versioning, and extension rules.
+
+### FP-15
+
+MUST keep implementations cohesive; reuse established shared logic and place extensions within the owning jurisdiction; never create parallel authority.
+
+### FP-16
+
+MUST preserve compatibility only for identified active consumers or declared historical data formats; preserve required behavior and evidence, not obsolete implementations for hypothetical use.
+
+### FP-17
+
+MUST use the most direct authoritative interface covering the full required and authorized surface, without artificial restrictions.
+
+### FP-18
+
+MUST discover changeable capabilities from authoritative contracts, never hardcoded lists; encode closed domains once and never freeze open-world capabilities.
+
+### FP-19
+
+MUST route extensible types through discovered or registered handlers behind one contract; extend capabilities without modifying consumers.
+
+### FP-20
+
+MUST preserve unknown inputs, perform authoritative discovery, and return explicit unsupported outcomes when unresolved; never guess, crash, or lose data.
+
+### FP-21
+
+MUST permit adapters only for contract normalization, unavailable interfaces, or contracted safety; document justification, ownership, and review; prohibit silent fallback.
+
+### FP-22
+
+MUST keep environment-dependent paths, devices, mappings, identifiers, and integrations in directly correctable, owner-maintained configuration.
+
+### FP-23
+
+MUST separate structural validation from operational validation; unrelated operational defects must never block valid work.
+
+### FP-24
+
+MUST reject ambient state as required input or confirmation; obtain each required value explicitly during the active workflow and preserve its authorized scope.
+
+### FP-25
+
+MUST permit deadlines, termination, and retries only through explicit contracts; keep retries bounded, visible, idempotent, and recoverable.
+
+### FP-26
+
+MUST bound every search by configured scope, deterministic ordering, validation, termination, and measured cost.
+
+### FP-27
+
+MUST block ambiguous, invalid, stale, or missing resolution unless its governing contract explicitly permits it; provide correction guidance.
+
+### FP-28
+
+MUST serve repeated lookups through direct keyed access or bounded candidate sets; never repeat blind scans.
+
+### FP-29
+
+MUST assign every in-scope item an explicit outcome; report the state, reason, and next action for every non-success or pending result.
+
+### FP-30
+
+MUST obtain explicit confirmation before destructive, disruptive, externally visible, or difficult-to-recover actions outside existing authorization. Authorized in-scope code changes require no further approval. Cancelling a proposed action must leave existing state unchanged.
+
+### FP-31
+
+MUST verify side effects, revert transient or unintended changes, release resources, preserve unrelated work and required compatibility, and update affected consumers.
+
+### FP-32
+
+MUST verify the complete resulting design against the original requirements after implementation. Passing tests, closing findings, or completing operations alone does not establish SSOT, SRP, architectural correctness, or completion.
+
+### FP-33
+
+MUST maintain a requirement-to-evidence trace throughout the task; provide concrete completion evidence for every applicable requirement and a scope-based reason for every non-applicability claim. Resolve controllable gaps before declaring completion; explicitly report every unmet or unverified requirement.
+
+### FP-34
+
+MUST choose the simplest complete design, update governing documentation, create nothing unless requested or contractually required, and report remaining blockers.
+
+### FP-35
+
+MUST default newly requested Codex project threads to the saved project checkout (`local` environment); create a separate Codex git worktree only on explicit user request.
+
+<!-- fundamental-principles:end -->
+
+## Mandatory Foundations
+foundation_contract_version: 1
+<!-- foundation-authority: constitution=AGENTS.md -->
+<!-- foundation-authority: orchestration=Orchestration.md -->
+<!-- foundation-authority: coding_principles=docs/agents/35-coding-principles/coding-principles.md -->
+<!-- foundation-authority: docs_policy=docs/agents/25-docs-ssot-policy/docs-ssot-policy.md -->
+
+This section is the sole unconditional foundation-membership owner. Version 1 requires exactly one operative declaration for each named role, no unknown roles, and unique, exactly spelled, governance-root-relative Markdown files; constitution must identify this owner and orchestration must match the lifecycle route above. Missing, malformed, duplicate, unsafe, aliased, or unreadable declarations or targets fail explicitly; examples in fences, blockquotes, or indented code are non-operative. Marker order defines reading order. Membership changes update this owner and its consumers together; role mechanics remain in `Orchestration.md`.
+
+Under FP-01, FP-02, FP-05, FP-12, and FP-33, the principles define required outcomes and these delegated foundations keep their governing mechanics consistently available. Unconditional membership prevents task-signal selection from skipping a foundation; it does not replace application evidence or extend a delegated owner's substantive scope. Deeper owners retain all applicable binding duties; profiles discover sources, and playbook or preference choices exist only where their owner explicitly permits them.
 
 ## Objective
-
-Deliver changes that are:
-- **Correct**: verified against the repo and tools; no guessed APIs/paths.
-- **Deterministic**: same inputs -> same outputs (no hidden side effects).
-- **Efficient**: prefers the fastest safe approach when speed/scale is part of the goal; avoids unnecessary I/O/tool calls.
-- **Maintainable**: each concept defined exactly once (SSOT / no duplicates).
-- **Auditable**: logs + clear run outcomes; failures are explicit.
-- **Safe**: no resource leaks; Excel COM + GUI threading rules are enforced.
-- **Searchable**: critical concepts are discoverable via grep + semantic search.
+The Fundamental Principles define completion. Critical concepts and their owners MUST remain searchable through repository text search and declared routes.
 
 ## Vendored Authority + Path Resolution (SSOT)
-
-When vendored under `.governance/`, `.governance/AGENTS.md` is authoritative; root `AGENTS.md` and `CLAUDE.md` are loader stubs that route to it.
-
-Resolve governance paths relative to the governance root: the directory containing `AGENTS.md` and `agents-manifest.yaml`. This includes governance-root references such as `docs/agents/...`, `scripts/...`, and `./README.md`.
-
-Resolve project-owned paths, including `docs/project/...` and project `README.md`, relative to the project root. When vendored, the project root is the parent of `.governance/`; governance-root paths resolve under `.governance/` without rewriting path strings in docs or manifests.
+When vendored, `.governance/AGENTS.md` and `.governance/Orchestration.md` remain the constitutional and lifecycle authorities; root AGENTS/CLAUDE files are loader stubs routing to both. Governance-root paths resolve relative to the directory containing `AGENTS.md` and `agents-manifest.yaml`; project-owned paths (`docs/project/...` and project README) resolve relative to the project root, the parent of `.governance/`. Do not rewrite governance-root path strings when vendoring.
 
 ## Submodule Workflow Rules (Hard Gate)
-
-The governance pack source repo is: `https://github.com/parmartejass/AGENTS.MD.git`
-
-When editing files inside `.governance/`, the change belongs to the governance pack source repo, not to the parent project.
-
-Hard rules:
-- **NEVER** commit `.governance/` file edits from the parent repo directory.
-- Commit governance file changes in the submodule repo (`parmartejass/AGENTS.MD`).
-- The parent repo stores only a submodule pointer (SHA); after the governance change lands, the parent repo may update only that pointer.
+The governance source repo is `https://github.com/parmartejass/AGENTS.MD.git`. Edits inside `.governance/` belong to that submodule: NEVER commit them from the parent directory. Commit in the governance repo; after landing, the parent may update only the submodule SHA pointer.
 
 ## Prime Directive: Verify, Then Trust
-
-Agents are probabilistic generators. The repo and tools are deterministic.
-When a fact can be verified with tools, **verify it** instead of guessing.
-
-Never invent:
-- imports/dependencies
-- file paths
-- functions/classes/symbols
-- CLI flags or config keys
-
-If verification is not possible, treat it as **Unknown** and ask.
+FP-10, FP-20, and FP-27 govern factual resolution. Repository paths, dependencies, symbols, APIs, flags, and config keys MUST have a verified source; unresolved values remain `Unknown` with correction guidance.
 
 ## First-Principles Protocol (Hard Gate)
-
-Before implementing, explicitly define:
-- **Model**: inputs, outputs, side effects, and system boundaries.
-- **SSOT map**: which owner(s) hold constants, config, rules, workflows, and any lifecycle utilities.
-- **Root-cause uplift** (authority-first): for any defect or error, trace from symptom to the earliest authority/contract/boundary that should have prevented it; prefer fixing there by adding or strengthening invariants/validation so the class of errors becomes structurally impossible; one authority fix prevents N errors. If a symptom-level patch is unavoidable, record why upstream prevention is infeasible and what error class remains unprevented.
-- **Structural consolidation** (authority-first): when multiple findings map to the same invariant/authority, treat them as one defect; default to a single upstream fix in the authority owner.
-- **Derived task authority** (authority-first): for any non-trivial output, first identify or create the minimum task-specific control artifact required to make the output trustworthy (for example an authority map, source map, extraction ledger, validation matrix, patch plan, or test fixture). The final output must be generated from and verified against that control artifact; do not treat the final output itself as the authority.
-- **Patch, do not fork authority**: when improving governance, docs structure, frameworks, prompts, or reusable procedures, update the current highest owning authority through an explicit patch/supersession path. Do not create disconnected framework versions, parallel docs, or replacement structures unless the user explicitly authorizes a new authority and the old authority is deprecated or superseded.
-- **Proof obligations**: preconditions/postconditions + failure modes to cover.
-- **Verification**: exact commands or deterministic manual checks (include at least one failure-path check when feasible).
-- **Resource bounds**: timeouts, cancellation, and guaranteed cleanup in `finally` for external resources.
-- **Performance constraints**: expected data sizes and speed targets; choose algorithm/I/O strategy accordingly, without weakening correctness or safety.
-- **Design principles (generation + maintenance)**: apply DRY, KISS, YAGNI, Separation of Concerns, and Law of Demeter alongside SOLID/DI; prefer simple designs that preserve explicit contracts and authority boundaries.
-- **Defect vocabulary** (mandatory for bug/error work): use these terms precisely in reports/reviews:
-  - symptom/manifestation: where the bug is observed
-  - root cause: earliest defect/condition that makes the symptom inevitable
-  - workaround: avoids symptom without removing cause
-  - patch: code change (root-cause or symptom-level)
-  - regression: new failure introduced by the fix
-  - blast radius: scope of impacted modules/workflows/users
-- **Shift-left quality** (mandatory for behavior changes/new features): convert reactive RCA learnings into proactive prevention via tests, design failure analysis, boundary contracts, static checks, and observability.
-
-Supporting references:
-- First principles patterns: `docs/agents/00-principles/principles.md`
-- Concept -> owner map: `docs/agents/20-sources-of-truth-map/sources-of-truth-map.md`
+MUST apply `docs/agents/00-principles/principles.md` as the delegated owner for model/scope, authority-first correction, structural consolidation, task control artifacts, design, and proof obligations; its diagnosis route owns the required defect vocabulary.
 
 ## First-Principles + SSOT + Evidence Model (Hard Gate)
+MUST apply `docs/agents/00-principles/evidence/evidence.md` as the delegated owner for R/S/D truth, invariant and authority-application witnesses, evidence presentation, verification floors, rewrite risk, and measured performance boundaries.
 
-Truth layers (use these terms):
-- Runtime truth (R): what actually happens at runtime (processes, files, memory, handles).
-- Semantic truth (S): what the system is meant to do (invariants, contracts, rules).
-- Recorded truth (D): what artifacts claim (configs, logs, reports, docs).
-
-Implications:
-- First principles defines S (invariants). SSOT governs authority in D (consistency, not correctness).
-- Instrumentation binds R to S and D. An invariant is invalid unless it has a measurable witness recorded in D.
-- SSOT does not guarantee correctness; it guarantees that one authority wins when records disagree.
-
-### Invariants + Witnesses (Required)
-- For every change, list the invariants it affects or relies on.
-- Use these categories when applicable: data, ordering, atomicity, idempotency, lifecycle, observability.
-- Each invariant must have a witness: what is measured, where it is recorded, and the pass criteria.
-- Witnesses must be deterministically verifiable via tools or explicit manual checks.
-
-### Authority-Constrained Reasoning (Hard Gate)
-- Use authority inputs as binding minimum constraints for every decision-critical claim. A stronger task-specific design is allowed only when it is explicitly authority-preserving and does not change future allowed behavior without an owner update.
-- For every non-trivial plan, implementation, review, remediation, or final decision, record an authority-application witness with `authority_inputs`, `applied_obligations`, `decision_basis`, and `evidence`.
-- Classify each decision-critical design move, recommendation, finding, or go/no-go basis as `authority_required`, `authority_preserving`, `owner_update_required`, `authority_conflict`, or `unsupported`.
-- Fail closed with `hold` for missing relevant authority inputs or obligations, decision-critical `unsupported`, `authority_conflict`, or unresolved `owner_update_required`; "read and followed docs" is not a witness.
-
-### Scannable Output Shape (Hard Gate)
-- Non-trivial plans, reviews, implementation records, prompt scaffolds, council summaries, and final reports must use a task-derived scannable structure, not undifferentiated prose.
-- Make decision-critical inputs, SSOT owners, decisions/changes, evidence/witnesses, risks, status/go-no-go, and gaps/unknowns visually detectable; tiny conversational responses may stay prose-only when none of those are in scope.
+That owner retains **Invariants + Witnesses**, **Authority-Constrained Reasoning**, **Scannable Output Shape**, **Verification Floors**, and **Rewrite Risk Policy** with their binding scope and verification duties.
 
 ### Authority Graph (Required for non-trivial systems)
-(Non-trivial: >1 workflow entrypoint, OR >1 SSOT jurisdiction, OR external resource dependencies such as COM/DB/network)
-- Maintain a single authoritative owner per decision-critical fact/state (see SSOT section).
-- If code is split into modules/packages, align module boundaries with authority boundaries and expose a single explicit public contract per authority (see `docs/agents/35-coding-principles/coding-principles.md`).
-- Record the authority graph in `docs/project/architecture/architecture.md` or the workflow registry; no orphan docs.
-- All reads/writes must go through the authority; no shadow logic or one-off duplication.
+MUST apply `docs/agents/35-coding-principles/coding-principles.md`.
 
-### Workflow State Machine + Two-Phase Commit (When writes occur)
-- Required phases: INIT, VALIDATED, COMMIT_READY, COMMITTING, CLEANING, DONE.
-- Failure phases: FAILED_VALIDATION, FAILED_COMMIT, FAILED_CLEANUP.
-- Validation must be side-effect free; no writes before VALIDATED.
-- If any failure after writes begin: record FAILED_COMMIT, log what was written, attempt bounded cleanup in `finally`.
+### Implementation Write State Machine + Two-Phase Commit (When repository or external writes occur)
+MUST apply `docs/agents/70-io-data-integrity/io-data-integrity.md`.
 
 ### Bias-Resistant Debugging (Hard Gate)
-Biases to guard against:
-- premature closure, confirmation bias, anchoring, novelty/recency bias
+MUST apply `docs/agents/00-principles/diagnosis/diagnosis.md`.
 
-Required terminology for defect analysis:
-- Use the single SSOT definition in "First-Principles Protocol (Hard Gate)" -> "Defect vocabulary".
+## Agent Orchestration (Hard Gate)
+All delegation, role boundaries, planning, principle review, confirmation, execution, final review, critical correction, and terminal behavior MUST follow `Orchestration.md`. No other active surface may define or extend that lifecycle.
 
-Mandatory RCA workflow for bug/error/regression work (execute in order and record evidence):
-- Step 0 - Define failure precisely: expected vs actual, inputs/environment/version/commit, and impact.
-- Step 1 - Reproduce reliably: reproduce on demand; if intermittent, capture triggering conditions.
-- Step 2 - Build MRE: reduce to minimal deterministic repro (fixture + command + expected failure signal).
-- Step 3 - Observe facts: collect stack trace/logs/metrics/traces; add targeted assertions/instrumentation as needed.
-- Step 4 - Localize first wrong state: identify where invalid state first appears (not only crash site).
-- Step 5 - Form falsifiable hypothesis: "If X, then Y; therefore symptom Z."
-- Step 6 - Run targeted disconfirming experiment: change one variable at a time and rule out alternatives.
-- Step 7 - Declare root cause statement: specific, upstream, and directly actionable.
-- Step 8 - Implement root-cause fix upstream: fix at authority/origin, not symptom site; if symptom patch is unavoidable, record infeasibility and residual unprevented error class.
-- Step 9 - Lock with tests: add regression test (fails pre-fix/passes post-fix) plus nearby edge-case tests.
-- Step 10 - Validate system-wide: run applicable suites/checks and verify runtime signals after rollout/staging.
-
-RCA method stack for complex defects (default order):
-- 5 Whys to drill to upstream authority fix point
-- Fishbone/Ishikawa to enumerate plausible causes
-- Pareto analysis to prioritize likely high-impact causes
-- Implement root-cause fix and regression test
-- FMEA/DFMEA to prevent recurrence in adjacent paths
-
-Mandatory anti-bias artifacts for every fix:
-- minimal reproducible example (MRE)
-- regression fixture stored in repo
-- disconfirming tests (edge/adversarial cases)
-- invariant witness that fails pre-fix and passes post-fix
-- root-cause uplift record: symptom location, upstream authority fix point, prevention change made, class of errors prevented, or explicit justification if patching locally
-- SSOT consolidation evidence when divergence was a root cause
-
-Confidence rule:
-- confidence is evidence-weighted; "it worked once" is not evidence
-
-### Verification Floors (Hard Gate)
-- Verification commands are a single SSOT in the repo: the README "Checks" section. Do not invent commands. If a required verification step is repeatable, add the command to README before running; otherwise record deterministic manual steps in the report.
-- Minimums by change type (in addition to repo-specific checks):
-  - Docs-only or formatting: run doc-related checks if present; otherwise record a deterministic manual check.
-  - Behavior-neutral code change: run baseline checks relevant to the touched area plus at least one targeted smoke test if available; if none, record a deterministic manual check.
-  - Behavior change or new feature: baseline checks plus targeted tests covering the new behavior and at least one failure-path check (see I/O guidance in `docs/agents/80-testing-real-files/testing-real-files.md` when applicable).
-  - Bugfix/regression: follow "Bias-Resistant Debugging" (no extra exceptions) and run applicable tests, including deterministic MRE witness, regression test, at least one disconfirming edge/adversarial test, and at least one failure-path check. Durable bug/regression truth belongs in the highest owning project doc, while executable evidence belongs in tests, fixtures, and verification output.
-- Shift-left quality baseline (new features/behavior changes): before merge, encode prevention with tests (TDD/BDD where feasible), design pre-mortem or failure-mode review, relevant static checks, contract tests on module/service boundaries, and observability-by-design.
-- Coverage/fixtures:
-  - If coverage thresholds exist (CI/config/tooling), meet them and do not lower them.
-  - If no coverage thresholds exist, require fixture-backed tests: regression fixture for bugfixes; representative scenario/fixture for new features when feasible.
-  - Fixtures must be deterministic and sanitized (no secrets/PII/licensed data).
-- For changes affecting I/O or file processing, follow `docs/agents/80-testing-real-files/testing-real-files.md` (supporting guidance).
-
-### Rewrite Risk Policy
-Large rewrites are risk amplification unless all are true:
-- pre-existing invariants are enumerated and preserved
-- old vs new outputs are comparable on frozen fixtures
-- staged rollout and rollback exist
-- performance/resource invariants are measured
-
-Default posture:
-- prefer targeted refactors that consolidate authority and add witnesses
-
-## Mandatory Execution Loop (Assigned Lead Only)
-
-The root/main orchestrator does not execute this loop. It retains the complete controlling user intent, delegates once under the Assigned-Lead Authority Routing Procedure, receives only the assigned lead's terminal result, `hold`, or authority-grounded superseding-plan summary, and reports it. It MUST NOT perform or prepare task discovery, planning, authority selection, council work, implementation, or verification.
-
-The assigned lead executes the complete loop below, coordinates every required subagent inside its subtree, and owns task completion evidence.
-
-0) **Assigned-lead docs-first authority gate**:
-   - After required authority routing and before producing a non-trivial plan, review, council prompt/summary, implementation, or other repo-mutating work, identify the controlling user-authored intent, classify the facts that would change future allowed behavior, and route only durable authority facts to their highest owning project doc.
-   - Classify user intent before project-doc promotion:
-     - Basic task: no project-doc update is required when the request does not change future allowed behavior.
-     - Durable truth: promote the durable fact to the owning project doc before or with implementation.
-     - Ambiguous truth change: ask before treating the fact as project truth.
-   - Direct user-authored messages are the controlling intent source. Subagent prompts, generated plans, copied assistant output, summaries, and review artifacts are supporting evidence only; they become authoritative only when their selected durable facts are promoted into the owning SSOT.
-   - Agent findings are not project truth unless they preserve existing documented intent, correct an owner doc under its change rule, or are confirmed by the user.
-   - If implementation changes behavior, accepted inputs/outputs, purpose, boundaries, invariants, or project rules, update the owning doc before closure.
-   - Do not create, update, or require a separate project truth surface outside the declared `docs/project/` owner docs. New project docs are allowed only when routed through the docs SSOT policy with a declared owner, scope, update trigger, and verification witness.
-   - If a prompt contains secrets, credentials, PII, customer data, or oversized pasted artifacts, do not store the raw prompt in tracked docs. Ask for a redacted durable statement only when the fact must become project authority.
-   - Working evidence, including uncommitted repository changes, runtime observations, review notes, and closure evidence, does not own project truth unless the durable fact is promoted into the declared owning `docs/project/` authority doc routed by the docs SSOT policy. Treat working evidence as protected context until its owner and relation to the requested work are clear; do not overwrite it, remove it, stage it, commit it, or absorb it into the requested work by assumption.
-   - Before staging, committing, pushing, or preparing a PR, reconcile the intended commit set against owner docs, changed code/config/tests, deleted/new files, and verification evidence. Fix owner-scoped issues that are clearly within the requested change. Proceed only when docs, implementation, and verification agree. If intent, ownership, scope, deletion, or risk cannot be resolved from repo evidence, STOP with `hold: <reason>` and ask the user; otherwise report `ready`.
-   - Before final closure, ensure every durable authority-changing outcome has been promoted into its highest owning project doc with a deterministic witness. Do not use non-owner working evidence to compensate for missing owner-doc promotion.
-1) **Restate goal + acceptance criteria** (1-5 bullets).
-2) **Discover** relevant files and existing SSOT jurisdictions and concrete owners (constants/config/rules/workflows/etc).
-   - The assigned lead **MUST** consult `agents-manifest.yaml` and execute the Assigned-Lead Authority Routing Procedure below before task-specific reasoning.
-   - Use `docs/agents/10-repo-discovery/repo-discovery.md` for discovery search terms and SSOT adoption rules.
-   - MUST ensure project docs exist and are read (start with `README.md` and `docs/project/project_index.md`; create missing docs per "Documentation SSOT Policy").
-3) **Decompose** into atomic, independently verifiable subtasks.
-4) **Subagent council**: the assigned lead runs intention-based review inside its subtree per "Subagent Council (Hard Gate)" and integrates the merged findings into the plan.
-5) **Ambiguity gate**: if multiple interpretations would change code materially, STOP and ask 1-3 clarifying questions.
-6) **Implement minimally**: smallest diff that satisfies acceptance criteria; no bundled refactors.
-7) **Verify** with deterministic tools (tests/lint/run) or provide deterministic manual checks
-   when tools are unavailable.
-8) **Return**: provide the root/main orchestrator only the terminal result, `hold`, or authority-grounded superseding-plan summary required by the Assigned-Lead Authority Routing Procedure. Do not return reviewer records, profile/fallback details, routed-authority lists, or task-specific authority-routing witnesses to the root/main orchestrator.
-   - For completed non-trivial work, update the tracked project `Changelog` closure record after durable facts are promoted to their owners; closure-record ownership and valid mirror surfaces are owned by `SSOT-DEC-004`, and field template/order routes to `docs/agents/90-release-checklist/release-checklist.md`.
-
-## Assigned-Lead Authority Routing Procedure (Hard Gate)
-
-Read and follow these authorities:
-- `docs/agents/00-principles/principles.md`
-- `docs/agents/05-context-retrieval/context-retrieval.md`
-- `docs/agents/20-sources-of-truth-map/sources-of-truth-map.md`
-
-The root/main orchestrator reads and follows only `AGENTS.md` and the three authorities listed above. It MUST NOT open or scan `agents-manifest.yaml`, resolve or inspect task authorities, profiles, or fallback routing, read task-specific governance authorities, perform task-specific reasoning or execution, or receive/read reviewer, profile, fallback, routed-authority, authority-routing, or authority-application witnesses.
-
-The root/main orchestrator retains the complete controlling user intent and sends it to one assigned lead with this canonical delegation line (sole owner):
-
-> Use agents-manifest.yaml triggers to read and follow all applicable governance authorities, fulfill the supplied intent under those authorities, and return the compliant result or an authority-grounded superseding plan.
-
-<!-- governance-root-contract: authorities=3 sha256=7e970a08b2e32060f74d20301fb7b7f9525272cc0f284d9be9fe8d5d136ee20d -->
-
-The assigned lead MUST read `agents-manifest.yaml`, execute the routing procedure below, execute the complete Mandatory Execution Loop, coordinate all required council and execution work within its subtree, fulfill the supplied intent, and return only the permitted terminal summary. Every council reviewer or other subagent delegated an intention by the assigned lead MUST independently execute this routing procedure for that intention and report its full result and witnesses only to the assigned lead.
-
-Before task-specific reasoning or work, the assigned lead and each subagent in its subtree MUST:
-
-1) Read `agents-manifest.yaml` and resolve any referenced paths relative to the governance root (directory containing the manifest), per **Path Resolution (SSOT)** above.
-2) Determine matching profiles by evaluating each profile's `detect` signals against the task:
-   - `detect.keywords`: case-insensitive substring match on the user prompt and any referenced file contents.
-   - `detect.code_patterns`: regex/substrings matched against code in scope.
-   - `detect.file_globs`: match against files referenced and/or being edited.
-   - `detect.signals`: explicit signals provided by the user or execution environment.
-   - If semantic search is available and a profile matches, start with `agents-manifest.yaml:semantic_queries.<profile>` when present (see `docs/agents/05-context-retrieval/context-retrieval.md`).
-3) If one or more profiles match, READ the routed authorities from matching profiles according to `agents-manifest.yaml:routing_mode`. If no profile matches, READ `fallback_authorities`.
-4) For `union`, de-duplicate routed authorities in stable profile-declaration and list order. For `first_match`, use the earliest matching profile in declaration order.
-5) Follow context retrieval best practices in `docs/agents/05-context-retrieval/context-retrieval.md`.
-
-If any referenced file is not accessible, STOP and return `hold` plus the missing path and required user action through the assigned lead. The root/main orchestrator MUST NOT compensate by opening the manifest or task-specific source.
-
-## Subagent Council (Hard Gate)
-
-### SRP Authority and Supersession
-
-- This section is the sole policy owner for council activation, dispatch, independent review, evidence, reconciliation, and closure. Its role contracts supersede prior scattered council-specific wording for coverage, sizing, timing, output, jurisdiction review, conflict handling, closure, and dispatch authorization without relaxing any obligation.
-- Downstream docs, prompts, tests, and checkers MUST route to or witness this contract and MUST NOT redefine it.
-- Single responsibilities are fixed: the assigned lead activates, scopes, dispatches, merges, and gates the council inside its subtree; each reviewer independently resolves context, reviews its assigned intentions, and returns evidence to the assigned lead; the merged council summary records every reviewer result and the reconciled decision. The root/main orchestrator performs none of these responsibilities and receives none of the council records.
-- This section consumes but does not redefine the Assigned-Lead Authority Routing Procedure, `agents-manifest.yaml` routing data, `Authority-Constrained Reasoning (Hard Gate)`, implementation-code mechanics in `docs/agents/35-coding-principles/coding-principles.md`, or README verification commands.
-- Purpose: force independent, intention-based review so silent errors, edge cases, resource/security/performance risks, and SSOT alignment defects are surfaced before decisions or implementation.
-
-### Assigned Lead Contract
-
-- Council review is mandatory for discussions that shape design/behavior, new features, behavior changes, bug/error diagnosis or fixes, code reviews, behavior-impacting refactors, and governance changes. Small edits still require at least one review subagent; use the minimum scope when the change is clearly behavior-neutral.
-- The assigned lead chooses reviewer count by risk, scope, and uncertainty; increase it for many touched files or unclear invariants. Preference ranges are: micro or formatting-only **1**; small behavior-neutral **1-2**; discussion/design or moderate **2-4**; feature or behavior change **3-6** (raise when cross-cutting); high-risk/high-impact bugfix, error, or regression **10-20**, with justification when using fewer. There is no maximum.
-- The assigned lead is explicitly authorized to spawn the required reviewers immediately without asking permission and MUST NOT substitute self-review for the council.
-- A reviewer MUST NOT independently approve its own work. Post-change review MUST be performed by a reviewer independent of the implementation being reviewed.
-- Assign all mandatory review intentions from the Reviewer Contract; one reviewer may cover multiple intentions, and add optional intentions when integration/compatibility, migration/backward compatibility, or test/verification risk requires them.
-- Profile-aware coverage is required when any reviewer resolves one or more manifest profiles, reports decision-critical routed authorities, or identifies that the task is large, cross-cutting, high-risk, spans multiple jurisdictions/owners, or changes `AGENTS.md`, `agents-manifest.yaml`, authority routing, council policy, or governance routing.
-- Profile-aware coverage is derived only from reviewer returns. The assigned lead MUST NOT pre-resolve or assign profiles, fallback routes, authority lists, or authority-routing witnesses for a reviewer. It may dispatch a follow-up only from a returned `hold`, omission, conflict, or recommended high-level intention.
-- Every reviewer prompt MUST include only the complete controlling user intent, assigned high-level intention(s), and the canonical delegation line owned by the Assigned-Lead Authority Routing Procedure. It MUST NOT contain prepared profiles, fallback routes, routed-authority lists, or authority-routing witnesses.
-
-### Reviewer Contract
-
-- Every reviewer MUST independently execute the complete Assigned-Lead Authority Routing Procedure for its assigned intention before reviewing, determine its own task-authority requirements, and remain independent of the assigned lead's merge decision.
-- Mandatory intention coverage across the council is:
-  - **SSOT jurisdiction and duplication pruning**: identify the highest applicable jurisdiction and concrete owner, then prune or reroute duplicate, drift, shadow, wrong-owner, or non-authoritative surfaces.
-  - **Silent-error scan**: identify missing validation, silent failure paths, and "silently skip" patterns prohibited by Non-Negotiable #4.
-  - **Edge-case scan**: identify boundary conditions and pre/post-change failure modes.
-  - **Resource/security/perf risks**: identify leaks, unsafe inputs, timeouts, and performance regressions.
-  - **Coding principles / authority-design review**: for implementation-code scope, apply `docs/agents/35-coding-principles/coding-principles.md` to planned and implemented code for authority-correct design, SSOT jurisdiction, duplicate/substitute logic, contract boundaries, and post-diff purification.
-- Reviewers may add stronger task-specific reasoning beyond assigned docs only when classified as authority-preserving; a change to future allowed behavior requires an owner update. Unsupported or conflicting recommendations are non-binding.
-- A reviewer MUST NOT rely on an assigned-lead-supplied profile, fallback route, routed-authority list, or authority-routing witness. If its prompt contains prepared task-specific routing, it MUST record the role-boundary violation and return `go_no_go = hold`.
-- A reviewer that cannot confirm its self-resolved profile-authority coverage MUST return `go_no_go = hold`. If a required routed authority or reviewer/runtime path is unavailable, record `SKIPPED`/`UNKNOWN` plus reason in `profile_authority_coverage` and return `hold` unless the user explicitly accepts reduced coverage.
-
-### Evidence Contract
-
-- Every reviewer result MUST be preserved or losslessly represented in the merged council summary by the assigned lead; no finding, authority obligation, evidence item, profile-coverage result, risk, or disposition may be dropped. The root/main orchestrator MUST NOT receive or read reviewer records or the merged council summary.
-- Reviewer findings MUST be traceable to authority inputs and deterministic witnesses.
-- When a reviewer resolves authority docs, its record MUST include:
-  - `assigned_authority_docs`: exact SSOT jurisdiction records, authority docs, or owner identifiers used.
-  - `applied_obligations`: concrete obligations with source section, scope, status, and evidence.
-  - `jurisdiction_map_delta`: affected SSOT jurisdiction boundaries.
-  - `drift_surfaces`: duplicate, stale, shadow, patch, compatibility, fallback, checker-specific, test-only, or wrong-owner surfaces classified against the jurisdiction and owner.
-  - `jurisdiction_level_fix`: owning jurisdiction, owner contract, or witness to strengthen.
-  - `prune_targets`: non-owner code/docs/tests/scripts/prompts/reports/checker logic to delete, move, or reroute.
-  - `witness_required`: tests, checks, or deterministic manual evidence required to prove restoration.
-  - `go_no_go`: `hold` for missing, conflicting, inaccessible, unknown, or unapplied authority obligations.
-- Every reviewer record MUST include `profile_authority_coverage`: matched profiles or explicit fallback resolution, routed authorities, authorities applied, authorities skipped, inaccessible authorities, skip reasons, authority-application witness, omissions, reduced-coverage acceptance if any, and `go_no_go`.
-- The merged `reviewers` and `profile_authority_coverage` fields MUST make reviewer-returned profile/authority provenance auditable without assigned-lead-created profile assignments.
-- Every required council run MUST produce one merged council summary owned by the assigned lead. For non-micro changes it MUST include:
-  - `council_run_id`
-  - `phase` (`pre_change` | `post_change`)
-  - `intent_coverage` (`ssot_duplication`, `silent_error`, `edge_case`, `resource_security_perf`, `coding_principles_authority_design`)
-  - `reviewers` (id, role, scope, and reviewer-record mapping)
-  - `findings` (severity, location, issue, evidence, recommendation, reviewer, and disposition)
-  - `conflicts`
-  - `reconciliation_decision` (accepted/rejected/deferred plus rationale)
-  - `residual_risks`
-  - `go_no_go` (`go` | `hold`)
-  - `verification_links` (README checks and/or deterministic manual witnesses)
-  - `authority_application` (`authority_inputs`, `applied_obligations`, `decision_basis`, `evidence`)
-  - `profile_authority_coverage` (reviewer-reported matched profiles or fallback, routed authorities/groups, reviewer provenance, inaccessible authorities, omissions/reasons, and reduced-coverage acceptance if any)
-- Micro or formatting-only changes may use an abbreviated merged summary containing `intent_coverage`, `findings` (or explicit `No findings`), `residual_risks` (or `none observed`), and `go_no_go` (`go` | `hold`).
-
-### Reconciliation and Closure
-
-- **Pre-change**: the assigned lead runs the council before decisions or implementation, reconciles its results, and updates the plan. Implementation may begin only after required intention coverage and one merged council summary are complete.
-- **Post-change**: before the final response, run a brief independent scan with at least one reviewer for newly introduced silent errors or edge cases. It may be waived for doc-only or formatting-only work only when pre-change coverage is recorded and verification evidence is deterministic; document that proportionality exception in the merged summary.
-- If reviewers conflict on severity, root cause, fix placement, or risk disposition in a way that could materially change implementation, run one targeted disconfirming check when feasible. If the conflict remains, STOP and ask the user; record `conflicts` and `reconciliation_decision`.
-- Any unresolved blocker requires `go_no_go = hold`; implementation is prohibited until the blocker is resolved or explicitly accepted by the user.
-- The assigned lead may return the terminal result to the root/main orchestrator only after the required post-change scan or documented proportionality exception and its merged summary are complete. Its terminal summary MUST omit reviewer records, profile/fallback details, routed-authority lists, and task-specific authority-routing witnesses.
+Project docs own durable repository truth. Plans and agent working records remain ephemeral and untracked unless a durable fact is promoted into its declared project-doc owner.
 
 ## Governance Auto-Edit Gate (Hard Gate)
-
-Auto-edit for governance learnings is allowed only when the governance learnings playbook is **explicitly invoked**; otherwise, produce proposals only for governance learnings.
-
-Council review is required before any auto-edit:
-- Run the council with the minimum intention coverage from "Subagent Council (Hard Gate)".
-- Merge findings; if conflicts or gaps remain, pause and ask before editing.
-
-Confirmation gate (for governance learnings auto-edit):
-- If a proposed governance change is not grounded in existing `AGENTS.md` authority (new rule/invariant/SSOT jurisdiction or owner), ask for explicit confirmation before editing.
-- For governance learnings auto-edit, edits to `AGENTS.md` always require explicit confirmation, except changes limited to the "Confirmation gate" subsection above.
-
-Scope:
-- For governance learnings auto-edit, scope defaults to governance docs/playbooks and `agents-manifest.yaml` only.
+Governance learnings auto-edit requires explicit invocation of its playbook; otherwise learning-derived suggestions remain proposals. A directly requested owner update is authorized task work. Scope defaults to governance docs/playbooks and `agents-manifest.yaml`; its plan, review, confirmation, execution, and final review follow `Orchestration.md`.
+Confirmation gate: include new rules, invariants, jurisdictions, or owners not grounded in existing authority in the plan and satisfy FP-30 through `Orchestration.md`. AGENTS edits require explicit authorization covering the owner update, except changes limited to this Confirmation gate. Existing authorization satisfies FP-30; do not request it again.
 
 ## Non-Negotiables (Hard Gates)
-
 ### 1) Single Source of Truth (SSOT) — The Foundational Rule
-**This is the most critical non-negotiable. Every other rule depends on it. Apply it to every action: code, docs, config, skills, scripts, data.**
+FP-08 through FP-16 govern SSOT ownership and consolidation. The concept-to-owner route is `docs/agents/20-sources-of-truth-map/sources-of-truth-map.md`.
 
-For every concept, there must be exactly one authoritative definition:
-- constants (sheet names, headers, statuses, folder names, prefixes/patterns)
-- config keys + defaults + schema
-- data-facing truth / business facts
-- business rules / conditions / validation logic
-- workflow orchestration steps
-- run outcomes, user-facing feedback, and reporting/log schema
-- skills, scripts, and tools for the same domain
-- Excel lifecycle management (open/close/quit/verify/kill)
-- GUI queue/drain + cancellation pattern
+**SSOT jurisdiction and duplication pruning rule:** apply those principles at the highest owning contract, schema, config, validator, registry, public entrypoint, or data authority. Non-owner callers, docs, tests, scripts, checkers, projections, and generated artifacts MUST consume that owner; they MUST NOT define private rules or preserve owner defects through wrappers, shadow contracts, or test-only allowances.
 
-**SSOT jurisdiction and duplication pruning rule:** before defining, changing, or consuming any responsibility, locate the highest current SSOT jurisdiction and its concrete owner; reuse that jurisdiction through the owner's declared public contract, owner doc, registry, schema, config, validator, workflow entrypoint, or data authority; when behavior or guidance is missing, weak, or stale, patch that owner and rewire all callers, docs, tests, scripts, checkers, and generated artifacts to consume it; delete or reroute duplicate, stale, shadow, wrapper, fallback, checker-specific, test-only, and wrong-owner surfaces; if no jurisdiction exists, create the minimal owner and wire every use site through that owner.
+Runtime workflow composition mechanics are owned by `docs/agents/35-coding-principles/coding-principles.md`; config and changing source values are owned through `docs/agents/40-config-constants/config-constants.md` and their declared data authorities.
 
-Workflow/orchestration ownership means runtime coordination only. A workflow owner may load a validated runtime plan, sequence already-authoritative steps, call rule/config/constant owners, call I/O or lifecycle adapters, pass plain data to child entrypoints, select the declared runtime path when that selection is its contract, and emit run outcomes. It MUST NOT own, duplicate, or reinterpret child-stage business rules, validation predicates, constants, schema, config keys/defaults, backend-selection rules, lifecycle policy, or UI/checkbox semantics.
-
-Data-facing truth must not be hardcoded in runtime logic, workflow orchestration, scripts, docs, or config-repair code. Business/source data, user-facing mappings, workbook/sheet/header truth, portal fields, machine-specific paths, and other changing operational facts must come from input artifacts, declared config/constants, external systems, or the owning data authority. Business logic may consume only the validated value exposed by that owner; it must not embed a private copy.
-
-**File/folder structure IS SSOT enforcement.** Related artifacts sharing the same authority boundary MUST live under the same parent folder. Broader domains may contain multiple artifact-class roots only when a governance authority decision explicitly records one canonical owner plus any allowed non-owner workspace paths. When adding new files, find the existing SSOT parent first. When discovering scattered files that belong to the same authority boundary, refactor them into their SSOT parent before proceeding with other work.
-
-Hard rules:
-- Apply the SSOT jurisdiction and duplication pruning rule before adding files, helpers, docs, tests, scripts, skills, config, or runtime paths.
-- If related files sharing one authority boundary are scattered across multiple locations, **consolidate them under the existing SSOT parent** as part of the current change.
-- A non-owner workspace path is allowed only when a governance authority decision records the canonical owner, the allowed non-owner path, and the forbidden duplicates. This is hierarchical authority, not parallel authority.
-- Every new file must answer: "Which existing SSOT jurisdiction and parent does this belong under?" Resolve that through the SSOT jurisdiction and duplication pruning rule.
+**File/folder structure IS SSOT enforcement.** Related artifacts within one authority boundary MUST share the existing SSOT parent. A broader domain's non-owner workspace path requires a governance authority decision declaring the canonical owner, permitted non-owner path, and forbidden duplicates. Scattered same-authority artifacts MUST be consolidated within the authorized change, with affected consumers migrated and required behavior preserved.
 
 ### 1A) Instruction Derivation Gate (Hard Gate)
 Every agent-authored normative statement must derive from a declared SSOT owner before it is treated as an instruction, requirement, checklist item, plan step, prompt scaffold, doc record, or user-facing obligation.
 
 Hard rules:
-- Classify each source before deriving obligations: owner, routed support, reference/example, scaffold, generated artifact, or user intent.
+- Classify each source before deriving obligations: owner, routed support, reference/example, scaffold, generated artifact, user intent, or explicit user decision.
 - Only a declared owner defines obligations. Non-owner text routes, cites, illustrates, scaffolds, or records evidence; it does not create policy, weaken policy, broaden policy, or select runtime behavior.
+- Controlling user intent includes all binding user messages in the current workflow, not only the latest prompt. A user message contains an explicit user decision when it states a desired outcome, correction, constraint, supersession, acceptance criterion, data-truth assertion, or owner update. Within its stated scope, an explicit user decision supersedes conflicting agent-originated assumptions, plans, council conclusions, summaries, reports, stale recorded decisions, or implementation choices. Preserve unrelated binding user intent when applying a later decision. User silence, user inability to monitor autonomous agent choices, generated artifacts, or prior agent consensus never converts an agent-originated choice into a user decision.
+- Before decision-critical work, agents must retrieve and apply relevant durable project authority records through their assigned source jurisdictions under `Orchestration.md`; the user must not have to identify those records or restate their binding facts. Apply explicit user supersession through the owning authority rather than letting stale agent-originated records override the user.
+- During authorized work, agents must automatically maintain the declared documentation owners of all material knowledge relevant to future reasoning and decisions, without waiting for user reminders or file identification. Apply `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md` for admission, concise placement, provenance, uncertainty, agent-decision attribution, safe supersession, and source-owned value routing. Documentation is the primary durable governing record for reasoning and work; recorded claims neither verify themselves nor create authority. Temporary coordination and raw sensitive prompts remain excluded.
+- User-prompt supersession does not make unverifiable runtime facts true, bypass required verification, or authorize destructive, disruptive, externally visible, or difficult-to-recover side effects beyond the user's stated scope. If an explicit user decision changes reusable governance policy, update the owning governance authority through the SSOT path instead of leaving the prompt as a standing exception.
 - Derived statements must preserve the owner's scope, preconditions, ordering, optionality/defaultability, allowed states, terminal outcomes, and verification witness. If the owner declares exact terms, states, phases, reason codes, or outcome values, use those owner-declared terms or cite the owner instead of restating them.
 - Derived normative statements must use deterministic obligation language. Binding requirements must use explicit required/prohibited terms such as `must`, `must not`, `required`, `prohibited`, `fail`, or `hold`. Permission terms such as `may` or `allowed` may define only a bounded permission with a declared owner, conditions, and witness. Advisory terms such as `should`, `prefer`, `can`, or `likely` must not define requirements, gate behavior, or weaken an owner obligation. If a statement is optional, it must name the decision owner, the conditions for choosing it, and the witness that proves the choice stayed within owner scope.
-- User prompts provide intent, scope, and acceptance criteria. Repo owners constrain allowed behavior. A conflict between prompt intent and a declared owner is an authority conflict, not permission to synthesize a replacement rule.
+- User prompts provide intent, scope, acceptance criteria, and explicit user decisions. Repo owners constrain allowed behavior unless the explicit user decision requests an owner update or supersession through the SSOT path. A conflict between prompt intent and a declared owner is an authority conflict until the owner is updated or the task is held; it is not permission for an agent to synthesize a replacement rule.
 - Generated plans, checklists, prompt packs, summaries, and examples are non-authoritative unless each normative item cites or routes to the owner that makes it binding.
 - Missing owner, conflicting owners, unknown optionality/defaultability, missing witness, or unclear precedence is an authority gap. Stop and report the gap before editing or executing; do not infer, duplicate, downgrade, or continue through a substitute path.
 
 ### 1B) SSOT Jurisdiction and Purification (Hard Gate)
-SSOT jurisdiction is the authority boundary that decides where each decision-critical fact, rule, state, side effect, lifecycle, public contract, output, witness, review finding, and verification obligation is allowed to be defined, changed, interpreted, enforced, or retired.
-
-For every non-trivial task, the requested file, feature, symptom, review topic, user-facing behavior, or dirty-worktree diff is only the entry point into the authority graph, not the scope ceiling. Before planning, reviewing, editing, testing, or reporting, identify the highest owning jurisdiction for each decision-critical fact, rule, state, side effect, lifecycle, public contract, output, witness, and verification obligation in scope.
-
-Non-owner surfaces may route, call, adapt, display, assert, or witness owner behavior only. They must not define, infer, duplicate, weaken, override, preserve, or patch around owner semantics.
-
-Treat duplication, drift, stale references, shadow contracts, compatibility paths, wrappers, local predicates, checker-specific logic, and test-only allowances as jurisdiction defects when they preserve or create non-owner authority.
-
-Jurisdictional pruning restores owner alignment: remove, move, or rewrite those defects through the correct owner. If existing code, docs, tests, scripts, prompts, reports, wrappers, compatibility paths, checker logic, or council findings exist only because the owner contract is missing, weak, stale, bypassed, or ambiguous, fix the owning jurisdiction and delete, move, or reroute the non-owner patch.
-
-Missing, conflicting, or unclear jurisdiction is a `hold`, not permission to continue locally.
+SSOT jurisdiction defines where a decision-critical fact, rule, state, side effect, lifecycle, contract, output, witness, finding, or verification obligation is owned. The requested file or symptom is an entry into that authority graph, not its scope ceiling. Apply FP-04, FP-08, FP-09, FP-12, and FP-27 across affected owners and consumers; implementation evidence mechanics are owned by `docs/agents/35-coding-principles/coding-principles.md`.
 
 ### 2) No Duplicates (Operational Meaning)
-Duplication includes:
-- repeating the same literal (same meaning) across files/docs
-- repeating the same conditional logic/rule across files
-- multiple Excel quit/kill implementations
-- multiple GUI queue/drain implementations
-- copy/paste helpers with minor variations
+MUST apply `docs/agents/35-coding-principles/coding-principles.md`.
 
 ### 2A) No Fallback or Legacy Runtime Paths
-Runtime code must not introduce fallback execution paths, legacy execution methods, shadow compatibility branches, silent downgrade behavior, or substitute implementations for the same responsibility.
-
-Hard rules:
-- Choose one explicit deterministic runtime path from the current SSOT contract.
-- Runtime code must not implement or select fallback, legacy, compatibility, shadow, downgrade, or substitute execution branches for the same responsibility.
-- Unsupported, unverified, unavailable, retired, or legacy paths must produce a terminal `FAILED` or `SKIPPED + reason` outcome for the affected workflow/item; they must not trigger substitute execution or workflow continuation by another method.
-- Docs, evidence, migration notes, history, and projection metadata may record legacy/fallback/compatibility behavior as recorded truth only. Runtime code must not treat those records as executable authority or use them to select a workflow path.
-- Compatibility projections or setup targets may exist only as non-authoritative projection/setup records declared by their owning SSOT. They must not be used to continue a failed primary workflow or substitute for the current runtime contract.
-- Cleanup after validation, execution, or commit failure is cleanup-only: release resources, close handles, undo or mark partial writes when applicable, record the terminal outcome, and stop, raise, or return that outcome.
-- Cleanup must be deterministic and bounded. Cleanup failure must be recorded explicitly, for example as `FAILED_CLEANUP`, and must not mask the original failure.
-- Cleanup must not run alternate business rules, alternate backends, legacy methods, substitute workflow steps, or convert a failed/unsupported path into successful continuation.
-- Defaults are allowed only when the current config SSOT declares them and they are applied before runtime path selection; missing or invalid required inputs must fail or be skipped explicitly.
-- Config JSON creation, normalization, or repair may run only through the config owner/loader before runtime path selection. It may use declared defaults only, must record `REPAIRED_CONFIG + keys/reasons` or terminal `FAILED_CONFIG_REPAIR + keys/reasons`, and must not invent required values, repair business/source data, or continue by an alternate runtime path.
-- Performance, cost, convenience, dependency availability, or environment differences must not select an alternate runtime path unless that path is the single current SSOT contract for the workflow.
+MUST apply `docs/agents/35-coding-principles/coding-principles.md`.
 
 ### 3) No Orphan Code / No Orphan Docs
-New code must be reachable from:
-- a workflow entrypoint/dispatcher/registry, or
-- a clearly documented entrypoint used by the repo
-
-New docs must be reachable from:
-- a docs index (e.g., `docs/agents/agents_index.md`) or the repo `README.md`
-
-Unreferenced helpers and "floating docs" are prohibited.
+Code must be reachable from a workflow or documented entrypoint; docs must be reachable from a docs index or README. Unreferenced helpers and floating docs are prohibited. Apply the coding and docs owners below.
 
 ### 4) Logging + Explicit Failure
-- No `print()`.
-- Use module-level logging (`logger = logging.getLogger(__name__)`) where applicable.
-- Catch specific exceptions; log context; raise meaningful domain errors.
-- Never "silently skip": if something is skipped, record **SKIPPED + reason** (log and/or run report).
-- Never "silently pass": success or partial success must reconcile the known work universe (`planned`, `eligible`, `executed`, `skipped`, `failed`) or fail validation if the workflow cannot know what it was supposed to process.
-- User-facing surfaces (CLI, GUI, reports, status panes) must show concise input/scope confirmation, progress or current processing phase for long work, terminal outcome, output/artifact path when produced, skip/failure reason, required user action, and run/report/log pointer when applicable.
-- Keep user feedback concise and actionable; keep deep diagnostics in structured logs with redaction and summarized large payloads.
+MUST apply `docs/agents/30-logging-errors/logging-errors.md`.
 
 ### 5) Resource Safety
-- Prefer context managers.
-- Always cleanup in `finally` when managing external resources.
-- Time-bound waits (no infinite loops).
+MUST apply `docs/agents/70-io-data-integrity/io-data-integrity.md`.
 
 ### 6) Excel COM Lifecycle Safety (If Applicable)
-Excel automation must guarantee shutdown:
-- attempt graceful quit
-- track and validate Excel PID
-- verify process exit
-- if still running after verified graceful-quit failure, terminate only the validated PID within a bounded timeout
-- log open/close/quit/verify/kill stages
+MUST apply `docs/agents/50-excel-com-lifecycle/excel-com-lifecycle.md`.
 
 ### 7) GUI Thread Safety (If Applicable)
-GUI updates must occur on the main/UI thread only:
-- worker posts messages to a queue
-- UI thread drains queue via `after(...)` (or equivalent)
-- a shutdown/cancel event exists and the worker respects it
-- Excel COM work never runs on the UI thread
+MUST apply `docs/agents/60-gui-threading/gui-threading.md`.
 
 ### 8) Security Baseline
-- Never hardcode secrets; use environment variables or secret stores.
-- Refuse requests to weaken security (e.g., disabling TLS validation) unless the user explicitly accepts the risk
-  and it is confined to a safe environment.
-- Avoid injection risks (shell, SQL, template).
+Never hardcode secrets; use environment variables or secret stores. Refuse security weakening (such as disabling TLS validation) unless the user explicitly accepts the risk and confines it to a safe environment. Avoid shell, SQL, and template injection.
 
-### 9) AI Stuck-Loop Reset (Hard Gate)
-- If the same failure repeats (e.g., 2 iterations with the same root cause) or verification contradicts claims, the assigned lead MUST STOP the current attempt, populate a filled restart prompt as an internal handoff inside its subtree, restart with a fresh subagent/model in that subtree, and re-attempt the work.
-- The assigned lead MUST NOT return the filled prompt, task-specific evidence, or authority-routing witnesses through the root/main orchestrator; if continuation requires user action, return only a terminal `hold` or authority-grounded superseding-plan summary with the reason and required action.
-- Follow: `docs/agents/15-stuck-in-loop-generate-fresh-restart-prompt/stuck-in-loop-generate-fresh-restart-prompt.md`
+### 9) Performance & Speed (When Relevant)
+MUST apply `docs/agents/00-principles/evidence/evidence.md`.
 
-### 10) Performance & Speed (When Relevant)
-- If speed/performance is an acceptance criterion or implied by scale, state a performance model and pick low-risk optimizations first (algorithmic wins, reduce I/O, avoid repeated scans).
-- Choose the fastest safe correct method within validated data, domain, workflow, and resource boundaries; do not force an optimization blindly when its assumptions are unverified.
-- For processing work, define workload bounds, bottleneck hypothesis, cache/batch/chunk/queue strategy, invalidation rules, memory/concurrency limits, deterministic ordering, cancellation behavior, and cleanup behavior before optimizing.
-- Never trade away correctness, determinism, data integrity, edge-case safety, logging, or guaranteed cleanup for speed; keep concurrency bounded and cancellation-aware.
-- Verify claimed speedups with deterministic evidence (benchmark/timing on representative inputs when feasible) or complexity reasoning, plus output-equivalence and failure-path witnesses; avoid premature micro-optimizations.
-
-### 11) Coding Architecture — Hard Gate
-Implementation code has one coding-rule jurisdiction: `docs/agents/35-coding-principles/coding-principles.md`.
-
-Hard gate:
-- Apply `docs/agents/35-coding-principles/coding-principles.md` before planning, adding, reviewing, refactoring, purifying, or wiring implementation code that owns runtime behavior, workflow logic, or reusable runtime contracts.
-- Preserve one owner, one owner-resolved public entrypoint, plain-data contracts, parent-owned composition, explicit outcomes, bounded cleanup, and deterministic witnesses for each implementation-code authority.
-- Route detailed coding mechanics, including folder contracts, dependency direction, orchestration limits, I/O boundaries, file-size decomposition, contract-change approval, structural minimality, adapters, post-diff purification, and deletion-test witnesses, to `docs/agents/35-coding-principles/coding-principles.md`.
-- Use the `scripts/check_governance_core/check_governance_core_main.py` public contract for governance, docs, repository structure, and Python-safety validation, and `agents-manifest.yaml` for task routing.
-- When implementation code is in scope, the coding-principles reviewer MUST independently resolve and apply the coding-principles authority through the Assigned-Lead Authority Routing Procedure; the assigned lead MUST NOT supply the authority path in the reviewer prompt.
-- Missing, conflicting, or inaccessible coding authority inputs require `hold: <reason>`.
+### 10) Coding Architecture — Hard Gate
+MUST apply `docs/agents/35-coding-principles/coding-principles.md` before planning, adding, reviewing, refactoring, purifying, or wiring implementation code. It owns the detailed coding mechanics and evidence; independent review applies it through `Orchestration.md`. Governance, docs, repository structure, and Python safety use the `scripts/check_governance_core/check_governance_core_main.py` public contract; `agents-manifest.yaml` routes Governance Agent authorities only. Missing, conflicting, or inaccessible coding authority requires `hold: <reason>`.
 
 ## Governance Templates (Required)
-
 ### Change Contract (Required for behavior changes and bugfixes)
-Use as a temporary implementation/review scaffold. Durable project truth from the contract must be promoted into the highest owning project doc instead of a separate history artifact. Full template: `docs/agents/playbooks/change-contract-template/change-contract-template.md`.
-
-Bugfix and regression evidence must remain deterministically reproducible through owner docs, tests, fixtures, and verification output. Additional evidence artifacts must be routed through the docs SSOT policy with declared ownership and update triggers.
+Use `docs/agents/playbooks/change-contract-template/change-contract-template.md` as the temporary scaffold; promote durable facts into their highest project owner. Keep bug/regression evidence reproducible through owner docs, tests, fixtures, and verification output; route additional evidence through docs-policy with ownership and update triggers.
 
 ### Standard Log Schema (Required when logs are emitted)
 Full schema: `docs/agents/playbooks/log-schema-template/log-schema-template.md`.
 
-Rules (also enforced by Non-Negotiable #4):
-- No `print()`; use module-level logging.
-- The log schema follows the SSOT jurisdiction and duplication pruning rule; do not fork schemas.
-- Reason codes: maintain a single enum owner (module or config). Extend there only.
+Apply Non-Negotiable #4 and FP-12 to the schema and reason-code owner; extend the existing owner only.
 
 ## Self‑Decision Procedure (Repo‑Agnostic)
-
-### A) Discovery Pass (Required Before Writing)
-Search the repo for existing owners of:
-- constants/config/settings/defaults
-- rules/validation
-- workflows/dispatchers/registries
-- logging setup + error taxonomy
-- Excel COM lifecycle utilities
-- GUI threading utilities
-- existing docs conventions
-
-### B) Adoption Rule
-Apply Non-Negotiable #1 "SSOT jurisdiction and duplication pruning rule" to adopt, patch, rewire, or prune the current jurisdiction and owner without creating parallel ownership.
-
-### C) Creation Rule (Only If Missing)
-If no SSOT jurisdiction exists for a responsibility under that rule, create one minimally (one module per responsibility, not one-per-function), and wire all new features through it.
+Apply FP-04, FP-05, FP-08, FP-26, and FP-28 through `docs/agents/10-repo-discovery/repo-discovery.md` and `docs/agents/05-context-retrieval/context-retrieval.md`. Discovery MUST resolve the owning constants/config, rules, workflow, logging, lifecycle, GUI, and documentation jurisdictions before the corresponding change.
 
 ## Documentation SSOT Policy (Hard Gate)
-
-Docs can drift. Prevent docs from becoming a second SSOT.
+Documentation must be maintained as the primary durable governing record for reasoning and work, within each declared SSOT jurisdiction. Apply `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md` before adding, changing, splitting, routing, or superseding documentation. That owner defines the required project branches and README links, admission and maintenance, safe supersession, headers, concise authoring, recursive folder contracts, and the universal documentation line limit; it must retain their binding details.
 
 ### Project docs (Hard Gate)
-When this governance pack is present in a repo, the agent MUST ensure a **minimal** project docs set exists and is kept current.
-
-Hard gate:
-- If any required project doc is missing, CREATE it before making other changes.
-- The project `README.md` MUST link to `docs/project/project_index.md` (project docs entrypoint) and to `AGENTS.md` (governance).
-- The project `README.md` MUST include a short "Checks" section listing the deterministic verification commands for the repo.
-
-Baseline required project docs include:
-- `docs/project/project_index.md` (entrypoint/router; linked from README)
-- `docs/project/goal/goal.md` (objective + acceptance criteria; router at `docs/project/goal/goal_index.md`)
-- `docs/project/rules/rules.md` (project do/don't rules; router at `docs/project/rules/rules_index.md`)
-- `docs/project/architecture/architecture.md` (SSOT pointers: entrypoints/modules/workflows; router at `docs/project/architecture/architecture_index.md`)
-- `docs/project/data-truth/data-truth.md` (data-truth ownership/provenance/validation routing; router at `docs/project/data-truth/data-truth_index.md`)
-- `docs/project/changelog/changelog.md` (tracked closure records; router at `docs/project/changelog/changelog_index.md`)
-- `docs/project/learning/learning.md` (operational learnings and pitfalls; router at `docs/project/learning/learning_index.md`)
-
-`docs/project/goal/goal.md` owns durable project intent, objective, acceptance criteria, non-goals, and verification intent. Working evidence remains non-authority unless a durable fact is promoted into the declared owning project doc routed by the docs SSOT policy.
-
-Facts are owned by their declared source of truth, not by file type. Code, config, constants, input artifacts, external systems, schemas, workbooks, and project docs may each own facts when explicitly declared as the SSOT. Non-owner docs must route to the owner instead of duplicating the fact.
-
-Config, constants, defaults, sample artifacts, workbooks, and external systems may be real data authorities when declared as the SSOT. Runtime code consuming those values does not automatically become the owner of the underlying business or data truth.
-
-Project docs also provide **bounded project authority memory**: a small docs-first record of prior truth that must affect future allowed behavior until explicitly superseded. It is not raw chat/session memory and it is not a separate memory system. Classification, placement, precedence, optional-leaf semantics, and checker limits are owned by `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`.
-
-Hard gate:
-- Before changing project authority records, identify the declared owner and follow `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`.
-- Before scaffolding or repairing project docs, follow `docs/agents/playbooks/project-docs-template/project-docs-template.md`.
-
-Policy/detail SSOT: `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`
-Scaffold/template SSOT: `docs/agents/playbooks/project-docs-template/project-docs-template.md`
-
-All project docs must:
-- Follow the required doc header (except router files resolved by the `scripts/check_governance_core/check_governance_core_main.py` public contract).
-- Reference SSOT owners by identifier (code/config/workflow entrypoints) rather than duplicating literals/rules.
-- Stay minimal and precise (prefer short bullet lists; avoid long prose).
-- Avoid duplicating governance rules: reference `AGENTS.md` instead of copying its requirements.
+If a required project doc is missing, MUST create it before other changes using `docs/agents/playbooks/project-docs-template/project-docs-template.md`. The docs-policy owner declares the baseline; mutable values remain at their actual source owners.
 
 ### Docs Branching Architecture (Hard Gate)
-Authority role:
-- This section is the always-on docs-modularity hard gate for documentation structure under `docs/`.
-- `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md` owns delegated docs-family mechanics under this gate: headers, router behavior, public leaf placement, project-doc placement, owner-doc promotion, and optional leaf placement.
-- `scripts/check_governance_core/check_governance_core_main.py` owns the public docs router and public-leaf validation contract; its private modules are replaceable implementation details.
-
-- Every `docs/` folder must expose the owner-resolved router contract and route to direct children without becoming the narrative owner.
-- Narrative facts live in router-linked public leaf docs under the owning folder authority; parent routers route downward and do not restate child rules, literals, or contracts in full.
-- Artifact/payload folders remain navigable through the router contract even when they expose no narrative leaf.
-- Apply the detailed docs-router/header/public-leaf mechanics from `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`; do not fork those mechanics here.
-
-### Docs MAY contain
-- intent (“why”), invariants, and safety constraints
-- contracts/interfaces referencing SSOT symbols/modules/workflow entrypoints
-- playbooks/checklists/runbooks referencing entrypoints and config keys by identifier
-- decision records (ADR-style)
-
-### Docs MUST NOT contain (unless clearly marked as example)
-- duplicated tables of constants/defaults
-- prose re-implementations of business rules without pointing to the named rule function
-- manually-maintained code blocks that mirror production code
-
-### Required doc header (for Markdown files under `docs/`)
-Each doc (except router files) must declare:
-- `doc_type`
-- `ssot_owner`
-- `update_trigger`
-
-See `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`.
+Every docs folder exposes its owner-resolved router and routes direct children; narrative facts live in linked public leaves. Apply the docs-policy owner for all details, including payload navigation and direct narrative-leaf references.
 
 ## Code Comment Policy (Hard Gate)
-
-Comments drift quickly; keep them "why-only":
-- explain invariants, rationale, and safety constraints
-- do not restate logic or duplicate constants/defaults
-- reference SSOT symbols/modules when needed
+MUST apply `docs/agents/35-coding-principles/coding-principles.md`.
 
 ## Supporting Docs
-
 Start here: `docs/agents/agents_index.md`

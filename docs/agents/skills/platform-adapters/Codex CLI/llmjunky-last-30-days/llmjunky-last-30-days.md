@@ -15,6 +15,6 @@ update_trigger: collection window changes OR sourced Codex CLI examples are adde
 - Use [evidence.md](evidence.md) when you need the source-preserved TOML fragments, timestamps, or explicit skips.
 
 ## Scope
-- Time window: `2026-02-03T20:17:53Z` through `2026-03-05T20:17:53Z` UTC.
+- Collection window and source provenance: [evidence.md](evidence.md), Source and scope.
 - Content type: explicit Codex CLI config snippets preserved from X API post bodies.
 - Non-goal: this branch does not normalize the source snippets into canonical current Codex settings guidance.

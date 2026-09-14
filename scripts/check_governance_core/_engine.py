@@ -10,8 +10,10 @@ from scripts.check_governance_core._docs_checks import check_docs, check_project
 from scripts.check_governance_core._documents import DocumentStore, routed_markdown_corpus
 from scripts.check_governance_core._folder_architecture import check_folder_architecture
 from scripts.check_governance_core._governance_checks import (
+    FoundationContract,
     GovernanceContract,
     check_governance,
+    resolve_foundations,
     resolve_governance_contract,
 )
 from scripts.check_governance_core._manifest import validate_manifest
@@ -27,7 +29,8 @@ class CheckContext:
     governance_rel: str
     store: DocumentStore
     inventory: RepositoryInventory
-    contract: GovernanceContract
+    contract: GovernanceContract | None
+    foundations: FoundationContract | None
     strict_safety: bool
 
 
@@ -35,15 +38,21 @@ Check = Callable[[CheckContext], tuple[list[str], list[str]]]
 
 
 def _governance(context: CheckContext) -> tuple[list[str], list[str]]:
-    return check_governance(context.governance_root, context.store, context.contract), []
+    assert context.contract is not None and context.foundations is not None
+    return check_governance(
+        context.governance_root, context.contract, context.store, context.inventory, context.foundations
+    ), []
 
 
 def _manifest(context: CheckContext) -> tuple[list[str], list[str]]:
+    assert context.foundations is not None
+    if context.foundations.errors:
+        return list(context.foundations.errors), []
     _data, errors = validate_manifest(
         context.governance_root,
         context.store,
         context.inventory,
-        context.contract.root_authorities,
+        context.foundations.authorities,
     )
     return errors, []
 
@@ -72,7 +81,13 @@ def _repository(context: CheckContext) -> tuple[list[str], list[str]]:
 
 
 def _folder_architecture(context: CheckContext) -> tuple[list[str], list[str]]:
-    return check_folder_architecture(context.governance_root, context.store, context.inventory)
+    assert context.foundations is not None
+    if context.foundations.errors:
+        return list(context.foundations.errors), []
+    return check_folder_architecture(
+        context.governance_root, context.store, context.inventory,
+        coding_policy_path=context.governance_root / context.foundations.path_for("coding_principles"),
+    )
 
 
 def _python_safety(context: CheckContext) -> tuple[list[str], list[str]]:
@@ -132,8 +147,10 @@ def execute(request: dict[str, object]) -> dict[str, object]:
         raise ValueError("fail_on_safety_warnings is valid only in full mode")
     repo_root, governance_root, governance_rel, inventory = _resolve_roots(request)
     store = DocumentStore()
-    inventory.tree_entries(repo_root if mode == "full" else repo_root / "docs")
-    contract = resolve_governance_contract(governance_root, store, inventory)
+    inventory.tree_entries(repo_root if "docs" in MODE_CHECKS[str(mode)] else repo_root / "docs")
+    selected = set(MODE_CHECKS[str(mode)])
+    contract = resolve_governance_contract(governance_root, store, inventory) if "governance" in selected else None
+    foundations = resolve_foundations(governance_root, store, inventory, contract) if contract else None
     context = CheckContext(
         repo_root=repo_root,
         governance_root=governance_root,
@@ -141,9 +158,9 @@ def execute(request: dict[str, object]) -> dict[str, object]:
         store=store,
         inventory=inventory,
         contract=contract,
+        foundations=foundations,
         strict_safety=bool(request.get("fail_on_safety_warnings", False)),
     )
-    selected = set(MODE_CHECKS[str(mode)])
     records: list[dict[str, object]] = []
     all_errors: list[str] = []
     all_warnings: list[str] = []
@@ -189,13 +206,15 @@ def resolve_documents_request(request: dict[str, object]) -> dict[str, object]:
 
     _repo_root, governance_root, _governance_rel, inventory = _resolve_roots(request)
     store = DocumentStore()
-    agents_path, agents_validation_error = inventory.validate_file(governance_root / "AGENTS.md")
-    if agents_validation_error:
-        return {"api_version": 1, "status": "FAILED", "documents": [], "errors": [agents_validation_error]}
-    assert agents_path is not None
-    _agents_text, agents_error = store.read_text(agents_path)
-    if agents_error:
-        return {"api_version": 1, "status": "FAILED", "documents": [], "errors": [agents_error]}
+    contract = resolve_governance_contract(governance_root, store, inventory)
+    if contract.errors:
+        return {
+            "api_version": 1,
+            "status": "FAILED",
+            "documents": [],
+            "errors": list(contract.errors),
+        }
+    root_paths = tuple(governance_root / value for value in contract.root_authorities)
     markdown, markdown_error = inventory.markdown_files(governance_root / "docs/agents")
     if markdown_error:
         return {"api_version": 1, "status": "FAILED", "documents": [], "errors": [markdown_error]}
@@ -203,13 +222,13 @@ def resolve_documents_request(request: dict[str, object]) -> dict[str, object]:
         governance_root,
         store,
         markdown,
-        reserved_paths=(agents_path,),
+        reserved_paths=root_paths,
     )
     if errors:
         return {"api_version": 1, "status": "FAILED", "documents": [], "errors": errors}
     return {
         "api_version": 1,
         "status": "PASSED",
-        "documents": ["AGENTS.md", *leaves],
+        "documents": [*contract.root_authorities, *leaves],
         "errors": [],
     }

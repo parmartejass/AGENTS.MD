@@ -137,8 +137,8 @@ def resolve_documents(request: Mapping[str, object]) -> dict[str, object]:
     """Return the canonical router-owned governance research corpus.
 
     Accepted inputs are ``repo_root`` and ``governance_root``. The read-only
-    result contains ``api_version``, terminal ``status``, ``AGENTS.md`` followed
-    by ordered terminal Markdown leaves reachable from
+    result contains ``api_version``, terminal ``status``, ``AGENTS.md`` and
+    ``Orchestration.md`` followed by ordered terminal Markdown leaves reachable from
     ``docs/agents/agents_index.md``, and ``errors``. Routing-manifest membership
     does not define this corpus. Invalid, aliased, escaped, missing, cyclic, or
     duplicate topology returns an empty document list and explicit failure.

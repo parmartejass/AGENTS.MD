@@ -7,17 +7,20 @@ update_trigger: logging/error requirements change
 # 30 — Logging & Errors
 
 ## Logging (required)
-- No `print()`.
-- Use module-level logging where applicable.
+- This delegated owner applies `AGENTS.md` Logging + Explicit Failure and owns channel, failure, reconciliation, and diagnostic mechanics; schema details remain at `docs/agents/playbooks/log-schema-template/log-schema-template.md`.
 - Log workflow boundaries and failure points with context (paths, sheet, row identifiers).
-- Surface concise user-facing feedback through the active UI/CLI/report channel: accepted input/scope, progress or current phase for long work, terminal result, output/artifact path, skip/failure reason, required user action, and run/report/log pointer when applicable.
 - If a report/log sink is unavailable or degraded, user feedback must say that the diagnostic artifact is unavailable/degraded and preserve the workflow outcome separately.
-- Prefer a structured event contract for machine-debuggable runs:
-  - `run_start`, `phase_transition`, terminal item event, `run_end`
-  - explicit `reason_code` + `reason_detail` on failures/skips
-  - source attribution (`module`, `function`, `file`, `line`)
-- Keep one SSOT owner for event names/phases/reason codes (no duplicate enums in multiple modules).
+- Machine-debuggable runs MUST use the event contract owned by `docs/agents/playbooks/log-schema-template/log-schema-template.md`; event names, phases, and reason codes route to that contract and the declared application enum owner.
 - Redact sensitive keys by default (`token`, `password`, `secret`, `key`, `credential`) and store large payloads as summaries (size/hash/path reference) instead of raw dumps.
+
+## Explicit outcomes and work reconciliation
+- No `print()`.
+- Use module-level logging (`logger = logging.getLogger(__name__)`) where applicable.
+- Catch specific exceptions; log context; raise meaningful domain errors.
+- Never "silently skip": if something is skipped, record **SKIPPED + reason** (log and/or run report).
+- Never "silently pass": success or partial success must reconcile the known work universe (`planned`, `eligible`, `executed`, `skipped`, `failed`) or fail validation if the workflow cannot know what it was supposed to process.
+- User-facing surfaces (CLI, GUI, reports, status panes) must show concise input/scope confirmation, progress or current processing phase for long work, terminal outcome, output/artifact path when produced, skip/failure reason, required user action, and run/report/log pointer when applicable.
+- Keep user feedback concise and actionable; keep deep diagnostics in structured logs with redaction and summarized large payloads.
 
 ## Feedback channels
 - User feedback: concise, actionable status only; no stack traces, raw payload dumps, or per-item floods in normal UI/CLI output.
@@ -25,8 +28,8 @@ update_trigger: logging/error requirements change
 - Structured event logs: machine-readable event payloads, timings, reason codes, counts, write effects, and resource witnesses.
 - DEBUG logs: deeper diagnostics, still redacted and summarized for large payloads.
 
-## Error taxonomy (recommended)
-Maintain one owner for domain errors so failures are searchable and consistent, e.g.:
+## Error taxonomy
+Domain error ownership follows `AGENTS.md` FP-12. These names are non-normative examples; the application's declared error owner defines its taxonomy:
 - `ConfigError`
 - `ValidationError`
 - `ExcelComError`
@@ -34,7 +37,7 @@ Maintain one owner for domain errors so failures are searchable and consistent, 
 - `WorkflowError`
 
 ## Catching policy
-- Avoid bare `except` and avoid catch-all patterns that hide cause.
+- Bare `except` and catch-all patterns that hide cause are prohibited.
 - Catch specific exception categories (file, JSON, subprocess, library-specific COM/xlwings).
 
 ## Silent failures (rule)

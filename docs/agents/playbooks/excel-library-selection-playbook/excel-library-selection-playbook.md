@@ -1,137 +1,78 @@
 ---
 doc_type: playbook
 ssot_owner: AGENTS.md
-update_trigger: Excel library selection policy, capability matrix, or validation witnesses change
+update_trigger: Excel selection evidence or capability-discovery contract changes
 ---
 
-# Playbook — Excel Library Selection (Cross-Platform + COM Escalation)
+# Playbook — Excel Library Selection
 
-Use when:
-- Task includes Excel read/write/transform/automation and library choice affects speed, reliability, or safety.
-- Task may run on macOS/Linux/Windows and should avoid Windows lock-in unless Excel-engine features are required.
+This playbook owns Excel-specific selection evidence. `AGENTS.md` FP-02, FP-03, FP-17 through FP-23, and FP-34 govern selection constraints; the project's declared config/runtime-path owner owns the selected implementation. `Orchestration.md` governs approval and execution.
 
-## Selection policy (deterministic)
+## Selection record
 
-1. Classify required capabilities first (no library choice before this):
-   - file I/O and transforms only
-   - formatting/report generation
-   - Excel-engine features (VBA/macro run, pivot/external-link refresh, workbook calc fidelity)
-2. Default to a cross-platform path if it satisfies all required capabilities.
-3. Escalate to COM (`win32com` or `xlwings`) only for Excel-engine-dependent capabilities.
-4. If multiple valid paths remain, choose in this order:
-   - speed (measured timing, or explicit complexity/I/O model when timing is unavailable)
-   - reliability (deterministic behavior, lower dependency on GUI/process state)
-   - safety (bounded timeouts, explicit failures, cleanup guarantees)
+Before selecting or changing an Excel backend, record:
 
-## Library tiers
+- Required workbook operations and preservation criteria: formats, formulas, calculation fidelity, macros, refresh, formatting, and other input-declared features.
+- Supported operating systems, dependency versions, deployment environment, and authorized interfaces.
+- Candidate capabilities verified from current authoritative library/platform contracts; source, version, and unresolved limitations for each candidate.
+- Workload bounds and measured timing or explicit I/O/complexity evidence.
+- Safety, reliability, cleanup, and failure-path witnesses for each viable candidate.
+- Selected owner/config entry, selection rationale against every requirement, affected consumers, and superseded selection removed.
 
-Core:
-- `openpyxl`
-- `pandas`
-- `XlsxWriter`
-- `pyxlsb`
-- `xlwings`
-- `win32com`
+Capability examples identify questions to verify; they are not a closed library list or a default-backend policy. Unknown or unsupported capabilities follow `AGENTS.md` FP-20 and FP-27. A candidate that fails a requirement is not made viable by a speed advantage.
 
-Expanded cross-platform options (use when justified by workload):
-- `python-calamine`
-- `pyexcelerate`
-- `polars` connectors/pipelines (typically via pandas-compatible Excel I/O boundaries)
+## Operation-driven examples (verification prompts)
 
-## Capability matrix (default path + COM trigger)
+These examples identify requirements to resolve, not a library recommendation or capability assertion:
 
-| Capability | Default cross-platform path | COM escalation trigger | Recommended stack |
-|---|---|---|---|
-| File I/O only (no Excel engine) | `pandas` + `openpyxl`/`XlsxWriter` | None | `pandas -> openpyxl` (edits) or `pandas -> XlsxWriter` (new report files) |
-| Formatting/report generation | `XlsxWriter` for write-only reports; `openpyxl` for in-place workbook edits | Native Excel rendering parity is contractually required | `pandas -> XlsxWriter` or `openpyxl` |
-| Macro/VBA execution | Not supported cross-platform without Excel engine | Always | `xlwings` or `win32com` (Windows) |
-| Pivot/external-link refresh | Not reliably available in pure file libraries | Always | `win32com`/`xlwings` |
-| Formula recalculation fidelity (Excel engine exactness) | Precompute values or accept stored formula results | Workbook must be recalculated by Excel engine before delivery | cross-platform prep + COM finalization |
-| `.xlsb` ingestion | `pyxlsb` or `python-calamine` | Only if downstream step requires Excel engine | `pyxlsb/python-calamine -> pandas/polars` |
-| Large-volume writes | `pyexcelerate` (cell-heavy output), `XlsxWriter` (report-style output) | Native Excel engine behavior required post-write | `pandas/polars -> pyexcelerate/XlsxWriter`, optional COM post-step |
+| Requested operation | Question for the selected candidate contract | Representative witness |
+|---|---|---|
+| Formula delivery | Must formulas merely survive, or must calculated values match the Excel engine? | Formula text and calculated-result comparison on the declared workbook fixture |
+| Macro/VBA work | Is preservation of VBA sufficient, or is execution required in the authorized environment? | Macro-bearing fixture and the requested preservation/execution result |
+| Pivot or external-link refresh | Is refresh required, and which connection/engine contract provides it? | Input connection state and refreshed output evidence |
+| Native rendering | Which layout/print/PDF characteristics must match the source? | Rendered-page comparison against the accepted fidelity criteria |
+| Binary workbook ingestion or large output | Which formats and bulk operations are required at the measured workload? | Representative format, row/key parity, memory and I/O measurements |
 
-## Single-library vs multi-library rules
+## Pipeline composition
 
-Use a single library when:
-- one library covers all capabilities as the selected SSOT path, and
-- performance is acceptable for expected data size.
+The selection owner records whether one library satisfies the contract or separate ingestion, transformation, and output stages are required. A multi-library design requires stage contracts, plain-data boundaries, and evidence that each stage covers a distinct requirement under `docs/agents/35-coding-principles/coding-principles.md`.
 
-Use multi-library pipelines when:
-- ingestion, transform, and output needs differ materially, or
-- Excel-engine features are required only in a terminal step.
+COM selection requires verified Excel-engine or interface requirements and the lifecycle evidence owned by `docs/agents/50-excel-com-lifecycle/excel-com-lifecycle.md`. Selection occurs before execution; runtime failures follow `AGENTS.md` No Fallback or Legacy Runtime Paths.
 
-Required multi-library patterns (minimum):
-1. Ingest-heavy, cross-platform:
-   - `pyxlsb` or `python-calamine` -> `pandas`/`polars` -> `XlsxWriter`
-2. Transform-heavy analytics:
-   - `python-calamine`/`openpyxl` -> `polars` -> `openpyxl`/`XlsxWriter`
-3. Excel-engine-required finalization:
-   - cross-platform prep (`pandas`/`openpyxl`) -> COM step (`xlwings`/`win32com`) only for macro/refresh/recalc
+Illustrative stage compositions include binary-workbook ingestion into a plain-data transform followed by report output, analytics over validated table data followed by workbook formatting, or file preparation followed by an explicitly required engine finalization. Each stage belongs to its selected owner; these examples do not select a backend or permit a substitute path after failure.
 
-## Speed practices (without weakening safety)
+For COM choices, assess bulk-call evidence under Performance evidence rather than assuming per-cell automation meets the workload. PID-scoped cleanup, prohibited broad process termination, bounded waits, and exception reporting resolve through the COM lifecycle owner, `AGENTS.md` Resource Safety, and `docs/agents/30-logging-errors/logging-errors.md`.
 
-- Avoid per-cell loops whenever bulk range/table operations exist.
-- Minimize COM round-trips by batching read/write and state changes.
-- Determine worksheet/table bounds once; avoid repeated scans.
-- Cache only validated required ranges, headers, mappings, and COM properties; record cache key/scope, bounds source, row/column counts, and invalidation trigger.
-- Use chunked processing for large sheets to bound memory.
-- Prefer write-then-atomic-replace patterns for output files when overwriting.
-- Reuse parsed headers/mappings within a run; define invalidation on sheet/schema change.
+## Performance evidence
 
-## Reliability and safety practices
+Record the chosen operations and their witnesses:
 
-- Follow `docs/agents/50-excel-com-lifecycle/excel-com-lifecycle.md` for all COM workflows (PID-scoped quit verification + bounded PID-scoped forced termination after verified graceful-quit failure in `finally`).
-- Enforce bounded timeouts for open/read/write/refresh/quit operations.
-- Treat retries as idempotent: retry only side-effect-safe steps unless transactional safeguards exist.
-- Record explicit terminal outcomes (`EXECUTED`/`SKIPPED`/`FAILED`) with reason for each processed item.
-- Never swallow exceptions; use explicit domain errors and contextual logs.
-- For lock/contention failures, record deterministic reason codes and avoid partial overwrite.
+- Bulk ranges/tables: required bounds source, row/column counts, and round-trip count.
+- Cached headers/mappings/properties: validated source, key, scope, maximum size, and invalidation trigger.
+- Chunked reads/writes: batch size, memory bound, ordering, and cancellation behavior.
+- Output promotion: destination/recovery contract from `docs/agents/70-io-data-integrity/io-data-integrity.md`.
 
-## Validation protocol (invariants + witnesses)
+These are candidate techniques, not permission to alter required data or workbook behavior. Selection and evidence follow the governing performance contract.
 
-### Invariants
-- Data: row counts/key IDs preserved unless spec says otherwise.
-- Ordering: required processing/order constraints are stable across runs.
-- Atomicity: no partial final outputs after a failed write.
-- Idempotency: rerun with identical inputs yields identical outputs/outcomes.
-- Lifecycle: external resources/processes are cleaned up after terminal state.
-- Observability: each run and item has terminal outcomes with reasons.
+## Validation witnesses
 
-### Witness table
+| Concern | Witness | Pass criterion source |
+|---|---|---|
+| Data preservation | Input/output row counts and key sets | Declared transformation contract |
+| Ordering | Ordered input/output identities | Declared ordering rule |
+| Atomicity | Validation and promotion events | I/O owner commit contract |
+| Idempotency | Output/content and outcome parity | Declared equivalence contract |
+| COM lifecycle | Owned PID, workbook, reference, and cleanup records | COM lifecycle owner |
+| Range/cache correctness | Bounds, counts, keys, and invalidation | Source/schema/config owner |
 
-| Invariant | Witness signal | Where recorded | Pass criteria |
-|---|---|---|---|
-| Data | input/output row count + key-ID set diff | run summary + item evidence | counts/keys match spec |
-| Ordering | deterministic phase sequence | phase transition logs | expected sequence only |
-| Atomicity | temporary file promotion events | write-effect log fields | no final overwrite before validation |
-| Idempotency | output hash/path + outcome parity across rerun | run_end summary | identical for identical inputs |
-| Lifecycle | Excel PID before/after (COM path) | lifecycle log fields | no orphan process |
-| Observability | terminal outcome per item | item-level records | 100% item terminalization |
-| Range/cache safety | selected sheet/table/range + bounds/counts | run summary + range/cache evidence | required data only, no missed trailing data/formula rows |
+## Failure-path evidence
 
-## Failure-path checks (deterministic)
+Select applicable fixtures through `AGENTS.md` Verification Floors and `docs/agents/80-testing-real-files/testing-real-files.md`:
 
-Non-COM path checks:
-1. Missing sheet/header:
-   - Expect `FAILED_VALIDATION` with explicit reason; no writes.
-2. Locked output file:
-   - Expect `FAILED_COMMIT` with lock reason; original file unchanged.
-3. Invalid data shape:
-   - Expect `FAILED_VALIDATION`; no partial artifacts.
+- Missing sheet/header or invalid data shape: validation failure and no writes.
+- Locked output: explicit commit failure and preserved original file.
+- COM startup/open failure: recorded error and lifecycle cleanup result.
+- COM quit failure: owner-validated PID cleanup witness.
+- Refresh/recalculation deadline: explicit failure and bounded cleanup under the selected lifecycle contract.
 
-COM path checks:
-1. Excel startup/open failure:
-   - Expect explicit COM error and terminal run failure with cleanup attempt.
-2. Quit failure:
-   - Expect bounded verify plus PID-scoped forced termination after verified graceful-quit failure.
-3. Refresh/recalc timeout:
-   - Expect timeout failure code and bounded cleanup; no silent continuation.
-
-## Anti-patterns (forbidden)
-
-- Choosing COM by default when cross-platform path satisfies requirements.
-- Per-cell COM loops for large datasets without explicit justification.
-- Killing all Excel processes instead of validated PID-scoped cleanup.
-- Infinite waits during open/refresh/quit.
-- Silent exception handlers (`except ...: pass`) in workflow paths.
-- Duplicating library-selection rules in multiple docs instead of referencing this playbook.
+Record the README Checks command or deterministic manual steps, actual outcome, and residual limitations for each applicable witness.

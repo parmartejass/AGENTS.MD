@@ -4,13 +4,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from scripts.check_governance_core._test_support import write as _write
 from scripts.check_governance_core._inventory import RepositoryInventory
 from scripts.check_governance_core._python_safety import check_python_safety
-
-
-def _write(path: Path, value: str) -> None:
-    with path.open("w", encoding="utf-8", newline="") as handle:
-        handle.write(value)
 
 
 class PythonSafetyEdgeTests(unittest.TestCase):

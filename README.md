@@ -4,27 +4,26 @@ This repository maintains a reusable, repo-agnostic governance pack for autonomo
 
 ## Canonical SSOT
 
-- Canonical policy: `AGENTS.md`
-- Assigned-lead and subagent authority-routing manifest: `agents-manifest.yaml`
+- Fundamental Principles, constitutional policy, and conflict precedence: `AGENTS.md`
+- Agent roles and finite workflow: `Orchestration.md`
+- Governance Agent authority-routing manifest: `agents-manifest.yaml`
 - Cross-project authority decisions: `docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md`
-- Governance-core public API and docs router contract: `scripts/check_governance_core/check_governance_core_main.py`
-- Repository structure and Python-safety checks: `scripts/check_governance_core/check_governance_core_main.py`
+- Governance-core public API, docs router contract, repository structure, and Python-safety checks: `scripts/check_governance_core/check_governance_core_main.py`
 
 ## Read Order (Top-Down)
 
-1. `AGENTS.md` (authoritative rules and hard gates)
-2. The root/main reads and follows only `AGENTS.md` and the three authorities owned by its "Assigned-Lead Authority Routing Procedure (Hard Gate)".
-3. The root/main delegates once using the canonical line owned by that procedure.
-4. The assigned lead reads `agents-manifest.yaml`, resolves applicable task authorities, and owns the complete task/council workflow inside its subtree.
-5. `docs/agents/agents_index.md` and project docs are read by the assigned lead when manifest triggers or routed authorities apply.
+1. Open `AGENTS.md`, the constitutional owner and sole Mandatory Foundations declaration.
+2. Complete its declared foundation loading and application through `Orchestration.md`, which owns parent accountability and source boundaries.
+3. Governance Agent routes additional applicable governance-only authorities through `agents-manifest.yaml`; profiles do not make foundations conditional.
+4. Role-bounded agents read applicable deeper sources as permitted by `Orchestration.md`; owner-declared duties and optionality remain controlling.
 
-When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` and `.governance/agents-manifest.yaml`.
+When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md`, `.governance/Orchestration.md`, and `.governance/agents-manifest.yaml`.
 
 ## Project docs (this repo)
 
 - Entry point: `docs/project/project_index.md` (goal, rules, architecture/protected behavior, data-truth, changelog, learning)
-- Project docs provide bounded authority memory for durable truths that change future allowed behavior plus tracked closure records for completed non-trivial work.
-- Facts are owned by declared SSOT owners, not by file type; project docs may own data/config/constant/default facts when explicitly declared and validated.
+- Durable intent: `docs/project/goal/goal.md`. Project docs provide the maintained governing record for material future-decision knowledge and tracked closure records after owner promotion.
+- Material knowledge, uncertain observations, attributed agent decisions, and prompt-originated records resolve through `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md` Bounded Project Authority Memory to their declared owners; actual source-owned values remain with those sources.
 
 ## Repo-owned agent assets
 
@@ -35,22 +34,24 @@ When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` an
   - MCP configs: `docs/agents/mcp/`
 - Runtime installation is consumer-owned; this repo does not track root runtime copies or projection mappings.
 
-## Tool loader stubs
+## Tool loaders and root owner
 
-- `AGENTS.md` (required loader stub)
+- `AGENTS.md` (constitutional owner in this source repository; loader stub in a consuming repository)
+- `Orchestration.md` (loading/application and lifecycle owner reached through the AGENTS foundation declaration)
 - `CLAUDE.md` (required Claude Code loader stub)
 
 ## Supporting docs
 
 - Index: `docs/agents/agents_index.md`
 - Authority decisions: `docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md`
-- Facts and behavior must stay in their declared SSOT owner, which may be code, config, constants, artifacts, external systems, schemas, workbooks, or explicitly declared project docs (see `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`).
+- Historical research: [deep-research-report.md](deep-research-report.md), retained as non-authoritative source evidence; its proposed loops and gates are not executable governance.
 
 ## Repo structure
 
 ```text
 .
 |- AGENTS.md
+|- Orchestration.md
 |- agents-manifest.yaml
 |- docs/
 |  |- docs_index.md
@@ -88,8 +89,6 @@ When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md` an
 |  |  |- check_governance_core_main.py
 ```
 
-Project docs-first truth is owned by the durable project docs routed from `docs/project/project_index.md`; new project docs must be routed owner docs with declared scope, update triggers, and verification witnesses.
-
 ## Use in other repos (submodule)
 
 > IMPORTANT: Git does not auto-pull submodules by default.
@@ -111,7 +110,7 @@ git submodule add -b main https://github.com/parmartejass/AGENTS.MD.git .governa
 
 ### Step 2: Create loader stubs at project root
 
-Create these files in your project root so every coding assistant/tool lands on the same governance SSOT. The loader body is intentionally minimal: `.governance/AGENTS.md` owns the hard gates, root authorities, and role boundary; `.governance/agents-manifest.yaml` owns assigned-lead and subagent task routing.
+Create these files in your project root so every coding assistant/tool lands on the same governance owners. The loader body routes to `.governance/AGENTS.md` for constitutional hard gates and Mandatory Foundations membership, `.governance/Orchestration.md` for loading/application and lifecycle, and `.governance/agents-manifest.yaml` for additional Governance Agent authority routing. Declaration paths resolve from the governance root and remain unchanged when vendored.
 
 Use this shared body for each loader:
 
@@ -119,10 +118,10 @@ Use this shared body for each loader:
 # <loader title>
 
 Required loader:
-- Open and follow `.governance/AGENTS.md` before doing any work.
+- Open `.governance/AGENTS.md` and follow its Mandatory Foundations declaration through `.governance/Orchestration.md`.
 - If `.governance/` is missing or empty in a fresh clone, run `git submodule update --init --recursive`.
-- If you cannot access repository files, request that the user paste `.governance/AGENTS.md`.
-- Follow the root/main boundary and canonical delegation route owned by `.governance/AGENTS.md` "Assigned-Lead Authority Routing Procedure (Hard Gate)"; the assigned lead owns all task-specific authority routing, council, execution, and verification work.
+- Required-source loading, application, missing-source handling, and parent accountability follow that lifecycle owner.
+- Follow `.governance/Orchestration.md` for all role, plan, council, execution, review, correction, and terminal mechanics.
 - Project-specific docs remain under `docs/project/`.
 ```
 
@@ -134,6 +133,8 @@ Loader titles:
 - Keep your project docs under `docs/project/` (do not copy `docs/agents` into the project root).
 
 ### Step 3: Commit
+
+The following Git commands are setup examples. Execute repository mutations only within the authorization resolved through `AGENTS.md` FP-30 and `Orchestration.md`; examples do not authorize staging, commits, remote operations, or discarding existing work.
 
 ```powershell
 git add .
@@ -162,11 +163,11 @@ git checkout main
 git pull origin main
 
 # 3. Create branch, edit, commit, push
-git checkout -b fix/my-change
+git checkout -b codex/my-change
 # ... make edits ...
 git add .
 git commit -m "My change"
-git push origin fix/my-change
+git push origin codex/my-change
 
 # 4. Create PR in AGENTS.MD repo (github.com/parmartejass/AGENTS.MD), merge to main
 
@@ -215,23 +216,40 @@ Note: If `.governance/` folder is empty, run `git submodule update --init`.
 ## Checks
 
 Python checks require Python 3.11+.
-If your Python 3 binary is named `python`, replace `python3` with `python`.
+Resolve the installed Python 3 executable before running checks. Commands below use `python3`; use `python` when that is the verified executable name. This is command normalization before execution, not retrying a failed check through another runtime.
+
+Run checks with `-B` and process-local `PYTHONDONTWRITEBYTECODE=1` so child Python processes also preserve existing bytecode. In PowerShell, wrap the selected commands below in this environment scope:
+
+```powershell
+$previousBytecodeSetting = [Environment]::GetEnvironmentVariable('PYTHONDONTWRITEBYTECODE', 'Process')
+try {
+  $env:PYTHONDONTWRITEBYTECODE = '1'
+  # Run the selected verification commands below.
+} finally {
+  [Environment]::SetEnvironmentVariable('PYTHONDONTWRITEBYTECODE', $previousBytecodeSetting, 'Process')
+}
+```
 
 This repo:
-- Docs SSOT header checks (all `docs/` except index pages): `python3 scripts/check_governance_core/check_governance_core_main.py --only-docs-ssot --repo-root . --governance-root .` (use `python` if `python3` is unavailable)
-- Project docs checks (required files + README linkage): `python3 scripts/check_governance_core/check_governance_core_main.py --only-project-docs --repo-root . --governance-root .` (use `python` if `python3` is unavailable)
-- Cross-platform governance checks (manifest, docs, project docs, repository hygiene/structure, and Python safety): `python3 scripts/check_governance_core/check_governance_core_main.py` (use `python` if `python3` is unavailable)
-  - Core governance regression tests: `python3 -m unittest discover -s scripts/check_governance_core -p "test*.py" -v` (use `python -m unittest discover -s ...` if `python3` is unavailable)
-  - Strict safety mode: `python3 scripts/check_governance_core/check_governance_core_main.py --fail-on-safety-warnings`
+- Docs SSOT checks (all repository Markdown line counts; scoped docs headers/routers): `python3 -B scripts/check_governance_core/check_governance_core_main.py --only-docs-ssot --repo-root . --governance-root .` (use `python` if `python3` is unavailable)
+  - Docs-policy regression tests: `python3 -B -m unittest scripts.check_governance_core.test_docs_policy -v`
+- Project docs checks (required files + README linkage): `python3 -B scripts/check_governance_core/check_governance_core_main.py --only-project-docs --repo-root . --governance-root .` (use `python` if `python3` is unavailable)
+- Cross-platform governance checks (manifest, docs, project docs, repository hygiene/structure, and Python safety): `python3 -B scripts/check_governance_core/check_governance_core_main.py` (use `python` if `python3` is unavailable)
+  - Coding-policy regression tests: `python3 -B -m unittest scripts.check_governance_core.test_coding_policy -v`
+  - Core governance regression tests: `python3 -B -m unittest discover -s scripts/check_governance_core -p "test*.py" -v` (use `python -B -m unittest discover -s ...` if `python3` is unavailable)
+  - Strict safety mode: `python3 -B scripts/check_governance_core/check_governance_core_main.py --fail-on-safety-warnings`
+  - Docs handler profiling: `python3 -B -m cProfile -s cumulative scripts/check_governance_core/check_governance_core_main.py --only-docs-ssot --repo-root . --governance-root .` (profiling overhead is separate from runtime timing).
 
 Target repo (submodule under `.governance/`):
-- Docs SSOT header checks: `python3 .governance/scripts/check_governance_core/check_governance_core_main.py --repo-root . --only-docs-ssot` (use `python` if `python3` is unavailable)
-- Project docs checks: `python3 .governance/scripts/check_governance_core/check_governance_core_main.py --repo-root . --only-project-docs` (use `python` if `python3` is unavailable)
-- Cross-platform governance checks: `python3 .governance/scripts/check_governance_core/check_governance_core_main.py --repo-root .` (use `python` if `python3` is unavailable)
-  - Strict safety mode: `python3 .governance/scripts/check_governance_core/check_governance_core_main.py --repo-root . --fail-on-safety-warnings`
+- Docs SSOT header checks: `python3 -B .governance/scripts/check_governance_core/check_governance_core_main.py --repo-root . --only-docs-ssot` (use `python` if `python3` is unavailable)
+- Project docs checks: `python3 -B .governance/scripts/check_governance_core/check_governance_core_main.py --repo-root . --only-project-docs` (use `python` if `python3` is unavailable)
+- Cross-platform governance checks: `python3 -B .governance/scripts/check_governance_core/check_governance_core_main.py --repo-root .` (use `python` if `python3` is unavailable)
+  - Strict safety mode: `python3 -B .governance/scripts/check_governance_core/check_governance_core_main.py --repo-root . --fail-on-safety-warnings`
+
+When a repository `SKILL.md` changes, resolve the installed `skill-creator` bundle and run its format validator: `python3 -B "<resolved-skill-creator>/scripts/quick_validate.py" "<changed-skill-folder>"`. The paths are explicit workflow inputs, not repository defaults. Validate each changed bundle; a format pass does not replace owner/semantic review. This check requires the skill-authoring tool only and does not execute the skill's operational workflow.
 
 ## Governance-core programmatic API
 
-`scripts.check_governance_core.check_governance_core_main` is the only supported programmatic boundary. `run_checks(request)` accepts optional `repo_root`, `governance_root`, `mode` (`full`, `docs`, or `project_docs`), and `fail_on_safety_warnings`; it returns a plain mapping with `api_version`, terminal `status`, ordered per-check records, reconciled `planned`/`eligible`/`executed`/`skipped`/`failed` check IDs, `errors`, and `warnings`. `resolve_documents(request)` accepts explicit contained, non-aliased roots and returns `AGENTS.md` followed by the deterministic depth-first terminal Markdown leaves reachable from `docs/agents/agents_index.md`; `agents-manifest.yaml` routes tasks and does not define the research corpus. Invalid, escaped, aliased, missing, cyclic, or duplicate topology fails explicitly with an empty document list, so consumers do not maintain shadow file lists.
+`scripts.check_governance_core.check_governance_core_main` is the only supported programmatic boundary. `run_checks(request)` accepts optional `repo_root`, `governance_root`, `mode` (`full`, `docs`, or `project_docs`), and `fail_on_safety_warnings`; it returns a plain mapping with `api_version`, terminal `status`, ordered per-check records, reconciled `planned`/`eligible`/`executed`/`skipped`/`failed` check IDs, `errors`, and `warnings`. `resolve_documents(request)` accepts explicit contained, non-aliased roots and returns `AGENTS.md`, then `Orchestration.md`, then the deterministic depth-first terminal Markdown leaves reachable from `docs/agents/agents_index.md`; `agents-manifest.yaml` routes Governance Agent research and does not define the document corpus. Invalid, escaped, aliased, missing, cyclic, or duplicate topology fails explicitly with an empty document list, so consumers do not maintain shadow file lists.
 
-The API reads repository/governance files through one cached bounded filesystem inventory and uses bounded `git ls-files -z` only for owner-declared tracked-state rules. Git stdout and stderr are captured incrementally in bounded memory with a deadline and bounded cleanup; subprocess, capture, or cleanup failures produce explicit failed outcomes. Relevant readable file families reject aliases before consumers can open them and enforce byte limits only across files that family reads. Full mode composes all registered governance, docs, repository-structure, and Python-safety checks; narrow modes scan only their docs scope. Strict mode promotes safety warnings to failures. Generic `Popen` use remains a warning; Python safety keeps one explicit inventory-owner exception whose lifecycle is verified directly by failure-path tests. The API creates no temporary files and does not edit repository-owned files. Invalid inputs return `FAILED_VALIDATION`; check failures return `FAILED`. Consumers must not import private modules. Add a cohesive private handler plus one registry entry to extend checks; new request fields, modes, check IDs, or output fields require an intentional public-contract change with regression coverage.
+The API reads repository/governance files through one cached bounded filesystem inventory and uses bounded `git ls-files -z` only for owner-declared tracked-state rules. Git stdout and stderr are captured incrementally in bounded memory with a deadline and bounded cleanup; subprocess, capture, or cleanup failures produce explicit failed outcomes. Relevant readable file families revalidate regular-file type, canonical contained identity, aliases and current size before reads, including warm family lookups. Cached source changes fail explicitly. Byte limits use the same authoritative metadata only across the readable family; cached text/path resolution remains per-run. Full mode composes all registered governance, docs, repository-structure, and Python-safety checks; docs mode inventories all repository Markdown for the owner-declared line limit while headers/routers stay scoped to `docs/`; project-doc mode retains its narrower project-doc scope. Neither narrow mode reads unrelated Python content. Strict mode promotes safety warnings to failures. Generic `Popen` use remains a warning; Python safety keeps one explicit inventory-owner exception whose lifecycle is verified directly by failure-path tests. The API creates no temporary files and does not edit repository-owned files. Invalid inputs return `FAILED_VALIDATION`; check failures return `FAILED`. Consumers must not import private modules. Add a cohesive private handler plus one registry entry to extend checks; new request fields, modes, check IDs, or output fields require an intentional public-contract change with regression coverage.

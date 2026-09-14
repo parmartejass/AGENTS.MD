@@ -109,8 +109,8 @@ Each active decision record must include:
 - Scope: project-doc truth ownership, tracked `Changelog` closure-record ownership, evidence boundaries, and non-owner mirror surfaces for repos using this governance pack
 - Canonical owner:
   - Authority-boundary decision: this decision record (`SSOT-DEC-004`)
-  - Governing required-doc and owner-doc promotion contract: `AGENTS.md`
-  - Placement and owner-doc promotion mechanics: `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`
+  - Constitutional required-doc and owner-maintenance trigger: `AGENTS.md`
+  - Required baseline declarations, material-knowledge admission, placement, maintenance, and safe supersession mechanics: `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`
   - Project-doc scaffold shape: `docs/agents/playbooks/project-docs-template/project-docs-template.md`
   - Project-local tracked closure-record owner: `docs/project/changelog/changelog.md`
   - `Changelog` closure-record field template/order: `docs/agents/90-release-checklist/release-checklist.md`
@@ -145,7 +145,7 @@ Each active decision record must include:
 - Verification witness:
   - Project-doc checks pass with durable truth routed through declared owner docs.
   - Tracked `Changelog` closure records reference owner-promotion targets for durable facts or `N/A + reason`.
-  - Active docs route authority-changing facts to declared owner docs instead of non-owner working evidence.
+  - Active docs route material future-decision knowledge to declared owner docs instead of non-owner working evidence.
   - New project truth docs are accepted only through the docs SSOT declared-owner path.
   - Docs router validation has no active route to a non-owner project-truth surface.
   - Retired change-record files/directories remain absent, retired checker flags remain absent from public command surfaces, and no per-change tracked changelog-file tree is recreated.

@@ -13,75 +13,19 @@ Use when:
 
 Goal: create the required project-doc scaffold contract that captures declared project authority without duplicating non-owner facts.
 
-## Required Scaffold Outputs
-These outputs are the project-doc creation contract owned by this playbook. The contract includes which baseline project docs are created, what each root doc must own, what each root doc must not own, and the required starting structure for branch-local owner subdocs.
+## Scaffold ownership
 
-`AGENTS.md` owns the governing documentation hard gate. `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md` owns the cross-doc policy mechanics: placement boundaries, routers, headers, optional-leaf routing, orphan-doc prevention, and validation boundaries.
+`AGENTS.md` Documentation SSOT Policy owns the constitutional trigger; `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md` declares the required baseline set and README linkage. `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md` owns placement, promotion, headers, routers, and validation boundaries. This playbook owns the initial root-doc and branch-local scaffold shape below; generated text MUST be adapted to verified project owners under `AGENTS.md` Instruction Derivation Gate.
 
-- `docs/project/project_index.md` (router only; no header required)
-- `docs/project/goal/goal_index.md` and `docs/project/goal/goal.md`
-- `docs/project/rules/rules_index.md` and `docs/project/rules/rules.md`
-- `docs/project/architecture/architecture_index.md` and `docs/project/architecture/architecture.md`
-- `docs/project/data-truth/data-truth_index.md` and `docs/project/data-truth/data-truth.md`
-- `docs/project/changelog/changelog_index.md` and `docs/project/changelog/changelog.md`
-- `docs/project/learning/learning_index.md` and `docs/project/learning/learning.md`
+## Root-doc creation shape
 
-Required references:
-- README links to `docs/project/project_index.md`.
-- Project rules cite `AGENTS.md` instead of restating governance rules.
-- Routers and leaf docs follow the docs SSOT policy and the `scripts/check_governance_core/check_governance_core_main.py` public contract.
+Each root doc states its jurisdiction, exclusions, current summary, branch-local subdoc trigger, and routes. The templates below declare the branch-specific ownership. A branch-local subdoc owns one stable truth cluster when adding it to the root would blur that jurisdiction; it is not a per-prompt, per-task, or per-commit record. Shared creation mechanics and the initial scaffold are owned by [owner-subdocs/owner-subdocs.md](owner-subdocs/owner-subdocs.md); apply that owner to every branch below when its trigger occurs.
 
-## Project-Doc Creation Contract (docs-first)
-Use the placement and promotion policy in `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`. This playbook owns the required creation contract for the baseline project-doc branches and their primary root docs.
+Before creating or updating a record, resolve its material future-decision relevance, single owner, evidence and uncertainty, and supersession trigger through the docs SSOT policy. Use `docs/agents/20-sources-of-truth-map/sources-of-truth-map.md` for concept ownership. A new narrative owner requires its branch router route in the same change.
 
-Required root-doc ownership:
-- `docs/project/goal/goal.md`: durable project intent, objective, acceptance criteria, non-goals, and verification intent.
-- `docs/project/architecture/architecture.md`: project boundaries, owner graph, responsibility splits, input-to-output flow, coupling boundaries, and structural relationships.
-- `docs/project/rules/rules.md`: deterministic project-specific do/don't constraints and why they exist.
-- `docs/project/data-truth/data-truth.md`: data-truth jurisdiction and routing to concrete owners such as schemas, config/defaults, source artifacts, samples, and external systems.
-- `docs/project/changelog/changelog.md`: tracked closure records for completed non-trivial work after durable facts are promoted to their owners.
-- `docs/project/learning/learning.md`: reusable operational learnings and recurring pitfalls; not change history.
+## Template use
 
-Required root-doc shape:
-- State what the branch owns.
-- State what the branch does not own.
-- State when to create a branch-local owner subdoc.
-- Provide a short current summary.
-- Route to branch-local owner subdocs.
-
-Router contract:
-- `docs/project/goal/goal_index.md` must route `goal.md`.
-- Include branch-local owner subdoc routes only when creating or keeping that subdoc.
-- Router files remain title plus route bullets only; do not add subsection headings to router files.
-
-Branch-local owner subdocs:
-- Live under the existing jurisdiction branch that owns the truth.
-- Are created when adding the truth to the root doc would bloat or blur root jurisdiction.
-- Own one stable truth cluster; they are not one prompt, one task, one commit, or a fixed category.
-- Use natural sections when relevant: `Intent`, `Boundary`, `Invariant`, `Change rule`, `Verification`, and `References`.
-- Do not add a broad escape-hatch section; if a truth can change, state the deterministic change rule.
-
-Promotion test:
-- What future behavior does this record change?
-- Which single project-doc owner owns it?
-- Which declared code/config/data/workflow/doc owner holds the fact?
-- What verification witness and re-verification or supersession trigger keeps it current?
-
-## Minimalism rules (prevent docs bloat)
-- Prefer short bullet lists; avoid long prose.
-- Keep each doc focused on what must be true "all the time" (invariants, entrypoints, verification commands).
-- Do not copy constants/defaults/rules/data into non-owner docs; reference the SSOT owner by identifier/path.
-- If a doc or doc-owned artifact is the declared owner for config, constants, defaults, source data, mappings, headers, thresholds, paths, schemas, samples, or external fields, declare that ownership in `docs/project/data-truth/data-truth.md` with a validation witness and update trigger.
-- Use `docs/agents/20-sources-of-truth-map/sources-of-truth-map.md` when filling SSOT pointers to avoid parallel ownership.
-- When a change impacts goal/verification/entrypoints/owners, update the affected doc in the same change.
-- Keep parent routers routing-only: each `<authority>_index.md` should list direct children and include a `Required when:` trigger instead of restating the child doc in full.
-
-## README linkage (required)
-Ensure `README.md` contains (at minimum):
-- A link to `docs/project/project_index.md` (project docs entrypoint).
-- A link to `AGENTS.md` (governance SSOT).
-- A short "Checks" section listing the deterministic commands used to verify the repo.
-- Verification commands are SSOT in `README.md` section "Checks"; keep this playbook referential and do not duplicate the command list here.
+The following blocks are scaffolds, not copies of project truth. Replace placeholders with verified owner facts; preserve provenance and verification status. README Checks remains the command owner: generated verification sections cite that command location or record deterministic manual steps. `AGENTS.md` FP-34 governs minimal content, and `Orchestration.md` governs all agent lifecycle and authorization decisions.
 
 ## Required Template Files (copy/paste, then customize)
 
@@ -108,7 +52,7 @@ Ensure `README.md` contains (at minimum):
 ```md
 ---
 doc_type: reference
-ssot_owner: <workflow coordinator entrypoint path or workflow registry path>
+ssot_owner: docs/project/goal/goal.md
 update_trigger: requirements/acceptance criteria change OR workflow behavior changes
 ---
 
@@ -125,14 +69,10 @@ update_trigger: requirements/acceptance criteria change OR workflow behavior cha
 - <objectively verifiable criteria>
 
 ## Durable intent
-- <accepted project intent that should guide future work, or "No additional durable intent declared beyond the objective and acceptance criteria.">
+- <accepted project intent governing future work, or "No additional durable intent declared beyond the objective and acceptance criteria.">
 
 ## Non-goals
 - <explicitly out of scope>
-
-## When to create a branch-local owner subdoc
-- Create a goal subdoc when a stable intent cluster needs its own intent, boundary, invariant, change rule, verification, and references.
-- Do not create one subdoc per prompt, task, commit, or fixed truth category.
 
 ## Current Summary
 - <short current-state summary of project intent and verification target>
@@ -141,8 +81,8 @@ update_trigger: requirements/acceptance criteria change OR workflow behavior cha
 - None currently declared.
 
 ## Verification
-- Preferred: <exact test/run command(s)>
-- If no tests: <deterministic manual check steps>
+- README Checks reference: <applicable command identifier/location>
+- Manual witness when required: <deterministic steps and scope-based reason>
 ```
 
 ### `docs/project/rules/rules_index.md`
@@ -156,8 +96,8 @@ update_trigger: requirements/acceptance criteria change OR workflow behavior cha
 ```md
 ---
 doc_type: policy
-ssot_owner: AGENTS.md
-update_trigger: governance rules change OR new recurring pitfalls emerge
+ssot_owner: docs/project/rules/rules.md
+update_trigger: project-specific constraints change
 ---
 
 # Rules (Do / Don't)
@@ -175,13 +115,9 @@ update_trigger: governance rules change OR new recurring pitfalls emerge
 ## Do
 - Add only project-specific rules/invariants not already covered by `AGENTS.md`.
 
-## Don't
-- Don't copy constants/defaults/rules/data into non-owner docs; reference SSOT owners instead.
-- Don't add orphan docs; keep docs linked from `docs/project/project_index.md` and README.
-
-## When to create a branch-local owner subdoc
-- Create a rules subdoc when a stable project-specific rule cluster needs its own intent, boundary, invariant, change rule, verification, and references.
-- Do not use this branch for generic governance policy already owned by `AGENTS.md` or `docs/agents/`.
+## Governing routes
+- Reusable governance: `AGENTS.md`.
+- Documentation placement and routing: `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`.
 
 ## Branch-local owner subdocs
 - None currently declared.
@@ -203,7 +139,7 @@ When creating a branch-local owner subdoc such as `docs/project/architecture/pro
 ```md
 ---
 doc_type: reference
-ssot_owner: <workflow registry path or main runtime-coordination module>
+ssot_owner: docs/project/architecture/architecture.md
 update_trigger: entrypoints/modules/workflows layout changes
 ---
 
@@ -233,45 +169,11 @@ update_trigger: entrypoints/modules/workflows layout changes
 ## Authority graph (required for non-trivial systems)
 - <owner -> dependents>
 
-## When to create a branch-local owner subdoc
-- Create an architecture subdoc when a stable behavior, boundary, workflow, integration, or module-authority cluster needs its own intent, boundary, invariant, change rule, verification, and references.
-- Do not use branch-local subdocs as task logs or change history.
-
 ## Current Summary
 - <short current-state summary of the project architecture and primary authority boundaries>
 
 ## Branch-local owner subdocs
 - None currently declared.
-```
-
-### Branch-local owner subdoc example
-```md
----
-doc_type: reference
-ssot_owner: docs/project/<branch>/<owner-subdoc>.md
-update_trigger: intent, boundary, invariant, change rule, verification, or references change
----
-
-# <Stable Truth Cluster Name>
-
-## Intent
-- <what the user wanted and why this truth exists>
-
-## Boundary
-- <what this truth covers>
-- <what this truth does not cover, when needed>
-
-## Invariant
-- <what future work must preserve>
-
-## Change Rule
-- <exact condition under which this truth may change>
-
-## Verification
-- <deterministic command or manual witness>
-
-## References
-- <related owner docs, when jurisdiction crosses branches>
 ```
 
 ### `docs/project/data-truth/data-truth_index.md`
@@ -302,10 +204,6 @@ update_trigger: data-truth ownership, provenance, validation, or routing changes
 
 ## Current Summary
 - No project-owned data truths are currently declared here.
-
-## When to create a branch-local owner subdoc
-- Create a data-truth subdoc when a stable data/config/constant/default/source-artifact cluster needs its own intent, boundary, invariant, change rule, verification, and references.
-- Do not create fixed truth-kind taxonomies or duplicate code/config/schema/source-owned values here.
 
 ## Change Rule
 - Add or update a branch-local owner subdoc only when a concrete project data/config/constant/default/source-artifact truth must affect future behavior and no more specific owner already holds it.
@@ -363,22 +261,18 @@ update_trigger: non-trivial work closes OR closure-record field contract changes
 ```md
 ---
 doc_type: runbook
-ssot_owner: AGENTS.md
+ssot_owner: docs/project/learning/learning.md
 update_trigger: new operational learnings/pitfalls discovered in real runs
 ---
 
 # Learning Notes
 
 ## Boundary
-- This branch owns durable operational learnings, recurring pitfalls, and verification gotchas that should affect future work.
+- This branch owns durable operational learnings, recurring pitfalls, and verification evidence governing future work.
 - This branch does not own change history, work-status records, project rules, architecture contracts, or data truth.
 
 ## Current Summary
 - No project-specific recurring learning is currently declared beyond `AGENTS.md`.
-
-## When to create a branch-local owner subdoc
-- Create a learning subdoc when a recurring operational lesson needs its own intent, boundary, invariant, change rule, verification, and references.
-- Do not use this branch as a chronological history or work-status record.
 
 ## Branch-local owner subdocs
 - None currently declared.

@@ -1,34 +1,22 @@
 ---
 doc_type: reference
 ssot_owner: docs/agents/skills/00-skill-standards/skill-standards.md
-update_trigger: platform adapter guidance changes OR new platform is added
+update_trigger: verified platform normalization or source-bundle consumer contracts change
 ---
 
 # Platform Adapters (Skills)
 
-## Purpose
-- Map the skill standards into platform-specific implementations without duplicating core policy.
-- Keep this doc referential. Target projects own runtime installation choices; this repo owns reusable source bundles only.
+The skill standards owner defines bundle packaging. `AGENTS.md` FP-21 defines adapter admissibility; `Orchestration.md` owns agent lifecycle. This reference records platform normalization and evidence routes only.
 
-## Adapter expectations
-- Start from `docs/agents/skills/00-skill-standards/skill-standards.md` and keep core rules referenced, not redefined.
-- Document platform-specific file locations and installation/update steps.
-- Describe tool capability constraints (available tools, sandbox limits, permissions).
-- Include verification or smoke-check steps when applicable.
+## Adapter records
+A platform-specific source-bundle change uses the skill standards contract and records:
+- consuming platform and verified runtime contract;
+- required format or location normalization and why it is necessary;
+- discovered tool, sandbox, permission, and context constraints relevant to that consumer;
+- installation/update owner and deterministic verification route;
+- affected bundle and documentation routes.
 
-## Adapter model
-- Codex, Claude Code, Cursor, and other tools have different runtime conventions.
-- This repo keeps reusable bundles under `docs/agents/skills/<skill-name>/`.
-- If a platform contract changes the reusable source-bundle guidance, update this file and the affected skill bundle guidance together.
+Current runtime contracts supply changing capability and context limits. Archived examples and estimates do not select platform behavior. Runtime installation belongs to the consuming project; its declared project-doc owner records qualifying durable installation evidence under `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`.
 
-## Codex CLI
-- Source-preserved example archive: `docs/agents/skills/platform-adapters/Codex CLI/llmjunky-last-30-days/evidence.md`
-- Keep the archive non-authoritative; `docs/agents/skills/00-skill-standards/skill-standards.md` remains the SSOT for adapter rules.
-
-## Scaling note
-- At high skill counts (approximately 160+), flat skill directories can exhaust the runtime context budget (see `docs/agents/skills/00-skill-standards/skill-standards.md` "Context Budget Constraint"). Hierarchical two-tier routing (e.g., skill-tree pattern) can reduce token overhead by up to 88%.
-- If a project exceeds the budget, evaluate per-platform clustering before adding more skills. Reference: skill-tree (github.com/danielbrodie/skill-tree).
-
-## Current runtime stance
-- Skills in this pack are canonical source bundles.
-- Runtime installation evidence can be recorded by the consuming project, not as a parallel governance-owned projection surface here.
+## Historical Codex CLI evidence
+`docs/agents/skills/platform-adapters/Codex CLI/llmjunky-last-30-days/evidence.md` preserves dated third-party examples. It is evidence only; it does not define current settings, available features, permissions, or agent roles.

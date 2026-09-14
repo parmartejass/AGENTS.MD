@@ -1,21 +1,24 @@
-version: 2
+version: 3
 ssot_owner: agents-manifest.yaml
-update_trigger: assigned-lead or subagent task signals or routed authorities change
+update_trigger: Governance Agent task signals or governance authority routes change
 description: >-
-  Deterministic assigned-lead and subagent task-signal-to-authority routing manifest.
-  Root/main authorities and role boundaries are owned only by AGENTS.md.
+  Deterministic Governance Agent task-signal-to-governance-authority routing manifest.
+  Unconditional foundations resolve through AGENTS.md Mandatory Foundations outside this
+  manifest and must not appear in its selectable authority lists. Orchestration.md owns
+  loading, application, roles, and workflow. Detection signals identify candidates, not
+  closed capabilities; applicable deeper owners remain binding.
 
 routing_mode: union # union | first_match
 
 fallback_authorities:
-  - "docs/agents/10-repo-discovery/repo-discovery.md"
-  - "docs/agents/30-logging-errors/logging-errors.md"
+  - "docs/agents/00-principles/principles.md"
+  - "docs/agents/20-sources-of-truth-map/sources-of-truth-map.md"
 
 semantic_queries:
   # Pre-defined queries agents can use for embedding-based search when a profile matches.
   governance_improvement:
     - "Where are governance policies and core principles defined?"
-    - "How is assigned-lead and subagent authority routing configured?"
+    - "How is Governance Agent authority routing configured?"
   codex_session_log_review:
     - "How should local Codex session logs be reviewed for bounded evidence?"
     - "How are session-log findings handed off to governance-learning promotion review?"
@@ -31,9 +34,6 @@ semantic_queries:
   bugfix:
     - "Where is the failing functionality implemented?"
     - "What SSOT owns this behavior?"
-  coding_principles:
-    - "Where are coding authority design, SSOT jurisdiction, and module contracts defined?"
-    - "Where are coding principles, structural minimality, and post-diff purification codified?"
   io_batch:
     - "Where is high-volume file I/O handled in this repo?"
     - "What SSOT owns batching/chunking/caching for file processing?"
@@ -309,7 +309,6 @@ profiles:
     authorities:
       - "docs/agents/10-repo-discovery/repo-discovery.md"
       - "docs/agents/30-logging-errors/logging-errors.md"
-      - "docs/agents/35-coding-principles/coding-principles.md"
       - "docs/agents/playbooks/bugfix-template/bugfix-template.md"
       - "docs/agents/playbooks/rca-methods-template/rca-methods-template.md"
 
@@ -349,6 +348,9 @@ profiles:
         - "project data truth"
         - "project data-truth"
         - "docs/project/data-truth/data-truth.md"
+        - "user prompt data truth"
+        - "user-provided data truth"
+        - "prompt-originated truth"
         - "project changelog"
         - "docs/project/changelog/changelog.md"
         - "closure record"
@@ -367,8 +369,6 @@ profiles:
         - "README.md"
         - "docs/project/**/*.md"
     authorities:
-      - "docs/project/project_index.md"
-      - "docs/agents/25-docs-ssot-policy/docs-ssot-policy.md"
       - "docs/agents/playbooks/project-docs-template/project-docs-template.md"
       - "docs/agents/90-release-checklist/release-checklist.md"
 
@@ -385,6 +385,10 @@ profiles:
         - "governance playbook"
         - "governance learnings"
         - "session recap"
+        - "user decision"
+        - "user prompt supersession"
+        - "agent decision"
+        - "controlling user intent"
         - "council review"
         - "post-session"
         - "retrospective"
@@ -394,18 +398,14 @@ profiles:
         - "docs/agents/**/*.md"
         - "docs/agents/settings/**/*.md"
     authorities:
-      - "README.md"
       - "docs/agents/agents_index.md"
+      - "docs/agents/05-context-retrieval/context-retrieval.md"
+      - "docs/agents/20-sources-of-truth-map/sources-of-truth-map.md"
       - "docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md"
-      - "docs/agents/25-docs-ssot-policy/docs-ssot-policy.md"
-      - "docs/agents/35-coding-principles/coding-principles.md"
       - "docs/agents/90-release-checklist/release-checklist.md"
       - "docs/agents/settings/00-settings-standards/settings-standards.md"
-      - "docs/agents/15-stuck-in-loop-generate-fresh-restart-prompt/stuck-in-loop-generate-fresh-restart-prompt.md"
       - "docs/agents/playbooks/governance-learnings-template/governance-learnings-template.md"
       - "docs/agents/playbooks/rca-methods-template/rca-methods-template.md"
-      - "docs/project/project_index.md"
-      - "docs/project/learning/learning.md"
 
   codex_session_log_review:
     detect:
@@ -426,59 +426,6 @@ profiles:
       - "docs/agents/playbooks/governance-learnings-template/codex-session-log-review.md"
       - "docs/agents/30-logging-errors/logging-errors.md"
 
-  coding_principles:
-    detect:
-      keywords:
-        - "design review"
-        - "coding design rules"
-        - "coding principles"
-        - "authority design"
-        - "SSOT jurisdiction"
-        - "ssot jurisdiction"
-        - "jurisdictional purification"
-        - "jurisdiction map"
-        - "drift ledger"
-        - "source-level fix point"
-        - "prune jurisdictionally"
-        - "wrong-owner behavior"
-        - "non-owner patch"
-        - "council jurisdiction witness"
-        - "post-diff purification"
-        - "authority-correct design"
-        - "code modularity"
-        - "coding modularity"
-        - "modularity"
-        - "coding rules"
-        - "module boundary"
-        - "authority boundary"
-        - "folder architecture"
-        - "folder contract"
-        - "feature folder"
-        - "public entrypoint"
-        - "single public entrypoint"
-        - "entrypoint contract"
-        - "literal ownership"
-        - "owner-owned validator"
-        - "owner-owned validation"
-        - "structural minimality"
-        - "behavior-preservation witness"
-        - "smallest authority-correct"
-        - "solid principles"
-        - "dry ownership"
-        - "orchestration-only"
-        - "high cohesion"
-        - "low coupling"
-        - "kiss"
-        - "yagni"
-        - "separation of concerns"
-        - "law of demeter"
-        - "dependency inversion"
-      code_patterns: []
-      file_globs:
-        - "scripts/check_governance_core/**/*.py"
-    authorities:
-      - "docs/agents/35-coding-principles/coding-principles.md"
-
   skills_task:
     detect:
       keywords:
@@ -496,11 +443,3 @@ profiles:
     authorities:
       - "docs/agents/skills/00-skill-standards/skill-standards.md"
       - "docs/agents/skills/10-platform-adapters/platform-adapters.md"
-
-  stuck_loop_reset:
-    detect:
-      signals:
-        - "repeated_failure_same_root_cause_twice"
-        - "verification_contradicts_claim"
-    authorities:
-      - "docs/agents/15-stuck-in-loop-generate-fresh-restart-prompt/stuck-in-loop-generate-fresh-restart-prompt.md"

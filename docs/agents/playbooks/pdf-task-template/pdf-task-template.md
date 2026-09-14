@@ -11,15 +11,11 @@ Use when:
 - Investigating missing/duplicate pages, merge drift, or integrity validation failures.
 - Introducing or tuning PDF validation (size checks, page checks, identifier checks).
 
-This template is a prompting scaffold.
+This scaffold records PDF-specific evidence under `AGENTS.md` and `docs/agents/70-io-data-integrity/io-data-integrity.md`.
 
-## Change classification (required)
-- task type (feature|bugfix|refactor):
-- blast radius (workflows/consumers/users):
-- if bugfix/regression: fill `docs/agents/playbooks/bugfix-template/bugfix-template.md`.
-- if feature/behavior change: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" behavior-change/new-feature minimums (including shift-left baseline).
-- if refactor/behavior-neutral: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" behavior-neutral minimums.
-- if new logic is introduced: apply `docs/agents/35-coding-principles/coding-principles.md` under the `AGENTS.md` coding hard gate.
+## Governing evidence
+
+This task scaffold applies `AGENTS.md` Fundamental Principles and Verification Floors. Record task type, blast radius, applicable owner obligations, and witnesses. Bugfix evidence uses `docs/agents/playbooks/bugfix-template/bugfix-template.md`; implementation design uses `docs/agents/35-coding-principles/coding-principles.md`. Agent lifecycle and authorization remain owned by `Orchestration.md`.
 
 Non-goals:
 - This is not a library specification. Library notes are examples; verify in your environment.
@@ -27,7 +23,7 @@ Non-goals:
 
 ## Model (first principles)
 - Inputs: ordered list of source PDFs (and optionally expected identifiers like tracking/order IDs).
-- Transformation: optional normalize/dedupe -> merge using the backend selected by the workflow coordinator or config SSOT -> validate witnesses.
+- Transformation: source-owner-declared normalization/duplicate handling -> merge using the selected backend contract -> validate witnesses; record preservation evidence for any transformation.
 - Outputs: merged PDF + logs/report entries.
 - Side effects: file writes and temp files; cleanup is required when temp artifacts are created.
 - Runtime path/backend selection owner: record the workflow coordinator entrypoint or config SSOT path before execution.
@@ -43,7 +39,7 @@ Non-goals:
 
 ### Idempotency invariants
 - INV-PDF-I1: Re-merging identical inputs must not drift on core witnesses (page count, identifier coverage, size ratio within tolerance).
-  - If drift occurs, treat it as corruption and fail fast with a terminal outcome unless the recorded runtime path/backend owner selected a different backend before execution.
+  - Drift is a failed integrity witness under the I/O owner; backend selection does not waive it.
 
 ### Observability invariants
 - INV-PDF-OBS1: Logs record backend used, page counts, validation outcomes, and retry attempt number.
@@ -57,8 +53,8 @@ Use multiple witnesses; size alone is a heuristic.
 | INV-PDF-D1 | merged_pages vs sum(source_pages) | log + run report | merged_pages == expected_pages |
 | INV-PDF-I1 | witness drift across attempts | log fields per attempt | no drift for same inputs |
 | INV-PDF-OBS1 | backend + counts recorded | logs | present for each attempt |
-| (optional) | identifier coverage | logs/report | missing_ids == 0 (if identifiers are asserted) |
-| (optional) | size ratio | logs | output_size >= expected_sum * ratio |
+| Identifier assertion from source owner | identifier coverage | logs/report | missing_ids == 0 when required by that owner |
+| Size heuristic selected by validation owner | size ratio | logs | configured ratio plus required content witnesses |
 
 ## Procedure (decision tree)
 
@@ -66,7 +62,7 @@ Use multiple witnesses; size alone is a heuristic.
 - Decide duplicate handling from upstream SSOT:
   - If inputs must be unique: deduplicate by real path and record duplicates explicitly (FAILED or SKIPPED with reason).
   - If duplicates are meaningful: preserve duplicates and include them in deterministic ordering.
-- Drop missing files explicitly (log SKIPPED/FAILED with reason).
+- Preserve missing input identities and apply the input owner's missing-file outcome; do not silently reduce expected coverage.
 - Establish deterministic ordering.
 - Capture expected witnesses:
   - expected_pages = sum(page_count(source_i))
@@ -75,7 +71,7 @@ Use multiple witnesses; size alone is a heuristic.
 
 2) Choose witnesses (minimum set)
 - Required: page count, backend, output size, attempt number.
-- Optional: expected ID coverage (only if IDs are reliably extractable/defined upstream).
+- Identifier coverage follows the upstream assertion and validation contract. Record extraction capability and any unresolved requirement.
 
 3) Merge attempt
 - Use the backend selected by the recorded runtime path/backend owner.
@@ -90,13 +86,13 @@ Use multiple witnesses; size alone is a heuristic.
 
 5) If validation fails
 - If witnesses drift across repeated attempts with identical inputs: treat as corruption.
-  - Fail fast with a terminal outcome unless the recorded runtime path/backend owner selected a different backend before execution.
-- If failure is stable and explainable (for example, optimization delta): adjust tolerance (project-level config), not the invariant.
+  - Record terminal failure through the I/O owner; do not select another backend or relax acceptance within the failed run.
+- A proven heuristic defect requires an authorized correction at the validation/config owner, with preserved content requirements and regression evidence under `AGENTS.md`; it does not convert the failed run to success.
 
 ## Notes (common pitfalls)
 
 - PDF text extraction is imperfect. Missing IDs can be false negatives if the PDF contains images or non-extractable text.
-  - If IDs are a hard requirement, define them upstream and validate via a robust method (or acknowledge extraction limits).
+  - If IDs are required, the validation owner must prove coverage. Extraction limits remain an unmet requirement with explicit failure/correction guidance.
 - Size validation is a heuristic. Optimized formats can legitimately shrink due to deduplication/structure optimization.
 
 ## Library notes (examples; verify in your environment)

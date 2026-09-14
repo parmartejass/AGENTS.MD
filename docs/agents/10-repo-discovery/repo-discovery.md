@@ -6,7 +6,7 @@ update_trigger: discovery signals or SSOT adoption rules change
 
 # 10 — Repo Discovery (Mandatory Before Writing)
 
-Goal: find existing SSOT jurisdictions and owners and adopt them instead of creating parallel modules/docs.
+This runbook supplies discovery candidates for `AGENTS.md` FP-04 and FP-08. Search bounds and full-read witnesses are owned by `docs/agents/05-context-retrieval/context-retrieval.md`; the terms below are examples of search signals, not a closed capability inventory.
 
 ## What to search for
 
@@ -38,4 +38,3 @@ Use `agents-manifest.yaml` profile `gui_task` detection lists (keep them SSOT in
 
 ## Decision rules
 - Apply `AGENTS.md` Non-Negotiable #1 "SSOT jurisdiction and duplication pruning rule" after discovery.
-- If no SSOT jurisdiction exists for a responsibility under that rule, create one minimally and wire all call sites through it.

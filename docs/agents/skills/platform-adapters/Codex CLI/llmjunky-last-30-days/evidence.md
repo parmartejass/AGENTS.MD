@@ -7,6 +7,7 @@ update_trigger: collection window changes OR sourced Codex CLI examples are adde
 # LLMJunky Codex CLI Config Snippets (Last 30 Days)
 
 ## Source and scope
+- Classification: dated third-party evidence only. These fragments do not define current Codex settings, capability availability, permissions, or agent lifecycle.
 - Source: X API user timeline for `@LLMJunky`.
 - Collection window: `2026-02-03T20:17:53Z` through `2026-03-05T20:17:53Z` UTC.
 - Inclusion: only posts by `@LLMJunky` that contained explicit Codex CLI config text in the post body.
@@ -258,34 +259,6 @@ Sources:
 max_threads = 12
 max_depth = 2 https://t.co/PvCySWSily
 ```
-
-## Use Cases By Setting
-- `artifact`: enable artifact-style outputs such as generated spreadsheet or presentation artifacts.
-- `config_file`: point a named agent role at a separate TOML file that holds that role's model and reasoning config.
-- `default_mode_request_user_input`: allow the Ask Question / interview-style tool outside plan mode when the model truly needs clarification.
-- `description`: attach a human-readable purpose to a custom agent role.
-- `fast_mode`: switch to a faster, lower-deliberation workflow for quick iteration, debugging, or smaller coding tasks.
-- `max_depth`: control how many layers deep subagents or teams can recurse.
-- `max_raw_memories_for_global`: cap how many raw memories are considered when building or backfilling global memory.
-- `max_rollout_age_days`: stop memory backfill from considering rollout history older than the configured age.
-- `max_rollouts_per_startup`: limit how many old rollouts are processed each time Codex starts.
-- `max_threads`: raise or lower the amount of concurrent agent work when using teams or multi-agent flows.
-- `memories`: turn on memory storage/recall features.
-- `memory_tool`: apparent legacy switch for the earlier memory tool implementation.
-- `min_rollout_idle_hours`: avoid processing very recent rollouts until they have been idle long enough.
-- `multi_agent`: enable multi-agent orchestration and team-style workflows.
-- `phase_1_model`: choose the model used for the first memory-processing phase.
-- `phase_2_model`: apparent placeholder for the second memory-processing phase model; the shared source fragment was incomplete.
-- `prevent_idle_sleep`: keep the machine awake during long-running Codex sessions or agent work.
-- `realtime_conversation`: enable live conversational interaction instead of purely turn-based prompting.
-- `responses_websockets_v2`: apparent switch for a newer websocket-based response transport; source fragment was incomplete in one post.
-- `shell_snapshot`: preserve shell/session state between actions so follow-up steps can build on prior terminal context.
-- `sqlite`: use local SQLite-backed storage, typically alongside memory features.
-- `steer`: enable steering controls or steering-related orchestration behavior for the session.
-- `unified_exec`: use the unified execution path for terminal or tool execution.
-- `undo`: allow reverting or undoing recent actions during an interactive workflow.
-- `user_input_tool`: apparent earlier or speculative name for the Ask Question capability before the later `default_mode_request_user_input` flag.
-- `voice_transcription`: enable voice input or dictation.
 
 ## Explicitly skipped non-TOML mentions
 - `SKIPPED_NON_TEXT_MEDIA`: `2026-03-04` `https://x.com/LLMJunky/status/2029063622895243414`

@@ -1,302 +1,149 @@
 ---
 doc_type: playbook
 ssot_owner: AGENTS.md
-update_trigger:
-  - governance learning capture procedure change
-  - output expectations change
+update_trigger: governance-learning promotion gate, evidence fields, or prompt scaffold changes
 ---
 
 # Playbook - Governance Learnings (Session -> Governance Deltas)
 
-## Purpose
-Use this playbook to have an AI assistant review a work session and extract repeatable governance learnings that should be codified into the governance pack, while avoiding duplication and staying aligned with SSOT boundaries.
+This playbook owns candidate promotion/noise classification, evidence records, and the prompt scaffold for explicitly invoked governance-learning work. `AGENTS.md` owns Fundamental Principles and the Governance Auto-Edit Gate. `Orchestration.md` owns agent roles, review, authorization, execution, and terminal decisions. This procedure supplies evidence to that lifecycle.
 
-## Use when
-- You want an AI assistant to review a work session and extract learnings that should be codified into this governance pack.
-- You want the assistant to propose or (when explicitly authorized) apply governance updates while avoiding duplicates.
+## Applicability and proposal language
 
-## Don't use when
-- You do not have (or cannot provide) session evidence (transcript/recap/diffs/logs).
-- You want new governance policy invented from scratch without evidence.
+Use this explicitly invoked playbook for a session-evidenced reusable governance gap. A missing required observation remains `UNVERIFIED` with a request for the named source or the Session recap schema; it does not justify inventing a policy. Supported candidates remain independently assessable under Inputs and authority.
 
-## Definitions
-- Learning: a repeatable pitfall, missing invariant, missing witness/check, missing SSOT owner, missing template, or missing authority-routing profile that would prevent future errors if codified.
-- Governance-level learning: a learning that changes reusable agent behavior across tasks/repos because it affects `AGENTS.md` hard gates, SSOT owners, invariants, witnesses, manifest routing, docs routing, safety, deterministic checks, or reusable governance playbooks.
-- Evidence handoff: a bounded, redacted summary of session evidence. It can support promotion decisions, but it is not itself a governance delta.
-- Noise: task-local, tool-budget, temporary execution preference, weak-evidence, or non-governance instruction that should not create a governance update.
+Candidate wording MUST distinguish an existing binding obligation (owner citation), a proposed owner change (clearly labeled proposal), and illustrative text. `AGENTS.md` Instruction Derivation Gate owns obligation strength; a draft using MUST is still proposed text until adopted through that owner. Priority labels rank proposals and MUST NOT imply authority. This playbook does not create a policy from popularity, replace the lifecycle, or authorize edits.
 
-## Quickstart checklist (recommended)
-1. Confirm required context is accessible:
-   - Read `AGENTS.md`.
-   - Have the assigned lead follow `AGENTS.md` "Assigned-Lead Authority Routing Procedure (Hard Gate)" and resolve the current task routing from `agents-manifest.yaml`.
-   - Keep all task-specific routing and council evidence inside the assigned-lead subtree.
-2. Confirm whether governance auto-edit is authorized for this session.
-3. Collect evidence inputs; if none are available, request a Session Recap using the schema in this file.
+## Inputs and authority
 
-## Authority References
-- Global hard gates, council requirements, and governance auto-edit rules are owned by `AGENTS.md`.
-- Task-authority-routing facts are owned by `agents-manifest.yaml`; this playbook must not keep a local routed-authority list.
-- Docs placement, router behavior, and non-owner-doc limits are owned by `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`.
-- This playbook owns the promotion/noise gate, evidence record shape, and copy/paste prompt scaffold for governance-learning work.
+- Review goal and supplied session evidence or redacted evidence handoff.
+- Candidate output limit and bounded search scope/budget supplied by the active workflow.
+- Authorization witness determined under `AGENTS.md` and `Orchestration.md`.
+- Governance authority routes resolved through `agents-manifest.yaml` by its declared role.
+- Docs placement and promotion owner: `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`.
+- Local session-log acquisition owner: `codex-session-log-review.md`.
 
-## Language discipline
-- Use `MUST` / `Hard Gate` only when quoting requirements explicitly hard-gated in `AGENTS.md`.
-- Use `must` / `required` for playbook procedure steps.
-- Use `should` / `recommended` for suggestions and preferences.
-- Use `P1` / `P2` / `P3` for proposal priority labels (do not use `MUST` as a priority label).
+If evidence needed for a candidate is missing, record `UNVERIFIED` and the exact missing source. A user recap can supply that source using the schema below. Missing irrelevant history does not block supported candidates. Raw transcripts, credentials, personal identifiers, and full user-home paths are not repository artifacts; evidence output uses the redaction owner `docs/agents/30-logging-errors/logging-errors.md`.
 
-## Procedure guardrails
-- Before claiming something is "missing", verify it does not already exist (search the repo with `rg`).
-- If auto-edit is not authorized by the user/session policy, propose deltas only.
-- If any required file is inaccessible, stop and request it.
-- If council output is `go_no_go = hold`, stop before editing.
-- If council conflicts or evidence gaps remain unresolved, stop and ask before editing.
-- If evidence is weak or missing for a candidate, mark it `UNVERIFIED` and request recap/context.
-- Prefer user-provided recap or redacted evidence handoff over raw transcripts.
-- Do not store raw session transcripts, raw local session logs, secrets, cookies, credentials, personal identifiers, or full user-home paths in repo artifacts.
-- Redact sensitive evidence before output; use counts, timestamps, session IDs, hashes, relative paths, and short snippets only when needed.
+## Candidate definitions
+
+- Learning: an evidenced recurring pitfall, missing invariant/witness, missing owner, or routing/template defect with a concrete prevention point.
+- Governance-level learning: a learning that changes reusable governance behavior across tasks or repositories.
+- Evidence handoff: summarized observations supporting classification; it has no governance or execution authority.
+- Noise: task-local or temporary preference, weak evidence, or unrelated material that does not justify a governance owner update.
 
 ## Promotion / Noise Gate
 
-Run this gate before de-duplication and before drafting any governance delta.
+Apply this gate before de-duplication or drafting deltas. Promotion requires verified evidence of a reusable gap in the constitution/lifecycle, SSOT ownership, invariants/witnesses, deterministic checks, authority/docs routing, reusable scaffolds, safety, or explicit outcomes. Repetition alone is insufficient; a single verified critical governance failure qualifies when it demonstrates that gap.
 
-Promote a candidate to de-duplication only when verified evidence shows a reusable governance gap affecting one or more of:
+Each candidate receives exactly one status:
 
-- `AGENTS.md` hard gates or execution loops
-- SSOT ownership, authority boundaries, or duplicate-authority prevention
-- invariants, witnesses, deterministic checks, or README Checks alignment
-- manifest authority routing
-- docs routing, playbook structure, or governance template behavior
-- safety, resource cleanup, explicit failure, or no-silent-skip behavior
-- repeatable cross-repo agent behavior that future agents must preserve
+| Gate status | Evidence disposition |
+|---|---|
+| `PROMOTE_FOR_DEDUP` | Verified governance-level gap; resolve existing coverage and owning location. |
+| `DEFER_EVIDENCE_GAP` | Plausible governance concern with a named missing/inaccessible source. |
+| `REJECT_TASK_LOCAL` | Applies only to one task, repository, file, or temporary goal. |
+| `REJECT_TOOL_BUDGET` | Temporary token/time/thread/tool budget without a durable governance gap. |
+| `REJECT_TEMPORARY_EXECUTION_PREFERENCE` | Run-local execution preference. |
+| `REJECT_WEAK_EVIDENCE` | Unsupported assertion. |
+| `REJECT_CONFLICTS_WITH_SSOT` | Conflicting owner semantics without an authorized owner update under `AGENTS.md` and `Orchestration.md`. |
+| `REJECT_NON_GOVERNANCE` | No governance-level implication. |
 
-Repetition is useful evidence, but it is not sufficient by itself. A single verified critical governance failure may promote. Repeated task-local preferences must still be rejected.
+Rejected candidates retain evidence and reason, with target and draft delta `N/A + rejected`; they do not produce backlog proposals. Deferred candidates retain the missing evidence and next action without a draft delta.
 
-Use these gate statuses:
+## Coverage and placement evidence
 
-- `PROMOTE_FOR_DEDUP`: verified governance-level candidate; continue to de-duplication and placement.
-- `DEFER_EVIDENCE_GAP`: plausible governance concern, but evidence is incomplete or inaccessible.
-- `REJECT_TASK_LOCAL`: applies only to one task, repo, file, or temporary user goal.
-- `REJECT_TOOL_BUDGET`: concerns token/time/thread/tool budgeting rather than durable governance behavior.
-- `REJECT_TEMPORARY_EXECUTION_PREFERENCE`: temporary instruction for the current run, not a reusable rule.
-- `REJECT_WEAK_EVIDENCE`: assertion lacks enough verified evidence to affect governance.
-- `REJECT_CONFLICTS_WITH_SSOT`: conflicts with current `AGENTS.md` or another authority unless the user explicitly requests an authority change and confirmation/council gates pass.
-- `REJECT_NON_GOVERNANCE`: does not affect governance-level authority, invariants, witnesses, routing, safety, or checks.
+For each promoted candidate:
 
-Rejected candidates must include evidence, gate status, and rejection reason. They must not emit draft governance deltas, backlog proposals, or target locations beyond `N/A + rejected`.
+1. Resolve the highest owning jurisdiction using `AGENTS.md` FP-04, FP-08, FP-12, and FP-27.
+2. Search the supplied bounded governance/owner scope under FP-26; record terms, ordering, files/bytes, elapsed cost, termination, and coverage. Expanded scope requires the active workflow's explicit contract.
+3. Record `ALREADY_COVERED`, `PARTIAL`, or `MISSING` with the owner citation and exact gap. Repeated lookups use the keyed evidence record under FP-28.
+4. Record the owner replacement/extension and corresponding duplicate removal under FP-09. Route project-local durable facts through the docs SSOT policy; do not keep a second placement matrix here.
+5. Supply candidate evidence to the review/execution assignment determined by `Orchestration.md`. The authorization witness determines proposals versus authorized edits under the Governance Auto-Edit Gate.
 
-For project-local bounded authority memory, place promoted records through `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md` and scaffold any missing project-doc shape with `docs/agents/playbooks/project-docs-template/project-docs-template.md`. This playbook records only the selected owner path, promotion evidence, and reason; it does not maintain a local placement matrix.
+## Evidence output contract
 
-Example rejection:
+Use a decision brief, candidate records, then summary. Field order below is the output contract; unknown and inapplicable fields retain `Unknown` or `N/A + reason`. Candidate count follows the supplied output limit; no minimum pressures evidence creation. Any truncated candidate set is pending with reason and next action under FP-29.
 
-- Candidate: "do not let subagents spawn more subagents"
-- Gate status: `REJECT_TEMPORARY_EXECUTION_PREFERENCE` or `REJECT_CONFLICTS_WITH_SSOT`
-- Reason: task-local execution preference and/or conflict with `AGENTS.md` standing subagent authorization unless the user explicitly asks to revise that authority and required confirmation/council gates pass.
+### Decision brief
 
-## Preflight checklist (required before Step 1)
-- AGENTS access confirmed.
-- Manifest routing resolved and routed authorities read.
-- Auto-edit authorization status known.
+- Model and scope:
+- SSOT map:
+- Authority uplift summary: verified failure classes, earliest defective boundary, prevention point, and evidence:
+- Proof obligations and verification plan:
+- Blast radius:
+- README Checks alignment:
+- Claim-level verification status:
+- Change Contract owner reference and applicable evidence:
+- Authorization and lifecycle evidence reference:
 
-## Severity rubric (for council findings)
-- `HIGH`: blocker risk that can cause incorrect governance edits, policy drift, or unsafe execution sequence.
-- `MEDIUM`: likely misuse or rework risk that is non-blocking with explicit controls.
-- `LOW`: clarity/compliance improvement with low immediate execution risk.
+### Candidate record
 
-## Procedure
-1. Extract candidate learnings from session evidence or an evidence handoff.
-2. Run the Promotion / Noise Gate; reject non-governance noise before de-duplication.
-3. De-duplicate promoted candidates against governance docs and referenced SSOT owners before declaring `MISSING`.
-4. Run Council review and reconcile findings before any edits.
-5. Produce governance deltas (proposals or auto-edits, based on authorization).
-6. Emit deterministic output records in required field order.
-7. Publish final summary with P1/P2/P3 split, rejected noise counts, and explicit unknowns.
+- ID: `GL-DDMMYYYY-###`; date from the explicit review context, sequence starts at `001` and increments in output order.
+- Gate status:
+- Status: `MISSING` | `PARTIAL` | `ALREADY_COVERED` | `DEFERRED` | `REJECTED`
+- Evidence (R/D):
+- Failure mode prevented:
+- Authority-first prevention point:
+- Target location:
+- Draft delta or coverage citation:
+- Change Contract alignment:
+- Witness/verification:
+- Risk if not addressed:
+- Modularity/structure decision:
+- Priority and confidence: `P1` | `P2` | `P3`, with `VERIFIED` | `UNVERIFIED`
+- Remaining action:
 
-## Prompt pack (copy/paste into any chat)
+Priority ranks proposals, not obligation strength. P1 requires verified evidence and a concrete verification command or deterministic manual witness. Drafts remain proposals until applied through their owning authority.
+
+### Summary
+
+- Verified proposals by priority and owner.
+- Already-covered candidates and citations.
+- Rejected/deferred counts by gate status.
+- Routing changes and duplicate removals proposed or verified.
+- Unknowns, incomplete evidence, and required actions.
+
+## Prompt scaffold
 
 ```text
-Hard gates (copy/paste scaffold sourced from AGENTS.md):
-- Read and follow `AGENTS.md`; if it is inaccessible, request it before doing any work.
-- Root/main delegation and the assigned-lead workflow MUST follow `AGENTS.md` "Assigned-Lead Authority Routing Procedure (Hard Gate)"; use its live canonical delegation line instead of copying it here.
-- Execute the docs-first authority gate before any non-trivial plan, review, council output, implementation, or repo mutation.
-- For governance auto-edit, apply the `AGENTS.md` Governance Auto-Edit Gate and Subagent Council before editing.
-- Derive task instructions from declared SSOT owners; if ownership is unknown or conflicting, stop and report the authority gap before acting.
-- Use docs placement and router rules from `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`; do not restate them here.
+Apply `AGENTS.md` and `Orchestration.md` to this explicitly invoked governance-learning review. Use `docs/agents/playbooks/governance-learnings-template/governance-learnings-template.md` for the promotion gate and evidence output contract; it does not replace those owners.
 
-Task type: governance_improvement
+Complete controlling request and earlier binding decisions:
+<retain all binding intent>
 
-Goal:
-- Scrutinize this session (and any referenced repo files) to extract governance learnings that should be codified, then propose or apply updates when authorized.
+Review goal:
+<desired reusable improvement>
 
-Field completion rule:
-- Fill every required field. If information is missing, write `Unknown` or `N/A + reason` (do not omit fields).
+Evidence or handoff:
+<redacted evidence with provenance; Unknown if missing>
 
-Preflight checklist (required before Step 1):
-- AGENTS access confirmed.
-- Manifest routing resolved and routed authorities read.
-- Auto-edit authorization status known.
+Authorized source/search scope and budgets:
+<explicit sources, bounds, ordering, and termination contract>
 
-Evidence inputs (provide if available; if none, write `None provided`):
-- Session transcript or recap
-- Session evidence handoff from the relevant evidence-collection playbook
-- Files changed and diffs
-- Commands run + outputs
-- Error messages/logs
-- Decisions that caused rework
-- Sanitize secrets/PII in pasted evidence.
+Candidate output limit:
+<run-supplied limit>
 
-If you cannot see the full session history:
-- Ask me for a "Session Recap" using this schema:
-  - Work performed:
-  - Failures/friction encountered (exact messages if any):
-  - Workarounds used:
-  - Decisions made:
-  - Repeated confusion points:
-  - What I wish had existed in governance beforehand:
-- Wait for the recap before continuing.
+Authorization witness:
+<current scope and side effects determined through the owners>
 
-Assigned-lead repo context (read at minimum after manifest routing):
-- `AGENTS.md`
-- Current routing from `agents-manifest.yaml`.
-- Authorities routed by the matched profile or fallback routing.
-- Any owner docs referenced by candidate evidence.
-- If a required file is inaccessible (permissions/tooling), stop and request it; do not infer missing contents.
-- If a required file is truly missing and `AGENTS.md` requires creation, create it only in authorized proposal/auto-edit flow.
+Requested evidence output:
+<decision brief, candidate records, summary under the playbook contract>
 
-Decision-grade brief (required before learnings; use this exact label order):
-- Model:
-- SSOT map:
-- Authority uplift summary:
-  - Failure class 1 (VERIFIED|UNVERIFIED):
-    - Earliest authority/contract boundary:
-    - Authority-first prevention point:
-    - Evidence/heuristic:
-  - Failure class 2 (VERIFIED|UNVERIFIED):
-    - Earliest authority/contract boundary:
-    - Authority-first prevention point:
-    - Evidence/heuristic:
-  - Failure class 3 (VERIFIED|UNVERIFIED):
-    - Earliest authority/contract boundary:
-    - Authority-first prevention point:
-    - Evidence/heuristic:
-  - Deprioritized classes (if any):
-  - Reconciliation note after Step 5:
-- Proof obligations + verification plan:
-- Blast radius summary (workflows/docs/tools/agents impacted):
-- Verification SSOT alignment (commands from README.md "Checks"; note gaps requiring README updates or manual checks):
-- Confidence gate summary (claim-level VERIFIED/UNVERIFIED status):
-- Change Contract alignment (map to `AGENTS.md` template sections; do not duplicate full contract):
+Apply the playbook Evidence output contract in its declared field order. Fill every field; preserve Unknown or N/A + reason. For each candidate connect the observed R/D evidence, proposed S invariant, prevention point, witness, target owner and exact replacement/extension. Apply Promotion / Noise Gate before Coverage and placement evidence; rejected/deferred candidates retain their reason and next action without a draft delta.
 
-Council review output (required before Step 4):
-- Use the exact reviewer-record and merged-summary Evidence Contract in `AGENTS.md` "Subagent Council (Hard Gate)"; do not reproduce or redefine that schema here.
-
-Severity rubric (for findings):
-- HIGH: blocker risk that can cause incorrect governance edits, policy drift, or unsafe execution sequence.
-- MEDIUM: likely misuse or rework risk that is non-blocking with explicit controls.
-- LOW: clarity/compliance improvement with low immediate execution risk.
-
-Promotion / Noise Gate (required before de-duplication):
-- Promote only verified governance-level candidates affecting `AGENTS.md` hard gates, SSOT owners, invariants, witnesses, manifest routing, docs routing, safety, deterministic checks, or reusable governance playbooks.
-- Repetition is not sufficient by itself; a single verified critical governance failure may promote.
-- Reject task-local, tool-budget, temporary execution preference, weak-evidence, conflicting-with-SSOT, and non-governance items.
-- Use one of these gate statuses: `PROMOTE_FOR_DEDUP`, `DEFER_EVIDENCE_GAP`, `REJECT_TASK_LOCAL`, `REJECT_TOOL_BUDGET`, `REJECT_TEMPORARY_EXECUTION_PREFERENCE`, `REJECT_WEAK_EVIDENCE`, `REJECT_CONFLICTS_WITH_SSOT`, `REJECT_NON_GOVERNANCE`.
-- Rejected candidates must include evidence and reason, use `Target location: N/A + rejected`, and must not emit draft governance deltas or backlog proposals.
-- Example rejection: "do not let subagents spawn more subagents" is `REJECT_TEMPORARY_EXECUTION_PREFERENCE` or `REJECT_CONFLICTS_WITH_SSOT` unless the user explicitly requests an authority change and confirmation/council gates pass.
-
-Steps:
-1) Extract candidate learnings (0-15):
-   - If fewer than 5 VERIFIED candidates exist, continue with available candidates and state shortfall + reason.
-   - Each candidate must include:
-     - Evidence from this session (tag as R or D; R = runtime truth, D = recorded truth)
-     - Failure mode prevented
-     - Proposed invariant (S; one sentence, testable) + category (data, ordering, atomicity, idempotency, lifecycle, observability, other)
-     - Proposed witness (what is measured, where recorded, pass criteria)
-   - If evidence is weak, mark as UNVERIFIED and request additional context.
-2) Apply the Promotion / Noise Gate:
-   - Assign exactly one gate status to each candidate.
-   - Continue only `PROMOTE_FOR_DEDUP` candidates to Step 3.
-   - Keep `DEFER_EVIDENCE_GAP` and rejected candidates in output records without draft deltas.
-3) De-duplicate and place (verify):
-   - For each candidate, search in this order:
-     1. governance/playbooks/docs area
-     2. referenced SSOT owner docs/files
-     3. broader repo
-   - Use `rg` for verification and record search terms used when practical.
-   - Mark status as `ALREADY_COVERED`, `PARTIAL`, or `MISSING`.
-4) Council review (required before edits):
-   - The assigned lead runs the Subagent Council inside its subtree per `AGENTS.md` "Subagent Council (Hard Gate)" with its minimum intention coverage.
-   - Preserve reviewer records and merge findings using the exact Evidence Contract owned by that section.
-   - For each HIGH/MEDIUM finding, include at least one evidence item (R or D) and one action (apply/defer + rationale).
-   - If `go_no_go` is `hold`, stop and ask before editing.
-   - If conflicts or gaps remain, pause and ask before editing.
-5) Produce governance deltas (proposals or auto-edits, depending on authorization):
-   - If auto-edit is authorized: apply minimal edits after the confirmation gate and within the scope in `AGENTS.md` "Governance Auto-Edit Gate".
-   - If auto-edit is not authorized: propose deltas only.
-6) Output records (deterministic; one record per candidate, exact field order):
-   - ID:
-   - Gate status:
-   - Status (`MISSING`|`PARTIAL`|`ALREADY_COVERED`|`DEFERRED`|`REJECTED`):
-   - Evidence (R/D):
-   - Failure mode prevented:
-   - Authority-first prevention point:
-   - Target location:
-   - Draft delta (for `MISSING`/`PARTIAL`) or coverage citation (for `ALREADY_COVERED`):
-   - Change Contract alignment:
-   - Witness/verification:
-   - Risk if not addressed:
-   - Modularity/structure decision:
-   - Priority + confidence (`P1`|`P2`|`P3` + `VERIFIED`|`UNVERIFIED`):
-   - If a field is not applicable, write `N/A + reason`.
-   - Rejected candidates must use `Target location: N/A + rejected` and `Draft delta: N/A + rejected`.
-   - ID format rule: `GL-DDMMYYYY-###`
-   - Increment rule: `###` starts at `001` within the session output and increments by 1 for each record.
-7) Final summary:
-   - P1 codify now (max 7; requires VERIFIED evidence + concrete verification command/manual check)
-   - P2/P3 backlog
-   - Already-covered (no action)
-   - Rejected noise by gate status
-- Authority-routing improvements (if any)
-   - Open questions/unknowns
-   - UNVERIFIED items cannot be promoted as P1.
-
-Output format:
-- Markdown
-- Short bullets and small tables
-- Section order: Decision-grade brief -> Output records -> Final summary
-- Each learning must be actionable: where to change + what to add + how to verify
+If a required source is inaccessible, name the missing source and use the Session recap schema for the affected candidate. Distinguish missing evidence from irrelevant history. Record the bounded search witness and exact owner coverage before calling anything MISSING. Supply proposed or authorized changes only within the recorded authorization and lifecycle evidence.
 ```
 
-## Suggested de-dup search approach (recommended)
-When you reach Step 2, use this sequence:
-1. Search governance/playbooks/docs area first.
-2. Search referenced SSOT owner docs/files next.
-3. Broaden to the whole repo only if needed.
+## Miniature application example (illustrative)
 
-Record the exact `rg` search terms used in candidate evidence notes when practical.
+A redacted run report shows an owned output path was overwritten before validation; a failure fixture reproduces it. The candidate record identifies that observation as R/D, the existing I/O owner as the prevention point, and preservation of the original on failed validation as the proposed S witness. If bounded coverage finds that the owner already prohibits this, classify `ALREADY_COVERED` and cite it: the remaining action is implementation correction in that jurisdiction, not another governance rule. A popularity claim without the run evidence remains `UNVERIFIED`; it cannot substitute for this witness.
 
-## Session Recap schema (for users)
+## Session recap schema
+
 - Work performed:
-- Failures/friction encountered (exact messages if any):
-- Workarounds used:
-- Decisions made:
+- Failures/friction encountered, with exact redacted messages:
+- Workarounds used and observed outcomes:
+- Decisions made and their sources:
 - Repeated confusion points:
-- What I wish had existed in governance beforehand:
-
-## Output record example (filled; illustrative/non-authoritative)
-- ID: GL-10022026-001
-- Status (`MISSING`|`PARTIAL`|`ALREADY_COVERED`): PARTIAL
-- Evidence (R/D): D - Session transcript showed repeated omission of hard gates when users copied an incomplete prompt skeleton.
-- Failure mode prevented: Governance updates run without required hard-gate constraints due to non-self-contained prompt reuse.
-- Authority-first prevention point: `docs/agents/playbooks/governance-learnings-template/governance-learnings-template.md` prompt pack owner.
-- Target location: `docs/agents/playbooks/governance-learnings-template/governance-learnings-template.md`
-- Draft delta (for `MISSING`/`PARTIAL`) or coverage citation (for `ALREADY_COVERED`): Replace prompt skeleton with a self-contained prompt pack that uses a minimal AGENTS-sourced scaffold and playbook-owned preflight fields.
-- Change Contract alignment: `AGENTS.md` template sections B (invariants), C (witnesses), D (authority impact), H (verification checklist).
-- Witness/verification: `python3 scripts/check_governance_core/check_governance_core_main.py` passes; manual witness confirms prompt pack keeps only the minimal AGENTS-sourced scaffold needed for copy/paste execution.
-- Risk if not addressed: Repeated governance drift and skipped council/confirmation gate steps.
-- Modularity/structure decision: Keep playbook as single authority document; avoid creating parallel prompt docs.
-- Priority + confidence (`P1`|`P2`|`P3` + `VERIFIED`|`UNVERIFIED`): P1 + VERIFIED
-
-## Non-goals
-- This playbook is not a replacement for `AGENTS.md`.
-- This playbook does not define new SSOT owners.
-- This playbook does not authorize governance auto-edits outside existing `AGENTS.md` gates.
+- Missing governance support and supporting evidence:

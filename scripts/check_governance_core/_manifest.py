@@ -186,7 +186,7 @@ def validate_manifest(
     governance_root: Path,
     store: DocumentStore,
     inventory: RepositoryInventory,
-    root_authorities: tuple[str, ...],
+    mandatory_authorities: tuple[str, ...],
 ) -> tuple[dict[str, Any] | None, list[str]]:
     path, validation_error = inventory.validate_file(governance_root / "agents-manifest.yaml")
     if validation_error:
@@ -208,8 +208,8 @@ def validate_manifest(
         errors.append(f"agents-manifest.yaml: missing required top-level key: {key}")
     for key in unknown_top:
         errors.append(f"agents-manifest.yaml: unsupported top-level key: {key}")
-    if data.get("version") != 2:
-        errors.append("agents-manifest.yaml: version must be 2")
+    if data.get("version") != 3:
+        errors.append("agents-manifest.yaml: version must be 3")
     if data.get("ssot_owner") != "agents-manifest.yaml":
         errors.append("agents-manifest.yaml: ssot_owner must be agents-manifest.yaml")
     for field in ("update_trigger", "description"):
@@ -263,8 +263,8 @@ def validate_manifest(
         ):
             errors.append(f"agents-manifest.yaml: semantic_queries.{name} must be a non-empty string list")
 
-    root_keys = {_canonical_path(value) for value in root_authorities}
-    root_targets = [resolve_declared_file(governance_root, value)[0] for value in root_authorities]
+    mandatory_keys = {_canonical_path(value) for value in mandatory_authorities}
+    mandatory_targets = [resolve_declared_file(governance_root, value)[0] for value in mandatory_authorities]
     for label, values in authority_lists:
         if not isinstance(values, list) or not values:
             errors.append(f"agents-manifest.yaml: {label} must be a non-empty list")
@@ -282,16 +282,16 @@ def validate_manifest(
             if key in seen:
                 errors.append(f"agents-manifest.yaml: {label} contains a duplicate authority path: {value}")
             seen.add(key)
-            if key in root_keys:
-                errors.append(f"agents-manifest.yaml: {label} contains root-owned authority: {value}")
+            if key in mandatory_keys:
+                errors.append(f"agents-manifest.yaml: {label} contains mandatory foundation authority: {value}")
             _candidate, path_error = resolve_declared_file(governance_root, value)
             if path_error:
                 errors.append(f"agents-manifest.yaml: {label} authority {path_error}")
                 continue
             assert _candidate is not None
-            if any(_candidate.samefile(target) for target in root_targets if target is not None):
-                if key not in root_keys:
-                    errors.append(f"agents-manifest.yaml: {label} aliases a root-owned authority: {value}")
+            if any(_candidate.samefile(target) for target in mandatory_targets if target is not None):
+                if key not in mandatory_keys:
+                    errors.append(f"agents-manifest.yaml: {label} aliases a mandatory foundation authority: {value}")
             if any(_candidate.samefile(target) for target in seen_targets):
                 errors.append(f"agents-manifest.yaml: {label} aliases an earlier authority: {value}")
             seen_targets.append(_candidate)

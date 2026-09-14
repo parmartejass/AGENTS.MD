@@ -1,75 +1,45 @@
 ---
 doc_type: policy
 ssot_owner: docs/agents/skills/00-skill-standards/skill-standards.md
-update_trigger: skill standards change OR new platform support requirements emerge
+update_trigger: skill bundle identity, contents, or platform-format requirements change
 ---
 
 # Skill Standards (SSOT)
 
-## Purpose
-- A skill is a reusable operational bundle that adapts governance guidance to a tool environment.
-- `docs/agents/skills/` is the authority for repo-owned skills, including both governance docs and installable skill bundles.
-- This file owns the cross-platform skill contract: bundle identity, naming, minimum contents, safety expectations, and coordination rules.
-- Keep platform-specific installation paths, runtime quirks, and capability differences in `docs/agents/skills/10-platform-adapters/platform-adapters.md`.
+`AGENTS.md` owns the Fundamental Principles and instruction derivation; `Orchestration.md` owns the agent lifecycle. This file owns reusable skill bundle identity, naming, and packaging. Platform normalization routes through `docs/agents/skills/10-platform-adapters/platform-adapters.md`.
 
 ## Bundle identity
-- Governance skill docs live under the skill branch rooted at `docs/agents/skills/skills_index.md`.
-- Installable skill bundles live exactly one directory below that authority at `docs/agents/skills/<skill-name>/`; nested bundle roots are not supported.
-- `SKILL.md` is the identity file for a skill bundle.
-- A directory without `SKILL.md` is not a skill bundle and must be treated as non-skill content by tooling.
+- Canonical installable bundles live at `docs/agents/skills/<skill-name>/`, exactly one directory below the skill authority; nested bundle roots are unsupported by this source-asset contract.
+- `SKILL.md` identifies a bundle. Tooling MUST treat a directory without it as non-skill content.
+- `<skill-name>` MUST be a stable lowercase kebab-case identifier. The filesystem name identifies the runtime path; the title in `SKILL.md` supplies human-readable naming.
+- A rename MUST migrate affected links and identified downstream installation consumers under `AGENTS.md` FP-16 and FP-31.
 
-## Bundle naming
-- `<skill-name>` should be a stable, lowercase, kebab-case identifier.
-- Use the filesystem name as the runtime path identifier; use the title inside `SKILL.md` for human-readable naming.
-- Renames are breaking for docs links, grepability, and downstream runtime installs, so coordinate them across the docs index and adapter docs when they are necessary.
+## Minimum bundle contract
+`SKILL.md` MUST expose:
+- purpose and activation conditions;
+- task-specific routing and operational instructions, with agent lifecycle routed to `Orchestration.md`;
+- required support files and their bundle-relative locations;
+- verified platform constraints and explicit unsupported outcomes when relevant;
+- one deterministic verification path or a pointer to its platform owner.
 
-## Minimum Bundle Contract
-- Every bundle must contain `SKILL.md`.
-- `SKILL.md` must make these discoverable:
-  - what the skill is for and when to use it
-  - the workflow, routing logic, or decision path the agent should follow
-  - any required support files and where they live inside the bundle
-  - compatibility or platform constraints when relevant
-  - one deterministic verification path, or an explicit pointer to the platform-owned verification path
-  - explicit unsupported/failure notes when omission would mislead the user
-- Exact frontmatter or metadata keys are owned by the target runtime format, not by this doc.
+The target runtime owns frontmatter and metadata format. Bundle verification MUST apply that format and the relevant `README.md` checks; structural checks do not establish semantic compliance under `AGENTS.md` FP-32 and FP-33.
 
-## Support Files
-- Allowed support content includes `references/`, `assets/`, `scripts/`, and `templates/` when the bundle needs them.
-- Support files must be referenced from `SKILL.md`; unreferenced bundle clutter is not allowed.
-- Support files must remain reusable, non-secret repo assets. Do not store generated outputs, machine-local state, or runtime-only artifacts in a skill bundle.
-- Runtime-specific sidecars are exceptions. Add them only when a verified runtime contract requires them, and document the consumer and coordination points in `docs/agents/skills/10-platform-adapters/platform-adapters.md`.
+## Support content
+- Bundle support files MUST be reachable from `SKILL.md` through relevant reference routes. Create them only for a declared bundle need under `AGENTS.md` FP-09 and FP-34.
+- Reusable source assets belong in the bundle; generated outputs, machine-local state, credentials, and runtime-only artifacts do not.
+- Runtime-specific sidecars require a verified consuming contract and an adapter record naming the consumer, purpose, and verification route.
 
-## Invariants
-- One canonical repo copy: `docs/agents/skills/<skill-name>/` is the source of truth for that skill.
-- No policy duplication: skills reference `AGENTS.md` and core docs instead of restating hard gates or copying platform policy into each bundle.
-- Non-secret only: do not store credentials, bearer tokens, cookies, machine identities, or other sensitive local values in any skill file.
-- Deterministic guidance: workflow instructions and verification notes should be reproducible from repo state and declared external authorities.
-- Explicit exceptions only: any runtime-specific sidecar or non-standard bundle file must name the consuming platform and why it exists.
+## Source and runtime boundary
+- Edit the canonical bundle. Installation and installed state belong to the consuming project or user; this repository tracks no parallel runtime copies or projection mappings.
+- Instruction content MUST route constitutional obligations to `AGENTS.md` and lifecycle mechanics to `Orchestration.md`, without copying either authority.
+- A change to bundle identity or platform behavior MUST update affected routes in this owner, the platform adapter reference, `docs/agents/agents_index.md`, and `README.md` together.
+- Docs-header carveouts are owned by `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`.
 
-## Runtime Use
-- Repo-owned skill bundles are canonical source assets in this pack.
-- Runtime installation is consumer-owned; this repo no longer tracks runtime projection mappings or root runtime copies.
-- Runtime locations are not canonical governance owners.
+## Runtime discovery and context
+Runtime limits and skill discovery behavior MUST resolve from the target runtime's current authoritative contract under `AGENTS.md` FP-18 and FP-27. This source-bundle policy defines no fallback context budget or fixed capability ceiling. Descriptions MUST lead with the activation condition; conditional operational detail belongs in referenced support files. References do not replace full reads of governing and touched sources under FP-05.
 
-## Operating Rules
-- Edit the canonical repo bundle first.
-- If a skill change affects bundle identity or supported platform behavior, update this file, `docs/agents/skills/10-platform-adapters/platform-adapters.md`, `docs/agents/agents_index.md`, and `README.md` together.
-- Keep docs-header carveout details in `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`.
-
-## Context Budget Constraint
-- All skill names are always loaded into the agent context, but descriptions are truncated to fit a character budget.
-- The budget scales dynamically at 1% of the context window; when the window size is unknown, the SSOT default is 8,000 characters.
-- Implication: keep `SKILL.md` descriptions concise. Front-load the trigger condition (when to use the skill) in the first sentence. Defer detail to referenced support files using progressive disclosure.
-- Source: Anthropic "Lessons from Building Claude Code: How We Use Skills" (March 2026).
-
-## Verification Expectations
-- Every skill should include one deterministic smoke check or an explicit pointer to the platform-owned verification path.
-- When a platform or API limitation materially changes behavior, the skill should call that out explicitly rather than implying unsupported behavior works.
-- Bundle changes should be verified with the repo checks listed in `README.md` and any targeted skill validation required by the change.
-
-## Codification Targets
-- Cross-platform principles -> `docs/agents/*.md`
-- Copy/paste templates -> `docs/agents/playbooks/playbooks_index.md`
-- Skill governance docs -> `docs/agents/skills/skills_index.md`
-- Installable skill bundles -> `docs/agents/skills/<skill-name>/`
+## Owner routes
+- Fundamental obligations: `AGENTS.md`.
+- Agent lifecycle: `Orchestration.md`.
+- Copy/paste scaffolds: `docs/agents/playbooks/playbooks_index.md`.
+- Skill documentation and bundles: `docs/agents/skills/skills_index.md`.

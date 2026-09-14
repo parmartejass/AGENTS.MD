@@ -9,13 +9,9 @@ update_trigger: GUI threading, performance, or cancellation expectations change
 Use when:
 - Task matches profile `gui_task` in `agents-manifest.yaml`.
 
-## Change classification (required)
-- task type (feature|bugfix|refactor):
-- blast radius (modules/workflows/users):
-- if bugfix/regression: fill `docs/agents/playbooks/bugfix-template/bugfix-template.md`.
-- if feature/behavior change: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" behavior-change/new-feature minimums (including shift-left baseline).
-- if refactor/behavior-neutral: satisfy `AGENTS.md` "Verification Floors (Hard Gate)" behavior-neutral minimums.
-- if new logic is introduced: apply `docs/agents/35-coding-principles/coding-principles.md` under the `AGENTS.md` coding hard gate.
+## Governing evidence
+
+This task scaffold applies `AGENTS.md` Fundamental Principles and Verification Floors. Record task type, blast radius, applicable owner obligations, and witnesses. Bugfix evidence uses `docs/agents/playbooks/bugfix-template/bugfix-template.md`; implementation design uses `docs/agents/35-coding-principles/coding-principles.md`. Agent lifecycle and authorization remain owned by `Orchestration.md`.
 
 ## UI requirements
 - controls:
@@ -32,13 +28,13 @@ Use when:
 - stop/cancel mechanism (event + UI poll; no join on UI thread):
 - interruptible waits (use `Event.wait(...)`):
 
-## Responsiveness & performance plan (when relevant)
-- UI stays correct + responsive; no safety trade-offs.
+## Responsiveness & performance evidence
+- Governing responsiveness contract and witness: `AGENTS.md` FP-03.
 - Workload model (items/events, expected update rate, worst-case runtime):
-- Queue strategy (avoid floods; coalesce progress; keep messages small; consider max queue size/backpressure):
+- Queue strategy (avoid floods; coalesce progress; keep messages small; record queue size/backpressure bounds):
 - UI update throttle (rate-limit progress updates; batch multiple messages per drain tick):
 - Worker bounds (no unbounded threads; timeouts; guaranteed cleanup on cancel):
-- User feedback latency target and witness:
+- FP-03 acknowledgment/status and controllable-decision timing witnesses:
 - Evidence plan (how responsiveness and throughput are verified deterministically):
 
 ## Proof obligations (first principles)

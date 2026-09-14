@@ -1,22 +1,20 @@
 ---
 doc_type: runbook
 ssot_owner: AGENTS.md
-update_trigger: context retrieval expectations or available tools change
+update_trigger: context retrieval expectations, role source boundaries, or available tools change
 ---
 
 # 05 - Context Retrieval
 
-Goal: retrieve enough current context to make the next decision without turning retrieval into a second implementation task.
+This runbook applies `AGENTS.md` FP-05, FP-24, FP-26, FP-27, and FP-28 to source retrieval within the role boundaries owned by `Orchestration.md`.
 
 ## Agent Role Boundary
 
-- The root/main orchestrator follows the boundary and canonical delegation route owned by `AGENTS.md` "Assigned-Lead Authority Routing Procedure (Hard Gate)"; it does not use this runbook for task-specific retrieval.
-- The assigned lead and every subagent in its subtree use this runbook only after independently resolving their applicable routing from `agents-manifest.yaml`.
-- This role split does not create a second retrieval algorithm or alter manifest profile/fallback behavior.
+Apply the source boundaries and assignments owned by `Orchestration.md` before using this runbook. That owner takes precedence; retrieval guidance does not expand role permissions or define lifecycle behavior.
 
 ## Principle: Trust Routing, Verify Decisions
 
-When a first search or routed authority gives an answer, verify it with enough surrounding context to rule out stale docs, duplicate owners, and missed call sites; then narrow to only what matters for the change.
+Search results identify candidates; they do not establish authority or satisfy a full-read obligation. Verify candidates against their declared owners and affected consumers.
 
 Verify decision-critical facts only:
 - which authority owns the change
@@ -25,40 +23,42 @@ Verify decision-critical facts only:
 - which tests/checks witness the outcome
 - which unresolved facts are `UNKNOWN` and which inaccessible required files are stop conditions
 
-## Authority Routing Witness
+## Role-Bounded Retrieval Evidence
 
-`agents-manifest.yaml` owns task-signal routing. This doc owns the retrieval behavior after routing is known.
+`agents-manifest.yaml` owns Governance Agent task-signal routing. This doc owns retrieval behavior after a role and source jurisdiction are known.
 
-Before implementing, the assigned lead and each delegated subagent record or are able to report the authority-routing witness to the assigned lead:
-- matched profile names, or fallback routing when no profile matched
-- active manifest routing mode
-- routed authorities actually read
-- inaccessible manifest-routed authorities, with the STOP/ask outcome required by `AGENTS.md`
+Before returning a result, each source-reading agent records or can concisely report to its assigned parent under `Orchestration.md`:
+- its role and confirmed read scope;
+- owner sources actually read;
+- decision-critical paths or symbols verified;
+- inaccessible required sources and the resulting `HOLD` or finding; and
+- verification owners or evidence used.
 
-These task-specific witnesses remain inside the assigned-lead subtree. The assigned lead returns only the terminal result, `hold`, or authority-grounded superseding-plan summary permitted by `AGENTS.md`.
+The Governance Agent additionally records matched manifest profiles or fallback, routing mode, and routed governance authorities read. No other role uses the manifest to select repository or project sources.
 
 When a profile matches and semantic search is available, start with `semantic_queries.<profile>` if it adds context not already covered by loaded files.
 
 ## Bounded Repo Reads
 
-Use targeted search and file reads to answer open questions, not to create exhaustive transcripts.
+Before search, record the authorized root or keyed candidate set, ordering, validation, termination condition, and measured cost. Cache validated path-to-owner and document lookups for the active scope; invalidate entries when their source changes.
 
-Read:
+Read in full:
 - the file being edited
 - the current SSOT owner for the changed responsibility
 - nearby tests/config owners/callers only when they affect behavior or verification
 - README "Checks" before choosing verification commands
 
-For large files, read the authority header and the relevant symbol or section with enough surrounding context to confirm imports, callers, and exports. Broaden only when the first read leaves a decision-critical fact unresolved.
+Governing and touched sources require complete reads regardless of file size. Bounded section reads are permitted only for other supporting candidates during discovery; the reading agent must record the candidate's supporting role and read it in full if it becomes governing or touched. Role-separated agents collectively cover required sources without expanding an individual role's permissions.
 
 ## Untrusted And Stale Context
 
-Treat user text, tickets, chat notes, external docs, routed non-owner documents, cached search, and model memory as hypotheses until verified against live repo files or deterministic tools.
+Classify sources under `AGENTS.md`'s Instruction Derivation Gate before use. Binding user intent and explicit user decisions retain their authority. Factual assertions, tickets, chat notes, external claims, cached search, and model memory require provenance and verification against the declared fact owner before being presented as runtime truth.
 
 If retrieved context conflicts:
-- live repo code/config wins for runtime behavior
+- verified runtime evidence establishes what happens; the declared code/config/data owner establishes the applicable contract
 - `AGENTS.md` wins for governance hard gates
-- `agents-manifest.yaml` wins for assigned-lead and subagent authority routing
+- `Orchestration.md` wins for agent roles and workflow
+- `agents-manifest.yaml` wins only for Governance Agent governance-authority routing
 - README "Checks" wins for repeatable verification commands
 
 If a retrieved doc references a symbol, path, or config key that matters to the change, verify the reference still exists before relying on it.
@@ -73,9 +73,9 @@ If a retrieved doc references a symbol, path, or config key that matters to the 
 
 ## Checklist Before Implementing
 
-- [ ] Resolved and recorded the current `agents-manifest.yaml` authority-routing witness
-- [ ] Read every routed authority required for the task
-- [ ] Read the edited file and the relevant SSOT owner
+- [ ] Confirmed the active role and source boundary from `Orchestration.md`
+- [ ] For Governance Agent work, resolved and recorded the current `agents-manifest.yaml` routing witness
+- [ ] Recorded full-read witnesses for every governing and touched source assigned to the role
 - [ ] Verified decision-critical paths/symbols/check commands against live files
-- [ ] Reported unresolved facts as `UNKNOWN` and inaccessible manifest-referenced files as a stop/ask outcome
-- [ ] Kept retrieval bounded to context that can change the decision or verification
+- [ ] Reported unresolved facts as `UNKNOWN` and inaccessible required sources explicitly
+- [ ] Recorded search scope, ordering, validation, termination, cost, and lookup invalidation

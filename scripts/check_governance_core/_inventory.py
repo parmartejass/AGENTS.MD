@@ -39,6 +39,7 @@ class RepositoryInventory:
         self._tracked_ignored: dict[Path, tuple[tuple[str, ...], str | None]] = {}
         self._trees: dict[Path, tuple[tuple[InventoryEntry, ...], str | None]] = {}
         self._families: dict[tuple[Path, str], tuple[tuple[Path, ...], str | None]] = {}
+        self._file_states: dict[Path, tuple[int, ...]] = {}
 
     def tracked_paths(self, root: Path) -> tuple[tuple[str, ...], str | None]:
         root, root_error = self.resolve_scan_root(root)
@@ -70,23 +71,40 @@ class RepositoryInventory:
     def validate_file(self, path: Path) -> tuple[Path | None, str | None]:
         """Validate one exactly spelled, contained, non-aliased repository file."""
 
+        resolved, _metadata, error = self._inspect_file(path)
+        return resolved, error
+
+    def _inspect_file(self, path: Path) -> tuple[Path | None, os.stat_result | None, str | None]:
+        if self.root_error:
+            return None, None, self.root_error
         requested = _absolute_lexical(path)
-        parent, parent_error = self.resolve_scan_root(requested.parent)
-        if parent_error:
-            return None, parent_error
-        assert parent is not None
         try:
-            exact = next((child for child in parent.iterdir() if child.name == requested.name), None)
-            if exact is None:
-                return None, f"Repository file is missing or noncanonical: {requested}"
-            metadata = exact.stat(follow_symlinks=False)
-            if exact.is_symlink() or _has_reparse_attribute(metadata) or metadata.st_nlink > 1:
-                return None, f"Repository file must not be an alias: {requested}"
-            if not exact.is_file():
-                return None, f"Repository path is not a file: {requested}"
-            return exact.resolve(strict=True), None
-        except OSError as exc:
-            return None, f"Unable to validate repository file {requested}: {exc}"
+            relative = _relative_parts(requested, self._requested_root)
+        except ValueError:
+            return None, None, f"Repository file is outside the declared repository: {requested}"
+        parent_error = self._inspect_directory_ancestors(requested.parent, relative[:-1])
+        if parent_error:
+            return None, None, parent_error
+        try:
+            # DirEntry.stat() omits the hard-link count on Windows.
+            metadata = requested.stat(follow_symlinks=False)
+            if stat.S_ISLNK(metadata.st_mode) or _has_reparse_attribute(metadata) or metadata.st_nlink > 1:
+                return None, None, f"Repository file must not be an alias: {requested}"
+            if not stat.S_ISREG(metadata.st_mode):
+                return None, None, f"Repository path is not a regular file: {requested}"
+            # One fresh full-path resolution also resolves every metadata-checked ancestor.
+            resolved = requested.resolve(strict=True)
+            if resolved.as_posix() != requested.as_posix():
+                return None, None, f"Repository file is noncanonical or traverses an alias: {requested}"
+            _relative_parts(resolved, self.repository_root)
+            state = (metadata.st_dev, metadata.st_ino, metadata.st_mode, metadata.st_size,
+                     metadata.st_mtime_ns, metadata.st_ctime_ns)
+            if requested in self._file_states and self._file_states[requested] != state:
+                return None, None, f"Repository file changed during cached inventory: {requested}"
+            self._file_states[requested] = state
+            return resolved, metadata, None
+        except (OSError, ValueError) as exc:
+            return None, None, f"Unable to validate repository file {requested}: {exc}"
 
     def python_files(self, root: Path) -> tuple[tuple[Path, ...], str | None]:
         return self._file_family(
@@ -120,30 +138,44 @@ class RepositoryInventory:
             return (), root_error
         assert root is not None
         cache_key = (root, suffix)
-        if cache_key in self._families:
-            return self._families[cache_key]
-        entries, tree_error = self._tree_entries(root)
-        if tree_error:
-            result = ((), tree_error)
-        else:
-            files: list[Path] = []
-            total_bytes = 0
-            for entry in entries:
-                if entry.is_directory or entry.path.suffix.lower() != suffix:
-                    continue
+        cached = self._families.get(cache_key)
+        if cached is not None and cached[1] is not None:
+            return cached
+        if cached is None:
+            entries, tree_error = self._tree_entries(root)
+            if tree_error:
+                self._families[cache_key] = ((), tree_error)
+                return self._families[cache_key]
+            members = tuple(
+                entry for entry in entries
+                if not entry.is_directory and entry.path.suffix.lower() == suffix
+            )
+            for entry in members:
                 if entry.is_symlink:
                     result = ((), f"{label} inventory does not permit file symlinks or aliases: {entry.path}")
-                    break
-                files.append(entry.path)
-                total_bytes += entry.size
-                if len(files) > max_files or total_bytes > max_bytes:
-                    result = (
-                        (),
-                        f"{label} inventory exceeded its limit ({max_files} files or {max_bytes} bytes)",
-                    )
-                    break
-            else:
-                result = (tuple(files), None)
+                    self._families[cache_key] = result
+                    return result
+            candidates = tuple(entry.path for entry in members)
+        else:
+            candidates = cached[0]
+        files: list[Path] = []
+        total_bytes = 0
+        for candidate in candidates:
+            path, metadata, error = self._inspect_file(candidate)
+            if error:
+                result = ((), error)
+                break
+            assert path is not None and metadata is not None
+            files.append(path)
+            total_bytes += metadata.st_size
+            if len(files) > max_files or total_bytes > max_bytes:
+                result = (
+                    (),
+                    f"{label} inventory exceeded its limit ({max_files} files or {max_bytes} bytes)",
+                )
+                break
+        else:
+            result = (tuple(files), None)
         self._families[cache_key] = result
         return result
 
@@ -162,25 +194,35 @@ class RepositoryInventory:
         assert self.repository_root is not None
         requested = _absolute_lexical(root)
         try:
-            relative = requested.relative_to(self._requested_root)
+            relative = _relative_parts(requested, self._requested_root)
         except ValueError:
             return None, f"Repository inventory root is outside the declared repository: {requested}"
-        current = self._requested_root
-        for part in relative.parts:
-            current /= part
-            try:
-                if _is_directory_alias(current):
-                    return None, f"Repository inventory root must not traverse a directory alias: {current}"
-            except OSError as exc:
-                return None, f"Unable to validate repository inventory root {current}: {exc}"
-        if not requested.is_dir():
-            return None, f"Repository inventory root is not a directory: {requested}"
+        error = self._inspect_directory_ancestors(requested, relative)
+        if error:
+            return None, error
         try:
             resolved = requested.resolve(strict=True)
-            resolved.relative_to(self.repository_root)
+            _relative_parts(resolved, self.repository_root)
         except (OSError, ValueError) as exc:
             return None, f"Repository inventory root escapes the declared repository: {requested} ({exc})"
         return resolved, None
+
+    def _inspect_directory_ancestors(self, requested: Path, relative: tuple[str, ...]) -> str | None:
+        current = self._requested_root
+        metadata = None
+        try:
+            for part in relative:
+                current /= part
+                metadata = current.stat(follow_symlinks=False)
+                if _is_directory_alias(current, metadata=metadata):
+                    return f"Repository inventory root must not traverse a directory alias: {current}"
+            if metadata is None:
+                metadata = requested.stat()
+            if not stat.S_ISDIR(metadata.st_mode):
+                return f"Repository inventory root is not a directory: {requested}"
+            return None
+        except OSError as exc:
+            return f"Unable to validate repository inventory root {current}: {exc}"
 
     def _tree_entries(self, root: Path) -> tuple[tuple[InventoryEntry, ...], str | None]:
         if root in self._trees:
@@ -300,6 +342,14 @@ def _absolute_lexical(path: Path) -> Path:
     return Path(os.path.abspath(os.fspath(path.expanduser())))
 
 
+def _relative_parts(path: Path, root: Path) -> tuple[str, ...]:
+    # Compare one reconstructed prefix instead of repeatedly constructing every ancestor.
+    parts = path.parts[len(root.parts):]
+    if root.joinpath(*parts) != path:
+        raise ValueError(f"{path} is not in the subpath of {root}")
+    return parts
+
+
 def _validate_original_directory(path: Path, *, label: str) -> tuple[Path | None, str | None]:
     anchor = Path(path.anchor)
     current = anchor
@@ -315,10 +365,12 @@ def _validate_original_directory(path: Path, *, label: str) -> tuple[Path | None
         return None, f"Unable to validate {label} {path}: {exc}"
 
 
-def _is_directory_alias(path: Path) -> bool:
+def _is_directory_alias(path: Path, *, metadata: os.stat_result | None = None) -> bool:
     """Reject symlinks and Windows reparse-point directory aliases on Python 3.11+."""
 
-    return path.is_symlink() or _has_reparse_attribute(path.stat(follow_symlinks=False))
+    if metadata is None:
+        metadata = path.stat(follow_symlinks=False)
+    return _has_reparse_attribute(metadata) or stat.S_ISLNK(metadata.st_mode)
 
 
 def _has_reparse_attribute(metadata: os.stat_result) -> bool:

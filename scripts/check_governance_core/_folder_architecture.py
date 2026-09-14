@@ -8,7 +8,6 @@ from scripts.check_governance_core._documents import DocumentStore
 from scripts.check_governance_core._inventory import RepositoryInventory
 
 
-MAX_PYTHON_FILE_LINES = 400
 _PYTHON_ROOT_MARKER = re.compile(r"<!--\s*governance-core-python-root:\s*([^>]+?)\s*-->")
 
 
@@ -80,8 +79,25 @@ def check_folder_architecture(
     governance_root: Path,
     store: DocumentStore,
     inventory: RepositoryInventory,
+    *,
+    coding_policy_path: Path,
 ) -> tuple[list[str], list[str]]:
     """Validate the repository-owned Python structure without a shadow scope registry."""
+
+    path, error = inventory.validate_file(coding_policy_path)
+    if error:
+        return [error], []
+    assert path is not None
+    policy, error = store.markdown(path)
+    if error:
+        return [error], []
+    assert policy is not None
+    review_lines, policy_errors = policy.positive_integer_declaration(
+        "code_decomposition_review_lines", "Coding principles"
+    )
+    if policy_errors:
+        return policy_errors, []
+    assert review_lines is not None
 
     errors: list[str] = []
     warnings: list[str] = []
@@ -138,9 +154,9 @@ def check_folder_architecture(
             continue
         assert text is not None
         line_count = len(text.splitlines())
-        if line_count > MAX_PYTHON_FILE_LINES:
+        if line_count > review_lines:
             warnings.append(
-                f"Python file exceeds the {MAX_PYTHON_FILE_LINES}-line decomposition review trigger: "
+                f"Python file exceeds the {review_lines}-line decomposition review trigger: "
                 f"{path.relative_to(governance_root).as_posix()} ({line_count} lines)"
             )
     return errors, warnings

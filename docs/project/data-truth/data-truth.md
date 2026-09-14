@@ -18,6 +18,7 @@ update_trigger: data-truth ownership, provenance, validation, or routing changes
 ## Current Summary
 - No project-owned data-truth cluster is currently declared in this governance-pack repo.
 - Existing code, config, schemas, and source assets remain the owners for their own concrete facts unless a future project-doc owner is explicitly routed here.
+- Material observations and data assertions, whether user-provided or discovered during work, follow `AGENTS.md` Instruction Derivation Gate and the placement mechanics in `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`.
 
 ## When to create a branch-local owner subdoc
 - Create a data-truth subdoc when a stable project data/config/constant/default/source-artifact cluster needs its own intent, boundary, invariant, change rule, verification, and references.
@@ -25,6 +26,7 @@ update_trigger: data-truth ownership, provenance, validation, or routing changes
 
 ## Change Rule
 - Add or update a branch-local owner subdoc only when a concrete project data/config/constant/default/source-artifact truth must affect future behavior and no more specific owner already holds it.
+- For a qualifying project assertion, complete the record under the owner routes above: declared owner and fact identifier; redacted provenance; verification status and evidence; validation expectation; supersession trigger. An unverified assertion remains labeled unverified until its declared witness passes. Values owned by source artifacts, code, config, schemas or external systems remain in those owners.
 - Do not add policy records here to satisfy a checker.
 
 ## Branch-local owner subdocs

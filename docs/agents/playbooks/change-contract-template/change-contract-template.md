@@ -6,7 +6,7 @@ update_trigger: change contract fields or verification checklist requirements ch
 
 # Change Contract Template (Required for behavior changes and bugfixes)
 
-Use as a temporary implementation/review scaffold; `AGENTS.md` and owner docs define required semantics, while Git remains the mechanical change-history source.
+Use as a temporary evidence scaffold under `AGENTS.md` First-Principles Protocol, Invariants + Witnesses, and Verification Floors. `Orchestration.md` owns the plan and lifecycle. Template examples are illustrative; each filled obligation cites its owner and records scoped non-applicability when required by FP-33.
 
 ```md
 # Change Contract
@@ -44,7 +44,7 @@ For each invariant above, define a measurable witness.
 
 | Invariant ID | Witness signal (what is measured) | Where recorded (log field/report col) | Pass criteria |
 |---|---|---|---|
-| INV-L1 | Excel PID baseline before/after | log.excel_pid_before/after | after == before |
+| INV-L1 | Owned Excel PID exit and unrelated PID preservation | lifecycle-owner record | owned PID exited; unrelated processes preserved |
 | INV-A1 | No writes before validation complete | log.phase sequence | no write events before VALIDATED |
 
 ## D) Authority Impact + Fix Placement (SSOT: D)
@@ -82,7 +82,7 @@ List tests designed to break your hypothesis.
 - Test 3 (real-file replay):
 
 ## G) Rollout and Safety
-- Feature flag / mode switch? (Y/N) If Y: name:
+- Declared rollout/config owner and selected path (if applicable):
 - Rollback plan:
 - Data safety: (atomic writes? backups? temp + rename?)
 

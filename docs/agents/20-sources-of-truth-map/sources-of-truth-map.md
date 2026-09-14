@@ -1,12 +1,12 @@
 ---
 doc_type: reference
 ssot_owner: AGENTS.md
-update_trigger: responsibilities list changes OR repo adopts new SSOT layout
+update_trigger: AGENTS.md or Orchestration.md responsibilities change OR repo adopts new SSOT layout
 ---
 
 # 20 — Sources of Truth Map (Concept → Owner)
 
-This is a conceptual map. In any given repo, the “owner” may be a module, package, or doc index.
+This reference maps concepts to owners; it does not define their policy. `AGENTS.md` owns the Fundamental Principles. Concrete project owners resolve through `docs/project/architecture/architecture.md` and their declared public contracts.
 Use `docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md` for governance-level authority decisions, migration contracts, and allowed non-owner locations when this conceptual map is not specific enough.
 
 ## File/Folder Structure Rule
@@ -14,7 +14,7 @@ This map follows the file/folder SSOT rule in `AGENTS.md`.
 Use the sections below to identify the current SSOT jurisdiction and parent for a concept; keep the jurisdiction, duplication-pruning, and enforcement wording in `AGENTS.md`.
 
 ## Constants (literals)
-Owner: exactly one place.
+Owner: the declared constants authority; centralization mechanics are in `docs/agents/40-config-constants/config-constants.md`.
 - sheet names, headers, statuses
 - folder names, prefixes/patterns
 - column identifiers/keys
@@ -22,13 +22,11 @@ Owner: exactly one place.
 ## Data-facing truth / business data
 Owner: the input artifact, external system, declared config/constants owner, or dedicated data authority.
 - workbook/sheet/header truth, portal fields, user-facing mappings, source records, and machine-specific paths
-- business/workflow logic consumes validated owner-provided values; it must not embed private copies of changing data-facing truth
-- docs and scripts reference the owner by identifier unless a doc or doc-owned artifact is explicitly declared as the data authority
-- data-facing truths include business/source data, mappings, workbook/sheet/header truth, schemas, portal fields, thresholds, settings, machine paths, config defaults, constants, sample artifacts, and external fields
-- permitted owners include input artifacts, external systems, declared config/default files, constants modules, schemas, sample data, project docs explicitly marked as owner, and other declared data authorities
+- permitted fact owners: `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md` Rule: Declared owners own facts; its Bounded Project Authority Memory / Baseline placement identifies data-truth categories and record placement.
+- actual source values stay in the declared input, external, config, schema, sample, workbook, or other data owner; project ownership/provenance/validation records route through `docs/project/data-truth/data-truth.md` only within that branch's declared scope.
 
 ## Config (user-tunable)
-Owner: exactly one place.
+Owner: the declared config authority exposed through `docs/agents/40-config-constants/config-constants.md` Config authority package.
 - keys + defaults + schema
 - loader, normalization, deterministic repair behavior, and repair outcomes consistent with repo conventions
 - each key classified as defaultable or required-without-default by the config owner
@@ -37,27 +35,25 @@ Owner: exactly one place.
 Owner: exactly one place.
 - data shape and type definitions shared across modules
 - validation rules remain in Rules / conditions / validations
-- schema SSOT must be a single declared owner (module, generated schema/artifact, external schema, workbook/source artifact, or explicitly owned project doc); non-owner docs reference it only
+- permitted owner forms and explicit doc-owned authority conditions: `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md` Rule: Declared owners own facts and Bounded Project Authority Memory; config-owned schemas additionally resolve through `docs/agents/40-config-constants/config-constants.md` Config authority package.
+- concrete schema owner and consumer routes: `docs/project/architecture/architecture.md`; provenance and validation expectations: the declared data owner or its project data-truth record. A project routing record does not replace an existing schema artifact owner.
 
 ## Rules / conditions / validations
 Owner: exactly one place.
 - `is_*` predicates, `require_*` requirements, `validate_*` validators
-- workflows/UI do not repeat the same business logic
+- consumer boundaries: `docs/agents/35-coding-principles/coding-principles.md`
 
 ## Workflows (orchestration)
 Owner: one module or cohesive package.
-- coordinate runtime execution only: validated plan, stage order, child contract calls, I/O/lifecycle adapter calls, and run outcomes
-- compose constants/config/rules by calling their owners; do not define, duplicate, or reinterpret business rules, predicates, validation logic, constants, schema, config keys/defaults, backend-selection rules, lifecycle policy, or UI control semantics
-- checkbox/config-selected stages are runtime plan inputs; selected child stages own their own eligibility checks, validation, transformations, output contracts, and terminal outcomes
-- record selected runtime path/backend before execution when selection is in scope
-- emit per-run and per-stage outcomes (`EXECUTED` / `SKIPPED` / `FAILED` + reason)
-- stop the affected branch/item after validation, execution, commit, or cleanup failure; do not continue that branch/item through substitute paths
+- runtime composition and child authority boundaries: `docs/agents/35-coding-principles/coding-principles.md` Orchestration Boundaries
+- selected-stage inputs: `docs/agents/40-config-constants/config-constants.md` Config-driven workflow selection
+- run/stage outcomes: `docs/agents/30-logging-errors/logging-errors.md`
 
 ## Runtime path / backend selection
 Owner: the workflow entrypoint owns the selected-path record unless the repo declares a dedicated config SSOT for that workflow; backend-selection rules remain owned by their rule/config authority.
 - selected runtime path, backend, library, or execution mode
 - selection must be recorded before execution and referenced by owner path
-- failure after selection produces a terminal outcome; runtime code must not switch to a substitute path
+- failure/cleanup behavior: `docs/agents/35-coding-principles/coding-principles.md` No Fallback or Legacy Runtime Paths
 
 ## Coding principles / module boundaries + contracts
 Owner by decision-critical fact.
@@ -78,9 +74,10 @@ Owner by decision-critical fact.
 
 ## Authority routing
 Owner by decision-critical fact.
-- root/main versus assigned-lead role boundary, required root authorities, canonical delegation line, and terminal-return boundary: `AGENTS.md`
-- assigned-lead/subagent task signal → authority routing: `agents-manifest.yaml`
-- assigned-lead-subtree retrieval and authority-routing witness mechanics: `docs/agents/05-context-retrieval/context-retrieval.md`
+- Fundamental Principles, constitutional hard gates, Mandatory Foundations membership, and conflict precedence: `AGENTS.md`
+- Foundation loading/application, parent accountability, Main and subagent roles, source/mutation/delegation boundaries, planning, council separation, execution, review, correction, and terminal workflow: `Orchestration.md`
+- Governance Agent task signal -> governance-authority routing: `agents-manifest.yaml`
+- role-bounded retrieval guidance and evidence: `docs/agents/05-context-retrieval/context-retrieval.md`
 
 ## Docs modularity / docs folder contracts
 Owner by decision-critical fact.
@@ -89,11 +86,15 @@ Owner by decision-critical fact.
 - docs router and public leaf validation facts: `scripts/check_governance_core/check_governance_core_main.py` public contract
 
 ## Bounded project authority memory
+Owner of material-knowledge admission, automatic maintenance, safe supersession, and concise recursive structure: `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`. Records include consequential uncertainty and attributed agent decisions; they do not self-verify or self-authorize.
+
 Owner: the existing `docs/project/` branch authorities, routed from `docs/project/project_index.md`.
 - `docs/project/goal/goal.md` owns durable project intent, objective, acceptance criteria, non-goals, and verification intent.
+- Explicit prompt-originated user decisions that change durable project intent, objective, acceptance criteria, non-goals, or verification intent route to `docs/project/goal/goal.md` after classification under `AGENTS.md`.
 - `docs/project/rules/` owns project-specific protected boundaries.
 - `docs/project/architecture/` owns authority pointers, verified behavior references, implementation rationale, accepted tradeoffs, and protected behavior invariants.
 - `docs/project/data-truth/` owns project data-truth ownership, provenance, validation expectations, and routing to source artifacts, config/default/constant owners, schemas, samples, workbooks, and external systems.
+- Durable user-provided data-truth assertions route to `docs/project/data-truth/` only when no more specific data owner holds the fact; record provenance, validation expectation, and supersession trigger.
 - `docs/project/changelog/` owns tracked closure-record facts for completed non-trivial work after durable facts are promoted to their owners.
 - `docs/project/learning/` owns reusable operational learnings only; change-specific what/how/why and supersession truth belongs in the highest owner doc for that fact.
 - Working evidence is not a project-memory owner by default; promote only durable facts into the owning SSOT docs.
@@ -127,19 +128,20 @@ Owner: exactly one implementation.
 - shutdown/cancel event enforced
 
 ## Agent instructions / prompt configuration
-Owner: `AGENTS.md` + `agents-manifest.yaml`
-- agent behavioral rules, constraints, and execution loops
-- root/main versus assigned-lead/subagent authority-routing and council responsibilities
-- instruction derivation rules for prompts, plans, checklists, generated artifacts, and downstream scaffolds
-- prompt/instruction content must not be scattered across ad-hoc files; consolidate in the governance root
-- authority-routing manifest is the single map from assigned-lead/subagent task signals to routed authorities
-- controlling-intent handling is owned by `AGENTS.md`; durable project truth is owned by the appropriate `docs/project/` owner doc
+Owner by decision-critical fact: `AGENTS.md` + `Orchestration.md` + `agents-manifest.yaml`
+- constitutional agent principles, hard gates, and conflict precedence: `AGENTS.md`
+- automatic constitutional application, preservation of complete binding user intent, user-decision precedence, and durable-record retrieval and maintenance duties: `AGENTS.md`
+- agent lifecycle, roles, plan contract, council separation, execution, review, correction, and terminal decisions: `Orchestration.md`
+- instruction derivation rules for prompts, plans, checklists, generated artifacts, and downstream scaffolds: `AGENTS.md` Instruction Derivation Gate
+- reusable prompt/instruction policy: its declared governance owner; prompt scaffolds: `docs/agents/playbooks/ai-coding-prompt-template/ai-coding-prompt-template.md`; skill/settings source formats and placement: the Repo-owned agent source assets and Runtime config and secret boundary sections above.
+- durable prompt-originated project intent: `docs/project/goal/goal.md`; other durable project facts: docs-policy Bounded Project Authority Memory / Baseline placement. Temporary prompt context remains non-authoritative unless promoted through that owner.
+- `agents-manifest.yaml` is the single map from Governance Agent task signals to routed governance authorities
+- Main's controlling-intent handling is owned by `Orchestration.md`; durable project truth is owned by the appropriate `docs/project/` owner doc
 
 ## Run outcomes / reporting
 Owner: exactly one place.
 - per-item outcome: `EXECUTED` / `SKIPPED` / `FAILED` + reason
 - output location policy centralized
 - known work reconciliation: `planned`, `eligible`, `executed`, `skipped`, `failed`
-- user-visible status/reporting consumes workflow outcomes and reason codes; UI/CLI/report surfaces must not redefine success, failure, skip, or no-op semantics
-- user-facing summaries include accepted input/scope, progress/current phase for long work, terminal result, produced artifacts, skip/failure reason, required user action, and run/report/log pointer when applicable
+- feedback and reconciliation mechanics: `docs/agents/30-logging-errors/logging-errors.md`; foundational outcome obligation: `AGENTS.md` FP-29
 - `Changelog` closure records: tracked project owner and valid mirror surfaces owned by `SSOT-DEC-004`; field template/order owned by `docs/agents/90-release-checklist/release-checklist.md`

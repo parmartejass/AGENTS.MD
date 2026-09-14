@@ -1,165 +1,83 @@
 ---
 doc_type: playbook
 ssot_owner: AGENTS.md
-update_trigger: prompt structure or verification expectations change
+update_trigger: prompt input scaffold or verification-input expectations change
 ---
 
 # Playbook - AI Coding Prompt Template
 
-Use this when you need a structured prompt for an AI assistant (Copilot Chat, Claude, etc.).
-For bugfixes, also fill `docs/agents/playbooks/bugfix-template/bugfix-template.md`.
+Use this playbook to supply complete task intent to an AI coding workflow without copying or redefining the workflow itself. `AGENTS.md` owns constitutional hard gates, and `Orchestration.md` owns every role, plan, council, execution, review, correction, and terminal mechanic.
 
-Use when:
-- You need a structured prompt for an AI assistant.
-- Task matches profile `ai_prompt_authoring` in `agents-manifest.yaml`.
+For bugfixes, also provide the evidence inputs requested by `docs/agents/playbooks/bugfix-template/bugfix-template.md`.
 
 ## Prompt skeleton (copy/paste)
 
-```
-Hard gates (copy/paste scaffold sourced from AGENTS.md):
-- Read and follow `AGENTS.md`; if it is inaccessible, ask for it before doing any work.
-- Root/main delegation and the assigned-lead workflow MUST follow `AGENTS.md` "Assigned-Lead Authority Routing Procedure (Hard Gate)"; use its live canonical delegation line instead of copying it here.
-- Execute the docs-first authority gate before any non-trivial plan, review, council output, implementation, or repo mutation.
-- Derive task instructions from declared SSOT owners; if ownership is unknown or conflicting, stop and report the authority gap before acting.
-
-Task type: <feature|bugfix|refactor>
-
-Goal:
-Acceptance criteria:
-- ...
-
-Change classification:
-- Blast radius (modules/workflows/users):
-
-Assigned-lead authority-routing witness (complete after manifest routing; do not prefill in the root/main prompt):
-- Resolved profiles or fallback:
-- Routed authorities read:
-- Existing SSOT jurisdictions and owners:
-- Entrypoint/workflow:
-- README.md "Checks" reviewed:
-
-First-principles artifacts:
-- Model (inputs/outputs/side effects/boundaries):
-- SSOT map (constants/config/rules/workflows/lifecycle):
-- Proof obligations (preconditions/postconditions/failure modes):
-
-Constraints:
-- Apply the relevant `AGENTS.md` hard gates and verification floors.
-- Minimal diff; no unrelated refactors.
-- No new dependencies unless explicitly approved.
-- If new logic is introduced, apply `docs/agents/35-coding-principles/coding-principles.md` under the `AGENTS.md` coding hard gate.
-
-Bugfix artifacts (required when Task type = bugfix):
-- Defect vocabulary summary (symptom/root cause/workaround):
-- Authority-first fix point (or infeasibility rationale for symptom patch):
-- MRE witness (fail before / pass after):
-- Regression test:
-- Disconfirming test:
-- Failure-path check:
-
-Feature/behavior-change baseline (required when Task type = feature):
-- Shift-left prevention plan (tests/design failure analysis/contracts/observability):
-
-Verification:
-- Verify command (did the target metric/behavior improve?):
-- Guard command (did anything else break? e.g., full test suite):
-- If no automated tests: deterministic manual check steps:
-- Commands must come from README.md "Checks" (SSOT); otherwise record manual checks per `AGENTS.md`.
-
-Review / Validate (required before final response):
-- Use `docs/agents/15-stuck-in-loop-generate-fresh-restart-prompt/stuck-in-loop-generate-fresh-restart-prompt.md` for repetition/verification contradictions.
-- Use `docs/agents/90-release-checklist/release-checklist.md` as the final pass (reference only; do not duplicate policies).
-
-Output format:
-1) Approach summary (<= 100 words)
-2) Changes made (file list)
-3) Assumptions / Unknowns
-```
-
-## Optional: Review → Loop Prompt + XML Confirmation File
-
-Use this when you want a *supervisor loop* (queue messages / repeated runs) and a deterministic, file-based stop signal.
-This is optional: only use it when the task is large/mechanical enough to benefit from iteration.
-
-### What the assistant must produce (artifacts)
-- `loop_prompt.md`: a single prompt you can feed repeatedly in a loop until done.
-- `run_confirmation.xml`: an XML “stop file” that the assistant updates when complete.
-
-### `run_confirmation.xml` template (copy/paste)
-Example (you choose the path, e.g. `runs/<slug>/run_confirmation.xml`):
-
-```xml
-<run_confirmation version="1">
-  <id>CHANGE_ME_UNIQUE_ID</id>
-  <request>CHANGE_ME_USER_REQUEST_SUMMARY</request>
-  <status>PENDING</status>
-  <completion_token>&lt;promise&gt;COMPLETE&lt;/promise&gt;</completion_token>
-  <updated_utc>1970-01-01T00:00:00Z</updated_utc>
-  <evidence>
-    <item>Empty until verified.</item>
-  </evidence>
-</run_confirmation>
-```
-
-### `loop_prompt.md` template (copy/paste)
-The loop prompt must:
-- Force a *review/discovery pass* first (map files/symbols/scenarios; no edits yet).
-- Then implement minimally (SSOT adoption; no duplicates).
-- Then verify deterministically.
-- Only when verification passes: update `run_confirmation.xml` to `COMPLETE` and output the exact completion token.
-
-```
-Hard gates (copy/paste scaffold sourced from AGENTS.md):
-- Read and follow `AGENTS.md`; if it is inaccessible, ask for it before doing any work.
-- Root/main delegation and the assigned-lead workflow MUST follow `AGENTS.md` "Assigned-Lead Authority Routing Procedure (Hard Gate)"; use its live canonical delegation line instead of copying it here.
-- Execute the docs-first authority gate before any non-trivial plan, review, council output, implementation, or repo mutation.
-- Derive task instructions from declared SSOT owners; if ownership is unknown or conflicting, stop and report the authority gap before acting.
+```text
+Required owners:
+- Read and follow `AGENTS.md` before any work.
+- Read and follow `Orchestration.md` before delegation, planning, mutation, or review.
+- Apply the complete binding user-intent and user-decision precedence rules in `AGENTS.md` to the request below and earlier binding user messages.
+- If a required owner is inaccessible or conflicts with the request, report the conflict through Main; do not invent a substitute rule.
 
 Task type: <feature|bugfix|refactor|review>
-User request:
-<paste request verbatim>
 
-Run artifacts (must create/update these files):
-- loop prompt (this file): <path to loop_prompt.md>
-- confirmation file: <path to run_confirmation.xml>
+Complete user request:
+<paste without dropping binding details>
 
-Phase 1 — Assigned-lead review (no edits):
-- Enumerate all relevant instances/entrypoints/call-sites/config/constants/rules/tests/scenarios linked to the request.
-- Produce a verified file list to read next + `rg` search terms you used.
-- Identify SSOT jurisdictions and owners to reuse under `AGENTS.md` Non-Negotiable #1 (no parallel utilities/docs).
-- If ambiguity remains that would change code materially: stop and ask 1–3 questions.
+Goal:
+- <desired outcome>
 
-Phase 2 — Implement (minimal diff):
-- Implement the smallest set of changes that satisfies the acceptance criteria.
-- Do not add dependencies unless explicitly approved.
+Acceptance evidence:
+- <objective evidence that proves success>
 
-Acceptance criteria:
-- <fill these in; must be objectively verifiable>
+Known in scope:
+- <paths, components, workflows, or user-visible behavior>
 
-Verification (must run):
-- <exact command(s) the agent will run>
-- Commands must come from README.md "Checks" (SSOT), or deterministic manual checks must be recorded.
+Known out of scope / non-goals:
+- <explicit exclusions>
 
-Bugfix evidence (when Task type = bugfix):
-- MRE witness (fail before / pass after)
-- Regression test
-- Disconfirming test
-- Failure-path check
+Authorized mutations and side effects:
+- <repository writes, external actions, or none>
 
-Feature/behavior-change baseline (when Task type = feature):
-- Shift-left prevention checks per `AGENTS.md` "Verification Floors (Hard Gate)"
+Constraints:
+- <security, compatibility, performance, resource, dependency, or timing constraints>
 
-Stop conditions:
-- If you detect the same failure twice with the same root cause, follow `AGENTS.md` "AI Stuck-Loop Reset (Hard Gate)" and `docs/agents/15-stuck-in-loop-generate-fresh-restart-prompt/stuck-in-loop-generate-fresh-restart-prompt.md` to create the internal assigned-lead-subtree handoff; do not output the filled prompt or task-specific authority evidence through the root/main orchestrator.
+Known risks or failure conditions:
+- <conditions that must fail explicitly>
 
-Completion protocol:
-- If (and only if) all verification commands pass:
-  - Update the confirmation file:
-    - `<status>` -> `COMPLETE`
-    - `<updated_utc>` -> current UTC timestamp
-    - add 1–3 evidence items (commands run + outcomes)
-  - Output exactly: <promise>COMPLETE</promise>
+Carry-forward evidence inputs (requester supplies when relevant; non-authoritative; record provenance and relevance):
+- Verified failure evidence:
+- Prior failed attempts and observed outcomes:
+- Known-bad approaches or assumptions:
+- Open unknowns:
+
+Repository authority hints (non-binding until verified):
+- <paths, entrypoints, config owners, or Unknown>
+
+Verification intent:
+- Use the commands owned by `README.md` section "Checks" when applicable.
+- <targeted behavior/failure-path evidence required>
+
+Bugfix evidence inputs (when applicable):
+- Symptom/manifestation:
+- Expected vs actual:
+- Deterministic reproduction or MRE:
+- Regression fixture:
+- Disconfirming edge case:
+- Failure-path expectation:
+
+Requested user-facing output:
+- <format, artifact, or concise summary>
 ```
 
-## Review / Validate (single step)
-Use the "Review / Validate" section in the prompt skeleton above; do not add separate checklists here.
+## Use rules
+
+- Supply mutable facts through their declared source/config owner under `AGENTS.md` FP-10 and FP-22.
+- Apply the automatic durable-record retrieval and maintenance duties in `AGENTS.md`; this scaffold does not require the user to identify owner files or separately request documentation updates.
+- Mark unverified repository hints as `Unknown` instead of presenting them as authority.
+- Carry-forward evidence preserves observed failures, failed attempts, known-bad assumptions, and open unknowns as non-authoritative task input for a later user-started workflow. It grants no execution or continuation authority.
+- Plan persistence, scope changes, correction limits, and terminal behavior follow `Orchestration.md`; this scaffold defines no parallel lifecycle.
+
+## Review and validation
+
+Follow `Orchestration.md` for review and workflow decisions, and `docs/agents/90-release-checklist/release-checklist.md` for release evidence.

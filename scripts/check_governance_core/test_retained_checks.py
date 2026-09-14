@@ -9,6 +9,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
+from scripts.check_governance_core._test_support import install_foundations, write as _write
 from scripts.check_governance_core._documents import DocumentStore
 from scripts.check_governance_core._docs_checks import check_docs
 from scripts.check_governance_core._folder_architecture import check_folder_architecture
@@ -19,18 +20,16 @@ from scripts.check_governance_core._repository_checks import check_repository
 from scripts.check_governance_core.check_governance_core_main import run_checks
 
 
-def _write(path: Path, value: str) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8", newline="") as handle:
-        handle.write(value)
-
-
 class RetainedCheckTests(unittest.TestCase):
     def test_folder_architecture_requires_one_feature_entrypoint(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
+            declared = install_foundations(root)
             _write(root / "scripts/reporting/helper.py", "VALUE = 1\n")
-            errors, warnings = check_folder_architecture(root, DocumentStore(), RepositoryInventory(root))
+            errors, warnings = check_folder_architecture(
+                root, DocumentStore(), RepositoryInventory(root),
+                coding_policy_path=root / declared["coding_principles"],
+            )
             self.assertEqual([], warnings)
             self.assertTrue(any("reporting_main.py" in error for error in errors), errors)
 

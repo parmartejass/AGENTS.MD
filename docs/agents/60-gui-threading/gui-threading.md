@@ -11,7 +11,7 @@ update_trigger: GUI threading/cancellation invariants change
 2) UI updates happen only on the main thread.
 3) Worker communicates via queue messages.
 4) Worker observes a shutdown/cancel event.
-5) Cancellation waits are interruptible (prefer `Event.wait(timeout)` over `time.sleep`).
+5) Cancellation waits are interruptible; the cancellation owner must use `Event.wait(timeout)` or its declared equivalent and witness interruption on cancellation.
 6) User-visible status/progress/result feedback is posted through the queue and stays concise, current, and non-blocking.
 
 ## Required pattern (conceptual)

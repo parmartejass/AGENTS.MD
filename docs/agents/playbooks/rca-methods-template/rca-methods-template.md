@@ -15,7 +15,7 @@ Reference authority:
 - `AGENTS.md` "First-Principles Protocol (Hard Gate)"
 - `AGENTS.md` "Verification Floors (Hard Gate)"
 
-This template is a prompting scaffold. If any wording conflicts with policy, `AGENTS.md` wins.
+This scaffold records method-specific evidence under those owners. `Orchestration.md` governs agent lifecycle, termination, and unresolved findings.
 
 ## Shared Input Block (fill once)
 - feature/workflow:
@@ -33,8 +33,7 @@ This template is a prompting scaffold. If any wording conflicts with policy, `AG
 1. Start from the observed symptom only.
 2. For each why, ask why the previous answer happened (no topic jumps).
 3. Every answer must include concrete evidence (log, trace, test signal, metric).
-4. Continue beyond five if authority is not reached.
-5. Stop only when the answer lands on the authority boundary (contract/invariant/owner).
+4. Record the authority boundary reached (contract/invariant/owner), or the unresolved evidence gap. Further investigation and termination follow the governing task contract under `AGENTS.md` FP-25 and `Orchestration.md`.
 
 ### Record
 1. Why did [symptom] happen?
@@ -53,7 +52,7 @@ This template is a prompting scaffold. If any wording conflicts with policy, `AG
    - because:
    - evidence:
 
-### Stop Condition and Output
+### Analysis Output
 - authority boundary reached? (Y/N)
 - authority owner:
 - broken contract/invariant:

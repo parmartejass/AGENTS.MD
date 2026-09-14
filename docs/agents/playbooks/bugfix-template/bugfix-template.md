@@ -12,7 +12,7 @@ Use when:
 
 Reference: `docs/agents/playbooks/rca-methods-template/rca-methods-template.md`
 
-This template is a prompting scaffold.
+This scaffold records the evidence required by `AGENTS.md` First-Principles Protocol, Bias-Resistant Debugging, and Verification Floors. `Orchestration.md` owns the agent lifecycle; these fields do not define a separate plan or approval process.
 
 ## Symptom
 - observed behavior:
@@ -39,7 +39,7 @@ This template is a prompting scaffold.
 
 ## Authority trace (fix at root, not symptom)
 - symptom location (where error manifested):
-- authority fix point (where fix should be applied):
+- authority fix point (earliest defective owner):
 - class of errors prevented by fixing at authority:
 - authority owner unknown or conflicting? (Y/N):
 - if authority owner is unknown/conflicting: follow `AGENTS.md` authority-gap handling before implementing the fix.

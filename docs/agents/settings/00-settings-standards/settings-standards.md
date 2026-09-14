@@ -6,6 +6,8 @@ update_trigger: shared settings owners or local-override rules change
 
 # Settings Standards (SSOT)
 
+`AGENTS.md` owns the Fundamental Principles and authorization; `Orchestration.md` owns the agent lifecycle. This file owns shared-settings placement and source boundaries only.
+
 ## Definition
 - Repo-owned shared platform settings live under `docs/agents/settings/`.
 - Canonical settings files must be direct source files, not embedded payloads in docs or scripts.
@@ -14,10 +16,11 @@ update_trigger: shared settings owners or local-override rules change
 ## Invariants
 - Only project-scoped, non-secret, intentionally shared settings may be repo-owned.
 - Shared settings payloads are source assets only.
+- Instruction-bearing settings MUST route to `AGENTS.md` and `Orchestration.md`; they MUST NOT copy or redefine their policy. Compaction instructions MUST preserve controlling intent under `AGENTS.md`'s Instruction Derivation Gate.
 - Machine-local override files remain user-owned and unmanaged.
 - Shared settings content must remain machine-parseable when the file format supports deterministic parsing.
 
-## Supported shared settings
+## Current shared source routes
 - Cursor project CLI permissions source: `docs/agents/settings/cursor/cli.json`
 - Claude shared project settings source: `docs/agents/settings/claude-code/settings.json`
 - Codex shared project config source: `docs/agents/settings/codex/config.toml`

@@ -1,26 +1,20 @@
 ---
 doc_type: reference
 ssot_owner: AGENTS.md
-update_trigger: workflow indexing requirements change
+update_trigger: workflow discovery or owning architecture routes change
 ---
 
-# Workflow Registry / Index Standard
+# Workflow Registry / Index Reference
 
-There must be a single predictable place to find:
-- workflow entrypoints
-- workflow IDs/names
-- required inputs/outputs
-- related config keys
+`AGENTS.md` FP-12 through FP-19 and No Orphan Code / No Orphan Docs govern ownership, contracts, extensibility, and discoverability. Runtime composition and public boundaries are owned by `docs/agents/35-coding-principles/coding-principles.md`; the project's architecture owner declares its concrete workflow registry. This reference supplies an indexing view, not implementation choices or another runtime policy.
 
-## Allowed implementations (choose one)
-A) A `WORKFLOWS` registry dictionary in a central module.
-B) A parent folder entrypoint resolved by the owning architecture contract (for example `billing_main.py` for Python script features) listing workflows and composing child feature folders.
-C) A docs index page listing workflows and entrypoints.
+## Owner-resolved index
+The declared registry exposes identifiers and routes for:
+- workflow IDs and public entrypoints;
+- input/output contracts and artifact locations;
+- rule, config, validation, lifecycle, and outcome owners;
+- selected-stage entrypoints and config-selection contracts when applicable.
 
-## Requirements
-- Each workflow has a stable ID/name.
-- Each workflow specifies: inputs, outputs/artifacts, config keys used, and failure mode (what happens on error and how the caller is notified).
-- The workflow registry indexes entrypoints and config-key usage; it must not define business rules, defaults, validation predicates, transformations, or UI control semantics.
-- Config/checkbox-driven workflows list each selectable stage, the child stage owner/entrypoint, the config owner/loader, the config keys that select it, applicable config-preparation outcomes, and whether config failure stops the workflow or only the selected stage.
-- Registry entries reference rule/config owners by identifier; they do not restate child-stage business rules or defaults.
-- No workflow is “hidden” without an index entry.
+Coverage witness: reconcile the workflow and selectable-stage universe exposed by the declared composition/registry contract with indexed IDs, public entrypoints, and owner routes. Every declared workflow MUST be accounted for in that index; record missing, duplicate, stale, or unresolved routes as findings against that owner. Resolution and caller notification MUST use the declared composition and outcome contracts, including coding-principles Dependency Direction and logging-errors Silent failures; this reference supplies no private terminal rule.
+
+Contract fields resolve through their FP-14 owners. Config-driven selection mechanics route to `docs/agents/40-config-constants/config-constants.md`; failure and reporting mechanics route to `docs/agents/30-logging-errors/logging-errors.md`. Registry entries reference these authorities without restating defaults, predicates, business rules, or control semantics.

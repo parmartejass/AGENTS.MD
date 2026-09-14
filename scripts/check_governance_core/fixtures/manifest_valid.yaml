@@ -1,4 +1,4 @@
-version: 2
+version: 3
 ssot_owner: agents-manifest.yaml
 update_trigger: routes change
 description: >-

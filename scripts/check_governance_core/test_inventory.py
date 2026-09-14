@@ -10,16 +10,11 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from scripts.check_governance_core import _git_capture, _inventory
+from scripts.check_governance_core._test_support import install_foundations, write as _write
 from scripts.check_governance_core._documents import DocumentStore
 from scripts.check_governance_core._folder_architecture import check_folder_architecture
 from scripts.check_governance_core._inventory import RepositoryInventory
 from scripts.check_governance_core._repository_checks import check_repository
-
-
-def _write(path: Path, value: str) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8", newline="") as handle:
-        handle.write(value)
 
 
 class PythonInventoryClassificationTests(unittest.TestCase):
@@ -228,6 +223,7 @@ class ScopeAndRepositoryHygieneTests(unittest.TestCase):
         for example in examples:
             with self.subTest(example=example), tempfile.TemporaryDirectory() as temp:
                 root = Path(temp)
+                declared = install_foundations(root)
                 _write(
                     root / "docs/project/architecture/architecture.md",
                     "<!-- governance-core-python-root: scripts -->\n" + example,
@@ -238,6 +234,7 @@ class ScopeAndRepositoryHygieneTests(unittest.TestCase):
                     root,
                     DocumentStore(),
                     RepositoryInventory(root),
+                    coding_policy_path=root / declared["coding_principles"],
                 )
                 self.assertTrue(any("rogue/bypass.py" in error for error in errors), errors)
 
@@ -245,6 +242,7 @@ class ScopeAndRepositoryHygieneTests(unittest.TestCase):
         for marker in ("Scripts", "x-bookmarks import"):
             with self.subTest(marker=marker), tempfile.TemporaryDirectory() as temp:
                 root = Path(temp)
+                declared = install_foundations(root)
                 _write(
                     root / "docs/project/architecture/architecture.md",
                     f"<!-- governance-core-python-root: {marker} -->\n",
@@ -255,12 +253,14 @@ class ScopeAndRepositoryHygieneTests(unittest.TestCase):
                     root,
                     DocumentStore(),
                     RepositoryInventory(root),
+                    coding_policy_path=root / declared["coding_principles"],
                 )
                 self.assertTrue(any("noncanonical" in error for error in errors), errors)
 
     def test_folder_architecture_uses_exact_owner_declared_python_roots(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
+            declared = install_foundations(root)
             _write(
                 root / "docs/project/architecture/architecture.md",
                 "<!-- governance-core-python-root: scripts -->\n"
@@ -278,6 +278,7 @@ class ScopeAndRepositoryHygieneTests(unittest.TestCase):
                 root,
                 DocumentStore(),
                 RepositoryInventory(root),
+                coding_policy_path=root / declared["coding_principles"],
             )
 
         self.assertTrue(any("outside.py" in error for error in errors), errors)

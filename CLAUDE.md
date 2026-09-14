@@ -1,11 +1,11 @@
 # CLAUDE.md (Loader Stub)
 
 Hard gate:
-- Before doing any work, open and follow `AGENTS.md`.
-- If you cannot access repository files, request that the user paste `AGENTS.md`.
-- Do not implement changes unless `AGENTS.md` is in-context.
+- Open `AGENTS.md` and follow its Mandatory Foundations declaration through `Orchestration.md`.
+- Loading, application, missing-source handling, and parent accountability follow that lifecycle owner; a loader or summary does not replace the required sources.
 
 Authority routing (REQUIRED):
-- Follow the root/main boundary and canonical delegation route owned by `AGENTS.md` "Assigned-Lead Authority Routing Procedure (Hard Gate)". The assigned lead owns the complete task-specific workflow and council subtree.
+- Apply `AGENTS.md`'s Fundamental Principles as the highest repository-internal authority and `Orchestration.md` for every role, plan, council, execution, review, correction, and terminal mechanic.
+- Apply the complete binding user-intent and user-decision precedence rules owned by `AGENTS.md`.
 
 If any conflict exists, `AGENTS.md` is authoritative.

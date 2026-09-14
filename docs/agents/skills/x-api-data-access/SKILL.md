@@ -1,59 +1,37 @@
 ---
 name: x-api-data-access
-description: Plan and execute X API retrieval and integration tasks using the official X API docs. Use when the agent needs to determine what X data can be read or managed, map needs like posts, profiles, timelines, bookmarks, likes, follows, lists, spaces, direct messages, trends, usage, or media to the right endpoints, choose auth flows and scopes, and account for fields, expansions, pagination, retention windows, rate limits, or plan limits.
+description: Use for X API retrieval or integration, such as finding posts, exporting bookmarks, inspecting profiles or messages, or managing resources, when the task requires resolving authentication, request shape, pagination, and access limits through official endpoint contracts.
 ---
 
 # X API Data Access
 
-## Overview
+Translate the user's requested data or action into a verified X API contract. For work in a governed repository, apply its resolved `AGENTS.md` and `Orchestration.md`; this skill supplies X-specific discovery and request mechanics only.
 
-Use this skill to turn a vague X data request into a correct retrieval plan before writing code or calling the API. Keep `SKILL.md` focused on workflow; load the reference files when you need endpoint coverage, auth details, or limitation checks.
+## Request classification examples
+Examples include public-data research, account-scoped retrieval, resource management, and usage analysis. Classify the actual requested action and side effects; a subject name alone does not resolve access. "Export my bookmarks" raises account ownership and visibility questions, while "find discussion about this topic" raises search scope and time coverage.
 
-## Workflow
+Use the auth/scopes reference to evaluate documented app-only bearer, OAuth 2.0 Authorization Code with PKCE, or OAuth 1.0a support for the exact route. These are discovery cases, not permission to select a flow from memory. The capabilities reference owns outcome-to-discovery examples; the limitations reference owns completeness and failure-diagnosis prompts.
 
-1. Classify the request before choosing endpoints.
-   - Public read: profile lookup, public posts, search, public timelines, spaces, trends.
-   - User-private read: bookmarks, `/users/me`, direct messages, and account-scoped list/follow or moderation views.
-   - Write/manage: posting, liking, bookmarking, following, list management, media upload.
-   - Usage/analytics: API usage counters or plan monitoring.
+## Source authority
+Current `docs.x.com` endpoint documentation and the authenticated account's service contract own supported operations, auth flows, scopes, fields, pagination, retention, quotas, and plan access. Local references are discovery aids, not an exhaustive capability catalog or a substitute for those authorities.
 
-2. Pick the auth model before drafting requests.
-   - Use app-only bearer auth for public-read endpoints when the docs explicitly allow it.
-   - Use OAuth 2.0 Authorization Code with PKCE for user-context reads or writes that require scopes.
-   - Use OAuth 1.0a only when an endpoint still documents it as required or supported.
-   - Check the official auth mapping first, then read [references/auth-and-scopes/auth-and-scopes_index.md](references/auth-and-scopes/auth-and-scopes_index.md) before assuming bookmarks, likes, follows, lists, or DMs will work with app-only auth.
+## Request contract
+Before implementation or API execution, resolve and record:
+- requested data or action, account/resource scope, and authorized side effects;
+- exact endpoint and method, source URL, and verification date;
+- supported auth flow and required scopes for that endpoint and account;
+- requested fields, related-object expansion rules, and response/error shape;
+- pagination parameters, continuation mechanism, workload bounds, and termination condition;
+- applicable rate, retention, and plan constraints, with any unresolved access outcome.
 
-3. Map the user need to a capability family.
-   - Read [references/capabilities/capabilities_index.md](references/capabilities/capabilities_index.md) for the fastest route from "I need X data" to endpoint families, auth expectations, and official docs.
+Use the official [authentication mapping](https://docs.x.com/fundamentals/authentication/guides/v2-authentication-mapping) to resolve auth support. A locally unlisted capability requires authoritative discovery; missing or conflicting contract evidence requires an explicit unsupported or unresolved outcome with correction guidance. It does not permit guessing or alternate auth execution.
 
-4. Shape the request correctly.
-   - Request only the fields you need.
-   - Add `expansions` plus the matching `user.fields`, `media.fields`, `poll.fields`, `place.fields`, or `list.fields` needed to hydrate included objects.
-   - Set `max_results` deliberately and loop on `next_token`.
-   - Keep retries bounded and inspect rate-limit headers instead of hammering the endpoint.
+## Reference routing
+- [Capabilities](references/capabilities/capabilities_index.md): documentation entrypoints for discovering the requested operation.
+- [Auth and scopes](references/auth-and-scopes/auth-and-scopes_index.md): evidence needed to resolve credentials and account scope.
+- [Limitations and gotchas](references/limitations-and-gotchas/limitations-and-gotchas_index.md): response, pagination, completeness, and access verification.
 
-5. Check limitations before implementing.
-   - Search windows, DM retention, private-data rules, plan gating, and usage caps change outcomes materially.
-   - Read [references/limitations-and-gotchas/limitations-and-gotchas_index.md](references/limitations-and-gotchas/limitations-and-gotchas_index.md) before claiming an endpoint can return data you have not verified.
+## Execution evidence
+Requests MUST consume the resolved endpoint contract. Collect page/item counts, continuation state, error details, and the stop reason needed to reconcile the requested work. HTTP success alone does not establish complete retrieval; verify returned data and errors against the resolved response contract.
 
-## Fast Routing
-
-- Need posts by ID, quotes, replies, reposts, search, timelines, or bookmarks: start with [references/capabilities/capabilities_index.md](references/capabilities/capabilities_index.md).
-- Need to know whether app-only auth is enough: start with [references/auth-and-scopes/auth-and-scopes_index.md](references/auth-and-scopes/auth-and-scopes_index.md).
-- Need to know why an endpoint is failing or returning less data than expected: start with [references/limitations-and-gotchas/limitations-and-gotchas_index.md](references/limitations-and-gotchas/limitations-and-gotchas_index.md).
-
-## Operating Rules
-
-- Treat `docs.x.com` as the authority for current endpoint coverage, auth support, plan availability, and rate-limit details.
-- Do not guess scopes, field names, or endpoint families from older Twitter/X API memory.
-- Do not assume default responses contain `created_at`, entities, media, or user context; request fields explicitly.
-- Do not log bearer tokens, refresh tokens, cookies, or full `Authorization` headers.
-- Prefer bounded pagination and explicit stop conditions over open-ended crawls.
-- Surface plan or retention limits before coding around them.
-
-## References
-
-- Official auth mapping: `https://docs.x.com/fundamentals/authentication/guides/v2-authentication-mapping`
-- [references/capabilities/capabilities_index.md](references/capabilities/capabilities_index.md)
-- [references/auth-and-scopes/auth-and-scopes_index.md](references/auth-and-scopes/auth-and-scopes_index.md)
-- [references/limitations-and-gotchas/limitations-and-gotchas_index.md](references/limitations-and-gotchas/limitations-and-gotchas_index.md)
+Credential handling, retry authorization, resource bounds, and external-action authorization remain governed by the applicable host contract and `AGENTS.md`; this skill adds no permission or retry default. Verify one bounded authorized request and a relevant failure path when execution is in scope. When the task is planning only, report execution as unverified and retain the source-backed request contract as its evidence.
