@@ -38,7 +38,7 @@ This task scaffold applies `AGENTS.md` Fundamental Principles and Verification F
 
 ## Evidence plan
 - Deterministic timing capture (same inputs, same environment): what is measured and where recorded.
-- FP-03 controllable-decision and applicable acknowledgment/status latency witnesses; uninstrumented model/platform timings explicitly unverified.
+- Full operation and component timing, goal outcomes, and uninstrumented work through `docs/agents/00-principles/evidence/evidence.md` Performance & Speed.
 - Workload/resource bounds: rows/items/files/bytes, memory/concurrency limits, queue/chunk/batch sizes.
 - Cache/batch witness: cache scope/key/invalidation and batch/chunk strategy used.
 - Complexity reasoning (big-O + dominant constants) when benchmarks aren’t feasible.

@@ -25,6 +25,7 @@ semantic_queries:
   excel_automation:
     - "Where is Excel file processing handled in this repo?"
     - "Where are workbook/sheet constants and validation rules defined?"
+    - "Where is OOXML-first Excel backend selection handled?"
   excel_com:
     - "How is Excel COM lifecycle managed in this repo?"
     - "Where is Excel graceful quit verified and PID-scoped forced termination handled?"
@@ -62,6 +63,13 @@ profiles:
         - "pyxlsb"
         - "python-calamine"
         - "calamine"
+        - "ooxml"
+        - "open xml"
+        - "surgical ooxml"
+        - "workbook xml"
+        - "package-part"
+        - "package part"
+        - "xl/worksheets"
         - "pyexcelerate"
         - "polars"
         - "read_excel"

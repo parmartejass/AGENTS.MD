@@ -28,7 +28,7 @@ MUST establish outcomes first, evaluate viable approaches against every governin
 
 ### FP-03
 
-MUST enforce performance requirements as first-principles design constraints before selecting an approach: complete controllable routing, configuration, validation, and interface decisions within 100 milliseconds; acknowledge actions within 100 milliseconds; show active status beyond 500 milliseconds. Meet these limits through reasoning and architecture, never haste, weakened validation, or shortcuts.
+MUST treat near-instant completion, targeting completion within 100 milliseconds end to end, as a universal first-principles design constraint for every process and operation. Select architecture and applicable optimization techniques around this goal while preserving correctness, safety, and complete outcomes. Measure full completion time, including required persistence and verification, and explicitly report unmet or unverified targets; acknowledgment, queuing, or background dispatch does not establish completion. Show active status for operations exceeding 500 milliseconds.
 
 ### FP-04
 
@@ -262,7 +262,7 @@ MUST apply `docs/agents/60-gui-threading/gui-threading.md`.
 ### 8) Security Baseline
 Never hardcode secrets; use environment variables or secret stores. Refuse security weakening (such as disabling TLS validation) unless the user explicitly accepts the risk and confines it to a safe environment. Avoid shell, SQL, and template injection.
 
-### 9) Performance & Speed (When Relevant)
+### 9) Performance & Speed
 MUST apply `docs/agents/00-principles/evidence/evidence.md`.
 
 ### 10) Coding Architecture — Hard Gate

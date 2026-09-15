@@ -4,22 +4,35 @@ ssot_owner: AGENTS.md
 update_trigger: Excel selection evidence or capability-discovery contract changes
 ---
 
-# Playbook — Excel Library Selection
+# Playbook - Excel Backend Selection
 
 This playbook owns Excel-specific selection evidence. `AGENTS.md` FP-02, FP-03, FP-17 through FP-23, and FP-34 govern selection constraints; the project's declared config/runtime-path owner owns the selected implementation. `Orchestration.md` governs approval and execution.
+
+## Excel backend-selection policy
+
+For Excel workbook creation and update tasks, direct OOXML package-part authoring or surgical mutation is the required first candidate. Select it when the requested operation can be expressed through validated workbook package parts and relationships while delivering or preserving required data, formulas, required calculated values, formatting, macros, relationships, external links, workbook metadata, and declared compatibility.
+
+General workbook-model libraries are not eligible backends for creation or updates. ZIP/XML tools may implement direct package operations without introducing a workbook-model backend. Performance, convenience, dependency availability, or familiar API shape does not change this selection.
+
+Direct OOXML creation and updates must be limited to validated package parts and relationships. Updates must preserve unowned parts byte-for-byte where feasible, or provide an explicit equivalence witness when package canonicalization is unavoidable. Safety evidence must include side-effect-free validation before write, bounded promotion through the I/O owner, created/changed-part identities, package completeness, unchanged-part preservation or equivalence where applicable, and explicit unsupported outcomes for unresolved workbook features.
+
+COM is selected only when authoritative capability discovery shows that required Excel engine, UI, refresh, rendering, calculation, macro execution, or other native Excel-interface behavior is unavailable through direct OOXML package operations. When selected, COM must also satisfy the COM lifecycle owner before execution. If neither permitted path satisfies the complete contract, return an explicit unsupported outcome.
+
+Creation and update performance evidence follows `AGENTS.md` FP-03 through `docs/agents/00-principles/evidence/evidence.md` Performance & Speed and the workbook-specific witnesses below.
 
 ## Selection record
 
 Before selecting or changing an Excel backend, record:
 
 - Required workbook operations and preservation criteria: formats, formulas, calculation fidelity, macros, refresh, formatting, and other input-declared features.
+- Backend decision against the policy above: direct OOXML package parts selected, or recorded native-capability gap requiring COM; completeness and preservation or equivalence witnesses.
 - Supported operating systems, dependency versions, deployment environment, and authorized interfaces.
-- Candidate capabilities verified from current authoritative library/platform contracts; source, version, and unresolved limitations for each candidate.
+- Permitted candidate capabilities verified from current authoritative format/platform contracts; source, version, and unresolved limitations for each candidate.
 - Workload bounds and measured timing or explicit I/O/complexity evidence.
 - Safety, reliability, cleanup, and failure-path witnesses for each viable candidate.
 - Selected owner/config entry, selection rationale against every requirement, affected consumers, and superseded selection removed.
 
-Capability examples identify questions to verify; they are not a closed library list or a default-backend policy. Unknown or unsupported capabilities follow `AGENTS.md` FP-20 and FP-27. A candidate that fails a requirement is not made viable by a speed advantage.
+Capability examples identify questions to verify; they are not a closed library list and do not override the backend-selection policy. Unknown or unsupported capabilities follow `AGENTS.md` FP-20 and FP-27. A candidate that fails a requirement is not made viable by a speed advantage.
 
 ## Operation-driven examples (verification prompts)
 
@@ -35,9 +48,9 @@ These examples identify requirements to resolve, not a library recommendation or
 
 ## Pipeline composition
 
-The selection owner records whether one library satisfies the contract or separate ingestion, transformation, and output stages are required. A multi-library design requires stage contracts, plain-data boundaries, and evidence that each stage covers a distinct requirement under `docs/agents/35-coding-principles/coding-principles.md`.
+The selection owner records whether one backend satisfies the contract or separate ingestion, transformation, and output stages are required. A multi-backend design requires stage contracts, plain-data boundaries, and evidence that each stage covers a distinct requirement under `docs/agents/35-coding-principles/coding-principles.md`.
 
-COM selection requires verified Excel-engine or interface requirements and the lifecycle evidence owned by `docs/agents/50-excel-com-lifecycle/excel-com-lifecycle.md`. Selection occurs before execution; runtime failures follow `AGENTS.md` No Fallback or Legacy Runtime Paths.
+COM selection follows the backend-selection policy above; selected COM execution also requires the lifecycle evidence owned by `docs/agents/50-excel-com-lifecycle/excel-com-lifecycle.md`. Selection occurs before execution; runtime failures follow `AGENTS.md` No Fallback or Legacy Runtime Paths.
 
 Illustrative stage compositions include binary-workbook ingestion into a plain-data transform followed by report output, analytics over validated table data followed by workbook formatting, or file preparation followed by an explicitly required engine finalization. Each stage belongs to its selected owner; these examples do not select a backend or permit a substitute path after failure.
 

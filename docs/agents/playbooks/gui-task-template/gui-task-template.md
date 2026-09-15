@@ -34,7 +34,7 @@ This task scaffold applies `AGENTS.md` Fundamental Principles and Verification F
 - Queue strategy (avoid floods; coalesce progress; keep messages small; record queue size/backpressure bounds):
 - UI update throttle (rate-limit progress updates; batch multiple messages per drain tick):
 - Worker bounds (no unbounded threads; timeouts; guaranteed cleanup on cancel):
-- FP-03 acknowledgment/status and controllable-decision timing witnesses:
+- Full operation timing and active-status witnesses through `docs/agents/00-principles/evidence/evidence.md` Performance & Speed:
 - Evidence plan (how responsiveness and throughput are verified deterministically):
 
 ## Proof obligations (first principles)

@@ -28,7 +28,7 @@ from scripts.check_governance_core.check_governance_core_main import run_checks
 logger = logging.getLogger(__name__)
 
 
-def _decision_deadline_ms() -> int:
+def _performance_target_ms() -> int:
     return int(re.search(r"### FP-03\n\n.*?within ([0-9]+) milliseconds", live_principles_section(), re.S).group(1))
 
 
@@ -197,8 +197,10 @@ class DocsPolicyTests(unittest.TestCase):
             self.assertIn("alias", error or "")
 
     def test_actual_corpus_policy_lookup_and_validation_timing(self) -> None:
+        scenario_started = perf_counter()
         root = REPOSITORY_ROOT
-        deadline_ms = _decision_deadline_ms()
+        target_ms = _performance_target_ms()
+        preparation_started = perf_counter()
         inventory = RepositoryInventory(root)
         store = DocumentStore()
         started = perf_counter()
@@ -218,6 +220,7 @@ class DocsPolicyTests(unittest.TestCase):
             self.assertEqual(files, fresh_files)
         texts = [store.read_text(path)[0] for path in files]
         self.assertTrue(all(text is not None for text in texts))
+        preparation_ms = (perf_counter() - preparation_started) * 1000
         samples = {"policy_resolution_ms": [], "cached_lookup_ms": [], "line_validation_ms": []}
         for _sample in range(5):
             started = perf_counter()
@@ -242,13 +245,24 @@ class DocsPolicyTests(unittest.TestCase):
                 errors, warnings = check_docs(root, root, sample_store, inventory)
                 timings.append((perf_counter() - started) * 1000)
                 self.assertEqual([], errors + warnings)
-        logger.warning("FP-03 gated decisions: Markdown=%s maxima=%s; observed corpus_load_ms=%.3f fresh_inventory_ms=%s complete_handlers_ms=%s; handler inventory warm as in engine dispatch; model/platform timing unverified", len(files), {key: round(max(values), 3) for key, values in samples.items()}, corpus_load_ms, [round(value, 3) for value in populations], {key: [round(value, 3) for value in values] for key, values in handlers.items()})
+        measured = {"corpus_load_ms": [corpus_load_ms], "corpus_preparation_ms": [preparation_ms],
+                    "fresh_inventory_ms": populations, **samples, **handlers,
+                    "timing_scenario_ms": [(perf_counter() - scenario_started) * 1000]}
+        for name, values in measured.items():
+            logger.warning("FP-03 operation=%s target_ms=%s samples_ms=%s outcome=%s", name, target_ms,
+                           [round(value, 3) for value in values],
+                           "UNMET" if max(values) > target_ms else "MET")
+        logger.warning("FP-03 boundaries: corpus preparation includes fresh inventory probes and text loading; "
+                       "handlers include validation with warm inventory as in engine dispatch; scenario includes "
+                       "target lookup, setup, samples, and correctness assertions through measurement. "
+                       "Reporting, test-runner setup/teardown and model/platform/network/status timing are "
+                       "uninstrumented here; no workbook persistence occurs. Reporting success is not target attainment.")
         for name, values in samples.items():
-            self.assertLess(max(values), deadline_ms, (name, values))
+            self.assertLess(max(values), target_ms, (name, values))
 
-    def test_timing_allows_slow_filesystem_operations(self) -> None:
+    def test_timing_reports_slow_filesystem_operations_as_unmet(self) -> None:
         elapsed = 0.0
-        delay = _decision_deadline_ms() * 2 / 1000
+        delay = _performance_target_ms() * 2 / 1000
         original = RepositoryInventory.markdown_files
 
         def delayed_inventory(inventory, root):
@@ -260,12 +274,16 @@ class DocsPolicyTests(unittest.TestCase):
 
         with patch(f"{__name__}.perf_counter", side_effect=lambda: elapsed), patch.object(
             RepositoryInventory, "markdown_files", new=delayed_inventory
-        ):
+        ), self.assertLogs(logger, level="WARNING") as captured:
             self.test_actual_corpus_policy_lookup_and_validation_timing()
+        for operation in ("corpus_load_ms", "corpus_preparation_ms", "fresh_inventory_ms",
+                          "cold_document_cache", "warm_document_cache", "timing_scenario_ms"):
+            self.assertTrue(any(f"operation={operation} " in line and "outcome=UNMET" in line
+                                for line in captured.output), (operation, captured.output))
 
     def test_timing_rejects_slow_policy_decisions(self) -> None:
         elapsed = 0.0
-        delay = _decision_deadline_ms() * 2 / 1000
+        delay = _performance_target_ms() * 2 / 1000
         original = _documentation_line_limit
 
         def delayed_policy(document):

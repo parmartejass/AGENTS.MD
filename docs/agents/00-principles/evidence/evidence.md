@@ -63,7 +63,6 @@ Large rewrites are risk amplification unless all are true:
 The selected rewrite scope MUST satisfy these witnesses and FP-08, FP-09, and FP-34.
 
 
-### 9) Performance & Speed (When Relevant)
+### 9) Performance & Speed
 
-FP-03 owns timing requirements. Before optimizing a processing path, record workload bounds, bottleneck hypothesis, cache/batch/chunk/queue strategy, invalidation, memory/concurrency limits, deterministic ordering, cancellation, and cleanup. Measure repository-controlled paths against the applicable requirement with output-equivalence and failure-path witnesses. Report model/platform/network timings outside repository instrumentation as unverified; do not claim a static check proves them. These evidence boundaries do not relax FP-03.
-
+`AGENTS.md` FP-03 owns the universal performance goal. Before selecting a process design, record workload bounds, bottleneck hypothesis, applicable cache/batch/chunk/queue strategy, invalidation, memory/concurrency limits, deterministic ordering, cancellation, and cleanup. Measure the complete operation from request through required preparation, queue wait, processing, I/O, persistence, verification, and cleanup; retain component timings alongside the end-to-end result. Classify every measured operation against the owner-derived target, preserving output-equivalence and failure-path witnesses. Identify excluded or uninstrumented work and report its timing as unverified, including model/platform/network work outside available instrumentation. A passing structural or reporting check does not establish performance attainment; workload bounds and instrumentation limits do not exempt any process from FP-03.

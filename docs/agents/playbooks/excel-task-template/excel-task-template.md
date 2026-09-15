@@ -10,8 +10,8 @@ Use when:
 - Task matches profile `excel_automation` in `agents-manifest.yaml`.
 - If using Excel COM automation (`win32com`/`xlwings`), profile `excel_com` also applies and routes `docs/agents/50-excel-com-lifecycle/excel-com-lifecycle.md`.
 
-## Library selection authority (required)
-- Record capability discovery, candidate evaluation, and selected owner/config through `docs/agents/playbooks/excel-library-selection-playbook/excel-library-selection-playbook.md`.
+## Backend selection authority (required)
+- Record backend capability discovery, candidate evaluation, and selected owner/config through `docs/agents/playbooks/excel-library-selection-playbook/excel-library-selection-playbook.md`.
 
 ## Governing evidence
 
@@ -22,7 +22,8 @@ This task scaffold applies `AGENTS.md` Fundamental Principles and Verification F
 - sheets/tables involved:
 - required headers:
 - output artifacts:
-- selected library path (from canonical selection playbook):
+- selected backend path (from canonical selection playbook):
+- backend-selection decision record (from canonical selection playbook):
 - runtime path/backend selection owner (workflow entrypoint or config SSOT path):
 
 ## SSOT mapping (fill with exact repo locations)
