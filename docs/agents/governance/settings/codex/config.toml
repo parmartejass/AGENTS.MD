@@ -1,0 +1,21 @@
+# Shared project-scoped Codex settings for this repository.
+# Keep user-global auth/history/preferences in the user-owned Codex home config.
+
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+project_doc_max_bytes = 131072
+
+compact_prompt = """
+Preserve the complete controlling user intent, including all binding earlier messages,
+corrections, constraints, explicit decisions, authorized scope, and acceptance criteria.
+Preserve the current task state, evidence, unresolved items, and next action without
+turning agent assumptions or summaries into authority. Apply the live repository
+AGENTS.md Mandatory Foundations declaration through its resolved Orchestration.md
+owner before resuming work, re-establishing current full-source evidence within its
+role boundaries. AGENTS.md owns the Fundamental Principles and precedence;
+Orchestration.md owns loading, application, and lifecycle. This summary routes to
+those owners and does not replace their required reads or application evidence.
+"""
+
+[features]
+fast_mode = true

@@ -1,22 +1,5 @@
 # Agents Branch Index
 
-
-- [00-principles/principles_index.md](00-principles/principles_index.md) - Delegated application, evidence, and diagnosis owners under the AGENTS.md Fundamental Principles. Required when: locating modeling, invariant, or verification mechanics.
-- [05-context-retrieval/context-retrieval_index.md](05-context-retrieval/context-retrieval_index.md) - Context retrieval guidance. Required when: choosing what files to read and how to keep discovery precise.
-- [10-repo-discovery/repo-discovery_index.md](10-repo-discovery/repo-discovery_index.md) - Repo discovery guidance. Required when: locating SSOT owners before implementation.
-- [20-sources-of-truth-map/sources-of-truth-map_index.md](20-sources-of-truth-map/sources-of-truth-map_index.md) - Concept-to-owner routing map. Required when: identifying which authority owns a concept.
-- [22-ssot-authority-decisions/ssot-authority-decisions_index.md](22-ssot-authority-decisions/ssot-authority-decisions_index.md) - Cross-project authority decisions (`docs/agents/22-ssot-authority-decisions/ssot-authority-decisions_index.md`). Required when: a mixed-owner or migration decision needs a canonical decision record.
-- [25-docs-ssot-policy/docs-ssot-policy_index.md](25-docs-ssot-policy/docs-ssot-policy_index.md) - Docs foundation and specialized structure policy. Required when: loading the AGENTS-declared foundations through Orchestration; apply its docs-family scope.
-- [30-logging-errors/logging-errors_index.md](30-logging-errors/logging-errors_index.md) - Logging and explicit-failure policy. Required when: changing logging, error handling, or skip/failure reporting.
-- [35-coding-principles/coding-principles_index.md](35-coding-principles/coding-principles_index.md) - Coding foundation and specialized implementation policy. Required when: loading the AGENTS-declared foundations through Orchestration; apply its implementation scope.
-- [40-config-constants/config-constants_index.md](40-config-constants/config-constants_index.md) - Config/constants ownership policy. Required when: adding or changing repeated literals, config keys, or defaults.
-- [50-excel-com-lifecycle/excel-com-lifecycle_index.md](50-excel-com-lifecycle/excel-com-lifecycle_index.md) - Excel COM lifecycle policy. Required when: Excel COM automation is in scope.
-- [60-gui-threading/gui-threading_index.md](60-gui-threading/gui-threading_index.md) - GUI threading policy. Required when: GUI or main-thread updates are involved.
-- [70-io-data-integrity/io-data-integrity_index.md](70-io-data-integrity/io-data-integrity_index.md) - I/O integrity policy. Required when: file processing or batch writes are changed.
-- [80-testing-real-files/testing-real-files_index.md](80-testing-real-files/testing-real-files_index.md) - Real-file testing guidance. Required when: I/O changes need fixture-backed verification.
-- [90-release-checklist/release-checklist_index.md](90-release-checklist/release-checklist_index.md) - Final release/merge checklist. Required when: doing the last verification pass before merge.
-- [mcp/mcp_index.md](mcp/mcp_index.md) - MCP asset branch. Required when: repo-owned MCP config assets change.
-- [playbooks/playbooks_index.md](playbooks/playbooks_index.md) - Playbook branch. Required when: a task needs a structured scaffold or template.
-- [settings/settings_index.md](settings/settings_index.md) - Shared settings branch. Required when: repo-owned settings payloads change.
-- [skills/skills_index.md](skills/skills_index.md) - Skill branch. Required when: repo-owned reusable skill bundles or platform adapters change.
-- [workflow-registry/workflow-registry_index.md](workflow-registry/workflow-registry_index.md) - Workflow indexing standard. Required when: defining how workflows are named, surfaced, and cataloged.
+- [governance/governance_index.md](governance/governance_index.md) - Layer 1: always-on task jurisdictions; the task type selects the owner. Required when: planning, mutating, reviewing, documenting, releasing, or packaging any work.
+- [interfaces/interfaces_index.md](interfaces/interfaces_index.md) - Layer 2: external systems the work touches, each with a baseline block. Required when: code or data crosses an Excel, PDF, filesystem, OS-process, or GUI-toolkit boundary.
+- [playbooks/playbooks_index.md](playbooks/playbooks_index.md) - Layer 3: the user's design choices for internal layers, each with a baseline block. Required when: building or changing config, run outcomes, I/O batch processing, or GUI presentation.

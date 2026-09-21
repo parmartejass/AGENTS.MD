@@ -1,6 +1,6 @@
 # X Bookmarks Import (local workflow)
 
-OAuth 2.0 PKCE helper to export your X (Twitter) bookmarks into `data/` (gitignored). SSOT for X API capability planning remains **`docs/agents/skills/x-api-data-access/`**; this folder does not ship a second copy of that bundle.
+OAuth 2.0 PKCE helper to export your X (Twitter) bookmarks into `data/` (gitignored). SSOT for X API capability planning remains **`docs/agents/governance/skills/x-api-data-access/`**; this folder does not ship a second copy of that bundle.
 
 ## Setup
 
@@ -22,4 +22,4 @@ First run opens a browser for authorization; tokens are stored in **`.x_token.js
 - `skills/x-research/`, `skills/governance-autoresearch/` — workspace research interfaces; governance authority and lifecycle remain in repository-root `AGENTS.md` and `Orchestration.md`.
 - `data/` — outputs only (ignored); do not commit.
 
-For endpoint scopes and limits, follow the canonical skill references under `docs/agents/skills/x-api-data-access/`.
+For endpoint scopes and limits, follow the canonical skill references under `docs/agents/governance/skills/x-api-data-access/`.

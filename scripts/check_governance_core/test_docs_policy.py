@@ -206,7 +206,7 @@ class DocsPolicyTests(unittest.TestCase):
         started = perf_counter()
         files, error = inventory.markdown_files(root)
         self.assertIsNone(error)
-        policy_path = root / "docs/agents/25-docs-ssot-policy/docs-ssot-policy.md"
+        policy_path = root / "docs/agents/governance/documentation/documentation.md"
         document, error = store.markdown(policy_path)
         self.assertIsNone(error)
         corpus_load_ms = (perf_counter() - started) * 1000
@@ -311,8 +311,8 @@ class DocsPolicyTests(unittest.TestCase):
                     self.assertEqual(expected, _physical_lines(text))
 
     def test_every_markdown_location_obeys_the_owner_boundary(self) -> None:
-        locations = ("AGENTS.md", "deep-research-report.md", "guide.MD", ".hidden/untracked.md",
-                     "ignored/report.md", ".governance/report.md", "docs/agents/25-docs-ssot-policy/template.md")
+        locations = ("AGENTS.md", "report.md", "guide.MD", ".hidden/untracked.md",
+                     "ignored/report.md", ".governance/report.md", "docs/agents/governance/documentation/template.md")
         for relative in locations:
             with self.subTest(relative=relative), tempfile.TemporaryDirectory() as temp:
                 root = Path(temp)

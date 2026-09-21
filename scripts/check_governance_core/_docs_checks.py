@@ -19,7 +19,7 @@ def _policy_document(
     governance_root: Path, store: DocumentStore, inventory: RepositoryInventory,
 ) -> tuple[MarkdownDocument | None, list[str]]:
     path, error = inventory.validate_file(
-        governance_root / "docs/agents/25-docs-ssot-policy/docs-ssot-policy.md"
+        governance_root / "docs/agents/governance/documentation/documentation.md"
     )
     if error:
         return None, [error]

@@ -38,11 +38,11 @@ class DocumentResolutionTests(unittest.TestCase):
         result = resolve_documents({"repo_root": str(root), "governance_root": str(root)})
         self.assertEqual("PASSED", result["status"], result)
         self.assertIn(
-            "docs/agents/mcp/00-mcp-standards/mcp-standards.md",
+            "docs/agents/governance/mcp/mcp.md",
             result["documents"],
         )
         self.assertIn(
-            "docs/agents/workflow-registry/workflow-registry.md",
+            "docs/agents/governance/coding/workflow-registry/workflow-registry.md",
             result["documents"],
         )
 

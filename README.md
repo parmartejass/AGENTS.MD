@@ -7,7 +7,7 @@ This repository maintains a reusable, repo-agnostic governance pack for autonomo
 - Fundamental Principles, constitutional policy, and conflict precedence: `AGENTS.md`
 - Agent roles and finite workflow: `Orchestration.md`
 - Governance Agent authority-routing manifest: `agents-manifest.yaml`
-- Cross-project authority decisions: `docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md`
+- Cross-project authority decisions: `docs/agents/governance/ssot/authority-decisions/authority-decisions.md`
 - Governance-core public API, docs router contract, repository structure, and Python-safety checks: `scripts/check_governance_core/check_governance_core_main.py`
 
 ## Read Order (Top-Down)
@@ -23,15 +23,15 @@ When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md`, `
 
 - Entry point: `docs/project/project_index.md` (goal, rules, architecture/protected behavior, data-truth, changelog, learning)
 - Durable intent: `docs/project/goal/goal.md`. Project docs provide the maintained governing record for material future-decision knowledge and tracked closure records after owner promotion.
-- Material knowledge, uncertain observations, attributed agent decisions, and prompt-originated records resolve through `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md` Bounded Project Authority Memory to their declared owners; actual source-owned values remain with those sources.
+- Material knowledge, uncertain observations, attributed agent decisions, and prompt-originated records resolve through `docs/agents/governance/documentation/documentation.md` Admission to their declared owners; actual source-owned values remain with those sources.
 
 ## Repo-owned agent assets
 
 - Canonical reusable platform assets live under `docs/agents/`.
 - Current repo-owned asset classes:
-  - Skills: `docs/agents/skills/`
-  - Settings: `docs/agents/settings/`
-  - MCP configs: `docs/agents/mcp/`
+  - Skills: `docs/agents/governance/skills/`
+  - Settings: `docs/agents/governance/settings/`
+  - MCP configs: `docs/agents/governance/mcp/`
 - Runtime installation is consumer-owned; this repo does not track root runtime copies or projection mappings.
 
 ## Tool loaders and root owner
@@ -43,50 +43,31 @@ When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md`, `
 ## Supporting docs
 
 - Index: `docs/agents/agents_index.md`
-- Authority decisions: `docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md`
-- Historical research: [deep-research-report.md](deep-research-report.md), retained as non-authoritative source evidence; its proposed loops and gates are not executable governance.
+- Docs root index: `docs/docs_index.md`
+- Authority decisions: `docs/agents/governance/ssot/authority-decisions/authority-decisions.md`
 
 ## Repo structure
 
 ```text
 .
 |- AGENTS.md
+|- CLAUDE.md
 |- Orchestration.md
 |- agents-manifest.yaml
 |- docs/
 |  |- docs_index.md
 |  |- agents/
 |  |  |- agents_index.md
-|  |  |- 00-principles/
-|  |  |  |- principles_index.md
-|  |  |- 35-coding-principles/
-|  |  |  |- coding-principles_index.md
-|  |  |- playbooks/
-|  |  |  |- playbooks_index.md
-|  |  |- settings/
-|  |  |  |- settings_index.md
-|  |  |- skills/
-|  |  |  |- skills_index.md
+|  |  |- governance/     task jurisdictions: principles, evidence, bugfix, discovery, ssot (with the authority-decisions and hand-offs sub-docs), coding, documentation, testing, security, release, prompt-authoring, governance-learning, skills, settings, mcp, hooks, dependencies
+|  |  |- interfaces/     touched external layers with baseline blocks: excel, pdf, filesystem, os-processes, gui-toolkit
+|  |  |- playbooks/      design choices with baseline blocks: config, run-outcomes, io-batch, gui-guidelines, design-system, packaging
 |  |- project/
 |     |- project_index.md
-|     |- architecture/
-|     |  |- architecture_index.md
-|     |- changelog/
-|     |  |- changelog_index.md
-|     |  |- changelog.md
-|     |- data-truth/
-|     |  |- data-truth_index.md
-|     |  |- data-truth.md
-|     |- goal/
-|     |  |- goal_index.md
-|     |  |- goal.md
-|     |- learning/
-|     |  |- learning_index.md
-|     |- rules/
-|        |- rules_index.md
+|     |- goal/ rules/ architecture/ data-truth/ changelog/ learning/
 |- scripts/
 |  |- check_governance_core/
 |  |  |- check_governance_core_main.py
+|- X-Bookmarks Import/   non-owner workspace exception (SSOT-DEC-001)
 ```
 
 ## Use in other repos (submodule)
@@ -110,15 +91,18 @@ git submodule add -b main https://github.com/parmartejass/AGENTS.MD.git .governa
 
 ### Step 2: Create loader stubs at project root
 
-Create these files in your project root so every coding assistant/tool lands on the same governance owners. The loader body routes to `.governance/AGENTS.md` for constitutional hard gates and Mandatory Foundations membership, `.governance/Orchestration.md` for loading/application and lifecycle, and `.governance/agents-manifest.yaml` for additional Governance Agent authority routing. Declaration paths resolve from the governance root and remain unchanged when vendored.
+Create these files in your project root so every coding assistant/tool lands on the same governance owners. Loader body routes to `.governance/AGENTS.md`, `.governance/Orchestration.md`, and `.governance/agents-manifest.yaml`; declaration paths resolve from the governance root.
 
 Use this shared body for each loader:
 
 ```md
 # <loader title>
 
+@.governance/AGENTS.md
+@.governance/Orchestration.md
+
 Required loader:
-- Open `.governance/AGENTS.md` and follow its Mandatory Foundations declaration through `.governance/Orchestration.md`.
+- The two imports above load `.governance/AGENTS.md` and `.governance/Orchestration.md` at launch; follow the Mandatory Foundations declaration in `.governance/AGENTS.md` through `.governance/Orchestration.md`.
 - If `.governance/` is missing or empty in a fresh clone, run `git submodule update --init --recursive`.
 - Required-source loading, application, missing-source handling, and parent accountability follow that lifecycle owner.
 - Follow `.governance/Orchestration.md` for all role, plan, council, execution, review, correction, and terminal mechanics.
@@ -131,6 +115,7 @@ Loader titles:
 
 **Note**:
 - Keep your project docs under `docs/project/` (do not copy `docs/agents` into the project root).
+- The `@` lines are Claude Code imports (plain text for other tools); without them Claude Code does not read `AGENTS.md` when a `CLAUDE.md` exists.
 
 ### Step 3: Commit
 

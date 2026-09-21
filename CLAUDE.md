@@ -1,7 +1,10 @@
 # CLAUDE.md (Loader Stub)
 
+@AGENTS.md
+@Orchestration.md
+
 Hard gate:
-- Open `AGENTS.md` and follow its Mandatory Foundations declaration through `Orchestration.md`.
+- The two imports above load `AGENTS.md` and `Orchestration.md` at launch; follow the Mandatory Foundations declaration in `AGENTS.md` through `Orchestration.md`.
 - Loading, application, missing-source handling, and parent accountability follow that lifecycle owner; a loader or summary does not replace the required sources.
 
 Authority routing (REQUIRED):

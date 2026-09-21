@@ -43,7 +43,7 @@ def install_root_authorities(root: Path) -> None:
 
 
 def install_docs_policy(root: Path) -> Path:
-    relative = Path("docs/agents/25-docs-ssot-policy/docs-ssot-policy.md")
+    relative = Path("docs/agents/governance/documentation/documentation.md")
     write(root / relative, (REPOSITORY_ROOT / relative).read_bytes())
     return root / relative
 

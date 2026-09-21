@@ -5,7 +5,7 @@ description: Gather X research and bookmark evidence for governance topics when 
 
 # Governance Research
 
-This workspace skill gathers non-authoritative research inputs. Apply repository-root `AGENTS.md` for Fundamental Principles and governance-update authorization, `Orchestration.md` for the agent lifecycle, and root `README.md` Checks for verification. Governance learnings route through `docs/agents/playbooks/governance-learnings-template/governance-learnings-template.md` when explicitly invoked. Research popularity does not establish policy authority or authorize edits or commits.
+This workspace skill gathers non-authoritative research inputs. Apply root `README.md` Checks for verification. Governance learnings route through `docs/agents/governance/governance-learning/governance-learning.md` when explicitly invoked. Research popularity does not establish policy authority or authorize edits or commits.
 
 ## Research interface
 
@@ -23,7 +23,7 @@ python3 "X-Bookmarks Import/skills/governance-autoresearch/scripts/governance_re
 
 `--all` collects research for the discovered corpus when that full scope is authorized. `scripts/governance_research.py` owns accepted arguments, `MAX_TOPICS_PER_FILE`, search behavior, bounded retry behavior, and JSON output. Its `governance_files` function consumes the governance-core public `resolve_documents` contract; this skill maintains no file/topic inventory. The discovery summary bounds topic searches before retries, not total HTTP attempts.
 
-`X_BEARER_TOKEN` is the research credential input. Workspace `x_runtime.load_env` owns environment loading; workspace `X-Bookmarks Import/README.md` Setup explains local credential placement and precedence. Python requirements and verification commands route to root README Checks. Current X endpoint access, pricing, retention, and rate limits MUST resolve through the canonical `docs/agents/skills/x-api-data-access/` authority and active official account contract before retrieval under `AGENTS.md` FP-17, FP-18, and FP-27.
+`X_BEARER_TOKEN` is the research credential input. Workspace `x_runtime.load_env` owns environment loading; workspace `X-Bookmarks Import/README.md` Setup explains local credential placement and precedence. Python requirements and verification commands route to root README Checks. Current X endpoint access, pricing, retention, and rate limits MUST resolve through the canonical `docs/agents/governance/skills/x-api-data-access/` authority and active official account contract before retrieval.
 
 ## Evidence handoff
 

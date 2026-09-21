@@ -8,30 +8,30 @@ update_trigger: data-truth ownership, provenance, validation, or routing changes
 
 ## Purpose
 - Record declared project data-truth owners and route consumers to them.
-- Allow docs or doc-owned artifacts to own facts only when explicitly declared here or in the referenced owner.
-- Prevent duplicate/non-owner copies of values, mappings, defaults, headers, thresholds, paths, or business/source data.
+- Docs or doc-owned artifacts own facts only when explicitly declared here or in the referenced owner.
+- Duplicate or non-owner copies of values, mappings, defaults, headers, thresholds, paths, or business/source data are Prohibited.
 
 ## Boundary
 - This branch owns project-local data-truth routing and provenance notes when a project doc is the declared owner.
-- This branch does not own reusable governance policy or code/config constants that already have declared owners.
+- It does not own reusable governance policy or code/config constants that already have declared owners.
 
 ## Current Summary
 - No project-owned data-truth cluster is currently declared in this governance-pack repo.
-- Existing code, config, schemas, and source assets remain the owners for their own concrete facts unless a future project-doc owner is explicitly routed here.
-- Material observations and data assertions, whether user-provided or discovered during work, follow `AGENTS.md` Instruction Derivation Gate and the placement mechanics in `docs/agents/25-docs-ssot-policy/docs-ssot-policy.md`.
-
-## When to create a branch-local owner subdoc
-- Create a data-truth subdoc when a stable project data/config/constant/default/source-artifact cluster needs its own intent, boundary, invariant, change rule, verification, and references.
-- Do not create fixed truth-kind taxonomies or duplicate code/config/schema/source-owned values here.
+- Code, config, schemas, and source assets remain owners of their own facts unless a project-doc owner is explicitly routed here.
+- Material observations and data assertions follow `AGENTS.md` Instruction Derivation Gate and `docs/agents/governance/documentation/documentation.md`.
 
 ## Change Rule
-- Add or update a branch-local owner subdoc only when a concrete project data/config/constant/default/source-artifact truth must affect future behavior and no more specific owner already holds it.
-- For a qualifying project assertion, complete the record under the owner routes above: declared owner and fact identifier; redacted provenance; verification status and evidence; validation expectation; supersession trigger. An unverified assertion remains labeled unverified until its declared witness passes. Values owned by source artifacts, code, config, schemas or external systems remain in those owners.
-- Do not add policy records here to satisfy a checker.
+- Add a branch-local owner subdoc only when a concrete project data/config/constant/default/source-artifact truth must affect future behavior and no more specific owner holds it.
+- A qualifying assertion MUST record declared owner and fact identifier, redacted provenance, verification status and evidence, validation expectation, and supersession trigger.
+- An unverified assertion stays labeled unverified until its declared witness passes.
+- Values owned by source artifacts, code, config, schemas, or external systems stay in those owners.
+- Adding policy records here to satisfy a checker is Prohibited.
+- Fixed truth-kind taxonomies here are Prohibited.
 
 ## Branch-local owner subdocs
 - None currently declared.
+- Create a data-truth subdoc when a stable cluster needs its own intent, boundary, invariant, change rule, verification, and references.
 
 ## Verification
 - `docs/project/data-truth/data-truth_index.md` routes this branch.
-- README "Checks" owns the deterministic project-doc and docs-router verification commands.
+- README Checks owns the deterministic project-doc and docs-router verification commands.

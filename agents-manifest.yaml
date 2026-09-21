@@ -3,16 +3,14 @@ ssot_owner: agents-manifest.yaml
 update_trigger: Governance Agent task signals or governance authority routes change
 description: >-
   Deterministic Governance Agent task-signal-to-governance-authority routing manifest.
-  Unconditional foundations resolve through AGENTS.md Mandatory Foundations outside this
-  manifest and must not appear in its selectable authority lists. Orchestration.md owns
-  loading, application, roles, and workflow. Detection signals identify candidates, not
-  closed capabilities; applicable deeper owners remain binding.
+  Detection signals identify candidates, not closed capabilities.
 
 routing_mode: union # union | first_match
 
 fallback_authorities:
-  - "docs/agents/00-principles/principles.md"
-  - "docs/agents/20-sources-of-truth-map/sources-of-truth-map.md"
+  - "docs/agents/governance/principles/principles.md"
+  - "docs/agents/governance/ssot/ssot.md"
+  - "docs/agents/governance/ssot/hand-offs/hand-offs.md"
 
 semantic_queries:
   # Pre-defined queries agents can use for embedding-based search when a profile matches.
@@ -26,7 +24,6 @@ semantic_queries:
     - "Where is Excel file processing handled in this repo?"
     - "Where are workbook/sheet constants and validation rules defined?"
     - "Where is OOXML-first Excel backend selection handled?"
-  excel_com:
     - "How is Excel COM lifecycle managed in this repo?"
     - "Where is Excel graceful quit verified and PID-scoped forced termination handled?"
   gui_task:
@@ -48,6 +45,10 @@ semantic_queries:
   perf_hotspots:
     - "Where are known performance hotspots handled in this repo?"
     - "What SSOT owns caching/batching for the slow path?"
+  design_system:
+    - "Where are design tokens, themes, and the accessibility floor declared?"
+  packaging:
+    - "How is the release artifact built, versioned, and signed?"
 
 profiles:
   excel_automation:
@@ -79,10 +80,14 @@ profiles:
         - "macro"
         - "pivot refresh"
         - "external links"
+        - "Excel.Application"
+        - "excel com"
+        - "Dispatch"
       code_patterns:
         - "Excel.Application"
         - "xlwings"
         - "win32com.client"
+        - "Dispatch("
         - "openpyxl"
         - "pyxlsb"
         - "python_calamine"
@@ -98,28 +103,12 @@ profiles:
         - "*.xlsm"
         - "*.xls"
     authorities:
-      - "docs/agents/40-config-constants/config-constants.md"
-      - "docs/agents/30-logging-errors/logging-errors.md"
-      - "docs/agents/70-io-data-integrity/io-data-integrity.md"
-      - "docs/agents/playbooks/excel-library-selection-playbook/excel-library-selection-playbook.md"
-      - "docs/agents/playbooks/excel-task-template/excel-task-template.md"
-
-  excel_com:
-    detect:
-      keywords:
-        - "Excel.Application"
-        - "xlwings"
-        - "excel com"
-        - "win32com"
-        - "Dispatch"
-      code_patterns:
-        - "Excel.Application"
-        - "xlwings"
-        - "win32com.client"
-        - "Dispatch("
-      file_globs: []
-    authorities:
-      - "docs/agents/50-excel-com-lifecycle/excel-com-lifecycle.md"
+      - "docs/agents/playbooks/config/config.md"
+      - "docs/agents/playbooks/run-outcomes/run-outcomes.md"
+      - "docs/agents/playbooks/io-batch/io-batch.md"
+      - "docs/agents/interfaces/excel/excel.md"
+      - "docs/agents/interfaces/os-processes/os-processes.md"
+      - "docs/agents/interfaces/filesystem/filesystem.md"
 
   gui_task:
     detect:
@@ -148,9 +137,11 @@ profiles:
         - "after("
       file_globs: []
     authorities:
-      - "docs/agents/60-gui-threading/gui-threading.md"
-      - "docs/agents/30-logging-errors/logging-errors.md"
-      - "docs/agents/playbooks/gui-task-template/gui-task-template.md"
+      - "docs/agents/interfaces/gui-toolkit/gui-toolkit.md"
+      - "docs/agents/playbooks/gui-guidelines/gui-guidelines.md"
+      - "docs/agents/playbooks/config/config.md"
+      - "docs/agents/playbooks/run-outcomes/run-outcomes.md"
+      - "docs/agents/playbooks/design-system/design-system.md"
 
   io_batch:
     detect:
@@ -216,11 +207,10 @@ profiles:
         - "*.tar"
         - "*.tgz"
     authorities:
-      - "docs/agents/70-io-data-integrity/io-data-integrity.md"
-      - "docs/agents/80-testing-real-files/testing-real-files.md"
-      - "docs/agents/30-logging-errors/logging-errors.md"
-      - "docs/agents/40-config-constants/config-constants.md"
-      - "docs/agents/playbooks/io-batch-task-template/io-batch-task-template.md"
+      - "docs/agents/playbooks/io-batch/io-batch.md"
+      - "docs/agents/interfaces/filesystem/filesystem.md"
+      - "docs/agents/playbooks/run-outcomes/run-outcomes.md"
+      - "docs/agents/playbooks/config/config.md"
 
   pdf_task:
     detect:
@@ -245,11 +235,11 @@ profiles:
         - "**/merger.py"
         - "**/*merge*.py"
     authorities:
-      - "docs/agents/70-io-data-integrity/io-data-integrity.md"
-      - "docs/agents/30-logging-errors/logging-errors.md"
-      - "docs/agents/80-testing-real-files/testing-real-files.md"
-      - "docs/agents/40-config-constants/config-constants.md"
-      - "docs/agents/playbooks/pdf-task-template/pdf-task-template.md"
+      - "docs/agents/playbooks/io-batch/io-batch.md"
+      - "docs/agents/interfaces/filesystem/filesystem.md"
+      - "docs/agents/playbooks/run-outcomes/run-outcomes.md"
+      - "docs/agents/playbooks/config/config.md"
+      - "docs/agents/interfaces/pdf/pdf.md"
 
   perf_hotspots:
     detect:
@@ -278,7 +268,7 @@ profiles:
         - ".cell("
       file_globs: []
     authorities:
-      - "docs/agents/playbooks/perf-hotspots-template/perf-hotspots-template.md"
+      - "docs/agents/governance/evidence/evidence.md"
 
   runtime_path:
     detect:
@@ -299,8 +289,10 @@ profiles:
         - "alternate backend"
       file_globs: []
     authorities:
-      - "docs/agents/30-logging-errors/logging-errors.md"
-      - "docs/agents/40-config-constants/config-constants.md"
+      - "docs/agents/playbooks/run-outcomes/run-outcomes.md"
+      - "docs/agents/playbooks/config/config.md"
+      - "docs/agents/governance/coding/logging/logging.md"
+      - "docs/agents/governance/coding/workflow-registry/workflow-registry.md"
 
   bugfix:
     detect:
@@ -315,10 +307,11 @@ profiles:
       code_patterns: []
       file_globs: []
     authorities:
-      - "docs/agents/10-repo-discovery/repo-discovery.md"
-      - "docs/agents/30-logging-errors/logging-errors.md"
-      - "docs/agents/playbooks/bugfix-template/bugfix-template.md"
-      - "docs/agents/playbooks/rca-methods-template/rca-methods-template.md"
+      - "docs/agents/governance/discovery/discovery.md"
+      - "docs/agents/playbooks/run-outcomes/run-outcomes.md"
+      - "docs/agents/governance/bugfix/bugfix.md"
+      - "docs/agents/governance/coding/logging/logging.md"
+      - "docs/agents/governance/testing/testing.md"
 
   ai_prompt_authoring:
     detect:
@@ -332,7 +325,7 @@ profiles:
       code_patterns: []
       file_globs: []
     authorities:
-      - "docs/agents/playbooks/ai-coding-prompt-template/ai-coding-prompt-template.md"
+      - "docs/agents/governance/prompt-authoring/prompt-authoring.md"
 
   project_docs:
     detect:
@@ -352,7 +345,7 @@ profiles:
         - "bounded authority memory"
         - "project protected behavior"
         - "project protected-behavior"
-        - "docs/project/architecture/protected-behavior.md"
+        - "protected-behavior subdoc"
         - "project data truth"
         - "project data-truth"
         - "docs/project/data-truth/data-truth.md"
@@ -377,8 +370,8 @@ profiles:
         - "README.md"
         - "docs/project/**/*.md"
     authorities:
-      - "docs/agents/playbooks/project-docs-template/project-docs-template.md"
-      - "docs/agents/90-release-checklist/release-checklist.md"
+      - "docs/agents/governance/documentation/project-docs-template/project-docs-template.md"
+      - "docs/agents/governance/release/release.md"
 
   governance_improvement:
     detect:
@@ -392,7 +385,6 @@ profiles:
         - "docs ssot"
         - "governance playbook"
         - "governance learnings"
-        - "session recap"
         - "user decision"
         - "user prompt supersession"
         - "agent decision"
@@ -404,16 +396,15 @@ profiles:
       file_globs:
         - "agents-manifest.yaml"
         - "docs/agents/**/*.md"
-        - "docs/agents/settings/**/*.md"
     authorities:
       - "docs/agents/agents_index.md"
-      - "docs/agents/05-context-retrieval/context-retrieval.md"
-      - "docs/agents/20-sources-of-truth-map/sources-of-truth-map.md"
-      - "docs/agents/22-ssot-authority-decisions/ssot-authority-decisions.md"
-      - "docs/agents/90-release-checklist/release-checklist.md"
-      - "docs/agents/settings/00-settings-standards/settings-standards.md"
-      - "docs/agents/playbooks/governance-learnings-template/governance-learnings-template.md"
-      - "docs/agents/playbooks/rca-methods-template/rca-methods-template.md"
+      - "docs/agents/governance/discovery/discovery.md"
+      - "docs/agents/governance/ssot/ssot.md"
+      - "docs/agents/governance/ssot/authority-decisions/authority-decisions.md"
+      - "docs/agents/governance/release/release.md"
+      - "docs/agents/governance/settings/settings.md"
+      - "docs/agents/governance/governance-learning/governance-learning.md"
+      - "docs/agents/governance/bugfix/bugfix.md"
 
   codex_session_log_review:
     detect:
@@ -430,9 +421,8 @@ profiles:
       code_patterns: []
       file_globs: []
     authorities:
-      - "docs/agents/playbooks/governance-learnings-template/governance-learnings-template.md"
-      - "docs/agents/playbooks/governance-learnings-template/codex-session-log-review.md"
-      - "docs/agents/30-logging-errors/logging-errors.md"
+      - "docs/agents/governance/governance-learning/governance-learning.md"
+      - "docs/agents/governance/coding/logging/logging.md"
 
   skills_task:
     detect:
@@ -447,7 +437,280 @@ profiles:
         - "skill adapter"
       code_patterns: []
       file_globs:
-        - "docs/agents/skills/**/*.md"
+        - "docs/agents/governance/skills/**/*.md"
     authorities:
-      - "docs/agents/skills/00-skill-standards/skill-standards.md"
-      - "docs/agents/skills/10-platform-adapters/platform-adapters.md"
+      - "docs/agents/governance/skills/skills.md"
+
+  testing:
+    detect:
+      keywords:
+        - "test"
+        - "tests"
+        - "unittest"
+        - "pytest"
+        - "fixture"
+        - "regression test"
+        - "smoke test"
+        - "coverage"
+      code_patterns: []
+      file_globs:
+        - "test_*.py"
+        - "tests/**"
+    authorities:
+      - "docs/agents/governance/testing/testing.md"
+      - "docs/agents/governance/evidence/evidence.md"
+
+  security:
+    detect:
+      keywords:
+        - "secret"
+        - "token"
+        - "credential"
+        - "password"
+        - "api key"
+        - "tls"
+        - "ssl"
+        - "certificate"
+        - "injection"
+        - "redaction"
+      code_patterns: []
+      file_globs: []
+    authorities:
+      - "docs/agents/governance/security/security.md"
+      - "docs/agents/governance/dependencies/dependencies.md"
+
+  refactor:
+    detect:
+      keywords:
+        - "refactor"
+        - "consolidate"
+        - "deduplicate"
+        - "purify"
+        - "decompose"
+        - "split file"
+        - "move module"
+      code_patterns: []
+      file_globs: []
+    authorities:
+      - "docs/agents/governance/ssot/ssot.md"
+      - "docs/agents/governance/evidence/evidence.md"
+      - "docs/agents/governance/testing/testing.md"
+
+  release:
+    detect:
+      keywords:
+        - "release"
+        - "changelog"
+        - "closure record"
+        - "rollback"
+      code_patterns: []
+      file_globs: []
+    authorities:
+      - "docs/agents/governance/release/release.md"
+      - "docs/agents/governance/testing/testing.md"
+      - "docs/agents/playbooks/packaging/packaging.md"
+      - "docs/agents/governance/dependencies/dependencies.md"
+
+  settings_task:
+    detect:
+      keywords:
+        - "settings.json"
+        - "config.toml"
+        - "cli.json"
+        - "claude settings"
+        - "codex config"
+        - "cursor settings"
+        - "permissions allowlist"
+        - "hooks"
+      code_patterns: []
+      file_globs: []
+    authorities:
+      - "docs/agents/governance/settings/settings.md"
+      - "docs/agents/governance/hooks/hooks.md"
+
+  mcp_task:
+    detect:
+      keywords:
+        - "mcp"
+        - "mcp.json"
+        - "mcp server"
+        - "model context protocol"
+      code_patterns: []
+      file_globs: []
+    authorities:
+      - "docs/agents/governance/mcp/mcp.md"
+
+  os_processes:
+    detect:
+      keywords:
+        - "subprocess"
+        - "pid"
+        - "kill process"
+        - "terminate"
+        - "process handle"
+      code_patterns:
+        - "subprocess."
+        - "Popen("
+        - "os.kill"
+        - "psutil"
+      file_globs: []
+    authorities:
+      - "docs/agents/interfaces/os-processes/os-processes.md"
+
+  run_outcomes:
+    detect:
+      keywords:
+        - "run report"
+        - "run summary"
+        - "reconcile"
+        - "reason code"
+        - "work counts"
+      code_patterns: []
+      file_globs: []
+    authorities:
+      - "docs/agents/playbooks/run-outcomes/run-outcomes.md"
+
+  config_task:
+    detect:
+      keywords:
+        - "config"
+        - "constants"
+        - "defaults"
+        - "ConfigManager"
+        - "config key"
+        - "schema version"
+      code_patterns: []
+      file_globs: []
+    authorities:
+      - "docs/agents/playbooks/config/config.md"
+
+  design_system:
+    detect:
+      keywords:
+        - "design system"
+        - "design tokens"
+        - "tokens"
+        - "theme"
+        - "dark mode"
+        - "light mode"
+        - "contrast"
+        - "accessibility"
+        - "wcag"
+        - "focus"
+        - "keyboard navigation"
+        - "dpi"
+        - "typography"
+        - "font"
+        - "spacing"
+        - "layout"
+        - "style"
+        - "styles"
+        - "ttkbootstrap"
+        - "customtkinter"
+      code_patterns:
+        - "ttk.Style"
+        - "configure("
+        - "option_add("
+        - "SetProcessDpiAwareness"
+        - "SetProcessDpiAwarenessContext"
+        - "tk.scaling"
+      file_globs:
+        - "*.tokens.json"
+        - "**/tokens/**"
+    authorities:
+      - "docs/agents/playbooks/design-system/design-system.md"
+      - "docs/agents/playbooks/gui-guidelines/gui-guidelines.md"
+      - "docs/agents/interfaces/gui-toolkit/gui-toolkit.md"
+
+  packaging:
+    detect:
+      keywords:
+        - "package"
+        - "packaging"
+        - "pyinstaller"
+        - "installer"
+        - "msix"
+        - "msi"
+        - "wheel"
+        - "sdist"
+        - "pyproject"
+        - "build artifact"
+        - "code signing"
+        - "signtool"
+        - "sbom"
+        - "version bump"
+        - "semver"
+        - "calver"
+        - "release build"
+      code_patterns:
+        - "pyproject.toml"
+        - "PyInstaller"
+        - "setuptools"
+        - "build_meta"
+      file_globs:
+        - "pyproject.toml"
+        - "*.spec"
+        - "setup.py"
+        - "*.wxs"
+        - "*.appinstaller"
+        - "*.iss"
+    authorities:
+      - "docs/agents/playbooks/packaging/packaging.md"
+      - "docs/agents/governance/dependencies/dependencies.md"
+      - "docs/agents/governance/release/release.md"
+
+  dependencies:
+    detect:
+      keywords:
+        - "dependency"
+        - "dependencies"
+        - "requirements.txt"
+        - "pylock"
+        - "lockfile"
+        - "lock file"
+        - "pip install"
+        - "uv add"
+        - "poetry add"
+        - "pip-audit"
+        - "vulnerability"
+        - "cve"
+        - "upgrade package"
+        - "bump"
+      code_patterns:
+        - "pip install"
+        - "uv add"
+        - "uv sync"
+        - "poetry add"
+      file_globs:
+        - "requirements*.txt"
+        - "pylock*.toml"
+        - "uv.lock"
+        - "poetry.lock"
+        - "pyproject.toml"
+    authorities:
+      - "docs/agents/governance/dependencies/dependencies.md"
+      - "docs/agents/governance/security/security.md"
+
+  hooks_task:
+    detect:
+      keywords:
+        - "hook"
+        - "hooks"
+        - "PreToolUse"
+        - "PostToolUse"
+        - "SessionStart"
+        - "hooks.json"
+        - "enforce gate"
+        - "block tool"
+        - "permissionDecision"
+      code_patterns:
+        - "\"hooks\""
+        - "PreToolUse"
+        - "permissionDecision"
+      file_globs:
+        - "**/hooks/hooks.json"
+        - ".claude/settings.json"
+    authorities:
+      - "docs/agents/governance/hooks/hooks.md"
+      - "docs/agents/governance/settings/settings.md"
+      - "docs/agents/governance/security/security.md"
