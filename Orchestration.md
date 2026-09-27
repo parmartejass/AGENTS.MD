@@ -37,7 +37,7 @@ Main does not discover the repository, create or edit the plan, implement, mutat
 
 Main acts as the user's representative throughout every phase. Before accepting every task response, it must question the response from first principles: whether it preserves the user's actual objective, which assumptions and evidence support it, what omissions or conflicts remain, how dependencies affect the conclusion, and whether completion is demonstrated. It must request concise evidence-based rationale, not hidden reasoning or underlying source dumps. Unresolved decision-critical gaps cannot be treated as acceptance.
 
-When a task, plan, council report, execution result, review finding, or recorded prior decision conflicts with an explicit user decision in the controlling prompt, Main treats the user decision as controlling for that task scope under `AGENTS.md`. Agent-originated assumptions, consensus, silence, or generated records are never accepted as a superseding user decision.
+Main applies `AGENTS.md` User Prompt Intake and Durable Project Truth through the serial intake contract below; its role boundary and constitutional precedence remain controlling.
 
 ## Task agents and focused exploration
 
@@ -59,11 +59,13 @@ Task agents integrate these reports and read only the sources their task require
 
 ### Planning Agent
 
-The Planning Agent is read-only and uses the focused-exploration contract. It receives the complete controlling intent and produces one stable ephemeral YAML plan. It must not mutate the repository or create a tracked plan artifact.
+The Planning Agent is read-only and uses the focused-exploration contract. It receives the complete controlling intent and produces one stable ephemeral YAML plan per lifecycle instance. It must not mutate the repository or create a tracked plan artifact.
 
 The plan must be one YAML mapping in the planning report, with all fields declared once in `plan.required_fields` in the checker-readable contract. Its values must preserve complete intent, objective acceptance, explicit side effects, disjoint execution assignments, dependencies and risks, deterministic verification, terminal evidence, and the constitutional authority-application witness. Required fields must carry meaningful task-specific values; an empty applicable obligation is a plan failure.
 
 If a plan file is requested or needed, serialize that same mapping as a `.yaml` file at an explicitly chosen temporary location outside the repository. The plan remains ephemeral and untracked; do not create a tracked plan or a parallel Markdown plan. The owner remains this document; the YAML instance is a task control artifact, not another policy authority.
+
+For substantive plans, `prompt_intake` must reference the completed intake dispositions, owner locations, and review witnesses; it must not treat the generated plan as a new user message.
 
 The plan must be specific enough that conforming execution requires no per-file approval. Missing authority, material ambiguity, overlapping mutation ownership, or unverifiable completion is a plan failure, not permission to guess.
 
@@ -103,7 +105,21 @@ A Review Agent classifies a finding as either plan conformance, a critical findi
 
 ## Finite workflow
 
-The normal path is plan, principle review, Main/user confirmation, execution, final review, then Main's terminal decision.
+The normal path is plan, principle review, Main/user confirmation, execution, final review, then Main's terminal decision. Each bounded intake instance uses these existing phases serially before the affected parent continuation.
+
+### User-message intake
+
+On receipt of an actual user message affecting authorized repository work, Main must suspend affected work and open one fresh intake instance under `AGENTS.md` User Prompt Intake and Durable Project Truth. Generated agent plans, reports, summaries, and artifacts do not trigger intake. A further user message is processed serially before affected work resumes; no concurrent intake or parent mutation is permitted.
+
+Before dispatch, Main must retain the message identity, intake-instance identity, and parent continuation: phase, plan identity/version, authorization witness, completed evidence, and exact resume target. For an initial request, absent parent values must be explicitly marked initial and the resume target is substantive PLAN. This record is ephemeral task control evidence, not project truth.
+
+The fresh Planning Agent and its explorer trio retrieve only intake-relevant authorities and records, classify each prompt item, and produce an intake-only plan. Its `prompt_intake` field must identify message and instance, item-to-owner routes, proposed dispositions, admission/supersession basis, required doc changes, existing-content or exclusion witnesses, and the parent continuation. Independent Plan Review and its fresh trio must verify this evidence before Main accepts any disposition or authorizes a write. All affected substantive work, including planning, delegation, implementation, review, verification, and acceptance, remains suspended until intake resolution.
+
+`OWNER_UPDATED` requires the existing confirmation gate, fresh Execution Agent with its trio, and frozen-result independent Review Agent with its trio. Execution must persist only admitted owner changes, verify their contents, and return owner locations and evidence; the disposition becomes final only after independent review. Existing authorization suffices; missing authorization or required evidence produces HOLD. `OWNER_CURRENT` and `EXCLUDED` require independent Plan Review evidence only, with no Execution Agent, write, or post-execution review. An intake containing updates cannot finish until every item has its required evidence.
+
+Successful intake returns its item dispositions and witnesses to the saved continuation: initial requests start substantive work, and compatible steering resumes the same parent phase with its plan and evidence preserved. Intake completion must not be reported as completion of the user task. A HOLD or failed intake blocks dependent work and uses Main's STOP handling; incompatible replacement or invalidated confirmed scope uses the existing terminal/new-workflow path. The root task reaches DONE only after substantive acceptance and final review.
+
+After context loss, Main and affected parents must re-establish the current foundations, controlling messages, verified owner locations, item dispositions, and parent continuation before dependent work resumes. Missing continuation or intake evidence is HOLD; summaries or assumed prior capture cannot release the barrier.
 
 ### Plan
 
@@ -117,7 +133,7 @@ Material unresolved objections lead to `STOP`. Review agents do not revise the p
 
 ### Main and user confirmation
 
-Main presents the stable plan and material review dispositions to the user and records the authorization witness under `AGENTS.md` FP-30. Existing explicit authorization in the active workflow satisfies this gate when the reviewed scope and side effects remain within it; duplicate confirmation is prohibited. If the reviewed plan requires an action outside that authorization, Main must obtain explicit confirmation before that action. User silence is never authorization. Rejection, missing required authorization, or a requested material revision ends this workflow as `STOP`; a changed request starts a separate workflow.
+Main presents the stable plan and material review dispositions to the user and records the authorization witness under `AGENTS.md` FP-30. Existing explicit authorization in the active workflow satisfies this gate when the reviewed scope and side effects remain within it; duplicate confirmation is prohibited. If the reviewed plan requires an action outside that authorization, Main must obtain explicit confirmation before that action. User silence is never authorization. Rejection or missing required authorization ends this instance as `STOP`; message changes follow User-message intake, with incompatible replacement or invalidated confirmed scope ending the parent before a separate workflow.
 
 ### Execute
 
@@ -137,11 +153,11 @@ After that correction, Main dispatches one fresh Review Agent for one final veri
 
 `DONE` means Main has confirmed that the plan's acceptance criteria, authorized mutations, required verification, and final review evidence are complete.
 
-`STOP` means the workflow ended without completion. It is terminal and never triggers retry, repair, replan, correction beyond the single allowed branch, or new agents. A later user request begins a new workflow.
+`STOP` means the workflow ended without completion. It is terminal and never triggers retry, repair, replan, correction beyond the single allowed branch, or new agents. A later user request after STOP begins a new workflow; compatible steering of an active parent follows User-message intake.
 
 ## Durable truth and simplicity
 
-- Project docs own durable repository truth under the docs SSOT policy. Plans, council reports, working notes, and review reports remain ephemeral and untracked unless a durable fact is promoted to its declared project-doc owner.
+- Durable capture and ephemeral-record boundaries follow `AGENTS.md` User Prompt Intake and Durable Project Truth and the documentation jurisdiction.
 - Every assignment must use the simplest complete owner-aligned change. Patch the highest owning authority and prune duplicate, shadow, obsolete, fallback, or wrong-owner surfaces in scope.
 - No role may create a parallel workflow, role taxonomy, plan authority, review loop, or terminal-state mechanism.
 
@@ -149,11 +165,11 @@ After that correction, Main dispatches one fresh Review Agent for one final veri
 
 The following block is the sole machine-readable projection of this file's narrative contract.
 
-`state_roles` lists Main-dispatched phase participants only; explorer descendants derive from `delegation`, not phase membership. Structural validation checks declaration shape and role relationships; it does not inspect live assignments, context isolation, report quality, or YAML plan instances.
+`state_roles` lists Main-dispatched phase participants only; explorer descendants derive from `delegation`, not phase membership. Structural validation checks declaration shape, outcome partitions, and role/state/plan-field links; it does not inspect live capture, semantic compliance, context isolation, report quality, or YAML plan instances. Contract changes apply prospectively to newly created plans; the accepted in-flight plan authorizing that migration retains its originating contract, authorization, and evidence. Future plans use the current contract only, and changed-foundation reads are required before acceptance. The normal transition graph governs substantive instances; `message_intake.return_after` instead returns successful intake items after their required phase, while `failure_terminal` routes intake failure to Main. Neither return declares root DONE.
 
 ```orchestration-contract
 {
-  "version": 2,
+  "version": 3,
   "roles": {
     "MAIN": "user communication, dispatch, phase tracking, and terminal decision",
     "PLANNING_AGENT": "read-only stable ephemeral plan author",
@@ -208,8 +224,25 @@ The following block is the sole machine-readable projection of this file's narra
       "plan_version", "goal", "preserved_user_intent", "in_scope", "out_of_scope",
       "non_goals", "acceptance_criteria", "authorized_mutations", "side_effects",
       "execution_assignments", "dependencies", "risks", "failure_conditions",
-      "verification", "done_evidence", "stop_conditions", "authority_application"
+      "verification", "done_evidence", "stop_conditions", "authority_application", "prompt_intake"
     ]
+  },
+  "message_intake": {
+    "trigger": "USER_MESSAGE",
+    "plan_field": "prompt_intake",
+    "item_outcomes": ["OWNER_UPDATED", "OWNER_CURRENT", "EXCLUDED", "HOLD"],
+    "mutation_outcome": "OWNER_UPDATED",
+    "no_mutation_outcomes": ["OWNER_CURRENT", "EXCLUDED"],
+    "failure_outcome": "HOLD",
+    "phase_roles": {
+      "PLAN": "PLANNING_AGENT",
+      "PRINCIPLE_REVIEW": "PLAN_REVIEW_AGENT",
+      "EXECUTE": "EXECUTION_AGENT",
+      "FINAL_REVIEW": "REVIEW_AGENT"
+    },
+    "dependent_work_barrier": true,
+    "return_after": {"OWNER_UPDATED": "FINAL_REVIEW", "OWNER_CURRENT": "PRINCIPLE_REVIEW", "EXCLUDED": "PRINCIPLE_REVIEW"},
+    "failure_terminal": "STOP"
   },
   "states": [
     "PLAN",

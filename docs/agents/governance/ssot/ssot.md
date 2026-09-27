@@ -154,6 +154,8 @@ Under the constitutional rule, the illustration requires the owner-issued `2807/
 
 | Concept | Owner | Route |
 | --- | --- | --- |
+| Prompt intake, precedence, dependent-work barrier, item dispositions | constitution | `AGENTS.md` User Prompt Intake and Durable Project Truth |
+| Intake sequencing, parent suspension/resume, review and mutation | orchestration | `Orchestration.md` User-message intake |
 | Material-knowledge admission, maintenance, safe supersession, concise records, baseline placement | documentation | `docs/agents/governance/documentation/documentation.md` |
 | Durable project intent, objective, acceptance criteria, non-goals, verification intent | project goal | `docs/project/goal/goal.md` |
 | Project-specific protected boundaries | project rules | `docs/project/rules/rules.md` |
@@ -216,8 +218,6 @@ Under the constitutional rule, the illustration requires the owner-issued `2807/
 | Prompt scaffolds | prompt-authoring | `docs/agents/governance/prompt-authoring/prompt-authoring.md` |
 | Reusable prompt and instruction policy | its declared governance owner | the declared owner |
 | Skill and settings source formats and placement | asset roots | see Repo-owned agent assets |
-| Durable prompt-originated project intent, after classification under the constitution | project goal | `docs/project/goal/goal.md` |
-| Other durable project facts; temporary prompt context stays non-authoritative until promoted | documentation | `docs/agents/governance/documentation/documentation.md` |
 
 ## Run outcomes and reporting
 

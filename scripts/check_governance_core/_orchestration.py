@@ -24,6 +24,7 @@ _TOP_LEVEL_FIELDS = {
     "critical_correction",
     "delegation",
     "plan",
+    "message_intake",
 }
 _TRANSITION_FIELDS = {"from", "to"}
 _CORRECTION_FIELDS = {
@@ -122,8 +123,8 @@ def _validate_contract(data: dict[str, Any]) -> list[str]:
     if unknown:
         errors.append(f"Orchestration.md contract has unsupported fields: {', '.join(unknown)}")
     version = data.get("version")
-    if not isinstance(version, int) or isinstance(version, bool) or version < 1:
-        errors.append("Orchestration.md contract version must be a positive integer")
+    if type(version) is not int or version != 3:
+        errors.append("Orchestration.md contract version must be 3")
 
     roles_value = data.get("roles")
     if not isinstance(roles_value, dict) or not roles_value:
@@ -205,7 +206,7 @@ def _validate_contract(data: dict[str, Any]) -> list[str]:
         state_set,
         errors,
     )
-    errors.extend(validate_delegation_and_plan(data, roles, state_role_sets))
+    errors.extend(validate_delegation_and_plan(data, roles, state_role_sets, terminal_set, _IDENTIFIER))
     return errors
 
 

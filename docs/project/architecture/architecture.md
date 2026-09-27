@@ -110,6 +110,14 @@ update_trigger: repo layout, authority-routing profiles, or validation scripts c
 - Structural passes prove declaration and routing behavior, not live application, source-isolated reasoning, future platform autoloading, or uninstrumented timing.
 - Re-verify on foundation/lifecycle, checker, routing, or public-contract changes.
 
+## Prompt-intake contract and validation
+- `AGENTS.md` User Prompt Intake and Durable Project Truth owns prompt-originated constitutional semantics; documentation retains admission, placement, provenance, redaction, and safe supersession, with relations routed by the SSOT map.
+- `Orchestration.md` contract version 3 owns `message_intake`, `prompt_intake`, parent continuation, outcome-specific intake returns, and prospective plan migration; role and state vocabularies remain unchanged.
+- The existing governance-core public API consumes that projection through its private orchestration/delegation validators. Parsed task roles and plan fields are reused for cross-links; no public API, new module, copied outcome vocabulary, or prose-keyword check was introduced.
+- This replaces the scattered constitutional prompt bullets and late-only maintenance route; fixtures continue consuming the live owner, and unsupported old contract declarations fail explicitly without a runtime fallback.
+- Verified on 2026-09-28 through README Checks: focused orchestration cases and the full 124-test suite passed (one existing native-symlink privilege skip), as did docs, project-docs, full and strict governance checks. Re-verify when intake ownership, schema, consumers, source boundaries, or accepted intent changes.
+- Structural success does not prove live capture order, complete materiality, correct semantic ownership, or agent obedience; those require workflow evidence and independent review. End-to-end verification exceeded the constitutional timing target; uninstrumented model/platform work remains unverified.
+
 ## Current modularity witness boundary
 - Enforced now: checker owners validate the declared docs, folder, manifest, and code-change witness contract facts above.
 - Not claimed: language-general import enforcement, broad hardcoded decision-fact scanning, typed config boundary scanning, or selector runtime witnesses without separate structured owners.

@@ -59,6 +59,24 @@ class OrchestrationContractTests(unittest.TestCase):
         self.assertEqual("PASSED", result["status"], result)
         self.assertEqual(list(contract.root_authorities), result["documents"][:2])
         self.assertEqual([], result["errors"])
+        with tempfile.TemporaryDirectory() as temp:
+            fixture = Path(temp)
+            _fixture(fixture)
+            value = _payload(fixture)
+            intake = value["message_intake"]
+            renamed = {outcome: f"RENAMED_{outcome}" for outcome in intake["item_outcomes"]}
+            intake["item_outcomes"] = list(renamed.values())
+            for category in ("mutation_outcome", "failure_outcome"):
+                intake[category] = renamed[intake[category]]
+            intake["no_mutation_outcomes"] = [renamed[item] for item in intake["no_mutation_outcomes"]]
+            intake["return_after"] = {renamed[item]: phase for item, phase in intake["return_after"].items()}
+            value["plan"]["required_fields"].remove(intake["plan_field"])
+            intake["plan_field"] += "_renamed"
+            value["plan"]["required_fields"].append(intake["plan_field"])
+            _write_payload(fixture, value)
+            result = resolve_documents({"repo_root": str(fixture), "governance_root": str(fixture)})
+            self.assertEqual("PASSED", result["status"], result)
+            self.assertEqual([], result["errors"])
 
     def test_missing_wrong_case_and_duplicate_authority_routes_fail(self) -> None:
         def missing(root: Path) -> None:
@@ -324,20 +342,73 @@ class OrchestrationContractTests(unittest.TestCase):
             ("plan", "required_fields", ["goal", "goal"]),
             ("plan", "required_fields", [""]),
             ("plan", "unknown", True),
+            ("", "version", 2),
+            ("", "version", True),
+            ("", "message_intake", None),
+            ("message_intake", "unknown", True),
+            ("message_intake", "trigger", "AGENT_REPORT"),
+            ("message_intake", "dependent_work_barrier", False),
+            ("message_intake", "dependent_work_barrier", 1),
+            ("message_intake", "plan_field", "missing"),
+            ("message_intake", "item_outcomes", ["invalid"]),
+            ("message_intake", "item_outcomes", ["HOLD", "HOLD"]),
+            ("message_intake", "mutation_outcome", "UNKNOWN"),
+            ("message_intake", "failure_outcome", "OWNER_UPDATED"),
+            ("message_intake", "no_mutation_outcomes", ["HOLD"]),
+            ("message_intake", "phase_roles", {}),
+            ("message_intake", "phase_roles", {"UNKNOWN": "PLANNING_AGENT"}),
+            ("message_intake", "phase_roles", {"PLAN": "UNKNOWN"}),
+            ("message_intake", "phase_roles", {"PLAN": "MAIN"}),
+            ("message_intake", "phase_roles", {"PLAN": "PLANNING_AGENT"}),
+            ("message_intake", "return_after", {}),
+            ("message_intake", "return_after", {"HOLD": "PLAN"}),
+            ("message_intake", "failure_terminal", "PLAN"),
+            ("message_intake", "failure_terminal", "UNKNOWN"),
         )
         for section, key, replacement in cases:
             with self.subTest(section=section, key=key, replacement=replacement), tempfile.TemporaryDirectory() as temp:
                 root = Path(temp)
                 _fixture(root)
                 value = _payload(root)
-                value[section][key] = replacement
+                (value[section] if section else value)[key] = replacement
                 _write_payload(root, value)
                 self.assertTrue(_contract_errors(root))
+
+        for case in ("failure_terminal", "mutation_return", "no_mutation_return",
+                     "correction_phase", "verification_phase"):
+            with self.subTest(case=case), tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                _fixture(root)
+                value = _payload(root)
+                intake = value["message_intake"]
+                if case == "failure_terminal":
+                    intake["failure_terminal"] = "DONE"
+                elif case == "mutation_return":
+                    intake["return_after"][intake["mutation_outcome"]] = value["entry_state"]
+                elif case == "no_mutation_return":
+                    intake["return_after"][intake["no_mutation_outcomes"][0]] = "EXECUTE"
+                else:
+                    role = "EXECUTION_AGENT" if case == "correction_phase" else "REVIEW_AGENT"
+                    normal = next(phase for phase, assigned in intake["phase_roles"].items() if assigned == role)
+                    field = "state" if case == "correction_phase" else "final_verification_state"
+                    special = value["critical_correction"][field]
+                    intake["phase_roles"][special] = intake["phase_roles"].pop(normal)
+                    intake["return_after"] = {
+                        item: special if phase == normal else phase
+                        for item, phase in intake["return_after"].items()
+                    }
+                _write_payload(root, value)
+                result = resolve_documents({"repo_root": str(root), "governance_root": str(root)})
+                self.assertEqual("FAILED", result["status"], result)
+                self.assertEqual([], result["documents"])
+                self.assertTrue(any("message_intake" in error for error in result["errors"]), result)
+                self.assertFalse(any("internal governance" in error for error in result["errors"]), result)
 
     def test_explorer_and_task_relationships_fail_closed(self) -> None:
         for case in ("mutable", "delegating", "task_non_delegating", "not_fresh",
                      "duplicate_jurisdiction", "empty_jurisdiction", "missing_jurisdiction",
-                     "descendant_in_state", "missing_plan", "missing_plan_field"):
+                     "descendant_in_state", "missing_plan", "missing_plan_field",
+                     "missing_intake", "missing_intake_plan_field"):
             with self.subTest(case=case), tempfile.TemporaryDirectory() as temp:
                 root = Path(temp)
                 _fixture(root)
@@ -363,6 +434,10 @@ class OrchestrationContractTests(unittest.TestCase):
                     value["state_roles"]["PLAN"].append(child)
                 elif case == "missing_plan":
                     del value["plan"]
+                elif case == "missing_intake":
+                    del value["message_intake"]
+                elif case == "missing_intake_plan_field":
+                    value["plan"]["required_fields"].remove(value["message_intake"]["plan_field"])
                 else:
                     del value["plan"]["format"]
                 _write_payload(root, value)

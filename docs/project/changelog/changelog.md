@@ -23,6 +23,15 @@ update_trigger: non-trivial work closes OR closure-record field contract changes
 
 Entries record historical closure evidence and the owners current at that time. Superseded roles, paths, commands, and permissions in older entries are not active instructions; current authority resolves through `AGENTS.md`, `Orchestration.md`, and README Checks.
 
+### CH-20260928-001 - Consolidate prompt intake before dependent work
+- Change ID/date/status: CH-20260928-001 / 2026-09-28 / execution evidence verified at this checkpoint.
+- Closure statement: Consolidated scattered prompt semantics into the AGENTS owner block, migrated lifecycle and structural consumers, and recorded planned intent and the user-reported loss before implementation. This records local execution evidence, not root acceptance.
+- Owner promotion references for durable facts or `N/A + reason`: `AGENTS.md`; `Orchestration.md`; documentation and SSOT governance owners; `docs/project/goal/goal.md`, `docs/project/learning/learning.md`, and `docs/project/architecture/architecture.md`.
+- Changed surfaces grouped by owner: constitution; lifecycle contract and its private validator/tests; documentation mechanics and SSOT routes; four existing project owners. No new file, public checker API, role, or state.
+- Verification command/manual witness and result: README docs, project-docs, full and strict checks passed; focused orchestration passed 8 tests and full discovery passed 124 with one existing native-symlink privilege skip. Complete FP-01..FP-35 text/order matched HEAD after LF normalization; semantic owner/initial/steering/no-write/failure replays and scoped diff checks passed. Re-verify on owner, schema, consumer, intent, or README Checks changes.
+- Residual risks/follow-up: At this execution checkpoint, independent frozen-result review and both final Claude reviews required by the goal owner had not yet run; their results and Main's acceptance belong to ephemeral workflow evidence under `Orchestration.md`. Structural success does not prove live obedience. The existing docs-policy test size warning remains; verification exceeded the timing target (full suite 158681.767 ms), and model/platform timing is unverified.
+- Commit/PR reference or `N/A + reason`: N/A + reason: authorized local changes only; no staging, commit, push, PR, deployment, or publication.
+
 ### CH-20260920-004 - Consolidate resolve-once business semantics
 - Change ID/date/status: CH-20260920-004 / 2026-09-20 / ready
 - Closure statement: Locally applied and verified the user-requested constitutional consolidation, routed its structural applications through the existing SSOT owner, and clarified the existing adapter boundary. Bilty remains illustrative only; no Bilty runtime or domain owner was created.

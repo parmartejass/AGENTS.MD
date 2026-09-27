@@ -19,6 +19,7 @@ update_trigger: new operational learnings/pitfalls discovered in real use
 - Creating a learning subdoc as chronological history or a work-status record is Prohibited.
 
 ## Common pitfalls
+- 2026-09-27 user-reported recurring pitfall: prompt-originated information and decisions are omitted from project docs and lost. The report establishes the reason for earlier owner capture; incidence and runtime cause remain unverified. Validate through prompt-to-owner intake evidence and independent review; re-evaluate on intake-contract changes or new evidence. Governing intent: `docs/project/goal/goal.md`; this observation is not intended behavior.
 - Python may not be runnable on some machines (Windows Store app aliases); ensure `python` resolves to Python 3.11+ for README-listed checks.
 - For generated artifacts (`__pycache__/`, `*.pyc`, local outputs), apply the tracking rule in `docs/project/rules/rules.md` and `.gitignore`.
 

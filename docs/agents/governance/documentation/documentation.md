@@ -23,7 +23,7 @@ Jurisdiction: docs admission and maintenance, safe supersession, concise owner r
 
 ## Maintenance
 
-- MUST update the existing subject owner automatically while doing authorized work, without waiting for a user reminder.
+- Prompt receipt, controlling-intent precedence, and capture ordering follow the constitutional User Prompt Intake and Durable Project Truth contract; this jurisdiction owns record admission and maintenance mechanics.
 - MUST keep exactly one maintained record per fact; when its owner is missing, MUST create only the minimum routed owner required by its stable jurisdiction.
 - Unresolved ownership or authority conflict MUST produce `hold: <reason>`.
 - Before claiming closure, MUST verify every material future-decision fact is maintained into its owner doc.
@@ -65,13 +65,12 @@ Jurisdiction: docs admission and maintenance, safe supersession, concise owner r
 - Each required branch MUST be one exactly spelled, safe, direct folder name with a trailing slash; missing, malformed, duplicate, or unsafe declarations fail explicitly.
 - Additional routed branches are allowed when declared as owner docs with scope, update trigger, and verification witness.
 - Incidental project paths in constitution text, examples, or optional-leaf references MUST NOT declare required branches.
-- If any required project doc is missing, MUST create it before other changes using `docs/agents/governance/documentation/project-docs-template/project-docs-template.md`, which owns the scaffold contract for baseline branches, root docs, and branch-local owner subdocs.
+- If any required project doc is missing, MUST create it before other changes within constitutional prompt intake and the orchestration lifecycle, using `docs/agents/governance/documentation/project-docs-template/project-docs-template.md`, which owns the scaffold contract for baseline branches, root docs, and branch-local owner subdocs.
 - Governance-core derives each branch router and primary leaf through its public filename contract.
 - Root docs are jurisdiction/index surfaces; they MUST NOT absorb every branch truth when a stable cluster needs a smaller owner.
 - Branch-local owner subdocs MUST live under the project-doc branch that owns the truth and MUST follow the template scaffold contract.
 - `docs/project/goal/goal.md` MUST exist and owns durable project intent, objective, acceptance criteria, non-goals, and verification intent.
-- A durable user-intent change MUST update `goal.md` when it changes objective, acceptance criteria, non-goals, or verification intent, and otherwise updates the owning project doc for that fact; temporary task coordination MUST NOT be stored in project docs.
-- User-provided data assertions MUST preserve provenance, verification status, validation expectations, and supersession trigger while routing source-owned values to their actual data owner.
+- User-provided data assertions MUST retain validation expectations alongside the provenance, verification limits, supersession trigger, and source-owner routing required by Admission.
 - `docs/project/changelog/changelog.md` owns tracked `Changelog` closure records; mirror-surface validity is governed by `SSOT-DEC-004` and field template/order by the release owner.
 - Durable facts referenced by `Changelog` MUST resolve to their declared owner doc, code, config, data, or workflow authority before closure.
 - Commit reconciliation MUST check docs-first truth against the intended commit set: changed owner docs are doc-only steering truth or carry matching implementation and verification evidence, and changed implementation is backed by existing or updated owner truth when durable behavior changes.
