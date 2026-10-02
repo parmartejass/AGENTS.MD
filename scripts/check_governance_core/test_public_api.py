@@ -5,6 +5,7 @@ import re
 import tempfile
 import unittest
 from pathlib import Path
+from types import MappingProxyType
 from unittest.mock import patch
 
 from scripts.check_governance_core.check_governance_core_main import resolve_documents, run_checks
@@ -119,6 +120,79 @@ class PublicApiContractTests(unittest.TestCase):
 
 
 
+    def test_public_failure_envelopes_preserve_status_diagnostics_and_order(self) -> None:
+        root_cases = (
+            ({"repo_root": 42}, "repo_root must be a path string, Path, or null"),
+            ({"governance_root": []}, "governance_root must be a path string, Path, or null"),
+            ({"repo_root": " "}, "repo_root must not be empty when provided"),
+            ({"governance_root": ""}, "governance_root must not be empty when provided"),
+        )
+        for function, provider, internal_label in (
+            (run_checks, "execute", "governance-check failure"),
+            (resolve_documents, "resolve_documents_request", "governance-document resolution failure"),
+        ):
+            cases = [
+                (None, "request must be a mapping"),
+                ({"z": 1, "a": 1}, "unsupported request key(s): a, z"),
+                *root_cases,
+            ]
+            if function is run_checks:
+                cases.extend((
+                    ({"mode": 1}, "mode must be a string"),
+                    ({"fail_on_safety_warnings": "yes"}, "fail_on_safety_warnings must be a boolean"),
+                    ({"mode": "unsupported"}, "mode must be one of full, docs, project_docs"),
+                    ({"mode": "docs", "fail_on_safety_warnings": True}, "fail_on_safety_warnings is valid only in full mode"),
+                ))
+            for request, error in cases:
+                with self.subTest(api=function.__name__, request=request):
+                    self._assert_failure_envelope(function(request), function, "FAILED_VALIDATION", error)
+            for exception, status, error in (
+                (ValueError("contract rejection"), "FAILED_VALIDATION", "contract rejection"),
+                (RuntimeError("forced failure"), "FAILED", f"internal {internal_label}: RuntimeError: forced failure"),
+            ):
+                with self.subTest(api=function.__name__, exception=type(exception).__name__), patch(
+                    f"scripts.check_governance_core.check_governance_core_main.{provider}", side_effect=exception
+                ):
+                    self._assert_failure_envelope(function({}), function, status, error)
+
+    def _assert_failure_envelope(self, result, function, status, error) -> None:
+        expected = {"api_version": 1, "status": status}
+        if function is run_checks:
+            expected.update({key: [] for key in ("checks", "planned", "eligible", "executed", "skipped", "failed")})
+        else:
+            expected["documents"] = []
+        expected["errors"] = [error]
+        if function is run_checks:
+            expected["warnings"] = []
+        self.assertEqual(expected, result)
+        self.assertEqual(list(expected), list(result))
+
+    def test_failure_lists_are_independent_within_and_between_public_results(self) -> None:
+        for function in (run_checks, resolve_documents):
+            with self.subTest(api=function.__name__):
+                first, second = function(None), function(None)
+                lists = [value for value in first.values() if isinstance(value, list)]
+                self.assertEqual(len(lists), len({id(value) for value in lists}))
+                for key, value in first.items():
+                    if isinstance(value, list):
+                        self.assertIsNot(value, second[key])
+                        value.append("mutation witness")
+                        self.assertNotIn("mutation witness", second[key])
+
+    def test_success_passthrough_and_request_copy_preserve_public_inputs(self) -> None:
+        for function, provider in ((run_checks, "execute"), (resolve_documents, "resolve_documents_request")):
+            with self.subTest(api=function.__name__):
+                request = MappingProxyType({"repo_root": None})
+                sentinel = {"opaque_success_payload": object()}
+                with patch(f"scripts.check_governance_core.check_governance_core_main.{provider}", return_value=sentinel) as called:
+                    self.assertIs(sentinel, function(request))
+                passed = called.call_args.args[0]
+                self.assertEqual(request, passed)
+                self.assertIsNot(request, passed)
+                passed["repo_root"] = "caller mutation"
+                self.assertEqual({"repo_root": None}, request)
+
+
     def test_rejects_unknown_public_request_key(self) -> None:
         result = run_checks({"unexpected": True})
         self.assertEqual("FAILED_VALIDATION", result["status"])
@@ -135,6 +209,8 @@ class PublicApiContractTests(unittest.TestCase):
         with patch("scripts.check_governance_core._engine.validate_manifest", side_effect=RuntimeError("boom")):
             result = run_checks({"repo_root": str(root), "governance_root": str(root)})
         self.assertEqual("FAILED", result["status"])
+        self.assertEqual(1, result["api_version"])
+        self.assertIs(result["planned"], result["eligible"])
         self.assertEqual(
             sorted(result["planned"]),
             sorted([*result["executed"], *result["skipped"], *result["failed"]]),

@@ -42,7 +42,6 @@ logger = logging.getLogger(__name__)
 load_env(Path(__file__).resolve().parent)
 BEARER = os.environ.get("X_BEARER_TOKEN", "")
 MAX_RATE_LIMIT_RETRIES = 2
-EMIT_MODES = {"full", "compact", "json"}
 
 
 def api_get(url: str, params: dict[str, str] | None = None):
@@ -58,7 +57,7 @@ def api_get(url: str, params: dict[str, str] | None = None):
 
 def parse_args():
     args = sys.argv[1:]
-    opts = {"topic": "", "days": 7, "limit": 100, "no_retweets": False, "lang": "", "emit": "full"}
+    opts = {"topic": "", "days": 7, "limit": 100, "no_retweets": False, "lang": "", "emit": next(iter(EMITTERS))}
     positional = []
     for arg in args:
         if arg.startswith("--days="):
@@ -71,8 +70,8 @@ def parse_args():
             opts["lang"] = arg.split("=", 1)[1]
         elif arg.startswith("--emit="):
             emit_mode = arg.split("=", 1)[1]
-            if emit_mode not in EMIT_MODES:
-                raise UsageError("--emit must be one of: full, compact, json.")
+            if emit_mode not in EMITTERS:
+                raise UsageError(f"--emit must be one of: {', '.join(EMITTERS)}.")
             opts["emit"] = emit_mode
         else:
             positional.append(arg)
@@ -307,10 +306,18 @@ def emit_json(tweets, topic, days):
     )
 
 
-def write_usage():
-    write_stdout_line(
-        'Usage: python3 x_search.py "topic" [--days=7] [--limit=100] [--no-retweets] [--lang=en] [--emit=full|compact|json]'
+EMITTERS = {"full": emit_full, "compact": emit_compact, "json": emit_json}
+
+
+def _usage():
+    return (
+        'Usage: python3 x_search.py "topic" [--days=7] [--limit=100] '
+        f'[--no-retweets] [--lang=en] [--emit={"|".join(EMITTERS)}]'
     )
+
+
+def write_usage():
+    write_stdout_line(_usage())
 
 
 def main():
@@ -324,7 +331,7 @@ def main():
         logger.error("X_BEARER_TOKEN not found in .env.")
         raise SystemExit(1)
     if not opts["topic"]:
-        raise UsageError('Usage: python3 x_search.py "topic" [--days=7] [--limit=100] [--no-retweets] [--lang=en] [--emit=full|compact|json]')
+        raise UsageError(_usage())
 
     logger.info(
         "Searching X for: %s (last %s days, limit %s)...",
@@ -346,8 +353,7 @@ def main():
         return
 
     enriched = enrich(tweets, users, media, ref_tweets)
-    emitters = {"full": emit_full, "compact": emit_compact, "json": emit_json}
-    emitter = emitters[opts["emit"]]
+    emitter = EMITTERS[opts["emit"]]
     emitter(enriched, opts["topic"], opts["days"])
 
 

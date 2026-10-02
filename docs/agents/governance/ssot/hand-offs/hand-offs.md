@@ -17,9 +17,6 @@ Jurisdiction: cross-jurisdiction dependencies that owner docs express only by no
 | principles | defect vocabulary | `docs/agents/governance/bugfix/bugfix.md` |
 | principles | process cleanup mechanics for owned handles and PIDs | `docs/agents/interfaces/os-processes/os-processes.md` |
 | principles | file cleanup and write-safety mechanics | `docs/agents/interfaces/filesystem/filesystem.md` |
-| principles | supersession promotion into the owning baseline | `docs/agents/governance/ssot/ssot.md` |
-| principles | reference instance for the stable baseline interface | `docs/agents/interfaces/excel/excel.md` |
-| principles | authority-uplift worked example | `docs/agents/governance/coding/coding.md` |
 | evidence | real-file verification minimums, fixture and coverage rules | `docs/agents/governance/testing/testing.md` |
 | evidence | `VALIDATED` state and two-phase commit tokens in witness rows | `docs/agents/interfaces/filesystem/filesystem.md` |
 | evidence | bugfix verification floor and bugfix scaffold fields cited by the change contract | `docs/agents/governance/bugfix/bugfix.md` |

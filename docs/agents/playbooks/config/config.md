@@ -156,7 +156,6 @@ A created or changed config-owned data, defaults, or settings authority MUST dec
 
 ## JSON create, normalize, repair
 - Creating, normalizing, or repairing owned non-secret config JSON is permitted only in the config owner or loader.
-- Creating a declared app-local runtime JSON file is permitted only while it is missing and only at the owner-declared location.
 - The location MUST be one declared mode: installed mode resolving through the platform user-config directory, or portable mode resolving beside the executable; the active mode is one declared predicate.
 - The path rule MUST be declared once and reused by GUI, CLI, tests, and packaging.
 - Repair MUST run before runtime workflow or path selection.

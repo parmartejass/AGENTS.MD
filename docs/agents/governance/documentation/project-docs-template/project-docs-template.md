@@ -11,7 +11,6 @@ Jurisdiction: initial shape of project-doc root docs, branch routers, and branch
 ## Root-doc creation shape
 - Each root doc MUST state jurisdiction, exclusions, current summary, subdoc trigger, and routes.
 - Generated text MUST be adapted to verified owners; placeholders MUST NOT ship as truth.
-- Root docs MUST NOT absorb every branch truth when a stable cluster needs a smaller owner.
 - Verification sections MUST cite the README Checks command or deterministic manual steps.
 
 ## Branch-local subdoc rule
@@ -253,9 +252,5 @@ update_trigger: intent, boundary, invariant, change rule, verification, or refer
 - <related owner docs when jurisdiction crosses branches>
 ```
 
-## Final linkage checklist
-- `docs/project/project_index.md` exists and links every project branch.
-- Each branch has a router plus its canonical narrative leaf.
-- The repository README links `docs/project/project_index.md`.
-- Every non-router doc carries `doc_type`, `ssot_owner`, `update_trigger`.
-- Project truth routes through declared owner docs, not working-evidence scaffolds.
+## Final linkage verification
+- Verify placement, linkage, headers, routers, and owner maintenance through the [Documentation owner](../documentation.md).

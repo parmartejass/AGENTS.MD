@@ -60,13 +60,6 @@ class MarkdownDocument:
         except ValueError:
             return None, [f"{owner_label} {key} is not a supported integer"]
 
-    def blockquotes(self) -> tuple[str, ...]:
-        values: list[str] = []
-        for _line_no, line in self.operative_lines:
-            match = re.match(r"^[ ]{0,3}>[ ]?(.*)$", line)
-            if match:
-                values.append(match.group(1).strip())
-        return tuple(values)
 
 
 class DocumentStore:

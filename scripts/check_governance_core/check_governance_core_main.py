@@ -25,6 +25,7 @@ if str(REPO_IMPORT_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_IMPORT_ROOT))
 
 from scripts.check_governance_core._engine import execute, resolve_documents_request  # noqa: E402
+from scripts.check_governance_core._results import _check_failure, _document_result  # noqa: E402
 
 
 logger = logging.getLogger("check_governance_core")
@@ -62,75 +63,20 @@ def run_checks(request: Mapping[str, object]) -> dict[str, object]:
     """
 
     if not isinstance(request, Mapping):
-        return {
-            "api_version": 1,
-            "status": "FAILED_VALIDATION",
-            "checks": [],
-            "planned": [],
-            "eligible": [],
-            "executed": [],
-            "skipped": [],
-            "failed": [],
-            "errors": ["request must be a mapping"],
-            "warnings": [],
-        }
+        return _check_failure("FAILED_VALIDATION", ["request must be a mapping"])
     allowed = {"repo_root", "governance_root", "mode", "fail_on_safety_warnings"}
     unknown = sorted(str(key) for key in request if key not in allowed)
     if unknown:
-        return {
-            "api_version": 1,
-            "status": "FAILED_VALIDATION",
-            "checks": [],
-            "planned": [],
-            "eligible": [],
-            "executed": [],
-            "skipped": [],
-            "failed": [],
-            "errors": [f"unsupported request key(s): {', '.join(unknown)}"],
-            "warnings": [],
-        }
+        return _check_failure("FAILED_VALIDATION", [f"unsupported request key(s): {', '.join(unknown)}"])
     validation_error = _validate_check_request(request)
     if validation_error:
-        return {
-            "api_version": 1,
-            "status": "FAILED_VALIDATION",
-            "checks": [],
-            "planned": [],
-            "eligible": [],
-            "executed": [],
-            "skipped": [],
-            "failed": [],
-            "errors": [validation_error],
-            "warnings": [],
-        }
+        return _check_failure("FAILED_VALIDATION", [validation_error])
     try:
         return execute(dict(request))
     except ValueError as exc:
-        return {
-            "api_version": 1,
-            "status": "FAILED_VALIDATION",
-            "checks": [],
-            "planned": [],
-            "eligible": [],
-            "executed": [],
-            "skipped": [],
-            "failed": [],
-            "errors": [str(exc)],
-            "warnings": [],
-        }
+        return _check_failure("FAILED_VALIDATION", [str(exc)])
     except Exception as exc:  # public boundary converts crashes into explicit failure
-        return {
-            "api_version": 1,
-            "status": "FAILED",
-            "checks": [],
-            "planned": [],
-            "eligible": [],
-            "executed": [],
-            "skipped": [],
-            "failed": [],
-            "errors": [f"internal governance-check failure: {type(exc).__name__}: {exc}"],
-            "warnings": [],
-        }
+        return _check_failure("FAILED", [f"internal governance-check failure: {type(exc).__name__}: {exc}"])
 
 
 def resolve_documents(request: Mapping[str, object]) -> dict[str, object]:
@@ -145,44 +91,19 @@ def resolve_documents(request: Mapping[str, object]) -> dict[str, object]:
     """
 
     if not isinstance(request, Mapping):
-        return {
-            "api_version": 1,
-            "status": "FAILED_VALIDATION",
-            "documents": [],
-            "errors": ["request must be a mapping"],
-        }
+        return _document_result("FAILED_VALIDATION", [], ["request must be a mapping"])
     unknown = sorted(str(key) for key in request if key not in {"repo_root", "governance_root"})
     if unknown:
-        return {
-            "api_version": 1,
-            "status": "FAILED_VALIDATION",
-            "documents": [],
-            "errors": [f"unsupported request key(s): {', '.join(unknown)}"],
-        }
+        return _document_result("FAILED_VALIDATION", [], [f"unsupported request key(s): {', '.join(unknown)}"])
     root_error = _validate_root_fields(request)
     if root_error:
-        return {
-            "api_version": 1,
-            "status": "FAILED_VALIDATION",
-            "documents": [],
-            "errors": [root_error],
-        }
+        return _document_result("FAILED_VALIDATION", [], [root_error])
     try:
         return resolve_documents_request(dict(request))
     except ValueError as exc:
-        return {
-            "api_version": 1,
-            "status": "FAILED_VALIDATION",
-            "documents": [],
-            "errors": [str(exc)],
-        }
+        return _document_result("FAILED_VALIDATION", [], [str(exc)])
     except Exception as exc:
-        return {
-            "api_version": 1,
-            "status": "FAILED",
-            "documents": [],
-            "errors": [f"internal governance-document resolution failure: {type(exc).__name__}: {exc}"],
-        }
+        return _document_result("FAILED", [], [f"internal governance-document resolution failure: {type(exc).__name__}: {exc}"])
 
 
 def _configure_logging() -> None:

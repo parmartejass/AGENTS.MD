@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path, PurePosixPath
-from typing import Any, Mapping
+from typing import Any
 
 from scripts.check_governance_core._documents import DocumentStore, resolve_declared_file
 from scripts.check_governance_core._inventory import RepositoryInventory

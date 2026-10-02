@@ -27,7 +27,6 @@ Thumbs.db
 
 # X-Bookmarks data (PII, large JSON, OAuth tokens)
 X-Bookmarks Import/data/
-X-Bookmarks Import/.x_token.json
 # Duplicate of docs/agents/governance/skills/x-api-data-access/ - use canonical skill bundle only
 X-Bookmarks Import/skills/x-api-data-access/
 
@@ -37,7 +36,6 @@ X-Bookmarks Import/skills/x-api-data-access/
 # Do not commit a symlink-stub file named `.codex/agents` — on Windows it is a regular file and breaks Codex CLI (os error 267).
 .codex/agents/
 .agents/skills/
-# Claude Code runtime adapters: tracked (clone-and-go); use repo-relative symlinks. Local overrides:
 .claude/settings.local.json
 .mcp.json
 

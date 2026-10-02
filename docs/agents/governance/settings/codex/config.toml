@@ -6,15 +6,10 @@ sandbox_mode = "workspace-write"
 project_doc_max_bytes = 131072
 
 compact_prompt = """
-Preserve the complete controlling user intent, including all binding earlier messages,
-corrections, constraints, explicit decisions, authorized scope, and acceptance criteria.
-Preserve the current task state, evidence, unresolved items, and next action without
-turning agent assumptions or summaries into authority. Apply the live repository
-AGENTS.md Mandatory Foundations declaration through its resolved Orchestration.md
-owner before resuming work, re-establishing current full-source evidence within its
-role boundaries. AGENTS.md owns the Fundamental Principles and precedence;
-Orchestration.md owns loading, application, and lifecycle. This summary routes to
-those owners and does not replace their required reads or application evidence.
+Create a continuation summary preserving complete controlling user intent,
+task state, evidence, unresolved items, and next action. Before resuming,
+retrieve and apply current owner sources through the live AGENTS.md Mandatory
+Foundations declaration and its resolved Orchestration.md owner.
 """
 
 [features]

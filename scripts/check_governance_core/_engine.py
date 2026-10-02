@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Callable
 
 from scripts.check_governance_core import _git_capture
+from scripts.check_governance_core._results import API_VERSION, _document_result
 from scripts.check_governance_core._docs_checks import check_docs, check_project_docs
 from scripts.check_governance_core._documents import DocumentStore, routed_markdown_corpus
 from scripts.check_governance_core._folder_architecture import check_folder_architecture
@@ -186,7 +187,7 @@ def execute(request: dict[str, object]) -> dict[str, object]:
     failed = [str(record["id"]) for record in records if record["status"] == "FAILED"]
     executed = [str(record["id"]) for record in records if record["status"] == "PASSED"]
     return {
-        "api_version": 1,
+        "api_version": API_VERSION,
         "status": "FAILED" if all_errors else "PASSED",
         "repo_root": str(repo_root),
         "governance_root": str(governance_root),
@@ -208,16 +209,11 @@ def resolve_documents_request(request: dict[str, object]) -> dict[str, object]:
     store = DocumentStore()
     contract = resolve_governance_contract(governance_root, store, inventory)
     if contract.errors:
-        return {
-            "api_version": 1,
-            "status": "FAILED",
-            "documents": [],
-            "errors": list(contract.errors),
-        }
+        return _document_result("FAILED", [], list(contract.errors))
     root_paths = tuple(governance_root / value for value in contract.root_authorities)
     markdown, markdown_error = inventory.markdown_files(governance_root / "docs/agents")
     if markdown_error:
-        return {"api_version": 1, "status": "FAILED", "documents": [], "errors": [markdown_error]}
+        return _document_result("FAILED", [], [markdown_error])
     leaves, errors = routed_markdown_corpus(
         governance_root,
         store,
@@ -225,10 +221,5 @@ def resolve_documents_request(request: dict[str, object]) -> dict[str, object]:
         reserved_paths=root_paths,
     )
     if errors:
-        return {"api_version": 1, "status": "FAILED", "documents": [], "errors": errors}
-    return {
-        "api_version": 1,
-        "status": "PASSED",
-        "documents": [*contract.root_authorities, *leaves],
-        "errors": [],
-    }
+        return _document_result("FAILED", [], errors)
+    return _document_result("PASSED", [*contract.root_authorities, *leaves], [])

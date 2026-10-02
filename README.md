@@ -12,10 +12,7 @@ This repository maintains a reusable, repo-agnostic governance pack for autonomo
 
 ## Read Order (Top-Down)
 
-1. Open `AGENTS.md`, the constitutional owner and sole Mandatory Foundations declaration.
-2. Complete its declared foundation loading and application through `Orchestration.md`, which owns parent accountability and source boundaries.
-3. Governance Agent routes additional applicable governance-only authorities through `agents-manifest.yaml`; profiles do not make foundations conditional.
-4. Role-bounded agents read applicable deeper sources as permitted by `Orchestration.md`; owner-declared duties and optionality remain controlling.
+Start with `AGENTS.md` Mandatory Foundations and follow `Orchestration.md` for loading, application, source boundaries, and additional Governance Agent routing.
 
 When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md`, `.governance/Orchestration.md`, and `.governance/agents-manifest.yaml`.
 
@@ -72,15 +69,7 @@ When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md`, `
 
 ## Use in other repos (submodule)
 
-> IMPORTANT: Git does not auto-pull submodules by default.
->
-> When cloning a repo that uses this pack, you must use `--recurse-submodules`:
->
-> ```powershell
-> git clone --recurse-submodules <repo-url>
-> ```
->
-> Otherwise `.governance/` will be empty. See "Cloning a repo that uses this pack" below.
+Initialize the pack through the [clone and recovery recipes](#cloning-a-repo-that-uses-this-pack) below.
 
 ### Step 1: Add the governance pack as a submodule
 
@@ -101,12 +90,7 @@ Use this shared body for each loader:
 @.governance/AGENTS.md
 @.governance/Orchestration.md
 
-Required loader:
-- The two imports above load `.governance/AGENTS.md` and `.governance/Orchestration.md` at launch; follow the Mandatory Foundations declaration in `.governance/AGENTS.md` through `.governance/Orchestration.md`.
-- If `.governance/` is missing or empty in a fresh clone, run `git submodule update --init --recursive`.
-- Required-source loading, application, missing-source handling, and parent accountability follow that lifecycle owner.
-- Follow `.governance/Orchestration.md` for all role, plan, council, execution, review, correction, and terminal mechanics.
-- Project-specific docs remain under `docs/project/`.
+If `.governance/` is missing or empty, run `git submodule update --init --recursive`.
 ```
 
 Loader titles:
@@ -114,7 +98,7 @@ Loader titles:
 - `CLAUDE.md` (required for Claude Code): `# CLAUDE.md (Loader Stub)`
 
 **Note**:
-- Keep your project docs under `docs/project/` (do not copy `docs/agents` into the project root).
+- Governance-root declarations resolve inside `.governance/`; project docs stay under `docs/project/` at the project root (do not copy `docs/agents` there).
 - The `@` lines are Claude Code imports (plain text for other tools); without them Claude Code does not read `AGENTS.md` when a `CLAUDE.md` exists.
 
 ### Step 3: Commit
@@ -163,9 +147,6 @@ git add .governance
 git commit -m "Update governance"
 ```
 
-> WARNING: Do not commit `.governance/` changes from the parent repo directory.
-> The parent only tracks a pointer (SHA) to a commit; it cannot store file changes.
-
 ### Cloning a repo that uses this pack
 
 **Option A: Clone with submodules (recommended)**
@@ -177,7 +158,7 @@ git clone --recurse-submodules <repo-url>
 **Option B: Already cloned without submodules? Initialize manually:**
 
 ```powershell
-git submodule update --init
+git submodule update --init --recursive
 ```
 
 **Option C: Pull updates including submodule changes:**
@@ -186,13 +167,11 @@ git submodule update --init
 git pull --recurse-submodules
 ```
 
-Note: If `.governance/` folder is empty, run `git submodule update --init`.
-
 ### Troubleshooting
 
 | Problem | Solution |
 |---------|----------|
-| `.governance/` is empty | `git submodule update --init` |
+| `.governance/` is empty | Use Option B above |
 | Submodule shows "modified" but you didn't change it | Check for local edits in `.governance/` first (`git -C .governance status --short`), then run `git submodule update --force .governance` only if you intend to discard those local edits |
 | Accidentally edited from parent repo | Go into `.governance/`, commit there, push, then update parent |
 | Changes not appearing after update | `git submodule update --remote .governance` |
@@ -216,19 +195,19 @@ try {
 ```
 
 This repo:
-- Docs SSOT checks (all repository Markdown line counts; scoped docs headers/routers): `python3 -B scripts/check_governance_core/check_governance_core_main.py --only-docs-ssot --repo-root . --governance-root .` (use `python` if `python3` is unavailable)
+- Docs SSOT checks (all repository Markdown line counts; scoped docs headers/routers): `python3 -B scripts/check_governance_core/check_governance_core_main.py --only-docs-ssot --repo-root . --governance-root .`
   - Docs-policy regression tests: `python3 -B -m unittest scripts.check_governance_core.test_docs_policy -v`
-- Project docs checks (required files + README linkage): `python3 -B scripts/check_governance_core/check_governance_core_main.py --only-project-docs --repo-root . --governance-root .` (use `python` if `python3` is unavailable)
-- Cross-platform governance checks (manifest, docs, project docs, repository hygiene/structure, and Python safety): `python3 -B scripts/check_governance_core/check_governance_core_main.py` (use `python` if `python3` is unavailable)
+- Project docs checks (required files + README linkage): `python3 -B scripts/check_governance_core/check_governance_core_main.py --only-project-docs --repo-root . --governance-root .`
+- Cross-platform governance checks (manifest, docs, project docs, repository hygiene/structure, and Python safety): `python3 -B scripts/check_governance_core/check_governance_core_main.py`
   - Coding-policy regression tests: `python3 -B -m unittest scripts.check_governance_core.test_coding_policy -v`
-  - Core governance regression tests: `python3 -B -m unittest discover -s scripts/check_governance_core -p "test*.py" -v` (use `python -B -m unittest discover -s ...` if `python3` is unavailable)
+  - Core governance regression tests: `python3 -B -m unittest discover -s scripts/check_governance_core -p "test*.py" -v`
   - Strict safety mode: `python3 -B scripts/check_governance_core/check_governance_core_main.py --fail-on-safety-warnings`
   - Docs handler profiling: `python3 -B -m cProfile -s cumulative scripts/check_governance_core/check_governance_core_main.py --only-docs-ssot --repo-root . --governance-root .` (profiling overhead is separate from runtime timing).
 
 Target repo (submodule under `.governance/`):
-- Docs SSOT header checks: `python3 -B .governance/scripts/check_governance_core/check_governance_core_main.py --repo-root . --only-docs-ssot` (use `python` if `python3` is unavailable)
-- Project docs checks: `python3 -B .governance/scripts/check_governance_core/check_governance_core_main.py --repo-root . --only-project-docs` (use `python` if `python3` is unavailable)
-- Cross-platform governance checks: `python3 -B .governance/scripts/check_governance_core/check_governance_core_main.py --repo-root .` (use `python` if `python3` is unavailable)
+- Docs SSOT header checks: `python3 -B .governance/scripts/check_governance_core/check_governance_core_main.py --repo-root . --only-docs-ssot`
+- Project docs checks: `python3 -B .governance/scripts/check_governance_core/check_governance_core_main.py --repo-root . --only-project-docs`
+- Cross-platform governance checks: `python3 -B .governance/scripts/check_governance_core/check_governance_core_main.py --repo-root .`
   - Strict safety mode: `python3 -B .governance/scripts/check_governance_core/check_governance_core_main.py --repo-root . --fail-on-safety-warnings`
 
 When a repository `SKILL.md` changes, resolve the installed `skill-creator` bundle and run its format validator: `python3 -B "<resolved-skill-creator>/scripts/quick_validate.py" "<changed-skill-folder>"`. The paths are explicit workflow inputs, not repository defaults. Validate each changed bundle; a format pass does not replace owner/semantic review. This check requires the skill-authoring tool only and does not execute the skill's operational workflow.

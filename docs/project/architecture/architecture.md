@@ -65,8 +65,7 @@ update_trigger: repo layout, authority-routing profiles, or validation scripts c
 - Its `code_decomposition_review_lines` declaration supplies the full-mode Python size warning through the declared coding foundation role, replacing the checker-owned copy.
 - Shared positive-integer document parsing serves coding and documentation declarations; counting, severity, and scope remain distinct.
 - Missing or invalid coding declarations fail explicitly without a fallback value.
-- `scripts/check_governance_core/check_governance_core_main.py` -> single public plain-data API and CLI; its public-contract tests cover docs routing, repository structure, and Python safety without private imports.
-- `scripts/check_governance_core/check_governance_core_main.py` -> sole public governance-core boundary; one private registry/engine composes cached document parsing, strict manifest parsing, docs/project checks, governance checks, bounded repository inventory, repository hygiene/structure, and Python safety.
+- `scripts/check_governance_core/check_governance_core_main.py` -> sole public plain-data API and CLI; public-contract tests cover docs routing, repository structure, and Python safety without private imports; one private registry/engine composes cached document parsing, strict manifest parsing, docs/project checks, governance checks, bounded repository inventory, repository hygiene/structure, and Python safety.
 - Private module names are not consumer contracts.
 - Root authority order plus `docs/agents/agents_index.md` router topology -> complete ordered governance research corpus exposed by `resolve_documents`: `AGENTS.md`, `Orchestration.md`, then routed governance leaves.
 - `agents-manifest.yaml` remains Governance Agent routing data and does not define corpus membership.
@@ -117,6 +116,13 @@ update_trigger: repo layout, authority-routing profiles, or validation scripts c
 - This replaces the scattered constitutional prompt bullets and late-only maintenance route; fixtures continue consuming the live owner, and unsupported old contract declarations fail explicitly without a runtime fallback.
 - Verified on 2026-09-28 through README Checks: focused orchestration cases and the full 124-test suite passed (one existing native-symlink privilege skip), as did docs, project-docs, full and strict governance checks. Re-verify when intake ownership, schema, consumers, source boundaries, or accepted intent changes.
 - Structural success does not prove live capture order, complete materiality, correct semantic ownership, or agent obedience; those require workflow evidence and independent review. End-to-end verification exceeded the constitutional timing target; uninstrumented model/platform work remains unverified.
+
+## Cleanup authority consolidation
+
+- Agent decision, 2026-10-02: two private result constructors inside `scripts/check_governance_core/` replace repeated envelopes behind the unchanged public API; the ordered `EMITTERS` registry in `X-Bookmarks Import/skills/x-research/scripts/x_search.py` owns mode membership and dispatch.
+- Owner-routed loader, scaffold, configuration, hand-off and router cleanup retains unique obligations in their existing authorities; dead private members and duplicate declarations are removed under those contracts.
+- The canonical [Changelog](../changelog/changelog.md) delegates earlier evidence to [Changelog History](../changelog/history.md); current closure records remain in the owner and archival evidence retains its recorded review qualifications.
+- Verification and re-verification follow README Checks, frozen public/engine/CLI outputs, byte-preserved history and independent owner-equivalence review; rerun when these owners, contracts, registry, archive or consumers change.
 
 ## Current modularity witness boundary
 - Enforced now: checker owners validate the declared docs, folder, manifest, and code-change witness contract facts above.
