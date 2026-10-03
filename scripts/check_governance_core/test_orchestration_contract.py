@@ -12,7 +12,7 @@ from scripts.check_governance_core._documents import DocumentStore
 from scripts.check_governance_core._governance_checks import resolve_governance_contract
 from scripts.check_governance_core._inventory import RepositoryInventory
 from scripts.check_governance_core._test_support import install_root_authorities, write
-from scripts.check_governance_core.check_governance_core_main import resolve_documents
+from scripts.check_governance_core import resolve_documents
 
 
 _BLOCK = re.compile(

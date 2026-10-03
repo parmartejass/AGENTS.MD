@@ -43,7 +43,7 @@ from x_runtime import (  # noqa: E402
     write_json_stdout,
     write_stdout_line,
 )
-from scripts.check_governance_core.check_governance_core_main import resolve_documents  # noqa: E402
+from scripts.check_governance_core import resolve_documents  # noqa: E402
 
 
 configure_logging()

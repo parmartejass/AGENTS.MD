@@ -22,7 +22,7 @@ from scripts.check_governance_core._inventory import RepositoryInventory
 from scripts.check_governance_core._test_support import (
     REPOSITORY_ROOT, install_docs_policy, install_root_authorities, live_principles_section, write,
 )
-from scripts.check_governance_core.check_governance_core_main import run_checks
+from scripts.check_governance_core import run_checks
 
 
 logger = logging.getLogger(__name__)
@@ -51,9 +51,8 @@ def docs_fixture(root: Path, governance_root: Path | None = None) -> tuple[Path,
             children = sorted((path for path in directory.iterdir() if path != router), key=lambda path: path.name)
             links = [f"{path.name}/{router_filename(path.name)}" if path.is_dir() else path.name for path in children]
             write(router, "# Router\n\n" + "".join(f"- [{link}]({link}) - fixture. Required when: testing.\n" for link in links))
-    prefix = ".governance/" if governance != root else ""
     write(root / "README.md", "# Fixture\n\nAGENTS.md docs/project/project_index.md\n\n## Checks\n"
-          + prefix + "scripts/check_governance_core/check_governance_core_main.py\n")
+          "python3 -B -m scripts.check_governance_core\n")
     return policy_path, limit
 
 

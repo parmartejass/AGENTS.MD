@@ -8,7 +8,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from scripts.check_governance_core._test_support import REPOSITORY_ROOT, install_foundations, write
-from scripts.check_governance_core.check_governance_core_main import resolve_documents, run_checks
+from scripts.check_governance_core import resolve_documents, run_checks
 
 
 def _policy(path: Path, declaration: str) -> None:
@@ -20,7 +20,7 @@ def _fixture(root: Path) -> tuple[dict[str, str], Path]:
     declared = install_foundations(root)
     write(root / "docs/project/architecture/architecture.md",
           "<!-- governance-core-python-root: scripts -->\n")
-    source = root / "scripts/example/example_main.py"
+    source = root / "scripts/example/__init__.py"
     write(source, "VALUE = 1\n" * 7)
     return declared, root / declared["coding_principles"]
 
@@ -46,7 +46,7 @@ class CodingPolicyTests(unittest.TestCase):
             self.assertEqual("PASSED", above_limit["status"], above_limit)
             self.assertEqual(
                 ["Python file exceeds the 6-line decomposition review trigger: "
-                 "scripts/example/example_main.py (7 lines)"],
+                 "scripts/example/__init__.py (7 lines)"],
                 above_limit["warnings"],
             )
 
@@ -62,7 +62,7 @@ class CodingPolicyTests(unittest.TestCase):
             root = Path(temp)
             _declared, policy = _fixture(root)
             _policy(policy, "code_decomposition_review_lines: 3")
-            source = root / "scripts/example/example_main.py"
+            source = root / "scripts/example/__init__.py"
             for body, count in cases:
                 with self.subTest(body=body):
                     write(source, body)
@@ -210,6 +210,35 @@ class CodingPolicyTests(unittest.TestCase):
         self.assertEqual([], result["checks"])
         self.assertIn("unsupported request key(s)", result["errors"][0])
         self.assertEqual(original, request)
+
+    def test_native_package_entry_is_required_below_declared_roots(self) -> None:
+        cases = {
+            "scripts/reporting/helper.py": "missing its native public entrypoint: scripts/reporting/__init__.py",
+            "scripts/group/sub/__init__.py": "missing its native public entrypoint: scripts/group/__init__.py",
+            "scripts/tool.py": "inside a package below its declared source root: scripts/tool.py",
+            "scripts/__init__.py": "must contain packages, not be one: scripts/__init__.py",
+        }
+        for relative, expected in cases.items():
+            with self.subTest(relative=relative), tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                _declared, policy = _fixture(root)
+                _policy(policy, "code_decomposition_review_lines: 400")
+                write(root / relative, "VALUE = 1\n")
+                result = _folder_result(root)
+                self.assertEqual("FAILED", result["status"], result)
+                self.assertTrue(any(expected in error for error in result["errors"]), result)
+
+    def test_nested_packages_pass_and_hidden_or_cache_folders_are_ignored(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            _declared, policy = _fixture(root)
+            _policy(policy, "code_decomposition_review_lines: 400")
+            for relative in ("scripts/example/child/__init__.py", "scripts/example/child/_worker.py",
+                             "scripts/example/.cache/tool.py", "scripts/example/__pycache__/stale.py"):
+                write(root / relative, "VALUE = 1\n")
+            result = _folder_result(root)
+            self.assertEqual("PASSED", result["status"], result)
+            self.assertEqual([], result["warnings"])
 
 
 if __name__ == "__main__":

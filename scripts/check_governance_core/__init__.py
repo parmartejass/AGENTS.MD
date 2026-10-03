@@ -1,14 +1,18 @@
-#!/usr/bin/env python3
-"""Stable public API and CLI adapter for governance-core validation.
+"""Governance-core package: the stable public API for governance validation.
 
-Programmatic contract:
+Public members are listed in ``__all__``:
+
     run_checks(request) -> plain dictionary
+    resolve_documents(request) -> plain dictionary
+    main(argv) -> process exit code
 
 The request accepts ``repo_root``, ``governance_root``, ``mode`` (``full``,
 ``docs``, or ``project_docs``), and ``fail_on_safety_warnings``. Validation is
 read-only; strict mode promotes Python-safety warnings to failures. Invalid
-requests and unexpected failures are returned as
-explicit FAILED_VALIDATION/FAILED results; callers do not import private files.
+requests and unexpected failures are returned as explicit
+FAILED_VALIDATION/FAILED results. ``__main__.py`` launches ``main`` when the
+package runs as ``python -m scripts.check_governance_core`` from the governance
+root; callers use only these public members, never private modules.
 """
 
 from __future__ import annotations
@@ -19,14 +23,11 @@ import sys
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 
+from scripts.check_governance_core._engine import execute, resolve_documents_request
+from scripts.check_governance_core._results import _check_failure, _document_result
 
-REPO_IMPORT_ROOT = Path(__file__).resolve().parents[2]
-if str(REPO_IMPORT_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_IMPORT_ROOT))
 
-from scripts.check_governance_core._engine import execute, resolve_documents_request  # noqa: E402
-from scripts.check_governance_core._results import _check_failure, _document_result  # noqa: E402
-
+__all__ = ["main", "resolve_documents", "run_checks"]
 
 logger = logging.getLogger("check_governance_core")
 
@@ -143,7 +144,3 @@ def main(argv: Sequence[str]) -> int:
         logger.error("ERROR: %s", error)
     logger.info("Governance core: %s", result["status"])
     return 0 if result["status"] == "PASSED" else 1
-
-
-if __name__ == "__main__":
-    raise SystemExit(main(sys.argv[1:]))

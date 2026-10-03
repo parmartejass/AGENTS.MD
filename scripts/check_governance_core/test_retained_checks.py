@@ -9,30 +9,17 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from scripts.check_governance_core._test_support import install_foundations, write as _write
+from scripts.check_governance_core._test_support import write as _write
 from scripts.check_governance_core._documents import DocumentStore
 from scripts.check_governance_core._docs_checks import check_docs
-from scripts.check_governance_core._folder_architecture import check_folder_architecture
 from scripts.check_governance_core._inventory import RepositoryInventory, _is_directory_alias
 from scripts.check_governance_core import _git_capture, _inventory
 from scripts.check_governance_core._python_safety import check_python_safety
 from scripts.check_governance_core._repository_checks import check_repository
-from scripts.check_governance_core.check_governance_core_main import run_checks
+from scripts.check_governance_core import run_checks
 
 
 class RetainedCheckTests(unittest.TestCase):
-    def test_folder_architecture_requires_one_feature_entrypoint(self) -> None:
-        with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
-            declared = install_foundations(root)
-            _write(root / "scripts/reporting/helper.py", "VALUE = 1\n")
-            errors, warnings = check_folder_architecture(
-                root, DocumentStore(), RepositoryInventory(root),
-                coding_policy_path=root / declared["coding_principles"],
-            )
-            self.assertEqual([], warnings)
-            self.assertTrue(any("reporting_main.py" in error for error in errors), errors)
-
     def test_python_safety_retains_error_and_warning_policy(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

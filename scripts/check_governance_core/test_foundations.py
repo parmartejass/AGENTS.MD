@@ -9,7 +9,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from scripts.check_governance_core._test_support import install_foundations, live_foundations, write
-from scripts.check_governance_core.check_governance_core_main import resolve_documents, run_checks
+from scripts.check_governance_core import resolve_documents, run_checks
 
 
 def _manifest(authority: str = "docs/agents/other.md") -> str:

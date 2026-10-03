@@ -113,9 +113,10 @@ update_trigger: <what change requires updating this doc>
 
 ## Routers and public leaves
 
-- The executable filename contract is exposed by `scripts/check_governance_core/check_governance_core_main.py`; this doc owns the docs-family behavior that contract encodes and MUST NOT restate a second naming rule.
+- The executable filename contract is exposed by the governance-core package public contract (`scripts/check_governance_core/`); this doc owns the docs-family behavior that contract encodes and MUST NOT restate a second naming rule.
+- A docs folder is a packaged folder under the constitutional packaged-folder contract: its router is the public entrypoint, and the files and child folders it routes are its public members.
 - Every directory under `docs/` MUST contain the canonical router file resolved by that contract.
-- Docs routers follow the folder-owned pattern `<authority>_index.md` and MUST remain routing-only.
+- Docs routers follow the folder-owned pattern `<authority>_index.md`, a custom entry-file name retained over a format-native folder entry by explicit user decision of 2026-10-03 (re-evaluation trigger in `SSOT-DEC-003`), and MUST remain routing-only.
 - Routers MUST catalog direct children only and MUST include a `Required when:` statement for each child.
 - A docs folder with narrative content MUST expose the route-owner-resolved primary public leaf, plus any additional router-exposed public leaves that do not compete with it.
 - Direct references MAY target a router-linked public leaf when the caller needs that leaf's facts; branch navigation MUST enter through the folder router.
@@ -137,8 +138,7 @@ documentation_line_limit: 300
 - Counting MUST use physical LF delimiters plus one when nonempty content lacks a final LF; CRLF contributes one delimiter, an empty file has zero records, a final LF creates no phantom record, and a BOM creates no extra record.
 - Every repository Markdown document is subject to it, including root authorities, reports, routers, templates, ignored, untracked and vendored files, uppercase extensions, and operational assets.
 - Header-format exceptions are not size exceptions; no exemption, minification, or loss of meaning satisfies the limit.
-- MUST split by stable subject responsibility inside the existing authority parent, applying SRP and SSOT recursively to nested folders.
-- Each new jurisdiction MUST have one declared owner and a stable router/public boundary with direct routes and no competing authority.
+- MUST split by stable subject responsibility inside the existing packaged folder; a split that creates a new jurisdiction creates its child packaged folder with its router and primary public leaf.
 - Prohibited: god files and arbitrary flat fragments.
 - A split MUST move the whole coherent responsibility, migrate links and consumers, and remove superseded duplication in the same change.
 

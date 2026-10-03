@@ -50,8 +50,8 @@ Each active decision record MUST include:
 - Coordinated update set: `docs/agents/agents_index.md`
 - Coordinated update set: `README.md`
 - Coordinated update set: `agents-manifest.yaml`
-- Coordinated update set: `scripts/check_governance_core/check_governance_core_main.py`
-- Verification witness: `python3 scripts/check_governance_core/check_governance_core_main.py` passes
+- Coordinated update set: the governance-core package `scripts/check_governance_core/`
+- Verification witness: the README Checks full governance-core command passes
 - Verification witness: `docs/agents/agents_index.md` and `README.md` reference `docs/agents/governance/skills/` as the canonical reusable skill root
 - Verification witness: the tracked canonical X API skill bundle exists under `docs/agents/governance/skills/x-api-data-access/`
 - Review trigger: any proposal to move canonical X skill ownership away from `docs/agents/governance/skills/`
@@ -61,12 +61,12 @@ Each active decision record MUST include:
 
 - Decision ID: SSOT-DEC-003
 - Status: active
-- Scope: folder-owned public contract naming for runtime code and docs, with docs-specific router and public-leaf behavior under `docs/`
-- Canonical owner: code and docs modularity hard gate -> `AGENTS.md`
+- Scope: packaged-folder public entrypoints for runtime code (the language-native package entry) and docs (the folder router), with docs-specific router and public-leaf behavior under `docs/`
+- Canonical owner: packaged-folder contract for code and docs -> `AGENTS.md` Jurisdictional Decomposition
 - Canonical owner: docs-family behavior policy -> `docs/agents/governance/documentation/documentation.md`
-- Canonical owner: coding-principles and runtime-code family mechanics -> `docs/agents/governance/coding/coding.md`
-- Canonical owner: docs router and public-leaf validation facts -> `scripts/check_governance_core/check_governance_core_main.py`
-- Canonical owner: Python script entrypoint filename enforcement -> `scripts/check_governance_core/check_governance_core_main.py`
+- Canonical owner: coding-principles and native-package code mechanics -> `docs/agents/governance/coding/coding.md`
+- Canonical owner: docs router and public-leaf validation facts -> governance-core package public contract (`scripts/check_governance_core/`)
+- Canonical owner: Python packaged-folder enforcement -> governance-core package public contract (`scripts/check_governance_core/`)
 - Allowed non-owner location: router-linked public leaf markdown docs inside the same docs folder authority
 - Allowed non-owner location: router-only docs folders that are artifact-first and catalog only payload children such as JSON, TOML, generated outputs, or dated evidence subfolders
 - Allowed non-owner location: deeper runtime identity contracts such as `SKILL.md` and `mcp.json`, owned by their existing authorities and out of scope for this naming contract
@@ -74,6 +74,7 @@ Each active decision record MUST include:
 - Forbidden duplicate: keeping `scripts/migrated_router_leaves.json` or any replacement leaf-name registry once filename derivation is handled by the governance-core public contract
 - Forbidden duplicate: hardcoding runtime or docs contract filenames independently in validators, README guidance, templates, or policy docs
 - Forbidden duplicate: competing public contract files inside one folder authority without an explicit contract-family exception
+- Forbidden duplicate: custom entry-file naming over a native package mechanism, including the `scripts/<feature>/<feature>_main.py` convention superseded by explicit user decision of 2026-10-03
 - Coordinated update set: `AGENTS.md`
 - Coordinated update set: `docs/agents/governance/documentation/documentation.md`
 - Coordinated update set: `docs/agents/governance/coding/coding.md`
@@ -82,12 +83,14 @@ Each active decision record MUST include:
 - Coordinated update set: `docs/project/architecture/architecture.md`
 - Coordinated update set: `agents-manifest.yaml`
 - Coordinated update set: `README.md`
-- Coordinated update set: `scripts/check_governance_core/check_governance_core_main.py`
+- Coordinated update set: the governance-core package `scripts/check_governance_core/` (`__init__.py` public API, `__main__.py` launcher)
 - Coordinated update set: public-contract regression tests under `scripts/check_governance_core/`
+- Coordinated update set: governance-core public-API consumer `X-Bookmarks Import/skills/governance-autoresearch/scripts/governance_research.py`
 - Verification witness: `python3 -m unittest discover -s scripts/check_governance_core -p "test*.py" -v` passes, including negative docs-router, repository-structure, and Python-safety cases
-- Verification witness: `python3 scripts/check_governance_core/check_governance_core_main.py` passes
+- Verification witness: the README Checks full governance-core command passes
 - Review trigger: any proposal to change a docs router or public-leaf filename pattern without updating the governance-core public contract and its regression fixtures
-- Review trigger: any proposal to change Python script entrypoint filename enforcement without updating that public contract
+- Review trigger: any proposal to change Python packaged-folder enforcement without updating that public contract and the coding native-package table
+- Review trigger: any user decision revisiting the `<authority>_index.md` docs-router name, retained as a custom entry-file exception to the packaged-folder contract by explicit user decision of 2026-10-03 recorded in this governance source repository's `docs/project/goal/goal.md`
 - Review trigger: any proposal to reintroduce `index.md` as the universal docs router contract
 - Review trigger: any proposal to rename or repurpose `SKILL.md` or `mcp.json` under this contract family
 
@@ -126,7 +129,7 @@ Each active decision record MUST include:
 - Coordinated update set: `docs/project/goal/goal_index.md`
 - Coordinated update set: `docs/project/goal/goal.md`
 - Coordinated update set: `docs/project/learning/learning.md`
-- Coordinated update set: `scripts/check_governance_core/check_governance_core_main.py` public project-doc validator contract and public-API regression tests
+- Coordinated update set: governance-core package (`scripts/check_governance_core/`) public project-doc validator contract and public-API regression tests
 - Verification witness: project-doc checks pass with durable truth routed through declared owner docs
 - Verification witness: tracked Changelog closure records reference owner-promotion targets or `N/A + reason`
 - Verification witness: active docs route material future-decision knowledge to declared owner docs

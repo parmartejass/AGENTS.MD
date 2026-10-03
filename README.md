@@ -8,7 +8,7 @@ This repository maintains a reusable, repo-agnostic governance pack for autonomo
 - Agent roles and finite workflow: `Orchestration.md`
 - Governance Agent authority-routing manifest: `agents-manifest.yaml`
 - Cross-project authority decisions: `docs/agents/governance/ssot/authority-decisions/authority-decisions.md`
-- Governance-core public API, docs router contract, repository structure, and Python-safety checks: `scripts/check_governance_core/check_governance_core_main.py`
+- Governance-core public API, docs router contract, repository structure, and Python-safety checks: the `scripts/check_governance_core/` package (public members in `__init__.py`, command-line launcher `__main__.py`)
 
 ## Read Order (Top-Down)
 
@@ -61,9 +61,10 @@ When vendored as `.governance/` in a target repo, use `.governance/AGENTS.md`, `
 |  |- project/
 |     |- project_index.md
 |     |- goal/ rules/ architecture/ data-truth/ changelog/ learning/
-|- scripts/
+|- scripts/          declared Python source root: contains packages only
 |  |- check_governance_core/
-|  |  |- check_governance_core_main.py
+|  |  |- __init__.py   public API (`__all__`)
+|  |  |- __main__.py   command-line launcher
 |- X-Bookmarks Import/   non-owner workspace exception (SSOT-DEC-001)
 ```
 
@@ -194,26 +195,27 @@ try {
 }
 ```
 
-This repo:
-- Docs SSOT checks (all repository Markdown line counts; scoped docs headers/routers): `python3 -B scripts/check_governance_core/check_governance_core_main.py --only-docs-ssot --repo-root . --governance-root .`
+This repo (run from the repository root, which is the governance root and the package import root):
+- Docs SSOT checks (all repository Markdown line counts; scoped docs headers/routers): `python3 -B -m scripts.check_governance_core --only-docs-ssot --repo-root . --governance-root .`
   - Docs-policy regression tests: `python3 -B -m unittest scripts.check_governance_core.test_docs_policy -v`
-- Project docs checks (required files + README linkage): `python3 -B scripts/check_governance_core/check_governance_core_main.py --only-project-docs --repo-root . --governance-root .`
-- Cross-platform governance checks (manifest, docs, project docs, repository hygiene/structure, and Python safety): `python3 -B scripts/check_governance_core/check_governance_core_main.py`
+- Project docs checks (required files + README linkage): `python3 -B -m scripts.check_governance_core --only-project-docs --repo-root . --governance-root .`
+- Cross-platform governance checks (manifest, docs, project docs, repository hygiene/structure, and Python safety): `python3 -B -m scripts.check_governance_core`
   - Coding-policy regression tests: `python3 -B -m unittest scripts.check_governance_core.test_coding_policy -v`
+  - Launcher and README-reference regression tests: `python3 -B -m unittest scripts.check_governance_core.test_main -v`
   - Core governance regression tests: `python3 -B -m unittest discover -s scripts/check_governance_core -p "test*.py" -v`
-  - Strict safety mode: `python3 -B scripts/check_governance_core/check_governance_core_main.py --fail-on-safety-warnings`
-  - Docs handler profiling: `python3 -B -m cProfile -s cumulative scripts/check_governance_core/check_governance_core_main.py --only-docs-ssot --repo-root . --governance-root .` (profiling overhead is separate from runtime timing).
+  - Strict safety mode: `python3 -B -m scripts.check_governance_core --fail-on-safety-warnings`
+  - Docs handler profiling: `python3 -B -m cProfile -s cumulative -m scripts.check_governance_core --only-docs-ssot --repo-root . --governance-root .` (profiling overhead is separate from runtime timing).
 
-Target repo (submodule under `.governance/`):
-- Docs SSOT header checks: `python3 -B .governance/scripts/check_governance_core/check_governance_core_main.py --repo-root . --only-docs-ssot`
-- Project docs checks: `python3 -B .governance/scripts/check_governance_core/check_governance_core_main.py --repo-root . --only-project-docs`
-- Cross-platform governance checks: `python3 -B .governance/scripts/check_governance_core/check_governance_core_main.py --repo-root .`
-  - Strict safety mode: `python3 -B .governance/scripts/check_governance_core/check_governance_core_main.py --repo-root . --fail-on-safety-warnings`
+Target repo (submodule under `.governance/`; run from the `.governance/` directory so the governance root is the package import root):
+- Docs SSOT header checks: `python3 -B -m scripts.check_governance_core --repo-root .. --only-docs-ssot`
+- Project docs checks: `python3 -B -m scripts.check_governance_core --repo-root .. --only-project-docs`
+- Cross-platform governance checks: `python3 -B -m scripts.check_governance_core --repo-root ..`
+  - Strict safety mode: `python3 -B -m scripts.check_governance_core --repo-root .. --fail-on-safety-warnings`
 
 When a repository `SKILL.md` changes, resolve the installed `skill-creator` bundle and run its format validator: `python3 -B "<resolved-skill-creator>/scripts/quick_validate.py" "<changed-skill-folder>"`. The paths are explicit workflow inputs, not repository defaults. Validate each changed bundle; a format pass does not replace owner/semantic review. This check requires the skill-authoring tool only and does not execute the skill's operational workflow.
 
 ## Governance-core programmatic API
 
-`scripts.check_governance_core.check_governance_core_main` is the only supported programmatic boundary. `run_checks(request)` accepts optional `repo_root`, `governance_root`, `mode` (`full`, `docs`, or `project_docs`), and `fail_on_safety_warnings`; it returns a plain mapping with `api_version`, terminal `status`, ordered per-check records, reconciled `planned`/`eligible`/`executed`/`skipped`/`failed` check IDs, `errors`, and `warnings`. `resolve_documents(request)` accepts explicit contained, non-aliased roots and returns `AGENTS.md`, then `Orchestration.md`, then the deterministic depth-first terminal Markdown leaves reachable from `docs/agents/agents_index.md`; `agents-manifest.yaml` routes Governance Agent research and does not define the document corpus. Invalid, escaped, aliased, missing, cyclic, or duplicate topology fails explicitly with an empty document list, so consumers do not maintain shadow file lists.
+The `scripts.check_governance_core` package is the only supported programmatic boundary: its `__init__.py` declares the public members in `__all__`, and its `__main__.py` launcher only delegates the command line to `main`. `run_checks(request)` accepts optional `repo_root`, `governance_root`, `mode` (`full`, `docs`, or `project_docs`), and `fail_on_safety_warnings`; it returns a plain mapping with `api_version`, terminal `status`, ordered per-check records, reconciled `planned`/`eligible`/`executed`/`skipped`/`failed` check IDs, `errors`, and `warnings`. `resolve_documents(request)` accepts explicit contained, non-aliased roots and returns `AGENTS.md`, then `Orchestration.md`, then the deterministic depth-first terminal Markdown leaves reachable from `docs/agents/agents_index.md`; `agents-manifest.yaml` routes Governance Agent research and does not define the document corpus. Invalid, escaped, aliased, missing, cyclic, or duplicate topology fails explicitly with an empty document list, so consumers do not maintain shadow file lists.
 
 The API reads repository/governance files through one cached bounded filesystem inventory and uses bounded `git ls-files -z` only for owner-declared tracked-state rules. Git stdout and stderr are captured incrementally in bounded memory with a deadline and bounded cleanup; subprocess, capture, or cleanup failures produce explicit failed outcomes. Relevant readable file families revalidate regular-file type, canonical contained identity, aliases and current size before reads, including warm family lookups. Cached source changes fail explicitly. Byte limits use the same authoritative metadata only across the readable family; cached text/path resolution remains per-run. Full mode composes all registered governance, docs, repository-structure, and Python-safety checks; docs mode inventories all repository Markdown for the owner-declared line limit while headers/routers stay scoped to `docs/`; project-doc mode retains its narrower project-doc scope. Neither narrow mode reads unrelated Python content. Strict mode promotes safety warnings to failures. Generic `Popen` use remains a warning; Python safety keeps one explicit inventory-owner exception whose lifecycle is verified directly by failure-path tests. The API creates no temporary files and does not edit repository-owned files. Invalid inputs return `FAILED_VALIDATION`; check failures return `FAILED`. Consumers must not import private modules. Add a cohesive private handler plus one registry entry to extend checks; new request fields, modes, check IDs, or output fields require an intentional public-contract change with regression coverage.

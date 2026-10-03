@@ -1,20 +1,19 @@
 ---
 doc_type: policy
 ssot_owner: docs/agents/governance/coding/coding.md
-update_trigger: coding design authority, module boundary, structural minimality, or coding-principles review obligations change
+update_trigger: coding design authority, module boundary, native package mechanics, structural minimality, or coding-principles review obligations change
 ---
 
 # Coding
 
-Jurisdiction: implementation-code authority owner selection, SSOT jurisdiction mechanics, module and folder contracts, orchestration boundaries, dependency direction, structural minimality, adapters, runtime-path rules, comments, post-diff purification, and coding-design witnesses.
+Jurisdiction: implementation-code authority owner selection, SSOT jurisdiction mechanics, packaged-folder code mechanics, orchestration boundaries, dependency direction, structural minimality, adapters, runtime-path rules, comments, post-diff purification, and coding-design witnesses.
 
 ## Scope
 
 - MUST apply whenever implementation code is planned, added, reviewed, refactored, decomposed, purified, or wired across authority boundaries.
-- Applies to code owning runtime behavior, workflow logic, reusable runtime contracts, authority folders, public entrypoints, orchestration boundaries, or dependency direction.
-- Launch-only shell wrappers and Python shims such as `__main__.py` MAY exist as zero-logic delegates into the canonical folder contract.
-- A script with owner-declared runtime-selection or validation responsibility MUST expose that responsibility through its declared owner contract, not as a launcher shim.
-- Config payloads, fixtures, schemas, and generated artifacts MUST NOT become feature folders unless they start owning runtime behavior.
+- Applies to code owning runtime behavior, workflow logic, reusable runtime contracts, packaged folders, public entrypoints, orchestration boundaries, or dependency direction.
+- A script with owner-declared runtime-selection or validation responsibility MUST expose that responsibility through its declared owner contract, not as a launcher.
+- Config payloads, fixtures, schemas, and generated artifacts MUST NOT become separate packaged folders unless they start owning runtime behavior.
 
 ## SSOT jurisdiction mechanics
 
@@ -53,17 +52,29 @@ Before implementation code changes, MUST identify:
 
 A missing or conflicting owner is an authority gap: work MUST stop there; Prohibited: patching around it with a wrapper, local conditional, compatibility branch, or helper that becomes a second owner.
 
-## Module and folder contracts
+## Packaged-folder code mechanics
 
-- One public interface or API is the module owner's declared contract surface, including all documented public operations.
-- Every distinct runtime capability MUST be an authority folder with exactly one owner-resolved public entrypoint file.
-- Direct Python feature folders under `scripts/` MUST expose `scripts/<feature>/<feature>_main.py`; the governance-core public contract enforces this.
-- Another language or artifact kind needing a public contract MUST record the adopted authority boundary in the architecture project doc and add a deterministic checker witness before consumers rely on it.
-- Internal files and child folders MUST stay behind the folder entrypoint unless separately declared authorities; Prohibited: deep imports, sibling imports, child-to-parent imports.
+- The constitutional packaged-folder contract owns the rule; this section owns its code mechanics and the private-visibility convention for code.
+
+```yaml
+baseline:
+  interface: the language's native package and module system
+  pattern: "one SSOT jurisdiction per native package; the native package entry is the public entrypoint and declares the public members; cohesive single-responsibility private modules behind it; an optional native launcher that only delegates to the public entrypoint; child packages only for independently owned behavior"
+  reason: "interpreters, import systems, packaging tools, and test runners resolve the native mechanism directly; a custom entry-file convention is a wrapper that needs import-path manipulation and a private checker rule to hold"
+  exception: none
+```
+
+| Language | Packaged folder | Public entrypoint and members | Private internals | Launcher | Source | Witness |
+| --- | --- | --- | --- | --- | --- | --- |
+| Python | regular package: a directory with `__init__.py` | `__init__.py`; public members listed in `__all__` | `_`-prefixed modules and names; `test*` modules are test-runner internals | `__main__.py`, run from the import root as `python -m <package>` | Python Language Reference, The import system (regular packages); Python Library Reference, `__main__` | governance-core folder-architecture check |
+
+- A language absent from this table MUST record its packaged folder, public entrypoint and members, private-visibility mechanism, launcher, authoritative source, and deterministic witness in the project architecture record before code in that language relies on it; adopting it in the governance source adds a row here.
+- A declared source root is an import root that only contains packaged folders; it holds no code, exposes no public entrypoint, and is declared by the project architecture record.
+- Imports between modules of one packaged folder are internal; Prohibited: a caller outside the folder importing its private modules (deep import), and a child package importing a sibling or parent package.
+- A package's own tests are package internals; every caller outside the package, including another package's tests, MUST use only its public members.
 - Public contracts MUST accept and return plain data; live handles and external resources stay behind the owning boundary.
-- Parent entrypoints are the only connectors across child authorities.
-- Folder entrypoints MUST stay thin, import-safe, and orchestration-only; private files hold detailed logic.
-- These authority-folder rules MUST apply recursively when a child folder gains independently owned behavior.
+- Parent public entrypoints are the only connectors across child authorities.
+- Public entrypoints and launchers MUST stay thin and import-safe; public entrypoints are orchestration-only and private modules hold detailed logic.
 - Documentation-only structure changes follow the documentation jurisdiction.
 
 ## Orchestration boundaries
@@ -170,7 +181,7 @@ After implementation and before closure, MUST review the diff and prove it expre
 ## Authority Graph (Required for non-trivial systems)
 
 - Non-trivial means more than one workflow entrypoint, or more than one SSOT jurisdiction, or external resource dependencies such as COM, database, or network.
-- MUST apply SSOT jurisdiction mechanics and module and folder contracts to build the graph.
+- MUST apply SSOT jurisdiction mechanics and packaged-folder code mechanics to build the graph.
 - MUST record the authority graph and module boundaries in the architecture project doc, or in the workflow registry when that is the repo's SSOT for entrypoints.
 - A project adopting a cross-project governance authority decision MUST reference the governing decision ID from the SSOT authority-decisions owner.
 - Project-owner creation and required linkage follow the documentation jurisdiction.
@@ -186,5 +197,5 @@ MUST record or be able to report:
 - the feature/mechanics composition witness when reusable capability boundaries are in scope: feature owner, mechanics owner, mechanics-shaped instruction contract, operation evidence contract, forbidden caller-policy terms ruled out, and independent-update proof that feature settings can change without mechanics-owner edits while mechanics stay reusable by another caller;
 - duplicate, substitute, or fallback logic removed or ruled out;
 - valid adapters kept, with their boundary role;
-- the deletion-test result showing that deleting one feature folder breaks only its parent entrypoint, or a scoped rationale when the deletion test does not apply;
+- the deletion-test result showing that deleting one packaged folder breaks only its parent's public entrypoint, or a scoped rationale when the deletion test does not apply;
 - README-listed checks run and their outcomes.

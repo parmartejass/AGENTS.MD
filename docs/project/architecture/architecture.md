@@ -25,7 +25,7 @@ update_trigger: repo layout, authority-routing profiles, or validation scripts c
 - Governance Agent authority-routing manifest: `agents-manifest.yaml`
 - Docs branch entrypoint: `docs/docs_index.md`
 - Supporting governance docs: `docs/agents/agents_index.md`
-- Validation scripts: `scripts/`
+- Governance-core package: `scripts/check_governance_core/` (launch commands: README Checks)
 
 ## SSOT pointers (concept -> owner)
 - Fundamental Principles, constitutional rules, conflict precedence: `AGENTS.md`
@@ -41,8 +41,8 @@ update_trigger: repo layout, authority-routing profiles, or validation scripts c
 - Protected behavior records: branch-local architecture subdoc when concrete observable protected behavior exists.
 - Project data-truth records: `docs/project/data-truth/data-truth.md`
 - Durable operational learnings: `docs/project/learning/learning.md`
-- Governance-core validation, including docs router/public-leaf behavior: `scripts/check_governance_core/check_governance_core_main.py` public API
-- Python script public entrypoint enforcement: `scripts/check_governance_core/check_governance_core_main.py` public contract
+- Governance-core validation, including docs router/public-leaf behavior: governance-core package public API (`scripts/check_governance_core/__init__.py`)
+- Python packaged-folder enforcement below declared source roots: governance-core public contract
 - Governance-core check IDs, order, reconciliation: private engine behind that public API; consumers use only the public API.
 - Repo-owned reusable assets: `docs/agents/governance/skills/`, `docs/agents/governance/settings/`, `docs/agents/governance/mcp/`
 - Runtime config and local-secret boundary: `docs/agents/governance/settings/settings.md`
@@ -65,7 +65,7 @@ update_trigger: repo layout, authority-routing profiles, or validation scripts c
 - Its `code_decomposition_review_lines` declaration supplies the full-mode Python size warning through the declared coding foundation role, replacing the checker-owned copy.
 - Shared positive-integer document parsing serves coding and documentation declarations; counting, severity, and scope remain distinct.
 - Missing or invalid coding declarations fail explicitly without a fallback value.
-- `scripts/check_governance_core/check_governance_core_main.py` -> sole public plain-data API and CLI; public-contract tests cover docs routing, repository structure, and Python safety without private imports; one private registry/engine composes cached document parsing, strict manifest parsing, docs/project checks, governance checks, bounded repository inventory, repository hygiene/structure, and Python safety.
+- `scripts/check_governance_core/` package -> sole public plain-data API (`__init__.py`, public members in `__all__`) and CLI (`__main__.py` only delegates to `main`); package-internal tests exercise the public API and private modules, while external consumers use only the public members; one private registry/engine composes cached document parsing, strict manifest parsing, docs/project checks, governance checks, bounded repository inventory, repository hygiene/structure, and Python safety.
 - Private module names are not consumer contracts.
 - Root authority order plus `docs/agents/agents_index.md` router topology -> complete ordered governance research corpus exposed by `resolve_documents`: `AGENTS.md`, `Orchestration.md`, then routed governance leaves.
 - `agents-manifest.yaml` remains Governance Agent routing data and does not define corpus membership.
@@ -125,8 +125,15 @@ update_trigger: repo layout, authority-routing profiles, or validation scripts c
 - Verification and re-verification follow README Checks, frozen public/engine/CLI outputs, byte-preserved history and independent owner-equivalence review; rerun when these owners, contracts, registry, archive or consumers change.
 
 ## Current modularity witness boundary
-- Enforced now: checker owners validate the declared docs, folder, manifest, and code-change witness contract facts above.
-- Not claimed: language-general import enforcement, broad hardcoded decision-fact scanning, typed config boundary scanning, or selector runtime witnesses without separate structured owners.
+- Enforced now: checker owners validate the declared docs, folder, manifest, and code-change witness contract facts above, including native-package structure below each declared Python source root (`__init__.py` in every Python-bearing folder; no module directly in a source root) except declared packaged-folder exceptions, which are reported as warnings.
+- Not claimed: `__all__` or private-name enforcement, Python import-boundary or language-general import enforcement, broad hardcoded decision-fact scanning, typed config boundary scanning, selector runtime witnesses without separate structured owners, or that a README launcher command is run from the governance root.
+
+## Packaged-folder adoption
+- Agent decision implementing the 2026-10-03 user decisions in `docs/project/goal/goal.md` (consolidated packaged-folder rule, full migration, retained router naming, deferred X workspace): `scripts/check_governance_core/` is a regular Python package with its `__init__.py` public API, a `__main__.py` launcher that only delegates to `main` and runs from the governance root as a module, `_`-prefixed private modules, and package-internal tests and fixtures; `scripts/` is a declared source root that only contains packages.
+- The superseded custom entry file was removed without a compatibility shim; downstream callers use the README Checks commands. Directory execution of the package folder is unsupported because the launcher performs no import-path manipulation.
+- Docs folders keep the `<authority>_index.md` router as their public entrypoint, the retained exception recorded in `SSOT-DEC-003`.
+- `X-Bookmarks Import/` is the declared packaged-folder exception below: its flat modules, directly launched skill scripts, and the two governance-core-hosted tests that load its scripts by file path stay non-conformant until the re-evaluation trigger in `docs/project/goal/goal.md`.
+- Verification: README Checks, including the launcher subprocess, `__all__`, README-reference, and package-structure witnesses; re-verify when the coding native-package table, the folder-architecture rule, the source-root markers, or the package layout change.
 
 ## Reserved jurisdictions
 - Reserved, not created: `interfaces/printer`, `interfaces/web-api`, `interfaces/database`, `playbooks/naming`.
@@ -135,8 +142,9 @@ update_trigger: repo layout, authority-routing profiles, or validation scripts c
 ## Governance source roots
 <!-- governance-core-python-root: scripts -->
 <!-- governance-core-python-root: X-Bookmarks Import -->
-- These owner markers declare the Python source roots enforced for this governance-pack checkout.
-- `X-Bookmarks Import/` remains the non-owner workspace exception governed by `SSOT-DEC-001`; similarly named paths are not included.
+<!-- governance-core-python-package-exception: X-Bookmarks Import -->
+- These owner markers declare the Python source roots enforced for this governance-pack checkout and the roots exempt from packaged-folder structure enforcement.
+- `X-Bookmarks Import/` remains the non-owner workspace exception governed by `SSOT-DEC-001` and the deferred packaged-folder exception decided on 2026-10-03 in `docs/project/goal/goal.md`; similarly named paths are not included.
 
 ## Retired checker contracts
 - Retired change-record checker surfaces are governed by `SSOT-DEC-004`.

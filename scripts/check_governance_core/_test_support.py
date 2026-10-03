@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from scripts.check_governance_core._documents import parse_markdown
-from scripts.check_governance_core.check_governance_core_main import run_checks
+from scripts.check_governance_core import run_checks
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]

@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from scripts.check_governance_core.check_governance_core_main import resolve_documents
+from scripts.check_governance_core import resolve_documents
 from scripts.check_governance_core._test_support import install_root_authorities, write
 
 

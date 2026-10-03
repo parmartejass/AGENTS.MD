@@ -40,7 +40,7 @@ update_trigger: new operational learnings/pitfalls discovered in real use
 - 2026-05-24: vocabulary scanning cannot prove semantic fallback intent, blocks legitimate docs, tests, and history, and misses renamed substitute paths.
 - 2026-05-24: this evidence supports the semantic/structural distinction in `AGENTS.md` FP-32 and FP-33; current validation boundaries resolve through `docs/project/architecture/architecture.md`.
 - 2026-02-23: the deep research source report was treated as `[CONTEXT: UNTRUSTED]` and its generated evidence branch was later retired.
-- 2026-02-23: only SSOT-aligned deltas were adopted: stronger `governance_improvement` routing in `agents-manifest.yaml`; governance-learnings hard-gate parity checks and unresolved citation-placeholder rejection in `scripts/check_governance_core/check_governance_core_main.py`.
+- 2026-02-23: only SSOT-aligned deltas were adopted: stronger `governance_improvement` routing in `agents-manifest.yaml`; governance-learnings hard-gate parity checks and unresolved citation-placeholder rejection in the governance-core package (`scripts/check_governance_core/`).
 - 2026-02-23: generic framework content was not promoted to policy authority; existing owners in `AGENTS.md` remain canonical.
 
 ## User decision style
@@ -49,5 +49,5 @@ update_trigger: new operational learnings/pitfalls discovered in real use
 - Replies must be few words per line; verification must be demonstrable to an operator, not read as a review narrative.
 
 ## Verification tips
-- When a repo adopts this pack, run `.governance/scripts/check_governance_core/check_governance_core_main.py --repo-root . --only-project-docs` early to confirm docs and README linkage.
+- When a repo adopts this pack, run the README Checks target-repo project-docs command early to confirm docs and README linkage.
 - Keep external-service connection procedures in the owning skill or integration folder rather than `docs/project/`.

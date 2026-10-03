@@ -8,7 +8,7 @@ from pathlib import Path
 from types import MappingProxyType
 from unittest.mock import patch
 
-from scripts.check_governance_core.check_governance_core_main import resolve_documents, run_checks
+from scripts.check_governance_core import resolve_documents, run_checks
 from scripts.check_governance_core._test_support import install_foundations, live_principles_section, write
 
 
@@ -151,7 +151,7 @@ class PublicApiContractTests(unittest.TestCase):
                 (RuntimeError("forced failure"), "FAILED", f"internal {internal_label}: RuntimeError: forced failure"),
             ):
                 with self.subTest(api=function.__name__, exception=type(exception).__name__), patch(
-                    f"scripts.check_governance_core.check_governance_core_main.{provider}", side_effect=exception
+                    f"scripts.check_governance_core.{provider}", side_effect=exception
                 ):
                     self._assert_failure_envelope(function({}), function, status, error)
 
@@ -184,7 +184,7 @@ class PublicApiContractTests(unittest.TestCase):
             with self.subTest(api=function.__name__):
                 request = MappingProxyType({"repo_root": None})
                 sentinel = {"opaque_success_payload": object()}
-                with patch(f"scripts.check_governance_core.check_governance_core_main.{provider}", return_value=sentinel) as called:
+                with patch(f"scripts.check_governance_core.{provider}", return_value=sentinel) as called:
                     self.assertIs(sentinel, function(request))
                 passed = called.call_args.args[0]
                 self.assertEqual(request, passed)

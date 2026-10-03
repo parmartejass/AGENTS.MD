@@ -50,5 +50,5 @@ baseline:
 - Orchestration code MUST NOT infer, duplicate, or silently default that business rule.
 
 ## Witnesses
-- Static: the Python-safety check behind `scripts/check_governance_core/check_governance_core_main.py` flags `BARE_EXCEPT`, `SILENT_EXCEPT` and warns `EXCEPT_RETURN_LITERAL`.
+- Static: the Python-safety check behind the governance-core package public contract (`scripts/check_governance_core/`) flags `BARE_EXCEPT`, `SILENT_EXCEPT` and warns `EXCEPT_RETURN_LITERAL`.
 - Runtime: one dictConfig call recorded; listener started and stopped in finally; redaction filter present on every handler.

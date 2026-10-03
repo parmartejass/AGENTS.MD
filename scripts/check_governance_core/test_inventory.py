@@ -228,7 +228,7 @@ class ScopeAndRepositoryHygieneTests(unittest.TestCase):
                     root / "docs/project/architecture/architecture.md",
                     "<!-- governance-core-python-root: scripts -->\n" + example,
                 )
-                _write(root / "scripts/example/example_main.py", "VALUE = 1\n")
+                _write(root / "scripts/example/__init__.py", "VALUE = 1\n")
                 _write(root / "rogue/bypass.py", "VALUE = 1\n")
                 errors, _warnings = check_folder_architecture(
                     root,
@@ -247,7 +247,7 @@ class ScopeAndRepositoryHygieneTests(unittest.TestCase):
                     root / "docs/project/architecture/architecture.md",
                     f"<!-- governance-core-python-root: {marker} -->\n",
                 )
-                _write(root / "scripts/example/example_main.py", "VALUE = 1\n")
+                _write(root / "scripts/example/__init__.py", "VALUE = 1\n")
                 _write(root / "X-Bookmarks Import/fetch.py", "VALUE = 1\n")
                 errors, _warnings = check_folder_architecture(
                     root,
@@ -264,9 +264,10 @@ class ScopeAndRepositoryHygieneTests(unittest.TestCase):
             _write(
                 root / "docs/project/architecture/architecture.md",
                 "<!-- governance-core-python-root: scripts -->\n"
-                "<!-- governance-core-python-root: X-Bookmarks Import -->\n",
+                "<!-- governance-core-python-root: X-Bookmarks Import -->\n"
+                "<!-- governance-core-python-package-exception: X-Bookmarks Import -->\n",
             )
-            _write(root / "scripts/example/example_main.py", "VALUE = 1\n")
+            _write(root / "scripts/example/__init__.py", "VALUE = 1\n")
             allowed = root / "X-Bookmarks Import/fetch.py"
             outside = root / "outside.py"
             similar = root / "X-Bookmarks Import-copy/fetch.py"
@@ -274,7 +275,7 @@ class ScopeAndRepositoryHygieneTests(unittest.TestCase):
             _write(outside, "VALUE = 1\n")
             _write(similar, "VALUE = 1\n")
 
-            errors, _warnings = check_folder_architecture(
+            errors, warnings = check_folder_architecture(
                 root,
                 DocumentStore(),
                 RepositoryInventory(root),
@@ -284,6 +285,27 @@ class ScopeAndRepositoryHygieneTests(unittest.TestCase):
         self.assertTrue(any("outside.py" in error for error in errors), errors)
         self.assertTrue(any("X-Bookmarks Import-copy/fetch.py" in error for error in errors), errors)
         self.assertFalse(any("X-Bookmarks Import/fetch.py" in error for error in errors), errors)
+        self.assertEqual(1, sum("declared packaged-folder exception" in warning
+                                and warning.endswith(": X-Bookmarks Import") for warning in warnings), warnings)
+
+    def test_packaged_folder_exceptions_must_name_declared_roots_once(self) -> None:
+        cases = {
+            "undeclared": "<!-- governance-core-python-package-exception: elsewhere -->\n",
+            "duplicate": "<!-- governance-core-python-package-exception: scripts -->\n" * 2,
+            "malformed": "<!-- governance-core-python-package-exception: -->\n",
+        }
+        for name, marker in cases.items():
+            with self.subTest(name=name), tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                declared = install_foundations(root)
+                _write(root / "docs/project/architecture/architecture.md",
+                       "<!-- governance-core-python-root: scripts -->\n" + marker)
+                _write(root / "scripts/example/__init__.py", "VALUE = 1\n")
+                errors, _warnings = check_folder_architecture(
+                    root, DocumentStore(), RepositoryInventory(root),
+                    coding_policy_path=root / declared["coding_principles"],
+                )
+                self.assertTrue(any("packaged-folder exception" in error for error in errors), errors)
 
     @unittest.skipIf(shutil.which("git") is None, "git is unavailable")
     def test_repository_rejects_tracked_x_data_without_overmatching_adjacent_paths(self) -> None:

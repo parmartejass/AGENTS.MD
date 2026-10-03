@@ -54,7 +54,7 @@ Jurisdiction: cross-jurisdiction dependencies that owner docs express only by no
 | config | write safety and two-phase commit | `docs/agents/interfaces/filesystem/filesystem.md` |
 | logging | log schema, reason-code scaffold, and the user-facing feedback channel | `docs/agents/playbooks/run-outcomes/run-outcomes.md` |
 | logging | redaction list and payload summarization | `docs/agents/governance/security/security.md` |
-| logging | static witness for logging rules | `scripts/check_governance_core/check_governance_core_main.py` |
+| logging | static witness for logging rules | `scripts/check_governance_core/` |
 | run-outcomes | redaction list for reports and summaries | `docs/agents/governance/security/security.md` |
 | settings | MCP payload sources | `docs/agents/governance/mcp/mcp.md` |
 | settings | secret boundary for machine-local files | `docs/agents/governance/security/security.md` |

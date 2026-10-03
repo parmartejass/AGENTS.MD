@@ -15,6 +15,11 @@ from scripts.check_governance_core._documents import (
 from scripts.check_governance_core._inventory import RepositoryInventory
 
 
+# README guidance must name this package's runnable module launcher; deriving the name
+# from the import identity keeps a second hardcoded package name out of the rule.
+_LAUNCHER_REFERENCE = re.compile(rf"(?<![\w-])-m[ \t]+{re.escape(__package__)}(?!\w|\.\w)")
+
+
 def _policy_document(
     governance_root: Path, store: DocumentStore, inventory: RepositoryInventory,
 ) -> tuple[MarkdownDocument | None, list[str]]:
@@ -170,7 +175,6 @@ def _required_project_paths(policy: MarkdownDocument) -> tuple[tuple[str, ...], 
 def check_project_docs(
     repo_root: Path,
     governance_root: Path,
-    governance_rel: str,
     store: DocumentStore,
     inventory: RepositoryInventory,
 ) -> list[str]:
@@ -201,15 +205,11 @@ def check_project_docs(
     if readme_error:
         errors.append(readme_error)
     elif readme is not None:
-        assert readme is not None
-        prefix = f"{governance_rel.rstrip('/')}/" if governance_rel else ""
-        for reference in (
-            "AGENTS.md",
-            "docs/project/project_index.md",
-            f"{prefix}scripts/check_governance_core/check_governance_core_main.py",
-        ):
+        for reference in ("AGENTS.md", "docs/project/project_index.md"):
             if reference.casefold() not in readme.casefold():
                 errors.append(f"README.md must reference {reference}")
+        if _LAUNCHER_REFERENCE.search(readme) is None:
+            errors.append(f"README.md must reference the governance-core launcher: -m {__package__}")
         if "## Checks" not in readme:
             errors.append("README.md must contain a Checks section")
 
