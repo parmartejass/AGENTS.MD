@@ -11,7 +11,7 @@ update_trigger: new operational learnings/pitfalls discovered in real use
 - It does not own change history, task status, reusable governance policy, project goals, architecture, or data-truth records.
 
 ## Current Summary
-- Recurring pitfalls: Python resolution on Windows, tracking of generated artifacts, and cross-doc route drift between owner docs.
+- Recurring pitfalls: Python resolution on Windows, tracking of generated artifacts, cross-doc route drift between owner docs, lost prompt-originated decisions, and user-reported non-compliance with existing packaged-folder instructions.
 
 ## Branch-local owner subdocs
 - None currently declared.
@@ -19,6 +19,7 @@ update_trigger: new operational learnings/pitfalls discovered in real use
 - Creating a learning subdoc as chronological history or a work-status record is Prohibited.
 
 ## Common pitfalls
+- 2026-10-03 user-reported recurring pitfall: packaged-folder instructions for scalable, reusable SRP modules already exist, yet agents "fail to comply" (user's words). Incidence and cause remain unverified; the user's separate remark that older custom wording "may not" be the best default structured practice is not established as the cause. Validate through the consolidated packaged-folder contract, its structural witness, and independent review; re-evaluate on contract changes or new evidence. Governing intent: `docs/project/goal/goal.md`; this observation is not intended behavior.
 - 2026-09-27 user-reported recurring pitfall: prompt-originated information and decisions are omitted from project docs and lost. The report establishes the reason for earlier owner capture; incidence and runtime cause remain unverified. Validate through prompt-to-owner intake evidence and independent review; re-evaluate on intake-contract changes or new evidence. Governing intent: `docs/project/goal/goal.md`; this observation is not intended behavior.
 - Python may not be runnable on some machines (Windows Store app aliases); ensure `python` resolves to Python 3.11+ for README-listed checks.
 - For generated artifacts (`__pycache__/`, `*.pyc`, local outputs), apply the tracking rule in `docs/project/rules/rules.md` and `.gitignore`.

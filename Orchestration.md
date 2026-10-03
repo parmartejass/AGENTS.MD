@@ -41,7 +41,7 @@ Main applies `AGENTS.md` User Prompt Intake and Durable Project Truth through th
 
 ## Task agents and focused exploration
 
-The checker-readable contract declares the task roles. Every task assignment, including critical correction and final verification, must spawn exactly one fresh explorer for each declared explorer jurisdiction. The task parent owns child identities, bounded source assignments, status, findings, and integration; it reports that lineage and sufficient evidence to Main for oversight without raw contexts.
+The checker-readable contract declares the task roles. Every task assignment, including critical correction and final verification, must spawn exactly one fresh explorer for each declared explorer jurisdiction. The task parent owns child identities, bounded source assignments, status, findings, and integration; it reports that lineage and sufficient evidence to Main for oversight without raw contexts. Only when no authorized interface for spawning child agents that report back to it is available, the accountable task agent must perform each declared explorer jurisdiction itself under `AGENTS.md` FP-21 as a separate read-only pass within that jurisdiction's source boundary and a disjoint source assignment, keep each pass's sources, findings, and dissent attributed to that jurisdiction, and report the unavailability evidence and reduced context isolation; explorer duties in this file then apply to those passes. Main must not dispatch or relay explorer assignments for a parent.
 
 Context separation protects each explorer's understanding and decisions from unrelated material. Each child receives the complete binding user intent and constraints, its jurisdiction, the question to resolve, and relevant context; unrelated source payloads and sibling transcripts must not be included. The parent partitions source assignments without overlap or unassigned relevant sources and retains the broader task picture.
 
@@ -127,7 +127,7 @@ Main dispatches one Planning Agent, which coordinates its explorer trio and retu
 
 ### Principle review
 
-Main dispatches exactly one separate Plan Review Agent, which owns its source-separated explorer council and integrates their independent dispositions. Main questions that consolidated response without inspecting underlying sources. Main does not separately dispatch council explorers.
+Main dispatches exactly one separate Plan Review Agent, which owns its source-separated explorer council and integrates their independent dispositions. Main questions that consolidated response without inspecting underlying sources.
 
 Material unresolved objections lead to `STOP`. Review agents do not revise the plan. Main may obtain bounded clarification of an existing report, but there is no review/replan loop.
 
