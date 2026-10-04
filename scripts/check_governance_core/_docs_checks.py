@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from scripts.check_governance_core._declared_paths import canonical_relative
 from scripts.check_governance_core._documents import (
     DocumentStore,
     MarkdownDocument,
@@ -18,14 +19,14 @@ from scripts.check_governance_core._inventory import RepositoryInventory
 # README guidance must name this package's runnable module launcher; deriving the name
 # from the import identity keeps a second hardcoded package name out of the rule.
 _LAUNCHER_REFERENCE = re.compile(rf"(?<![\w-])-m[ \t]+{re.escape(__package__)}(?!\w|\.\w)")
+# Narrow docs modes resolve the docs-policy owner without the foundation declaration (architecture record).
+DOCS_POLICY_PATH = Path("docs/agents/governance/documentation/documentation.md")
 
 
 def _policy_document(
     governance_root: Path, store: DocumentStore, inventory: RepositoryInventory,
 ) -> tuple[MarkdownDocument | None, list[str]]:
-    path, error = inventory.validate_file(
-        governance_root / "docs/agents/governance/documentation/documentation.md"
-    )
+    path, error = inventory.validate_file(governance_root / DOCS_POLICY_PATH)
     if error:
         return None, [error]
     assert path is not None
@@ -156,7 +157,8 @@ def _required_project_paths(policy: MarkdownDocument) -> tuple[tuple[str, ...], 
             continue
         match = re.fullmatch(r"- `([^`]+/)`: .+", line)
         value = match.group(1)[:-1] if match else ""
-        if not value or any(char in value for char in '/\\:<>"|?*') or any(ord(char) < 32 for char in value) or value != value.strip() or value != value.rstrip(" .") or value in {".", ".."}:
+        declared = canonical_relative(value)
+        if declared is None or len(declared.parts) != 1:
             errors.append(f"Docs policy has invalid required project branch: {line!r}")
         elif value.casefold() in seen:
             errors.append(f"Docs policy has duplicate required project branch: {value}")

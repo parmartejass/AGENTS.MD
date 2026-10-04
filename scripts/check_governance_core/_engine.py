@@ -23,6 +23,10 @@ from scripts.check_governance_core._python_safety import check_python_safety
 from scripts.check_governance_core._repository_checks import check_repository
 
 
+# The package lives at <governance root>/<declared source root>/<package>; the import root is the governance root.
+DEFAULT_GOVERNANCE_ROOT = Path(__file__).resolve().parents[2]
+
+
 @dataclass(frozen=True)
 class CheckContext:
     repo_root: Path
@@ -84,7 +88,7 @@ def _folder_architecture(context: CheckContext) -> tuple[list[str], list[str]]:
     if context.foundations.errors:
         return list(context.foundations.errors), []
     return check_folder_architecture(
-        context.governance_root, context.store, context.inventory,
+        context.repo_root, context.governance_root, context.store, context.inventory,
         coding_policy_path=context.governance_root / context.foundations.path_for("coding_principles"),
     )
 
@@ -118,10 +122,9 @@ MODE_CHECKS = {
 
 
 def _resolve_roots(request: dict[str, object]) -> tuple[Path, Path, RepositoryInventory]:
-    script_root = Path(__file__).resolve().parent
     governance_value = request.get("governance_root")
     repo_value = request.get("repo_root")
-    governance_request = Path(str(governance_value)).expanduser() if governance_value else script_root.parent.parent
+    governance_request = Path(str(governance_value)).expanduser() if governance_value else DEFAULT_GOVERNANCE_ROOT
     repo_request = Path(str(repo_value)).expanduser() if repo_value else governance_request
     if repo_value is None and governance_request.name == ".governance":
         raise ValueError("repo_root is required for a vendored .governance checkout")

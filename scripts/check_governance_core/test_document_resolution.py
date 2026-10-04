@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 
 from scripts.check_governance_core import resolve_documents
-from scripts.check_governance_core._test_support import install_root_authorities, write
+from scripts.check_governance_core._test_support import REPOSITORY_ROOT, install_root_authorities, write
 
 
 def corpus_fixture(root: Path) -> None:
@@ -34,7 +34,7 @@ def corpus_fixture(root: Path) -> None:
 
 class DocumentResolutionTests(unittest.TestCase):
     def test_live_corpus_contains_mcp_and_workflow_registry_leaves(self) -> None:
-        root = Path(__file__).resolve().parents[2]
+        root = REPOSITORY_ROOT
         result = resolve_documents({"repo_root": str(root), "governance_root": str(root)})
         self.assertEqual("PASSED", result["status"], result)
         self.assertIn(

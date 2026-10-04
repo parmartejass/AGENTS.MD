@@ -59,17 +59,17 @@ A missing or conflicting owner is an authority gap: work MUST stop there; Prohib
 ```yaml
 baseline:
   interface: the language's native package and module system
-  pattern: "one SSOT jurisdiction per native package; the native package entry is the public entrypoint and declares the public members; cohesive single-responsibility private modules behind it; an optional native launcher that only delegates to the public entrypoint; child packages only for independently owned behavior"
+  pattern: "per language, one row of the table below: the native package mechanism, its public-entry file and member declaration, its private-name convention, its launcher form, and the deterministic witness that enforces them"
   reason: "interpreters, import systems, packaging tools, and test runners resolve the native mechanism directly; a custom entry-file convention is a wrapper that needs import-path manipulation and a private checker rule to hold"
   exception: none
 ```
 
 | Language | Packaged folder | Public entrypoint and members | Private internals | Launcher | Source | Witness |
 | --- | --- | --- | --- | --- | --- | --- |
-| Python | regular package: a directory with `__init__.py` | `__init__.py`; public members listed in `__all__` | `_`-prefixed modules and names; `test*` modules are test-runner internals | `__main__.py`, run from the import root as `python -m <package>` | Python Language Reference, The import system (regular packages); Python Library Reference, `__main__` | governance-core folder-architecture check |
+| Python | regular package: a directory with `__init__.py` | `__init__.py`; public members listed in `__all__` | `_`-prefixed modules and names; `test*` modules are test-runner internals | `__main__.py`, run from the import root as `python -m <package>` | Python Language Reference, The import system (regular packages); Python Library Reference, `__main__` | governance-core folder-architecture check: entry presence and source-root containment, `__all__` declared once, complete and bound, `_` or `test` module names, launcher limited to imports and one guarded delegation to its entry, cross-package deep imports; member-level privacy and child-to-parent import direction stay manual review |
 
 - A language absent from this table MUST record its packaged folder, public entrypoint and members, private-visibility mechanism, launcher, authoritative source, and deterministic witness in the project architecture record before code in that language relies on it; adopting it in the governance source adds a row here.
-- A declared source root is an import root that only contains packaged folders; it holds no code, exposes no public entrypoint, and is declared by the project architecture record.
+- A declared source root is a code-free directory directly below its import base (the directory `python -m <root>.<package>` runs from) that only contains packaged folders; it exposes no public entrypoint and is declared by the project architecture record.
 - Imports between modules of one packaged folder are internal; Prohibited: a caller outside the folder importing its private modules (deep import), and a child package importing a sibling or parent package.
 - A package's own tests are package internals; every caller outside the package, including another package's tests, MUST use only its public members.
 - Public contracts MUST accept and return plain data; live handles and external resources stay behind the owning boundary.

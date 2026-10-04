@@ -11,7 +11,7 @@ from typing import Callable
 from scripts.check_governance_core._documents import DocumentStore
 from scripts.check_governance_core._governance_checks import resolve_governance_contract
 from scripts.check_governance_core._inventory import RepositoryInventory
-from scripts.check_governance_core._test_support import install_root_authorities, write
+from scripts.check_governance_core._test_support import REPOSITORY_ROOT, install_root_authorities, write
 from scripts.check_governance_core import resolve_documents
 
 
@@ -51,7 +51,7 @@ def _contract_errors(root: Path) -> tuple[str, ...]:
 
 class OrchestrationContractTests(unittest.TestCase):
     def test_live_contract_is_structurally_valid(self) -> None:
-        root = Path(__file__).resolve().parents[2]
+        root = REPOSITORY_ROOT
         contract = resolve_governance_contract(root, DocumentStore(), RepositoryInventory(root))
         self.assertEqual((), contract.errors, contract)
         self.assertEqual(("AGENTS.md", "Orchestration.md"), contract.root_authorities)

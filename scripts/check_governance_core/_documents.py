@@ -47,6 +47,27 @@ class MarkdownDocument:
         )
         return parse_markdown(body)
 
+    def markers(self, token: str) -> tuple[tuple[str, ...], tuple[str, ...]]:
+        """Return operative ``<!-- token value -->`` marker values and malformed-line errors.
+
+        The grammar is exact: single spaces around the token and a value without
+        surrounding whitespace. Blockquoted lines are non-operative examples, like
+        fenced and indented code.
+        """
+
+        pattern = re.compile(rf"<!-- {re.escape(token)} (\S(?:.*\S)?) -->")
+        values: list[str] = []
+        errors: list[str] = []
+        for _number, line in self.operative_lines:
+            if token not in line or line.lstrip().startswith(">"):
+                continue
+            match = pattern.fullmatch(line.strip())
+            if match is None:
+                errors.append(f"malformed {token.rstrip(':')} marker: {line.strip()!r}")
+            else:
+                values.append(match.group(1))
+        return tuple(values), tuple(errors)
+
     def positive_integer_declaration(self, key: str, owner_label: str) -> tuple[int | None, list[str]]:
         declarations = [
             line for _number, line in self.operative_lines
@@ -336,37 +357,3 @@ def declared_doc_types(policy_text: str) -> tuple[str, ...]:
         return ()
     values = tuple(dict.fromkeys(matches[0].split("|")))
     return values if all(match.split("|") == list(values) for match in matches) else ()
-
-
-def resolve_declared_file(root: Path, value: str) -> tuple[Path | None, str | None]:
-    """Resolve an exactly spelled, contained owner-declared relative file path."""
-
-    declared = PurePosixPath(value)
-    if (
-        not value
-        or "\\" in value
-        or ":" in value
-        or declared.is_absolute()
-        or declared.as_posix() != value
-        or any(part in {"", ".", ".."} or part != part.rstrip(" .") for part in declared.parts)
-    ):
-        return None, f"invalid non-canonical relative path: {value!r}"
-    current = root.resolve()
-    for part in declared.parts:
-        try:
-            exact = next((child for child in current.iterdir() if child.name == part), None)
-        except OSError as exc:
-            return None, f"unable to inspect declared path {value!r}: {exc}"
-        if exact is None:
-            return None, f"declared path is missing or has non-canonical spelling: {value}"
-        if exact.is_symlink():
-            return None, f"declared path must not traverse a symlink: {value}"
-        current = exact
-    resolved = current.resolve()
-    try:
-        resolved.relative_to(root.resolve())
-    except ValueError:
-        return None, f"declared path escapes its owner root: {value}"
-    if not resolved.is_file():
-        return None, f"declared path is not a file: {value}"
-    return resolved, None

@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import json
 import re
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 from typing import Any
 
-from scripts.check_governance_core._documents import DocumentStore, resolve_declared_file
+from scripts.check_governance_core._declared_paths import canonical_relative, resolve_declared_file
+from scripts.check_governance_core._documents import DocumentStore
 from scripts.check_governance_core._inventory import RepositoryInventory
 
 
@@ -168,18 +169,9 @@ def parse_manifest(text: str) -> dict[str, Any]:
     return parsed
 
 
-def _canonical_path(value: str) -> str | None:
-    path = PurePosixPath(value)
-    if (
-        not value
-        or "\\" in value
-        or ":" in value
-        or path.is_absolute()
-        or path.as_posix() != value
-        or any(part in {"", ".", ".."} or part != part.rstrip(" .") for part in path.parts)
-    ):
-        return None
-    return "/".join(part.casefold() for part in path.parts)
+def _canonical_key(value: str) -> str | None:
+    declared = canonical_relative(value)
+    return None if declared is None else "/".join(part.casefold() for part in declared.parts)
 
 
 def validate_manifest(
@@ -263,7 +255,7 @@ def validate_manifest(
         ):
             errors.append(f"agents-manifest.yaml: semantic_queries.{name} must be a non-empty string list")
 
-    mandatory_keys = {_canonical_path(value) for value in mandatory_authorities}
+    mandatory_keys = {_canonical_key(value) for value in mandatory_authorities}
     mandatory_targets = [resolve_declared_file(governance_root, value)[0] for value in mandatory_authorities]
     for label, values in authority_lists:
         if not isinstance(values, list) or not values:
@@ -275,7 +267,7 @@ def validate_manifest(
             if not isinstance(value, str):
                 errors.append(f"agents-manifest.yaml: {label} contains a non-string authority")
                 continue
-            key = _canonical_path(value)
+            key = _canonical_key(value)
             if key is None:
                 errors.append(f"agents-manifest.yaml: {label} contains an invalid authority path: {value!r}")
                 continue

@@ -113,7 +113,7 @@ update_trigger: <what change requires updating this doc>
 
 ## Routers and public leaves
 
-- The executable filename contract is exposed by the governance-core package public contract (`scripts/check_governance_core/`); this doc owns the docs-family behavior that contract encodes and MUST NOT restate a second naming rule.
+- The executable filename contract is enforced through the governance-core package public contract (`scripts/check_governance_core/`); this doc owns the docs-family behavior that contract encodes and MUST NOT restate a second naming rule.
 - A docs folder is a packaged folder under the constitutional packaged-folder contract: its router is the public entrypoint, and the files and child folders it routes are its public members.
 - Every directory under `docs/` MUST contain the canonical router file resolved by that contract.
 - Docs routers follow the folder-owned pattern `<authority>_index.md`, a custom entry-file name retained over a format-native folder entry by explicit user decision of 2026-10-03 (re-evaluation trigger in `SSOT-DEC-003`), and MUST remain routing-only.

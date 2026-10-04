@@ -4,7 +4,8 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
-from scripts.check_governance_core._documents import DocumentStore, MarkdownDocument, resolve_declared_file
+from scripts.check_governance_core._declared_paths import resolve_declared_file
+from scripts.check_governance_core._documents import DocumentStore, MarkdownDocument
 from scripts.check_governance_core._inventory import RepositoryInventory
 from scripts.check_governance_core._orchestration import validate_orchestration_contract
 
@@ -12,7 +13,7 @@ from scripts.check_governance_core._orchestration import validate_orchestration_
 CONSTITUTION_PATH = "AGENTS.md"
 ORCHESTRATION_PATH = "Orchestration.md"
 ROOT_AUTHORITIES = (CONSTITUTION_PATH, ORCHESTRATION_PATH)
-_AUTHORITY_MARKER = re.compile(r"<!--\s*orchestration-authority:\s*([^>]+?)\s*-->")
+_AUTHORITY_TOKEN = "orchestration-authority:"
 _PRINCIPLES_START = "<!-- fundamental-principles:start -->"
 _PRINCIPLES_END = "<!-- fundamental-principles:end -->"
 _PRINCIPLES_RANGE = re.compile(r"`### FP-([0-9]{2})` through `### FP-([0-9]{2})`")
@@ -39,18 +40,13 @@ def resolve_governance_contract(
         return GovernanceContract(ROOT_AUTHORITIES, (read_error,))
     assert document is not None
 
-    marker_lines = [
-        line.strip()
-        for _line_no, line in document.operative_lines
-        if "orchestration-authority:" in line
-    ]
-    markers = [match for line in marker_lines if (match := _AUTHORITY_MARKER.fullmatch(line))]
-    if len(marker_lines) != 1 or len(markers) != 1:
+    declared_values, marker_errors = document.markers(_AUTHORITY_TOKEN)
+    if marker_errors or len(declared_values) != 1:
         return GovernanceContract(
             ROOT_AUTHORITIES,
             ("AGENTS.md must contain exactly one operative orchestration-authority marker",),
         )
-    declared = markers[0].group(1).strip()
+    declared = declared_values[0]
     if declared != ORCHESTRATION_PATH:
         return GovernanceContract(
             ROOT_AUTHORITIES,
@@ -88,14 +84,15 @@ class FoundationContract:
 
 _FOUNDATION_SECTION = "Mandatory Foundations"
 _FOUNDATION_ROLES = frozenset({"constitution", "orchestration", "coding_principles", "docs_policy"})
-_FOUNDATION_MARKER = re.compile(r"<!-- foundation-authority: ([a-z_]+)=([^<>]+) -->")
+_FOUNDATION_TOKEN = "foundation-authority:"
+_FOUNDATION_DECLARATION = re.compile(r"([a-z_]+)=([^<>]+)")
 
 
-def _foundation_lines(document: MarkdownDocument) -> tuple[list[str], list[str]]:
+def _foundation_lines(document: MarkdownDocument) -> tuple[list[str], tuple[tuple[str, ...], tuple[str, ...]]]:
     lines = [line for _number, line in document.operative_lines if not line.lstrip().startswith(">")]
     return (
         [line for line in lines if line.lstrip().startswith("foundation_contract_version")],
-        [line for line in lines if "<!-- foundation-authority" in line],
+        document.markers(_FOUNDATION_TOKEN),
     )
 
 
@@ -106,18 +103,19 @@ def _foundation_declarations(document: MarkdownDocument) -> tuple[dict[str, str]
     section = document.section(_FOUNDATION_SECTION, level=2)
     if section is None:
         return {}, [prefix + "restore exactly one canonical owner section"]
-    versions, marker_lines = _foundation_lines(document)
+    versions, (values, marker_errors) = _foundation_lines(document)
     errors: list[str] = []
-    if (versions, marker_lines) != _foundation_lines(section):
+    if (versions, (values, marker_errors)) != _foundation_lines(section):
         errors.append(prefix + "place all operative declarations inside the owner section")
     if versions != ["foundation_contract_version: 1"]:
         errors.append(prefix + "declare exactly one supported foundation_contract_version: 1")
+    errors.extend(prefix + error for error in marker_errors)
     declared: dict[str, str] = {}
     seen_paths: set[str] = set()
-    for line in marker_lines:
-        marker = _FOUNDATION_MARKER.fullmatch(line)
+    for value in values:
+        marker = _FOUNDATION_DECLARATION.fullmatch(value)
         if marker is None:
-            errors.append(prefix + f"malformed foundation-authority marker: {line!r}")
+            errors.append(prefix + f"malformed foundation-authority marker: {value!r}")
             continue
         role, path = marker.groups()
         if role not in _FOUNDATION_ROLES:

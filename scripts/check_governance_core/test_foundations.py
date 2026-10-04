@@ -8,7 +8,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from scripts.check_governance_core._test_support import install_foundations, live_foundations, write
+from scripts.check_governance_core._test_support import REPOSITORY_ROOT, install_foundations, live_foundations, write
 from scripts.check_governance_core import resolve_documents, run_checks
 
 
@@ -60,7 +60,7 @@ class FoundationContractTests(unittest.TestCase):
                 live_foundations()
 
     def test_live_standalone_and_contained_vendored_foundations(self) -> None:
-        live = Path(__file__).resolve().parents[2]
+        live = REPOSITORY_ROOT
         for name in ("governance", "manifest"):
             self.assertEqual("PASSED", _records(live)[name]["status"])
         for relative in ("", ".governance"):

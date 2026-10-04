@@ -9,7 +9,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from scripts.check_governance_core._test_support import write as _write
+from scripts.check_governance_core._test_support import REPOSITORY_ROOT, write as _write
 from scripts.check_governance_core._documents import DocumentStore
 from scripts.check_governance_core._docs_checks import check_docs
 from scripts.check_governance_core._inventory import RepositoryInventory, _is_directory_alias
@@ -59,7 +59,7 @@ class RetainedCheckTests(unittest.TestCase):
 
     @unittest.skipIf(shutil.which("git") is None, "git is unavailable")
     def test_public_api_rejects_governance_root_outside_repository(self) -> None:
-        governance_root = Path(__file__).resolve().parents[2]
+        governance_root = REPOSITORY_ROOT
         with tempfile.TemporaryDirectory() as temp:
             repo_root = Path(temp)
             subprocess.run(["git", "init"], cwd=repo_root, check=True, capture_output=True, timeout=10)
@@ -245,7 +245,7 @@ class RetainedCheckTests(unittest.TestCase):
                 self.opened.append(path)
                 return super().read_text(path)
 
-        governance_root = Path(__file__).resolve().parents[2]
+        governance_root = REPOSITORY_ROOT
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             (root / "docs").mkdir()
