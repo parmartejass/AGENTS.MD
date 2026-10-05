@@ -7,11 +7,12 @@ _UNSAFE_PATH_CHARS = frozenset('<>"|?*')
 
 
 def canonical_relative(value: str) -> PurePosixPath | None:
-    """Return the parts of an exactly spelled, safe, contained relative path, or None."""
+    """Return an exactly spelled, safe, contained relative path with at least one part, or None."""
 
     declared = PurePosixPath(value)
     if (
         not value
+        or not declared.parts
         or "\\" in value
         or ":" in value
         or declared.is_absolute()

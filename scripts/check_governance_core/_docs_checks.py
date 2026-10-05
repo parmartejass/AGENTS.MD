@@ -5,6 +5,11 @@ from pathlib import Path
 
 from scripts.check_governance_core._declared_paths import canonical_relative
 from scripts.check_governance_core._documents import (
+    AGENTS_DOCS_ROOT,
+    CONSTITUTION_PATH,
+    DOCS_ROOT,
+    PROJECT_DOCS_ROOT,
+    SKILL_FILENAME,
     DocumentStore,
     MarkdownDocument,
     declared_doc_types,
@@ -20,7 +25,7 @@ from scripts.check_governance_core._inventory import RepositoryInventory
 # from the import identity keeps a second hardcoded package name out of the rule.
 _LAUNCHER_REFERENCE = re.compile(rf"(?<![\w-])-m[ \t]+{re.escape(__package__)}(?!\w|\.\w)")
 # Narrow docs modes resolve the docs-policy owner without the foundation declaration (architecture record).
-DOCS_POLICY_PATH = Path("docs/agents/governance/documentation/documentation.md")
+DOCS_POLICY_PATH = AGENTS_DOCS_ROOT / "governance/documentation/documentation.md"
 
 
 def _policy_document(
@@ -57,7 +62,7 @@ def check_docs(
     inventory: RepositoryInventory,
 ) -> tuple[list[str], list[str]]:
     errors: list[str] = []
-    docs_root = repo_root / "docs"
+    docs_root = repo_root / DOCS_ROOT
     if not docs_root.is_dir():
         return [f"Missing required docs directory: {docs_root}"], []
     markdown_files, markdown_error = inventory.markdown_files(repo_root)
@@ -103,7 +108,7 @@ def check_docs(
             for entry in direct_children
             if not entry.is_directory
             and entry.path.suffix.lower() == ".md"
-            and entry.path.name != "SKILL.md"
+            and entry.path.name != SKILL_FILENAME
         ]
         if leaves:
             expected = primary_leaf_filename(directory.name)
@@ -129,7 +134,7 @@ def check_docs(
                 errors.append(f"{router_path}: route target is not a direct child contract: {target}")
 
     for path in (entry.path for entry in entries if not entry.is_directory and entry.path.suffix.lower() == ".md"):
-        if path.name in {router_filename(path.parent.name), "SKILL.md"}:
+        if path.name in {router_filename(path.parent.name), SKILL_FILENAME}:
             continue
         text, read_error = store.read_text(path)
         if read_error:
@@ -167,8 +172,8 @@ def _required_project_paths(policy: MarkdownDocument) -> tuple[tuple[str, ...], 
             seen.add(value.casefold())
     if not branches:
         errors.append("Docs policy must declare at least one required project branch")
-    project = Path("docs/project")
-    paths = [str(project / router_filename(project.name)).replace("\\", "/")]
+    project = PROJECT_DOCS_ROOT
+    paths = [(project / router_filename(project.name)).as_posix()]
     for branch in branches:
         paths.extend((project / branch / name).as_posix() for name in (router_filename(branch), primary_leaf_filename(branch)))
     return (() if errors else tuple(paths)), errors
@@ -181,7 +186,7 @@ def check_project_docs(
     inventory: RepositoryInventory,
 ) -> list[str]:
     errors: list[str] = []
-    docs_root = repo_root / "docs"
+    docs_root = repo_root / DOCS_ROOT
     _markdown_files, markdown_error = inventory.markdown_files(docs_root)
     if markdown_error:
         return [markdown_error]
@@ -207,7 +212,7 @@ def check_project_docs(
     if readme_error:
         errors.append(readme_error)
     elif readme is not None:
-        for reference in ("AGENTS.md", "docs/project/project_index.md"):
+        for reference in (CONSTITUTION_PATH, (PROJECT_DOCS_ROOT / router_filename(PROJECT_DOCS_ROOT.name)).as_posix()):
             if reference.casefold() not in readme.casefold():
                 errors.append(f"README.md must reference {reference}")
         if _LAUNCHER_REFERENCE.search(readme) is None:
@@ -215,7 +220,7 @@ def check_project_docs(
         if "## Checks" not in readme:
             errors.append("README.md must contain a Checks section")
 
-    project_root = repo_root / "docs/project"
+    project_root = repo_root / PROJECT_DOCS_ROOT
     project_router = project_root / router_filename(project_root.name)
     project_targets, route_errors = _router(store, project_router)
     errors.extend(route_errors)

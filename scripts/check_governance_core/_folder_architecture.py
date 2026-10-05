@@ -3,16 +3,15 @@ from __future__ import annotations
 from pathlib import Path
 
 from scripts.check_governance_core._declared_paths import canonical_relative, resolve_declared_directory
-from scripts.check_governance_core._documents import DocumentStore, MarkdownDocument
+from scripts.check_governance_core._documents import PROJECT_DOCS_ROOT, DocumentStore, MarkdownDocument
 from scripts.check_governance_core._inventory import RepositoryInventory
-from scripts.check_governance_core._package_interface import interface_errors
+from scripts.check_governance_core._package_interface import PACKAGE_ENTRY, interface_errors
 
 
 _ROOT_TOKEN = "governance-core-python-root:"
 _EXCEPTION_TOKEN = "governance-core-python-package-exception:"
-_PACKAGE_ENTRY = "__init__.py"
 # Project-owned path: each project's own architecture record declares its own Python roots.
-_ROOT_OWNER = Path("docs/project/architecture/architecture.md")
+_ROOT_OWNER = PROJECT_DOCS_ROOT / "architecture/architecture.md"
 
 
 def _marker_values(document: MarkdownDocument, owner: Path, *, token: str, label: str) -> tuple[list[str], list[str]]:
@@ -116,10 +115,10 @@ def _package_structure_errors(
     """Record one module's package ancestry below an enforced source root."""
 
     if path.parent == root:
-        if path.name == _PACKAGE_ENTRY:
+        if path.name == PACKAGE_ENTRY:
             return [f"Declared Python source root must contain packages, not be one: {relative}"]
         return [f"Python module must live inside a package below its declared source root: {relative}"]
-    if path.name == _PACKAGE_ENTRY:
+    if path.name == PACKAGE_ENTRY:
         package_dirs.add(path.parent)
     current = path.parent
     while current != root and current not in python_dirs:
@@ -171,6 +170,7 @@ def check_folder_architecture(
         for root in sorted(exception_roots)
     )
     import_bases = tuple(sorted({root.parent for root in roots}))
+    entry_dirs = frozenset(path.parent for path in files if path.name == PACKAGE_ENTRY)
     python_dirs: set[Path] = set()
     package_dirs: set[Path] = set()
     for path in files:
@@ -185,7 +185,7 @@ def check_folder_architecture(
             part.startswith(".") or part == "__pycache__" for part in path.relative_to(root).parts
         ):
             errors.extend(_package_structure_errors(path, root, relative, python_dirs, package_dirs))
-            errors.extend(interface_errors(path, root, import_bases, relative, store))
+            errors.extend(interface_errors(path, root, import_bases, relative, store, entry_dirs))
         text, read_error = store.read_text(path)
         if read_error:
             errors.append(read_error)
@@ -199,7 +199,7 @@ def check_folder_architecture(
             )
     errors.extend(
         "Python package folder is missing its native public entrypoint: "
-        f"{(directory / _PACKAGE_ENTRY).relative_to(repo_root).as_posix()}"
+        f"{(directory / PACKAGE_ENTRY).relative_to(repo_root).as_posix()}"
         for directory in sorted(python_dirs - package_dirs)
     )
     return list(dict.fromkeys(errors)), warnings

@@ -14,6 +14,7 @@ class ManifestSyntaxError(ValueError):
     pass
 
 
+MANIFEST_PATH = "agents-manifest.yaml"
 _KEY = re.compile(r"^[A-Za-z0-9_]+$")
 _TOP_LEVEL_KEYS = {
     "version",
@@ -180,7 +181,7 @@ def validate_manifest(
     inventory: RepositoryInventory,
     mandatory_authorities: tuple[str, ...],
 ) -> tuple[dict[str, Any] | None, list[str]]:
-    path, validation_error = inventory.validate_file(governance_root / "agents-manifest.yaml")
+    path, validation_error = inventory.validate_file(governance_root / MANIFEST_PATH)
     if validation_error:
         return None, [validation_error]
     assert path is not None
@@ -202,8 +203,8 @@ def validate_manifest(
         errors.append(f"agents-manifest.yaml: unsupported top-level key: {key}")
     if data.get("version") != 3:
         errors.append("agents-manifest.yaml: version must be 3")
-    if data.get("ssot_owner") != "agents-manifest.yaml":
-        errors.append("agents-manifest.yaml: ssot_owner must be agents-manifest.yaml")
+    if data.get("ssot_owner") != MANIFEST_PATH:
+        errors.append(f"agents-manifest.yaml: ssot_owner must be {MANIFEST_PATH}")
     for field in ("update_trigger", "description"):
         value = data.get(field)
         if not isinstance(value, str) or not value.strip():

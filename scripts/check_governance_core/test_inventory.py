@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import io
 import logging
 import os
 import shutil
@@ -12,7 +11,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from scripts.check_governance_core import _git_capture, _inventory
+from scripts.check_governance_core import _inventory
 from scripts.check_governance_core._test_support import docs_fixture, write as _write
 from scripts.check_governance_core._docs_checks import check_docs
 from scripts.check_governance_core._documents import DocumentStore
@@ -24,43 +23,6 @@ logger = logging.getLogger(__name__)
 
 
 class PythonInventoryClassificationTests(unittest.TestCase):
-    def test_bounded_capture_does_not_block_closing_a_live_reader_pipe(self) -> None:
-        class BlockingPipe:
-            def read(self, _size: int) -> bytes:
-                _git_capture.time.sleep(1)
-                return b""
-
-            def close(self) -> None:
-                raise AssertionError("live reader pipe must not be closed synchronously")
-
-        class Process:
-            def __init__(self) -> None:
-                self.stdout = BlockingPipe()
-                self.stderr = io.BytesIO()
-                self.returncode = None
-
-            def poll(self) -> int | None:
-                return self.returncode
-
-            def kill(self) -> None:
-                raise OSError("kill denied")
-
-            def wait(self, *, timeout: float) -> int:
-                raise subprocess.TimeoutExpired("git", timeout)
-
-        with patch.object(_git_capture, "TIMEOUT_SECONDS", 0.01), patch.object(
-            _git_capture, "CLEANUP_SECONDS", 0.01
-        ), patch.object(_git_capture.subprocess, "Popen", return_value=Process()):
-            started = _git_capture.time.monotonic()
-            _stdout, _stderr, _returncode, error = _git_capture.bounded_capture(
-                ["git"], label="tracked files"
-            )
-            elapsed = _git_capture.time.monotonic() - started
-
-        self.assertLess(elapsed, 0.5)
-        self.assertIn("kill denied", error or "")
-        self.assertIn("left open because its reader is still active", error or "")
-
     def test_excluded_descendant_root_is_scanned_instead_of_reusing_empty_slice(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
@@ -73,34 +35,6 @@ class PythonInventoryClassificationTests(unittest.TestCase):
 
         self.assertIsNone(error)
         self.assertEqual((source,), files)
-
-    def test_pipe_capture_never_reads_or_retains_beyond_its_cap(self) -> None:
-        class TrackingPipe(io.BytesIO):
-            def __init__(self, value: bytes) -> None:
-                super().__init__(value)
-                self.requests: list[int] = []
-
-            def read(self, size: int = -1) -> bytes:
-                self.requests.append(size)
-                return super().read(size)
-
-        pipe = TrackingPipe(b"0123456789")
-        output = bytearray()
-        failures: list[str] = []
-        failed = _git_capture.threading.Event()
-        with patch.object(_git_capture, "READ_CHUNK_BYTES", 3):
-            _git_capture._read_bounded_pipe(
-                pipe,
-                limit=4,
-                label="stdout",
-                output=output,
-                failure=failures,
-                failed=failed,
-            )
-
-        self.assertEqual(b"0123", bytes(output))
-        self.assertLessEqual(max(pipe.requests), 3)
-        self.assertEqual(["Git inventory stdout exceeded 4 bytes"], failures)
 
     def test_directory_exclusions_do_not_hide_python_files(self) -> None:
         with tempfile.TemporaryDirectory() as temp:

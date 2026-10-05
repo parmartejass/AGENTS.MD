@@ -122,6 +122,21 @@ class OwnerDeclaredRootTests(unittest.TestCase):
                 )
                 self.assertTrue(any("non-canonical" in error for error in errors), errors)
 
+    def test_current_directory_root_marker_is_rejected_by_the_path_owner(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            declared = install_foundations(root)
+            _write(root / ARCHITECTURE, "<!-- governance-core-python-root: . -->\n"
+                                        "<!-- governance-core-python-root: scripts -->\n")
+            _write(root / "scripts/example/__init__.py", "__all__ = []\n")
+            errors, _warnings = check_folder_architecture(
+                root, root, DocumentStore(), RepositoryInventory(root),
+                coding_policy_path=root / declared["coding_principles"],
+            )
+        self.assertTrue(any(error.startswith("Invalid governance-core Python root in ") and error.endswith(": '.'")
+                            for error in errors), errors)
+        self.assertFalse(any("must not nest" in error for error in errors), errors)
+
     def test_folder_architecture_uses_exact_owner_declared_python_roots(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

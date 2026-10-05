@@ -5,6 +5,7 @@ import tokenize
 from dataclasses import dataclass
 from pathlib import Path
 
+from scripts.check_governance_core._documents import DocumentStore
 from scripts.check_governance_core._inventory import RepositoryInventory
 
 
@@ -25,15 +26,15 @@ class SafetyIssue:
         return f"{path}:{self.line}:{self.column} {self.rule} {self.message}"
 
 
-def _subprocess_aliases(tree: ast.AST) -> tuple[set[str], dict[str, str]]:
+def _subprocess_aliases(imports: tuple[ast.Import | ast.ImportFrom, ...]) -> tuple[set[str], dict[str, str]]:
     modules = {"subprocess"}
     functions: dict[str, str] = {}
-    for node in ast.walk(tree):
+    for node in imports:
         if isinstance(node, ast.Import):
             for alias in node.names:
                 if alias.name == "subprocess":
                     modules.add(alias.asname or alias.name)
-        elif isinstance(node, ast.ImportFrom) and node.module == "subprocess":
+        elif node.module == "subprocess":
             for alias in node.names:
                 if alias.name in {"run", "call", "check_call", "check_output", "Popen"}:
                     functions[alias.asname or alias.name] = alias.name
@@ -168,23 +169,30 @@ def _file_open(node: ast.Call) -> bool:
     )
 
 
-def _scan(path: Path, reviewed_popen_paths: frozenset[Path]) -> list[SafetyIssue]:
+def _scan(path: Path, reviewed_popen_paths: frozenset[Path], store: DocumentStore) -> list[SafetyIssue]:
+    # tokenize.open keeps the source-encoding contract (PEP 263 cookie, BOM); the run store
+    # shares the parsed tree with the folder-architecture witnesses when the decoded text matches.
     try:
         with tokenize.open(path) as handle:
-            tree = ast.parse(handle.read(), filename=str(path))
+            text = handle.read()
+        module, syntax_error = store.python_module(path, text)
     except (OSError, UnicodeDecodeError) as exc:
         return [SafetyIssue(path, 1, 1, "ERROR", "READ_FAILED", str(exc))]
-    except SyntaxError as exc:
-        return [SafetyIssue(path, exc.lineno or 1, exc.offset or 1, "ERROR", "SYNTAX_ERROR", exc.msg)]
-    modules, functions = _subprocess_aliases(tree)
+    except SyntaxError as exc:  # an invalid encoding cookie fails while opening
+        syntax_error = exc
+    if syntax_error is not None:
+        return [SafetyIssue(path, syntax_error.lineno or 1, syntax_error.offset or 1, "ERROR", "SYNTAX_ERROR", syntax_error.msg)]
+    assert module is not None
+    modules, functions = _subprocess_aliases(module.imports)
     visitor = _Visitor(path, modules, functions, reviewed_popen_paths)
-    visitor.visit(tree)
+    visitor.visit(module.tree)
     return visitor.issues
 
 
 def check_python_safety(
     root: Path,
     inventory: RepositoryInventory,
+    store: DocumentStore,
     *,
     fail_on_warnings: bool,
     reviewed_popen_paths: frozenset[Path] = frozenset(),
@@ -192,7 +200,7 @@ def check_python_safety(
     files, inventory_error = inventory.python_files(root)
     if inventory_error:
         return [inventory_error], []
-    issues = [issue for path in files for issue in _scan(path, reviewed_popen_paths)]
+    issues = [issue for path in files for issue in _scan(path, reviewed_popen_paths, store)]
     issues.sort(key=lambda issue: (issue.path.as_posix().casefold(), issue.line, issue.column, issue.rule))
     errors = [issue.format(root) for issue in issues if issue.severity == "ERROR"]
     warnings = [issue.format(root) for issue in issues if issue.severity == "WARN"]

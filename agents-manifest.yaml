@@ -625,7 +625,11 @@ profiles:
   packaging:
     detect:
       keywords:
-        - "package"
+        - "package the app"
+        - "package the application"
+        - "publish the package"
+        - "pypi"
+        - "distributable"
         - "packaging"
         - "pyinstaller"
         - "installer"

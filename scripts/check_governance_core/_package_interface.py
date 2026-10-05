@@ -4,9 +4,11 @@ import ast
 from pathlib import Path
 
 from scripts.check_governance_core._documents import DocumentStore
+from scripts.check_governance_core._python_modules import PythonModule
 
 
-_PACKAGE_ENTRY = "__init__.py"
+# Native package mechanics (coding owner table): the entry declares the public members; the launcher delegates.
+PACKAGE_ENTRY = "__init__.py"
 _LAUNCHER = "__main__.py"
 _INTERNAL_MODULE_PREFIXES = ("_", "test")
 
@@ -22,20 +24,23 @@ def _is_private(name: str) -> bool:
 def module_name_errors(path: Path, relative: str) -> list[str]:
     """Private internals are ``_``-prefixed modules; ``test*`` modules are test-runner internals."""
 
-    if path.name in {_PACKAGE_ENTRY, _LAUNCHER} or path.stem.startswith(_INTERNAL_MODULE_PREFIXES):
+    if path.name in {PACKAGE_ENTRY, _LAUNCHER} or path.stem.startswith(_INTERNAL_MODULE_PREFIXES):
         return []
     return [f"Python module inside a package must be a private `_` module or a `test*` module: {relative}"]
 
 
-def parse_module(path: Path, relative: str, store: DocumentStore) -> tuple[ast.Module | None, list[str]]:
+def parse_module(path: Path, relative: str, store: DocumentStore) -> tuple[PythonModule | None, list[str]]:
     text, read_error = store.read_text(path)
     if read_error:
         return None, [read_error]
     assert text is not None
-    try:
-        return ast.parse(text, filename=str(path)), []
-    except SyntaxError as exc:
-        return None, [f"Python module cannot be parsed for packaged-folder witnesses: {relative}:{exc.lineno or 1}: {exc.msg}"]
+    module, syntax_error = store.python_module(path, text)
+    if syntax_error is not None:
+        return None, [
+            f"Python module cannot be parsed for packaged-folder witnesses: "
+            f"{relative}:{syntax_error.lineno or 1}: {syntax_error.msg}"
+        ]
+    return module, []
 
 
 def _bound_public_names(tree: ast.Module) -> set[str]:
@@ -134,15 +139,17 @@ def launcher_errors(tree: ast.Module, relative: str, package: str) -> list[str]:
     return []
 
 
-def _imports(tree: ast.Module, path: Path, bases: tuple[Path, ...]) -> list[tuple[int, Path, str, tuple[str, ...]]]:
+def _imports(
+    import_nodes: tuple[ast.Import | ast.ImportFrom, ...], path: Path, bases: tuple[Path, ...],
+) -> list[tuple[int, Path, str, tuple[str, ...]]]:
     """Yield (line, import base directory, prefix dots, dotted segments) for every import statement."""
 
     found: list[tuple[int, Path, str, tuple[str, ...]]] = []
-    for node in ast.walk(tree):
+    for node in import_nodes:
         if isinstance(node, ast.Import):
             for alias in node.names:
                 found.extend((node.lineno, base, "", tuple(alias.name.split("."))) for base in bases)
-        elif isinstance(node, ast.ImportFrom):
+        else:
             module = tuple(node.module.split(".")) if node.module else ()
             if node.level:
                 ancestors = (path.parent, *path.parent.parents)
@@ -157,17 +164,19 @@ def _imports(tree: ast.Module, path: Path, bases: tuple[Path, ...]) -> list[tupl
     return found
 
 
-def deep_import_errors(tree: ast.Module, path: Path, bases: tuple[Path, ...], relative: str) -> list[str]:
+def deep_import_errors(
+    module: PythonModule, path: Path, bases: tuple[Path, ...], relative: str, package_dirs: frozenset[Path],
+) -> list[str]:
     """A private module may be imported only by modules of its own package folder."""
 
     errors: list[str] = []
     reported: set[tuple[int, Path]] = set()
-    for line, base, dots, segments in _imports(tree, path, bases):
+    for line, base, dots, segments in _imports(module.imports, path, bases):
         private_index = next((index for index, segment in enumerate(segments) if _is_private(segment)), None)
         if private_index is None:
             continue
         owner = base.joinpath(*segments[:private_index])
-        if not (owner / _PACKAGE_ENTRY).is_file() or path.parent == owner or (line, owner) in reported:
+        if owner not in package_dirs or path.parent == owner or (line, owner) in reported:
             continue
         reported.add((line, owner))
         errors.append(f"Deep import of private module {dots}{'.'.join(segments)} from outside its package: {relative}:{line}")
@@ -176,20 +185,22 @@ def deep_import_errors(tree: ast.Module, path: Path, bases: tuple[Path, ...], re
 
 def interface_errors(
     path: Path, root: Path, import_bases: tuple[Path, ...], relative: str, store: DocumentStore,
+    package_dirs: frozenset[Path],
 ) -> list[str]:
     """Run every AST witness that applies to one module below an enforced source root.
 
     Absolute imports resolve against each declared root's parent, the directory
     ``python -m <root>.<package>`` runs from; relative imports resolve from the module.
+    ``package_dirs`` holds every inventory folder whose native entry exists.
     """
 
     errors = module_name_errors(path, relative)
-    tree, parse_errors = parse_module(path, relative, store)
-    if tree is None:
+    module, parse_errors = parse_module(path, relative, store)
+    if module is None:
         return errors + parse_errors
-    if path.name == _PACKAGE_ENTRY:
-        errors.extend(entry_errors(tree, relative))
+    if path.name == PACKAGE_ENTRY:
+        errors.extend(entry_errors(module.tree, relative))
     elif path.name == _LAUNCHER:
-        errors.extend(launcher_errors(tree, relative, ".".join(path.relative_to(root.parent).parent.parts)))
-    errors.extend(deep_import_errors(tree, path, import_bases, relative))
+        errors.extend(launcher_errors(module.tree, relative, ".".join(path.relative_to(root.parent).parent.parts)))
+    errors.extend(deep_import_errors(module, path, import_bases, relative, package_dirs))
     return errors

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import inspect
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
@@ -8,7 +7,7 @@ from typing import Callable
 from scripts.check_governance_core import _git_capture
 from scripts.check_governance_core._results import API_VERSION, _document_result
 from scripts.check_governance_core._docs_checks import check_docs, check_project_docs
-from scripts.check_governance_core._documents import DocumentStore, routed_markdown_corpus
+from scripts.check_governance_core._documents import AGENTS_DOCS_ROOT, DOCS_ROOT, DocumentStore, routed_markdown_corpus
 from scripts.check_governance_core._folder_architecture import check_folder_architecture
 from scripts.check_governance_core._governance_checks import (
     FoundationContract,
@@ -97,10 +96,9 @@ def _python_safety(context: CheckContext) -> tuple[list[str], list[str]]:
     return check_python_safety(
         context.repo_root,
         context.inventory,
+        context.store,
         fail_on_warnings=context.strict_safety,
-        reviewed_popen_paths=frozenset(
-            {Path(inspect.getfile(_git_capture)).resolve()}
-        ),
+        reviewed_popen_paths=frozenset({Path(_git_capture.__file__).resolve()}),
     )
 
 
@@ -148,7 +146,7 @@ def execute(request: dict[str, object]) -> dict[str, object]:
         raise ValueError("fail_on_safety_warnings is valid only in full mode")
     repo_root, governance_root, inventory = _resolve_roots(request)
     store = DocumentStore()
-    inventory.tree_entries(repo_root if "docs" in MODE_CHECKS[str(mode)] else repo_root / "docs")
+    inventory.tree_entries(repo_root if "docs" in MODE_CHECKS[str(mode)] else repo_root / DOCS_ROOT)
     selected = set(MODE_CHECKS[str(mode)])
     contract = resolve_governance_contract(governance_root, store, inventory) if "governance" in selected else None
     foundations = resolve_foundations(governance_root, store, inventory, contract) if contract else None
@@ -210,7 +208,7 @@ def resolve_documents_request(request: dict[str, object]) -> dict[str, object]:
     if contract.errors:
         return _document_result("FAILED", [], list(contract.errors))
     root_paths = tuple(governance_root / value for value in contract.root_authorities)
-    markdown, markdown_error = inventory.markdown_files(governance_root / "docs/agents")
+    markdown, markdown_error = inventory.markdown_files(governance_root / AGENTS_DOCS_ROOT)
     if markdown_error:
         return _document_result("FAILED", [], [markdown_error])
     leaves, errors = routed_markdown_corpus(

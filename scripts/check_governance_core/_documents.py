@@ -6,6 +6,8 @@ from pathlib import Path, PurePosixPath
 from typing import Iterable
 from urllib.parse import unquote
 
+from scripts.check_governance_core._python_modules import PythonModule, parse_python
+
 
 _HEADING = re.compile(r"^[ ]{0,3}(#{1,6})[ \t]+(.+?)[ \t]*#*[ \t]*$")
 _FENCE = re.compile(r"^[ ]{0,3}(`{3,}|~{3,})(.*)$")
@@ -13,6 +15,13 @@ _NUMBERED_FOLDER = re.compile(r"^[0-9]{2}-(?P<name>.+)$")
 _DATED_FOLDER = re.compile(r"^[0-9]{4}-[0-9]{2}-[0-9]{2}-.+$")
 _LINK = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
 MAX_ROUTED_DOCUMENTS = 10_000
+# Root authority and docs-tree locations, relative to their root; every handler reuses these.
+CONSTITUTION_PATH = "AGENTS.md"
+ORCHESTRATION_PATH = "Orchestration.md"
+DOCS_ROOT = Path("docs")
+AGENTS_DOCS_ROOT = DOCS_ROOT / "agents"
+PROJECT_DOCS_ROOT = DOCS_ROOT / "project"
+SKILL_FILENAME = "SKILL.md"
 
 
 @dataclass(frozen=True)
@@ -88,6 +97,7 @@ class DocumentStore:
         self._resolved: dict[Path, Path] = {}
         self._text: dict[Path, tuple[str | None, str | None]] = {}
         self._markdown: dict[Path, tuple[MarkdownDocument | None, str | None]] = {}
+        self._python: dict[tuple[Path, str], tuple[PythonModule | None, SyntaxError | None]] = {}
 
     def read_text(self, path: Path) -> tuple[str | None, str | None]:
         resolved = self._resolve(path)
@@ -114,6 +124,14 @@ class DocumentStore:
         result = (parse_markdown(text), None) if text is not None else (None, error)
         self._markdown[resolved] = result
         return result
+
+    def python_module(self, path: Path, text: str) -> tuple[PythonModule | None, SyntaxError | None]:
+        """Parse one decoded Python source once per run; consumers share the tree and its import index."""
+
+        key = (self._resolve(path), text)
+        if key not in self._python:
+            self._python[key] = parse_python(text, str(path))
+        return self._python[key]
 
     def _resolve(self, path: Path) -> Path:
         if path not in self._resolved:
@@ -210,7 +228,7 @@ def routed_markdown_corpus(
 ) -> tuple[tuple[str, ...], list[str]]:
     """Resolve terminal Markdown leaves from the canonical agents router topology."""
 
-    docs_root = governance_root / "docs/agents"
+    docs_root = governance_root / AGENTS_DOCS_ROOT
     start = docs_root / router_filename(docs_root.name)
     available_by_key: dict[str, Path] = {}
     directory_keys: set[str] = set()

@@ -5,13 +5,14 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from scripts.check_governance_core._declared_paths import resolve_declared_file
-from scripts.check_governance_core._documents import DocumentStore, MarkdownDocument
+from scripts.check_governance_core._documents import (
+    AGENTS_DOCS_ROOT, CONSTITUTION_PATH, ORCHESTRATION_PATH, DocumentStore, MarkdownDocument, router_filename,
+)
 from scripts.check_governance_core._inventory import RepositoryInventory
+from scripts.check_governance_core._manifest import MANIFEST_PATH
 from scripts.check_governance_core._orchestration import validate_orchestration_contract
 
 
-CONSTITUTION_PATH = "AGENTS.md"
-ORCHESTRATION_PATH = "Orchestration.md"
 ROOT_AUTHORITIES = (CONSTITUTION_PATH, ORCHESTRATION_PATH)
 _AUTHORITY_TOKEN = "orchestration-authority:"
 _PRINCIPLES_START = "<!-- fundamental-principles:start -->"
@@ -239,7 +240,8 @@ def check_governance(
             else:
                 assert document is not None
                 errors.extend(_validate_principles(document))
-    for required in ("agents-manifest.yaml", "docs/agents/agents_index.md"):
+    agents_router = (AGENTS_DOCS_ROOT / router_filename(AGENTS_DOCS_ROOT.name)).as_posix()
+    for required in (MANIFEST_PATH, agents_router):
         if not (governance_root / required).is_file():
             errors.append(f"Missing governance authority surface: {required}")
     return list(dict.fromkeys((*errors, *foundations.errors)))

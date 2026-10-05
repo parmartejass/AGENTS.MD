@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from scripts.check_governance_core._documents import DocumentStore
+from scripts.check_governance_core._documents import DOCS_ROOT, DocumentStore
 from scripts.check_governance_core._inventory import RepositoryInventory
 
 
@@ -39,7 +39,7 @@ def check_repository(
         elif _SECRET.search(normalized):
             errors.append(f"Tracked secret-like file: {value}")
 
-    docs_root = repo_root / "docs"
+    docs_root = repo_root / DOCS_ROOT
     if docs_root.is_dir():
         markdown_files, markdown_error = inventory.markdown_files(docs_root)
         if markdown_error:

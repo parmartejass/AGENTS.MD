@@ -42,19 +42,27 @@ class FoundationContractTests(unittest.TestCase):
             root = Path(temp)
             declared = _fixture(root)
             with patch("scripts.check_governance_core._test_support.REPOSITORY_ROOT", root), \
+                 patch.dict("scripts.check_governance_core._test_support._LIVE_FOUNDATIONS", clear=True), \
                  patch("scripts.check_governance_core._test_support.run_checks", wraps=run_checks) as boundary:
                 self.assertEqual(declared, live_foundations()[1])
                 boundary.assert_called_once_with({"repo_root": str(root), "governance_root": str(root)})
+                self.assertEqual(declared, live_foundations()[1])
+                self.assertEqual(1, boundary.call_count)
+                coding = root / declared["coding_principles"]
+                write(coding, coding.read_text(encoding="utf-8") + "\n")
+                self.assertEqual(declared, live_foundations()[1])
+                self.assertEqual(2, boundary.call_count)
                 owner = root / declared["constitution"]
                 write(owner, owner.read_text(encoding="utf-8").replace(
                     "foundation_contract_version: 1", "foundation_contract_version: 9"))
                 with self.assertRaisesRegex(ValueError, "foundation_contract_version"):
                     live_foundations()
-                self.assertEqual(2, boundary.call_count)
+                self.assertEqual(3, boundary.call_count)
 
     def test_fixture_propagates_public_validation_failure_without_extracting(self) -> None:
         result = {"status": "FAILED_VALIDATION", "checks": [], "errors": ["owner root unavailable"]}
         with patch("scripts.check_governance_core._test_support.run_checks", return_value=result), \
+             patch.dict("scripts.check_governance_core._test_support._LIVE_FOUNDATIONS", clear=True), \
              patch.object(Path, "read_text", side_effect=AssertionError("unvalidated owner read")):
             with self.assertRaisesRegex(ValueError, "owner root unavailable"):
                 live_foundations()
