@@ -40,7 +40,7 @@ Jurisdiction: docs admission and maintenance, safe supersession, concise owner r
 ## Concise owner records
 
 - MUST use the minimum structured authority statements, short notes, lists, or tables that expose jurisdiction, facts, rationale, uncertainty, and evidence.
-- Prohibited: essays, a universal record schema, or a new status/log system. Materiality selects knowledge; concision MUST preserve scope, force, ordering, exceptions, and witnesses.
+- Prohibited: essays, a universal record schema, or a new status/log system. Materiality selects knowledge; concision MUST preserve scope, force, ordering, exceptions, and witnesses. Information-preserving compression ranks first (explicit user decision 2026-10-05): the shorter of two wordings carrying the same information MUST replace the longer; useless or overburdening instructions, records, and process MUST be removed and fundamental ones kept.
 - Non-owner docs MUST NOT copy large mappings, defaults, headers, tables, config values, non-owner summaries, prose implementations of business rules, or hand-maintained code blocks mirroring production code unless clearly marked as examples.
 - Non-owner docs MAY describe intent and invariants, contracts and interfaces by SSOT symbol, runbooks by workflow entrypoint and config key identifier, decision records, and the provenance, validation expectations, interpretation, and change rules for data truths owned elsewhere.
 - Allowed fact owners include code, config files, constants modules, schemas, input artifacts, external systems, workbooks, sample data, and project docs explicitly marked as owner.
