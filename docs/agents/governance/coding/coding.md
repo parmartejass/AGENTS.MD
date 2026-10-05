@@ -29,7 +29,7 @@ Rules:
 
 - Prohibited: preserving drift with wrappers, compatibility branches, local predicates, test-only allowances, checker-specific patches, duplicated constants, fallback paths, private config interpretations, or caller-owned copies of owner rules.
 - Code existing only to compensate for a missing, weak, stale, ambiguous, or bypassed owner contract MUST be deleted or replaced through the owner.
-- Capability modules MUST be designed around the owning contract, not the current patch example; they accept validated intent or plain-data instructions and report the full work universe: planned, eligible, applied, skipped, failed, and reasons.
+- Capability modules MUST be designed around the owning contract, not the current patch example; they accept validated intent or plain-data instructions and report the full work universe: planned, eligible, executed, skipped, failed, and reasons.
 - Adding, removing, or wiring behavior MUST update the owner-owned contract, registry, schema, config, scope file, validator, or public entrypoint first.
 - Callers, wrappers, sibling modules, tests, docs, and checkers MUST consume that owner and MUST NOT privately infer membership, routing, accepted alternatives, ordering, validation predicates, allowed or forbidden paths, or lifecycle semantics.
 - Feature requests MUST be decomposed into the feature authority and the reusable mechanics authority when mechanics, external resources, lifecycle handling, validation, operation evidence, or transformation behavior can be reused, tested, or changed independently of one caller.
@@ -100,21 +100,13 @@ baseline:
 
 code_decomposition_review_lines: 400
 
-- That operative declaration is the sole code-size review value: one column-zero key, a colon and single space, and a positive decimal integer without sign or leading zero.
-- Fenced, indented-code, and quoted examples supply no value; missing, malformed, duplicate, nonpositive, or unsupported-sized integers fail explicitly without a default.
-- Governance-core counts `str.splitlines()` records including comments and blanks for its Python structural subset and warns only above the declared value.
-- The default implementation path MUST be the smallest authority-correct design that preserves or strengthens behavior.
-- Existing owner-owned contracts, registries, schemas, config, validators, and entrypoints MUST be used when they cover the responsibility; Prohibited: repeated local conditionals, checker-specific patch logic.
+- That operative declaration is the sole code-size review value (one positive decimal integer; examples in fences, indented code, or quotes supply no value); governance-core consumes it without a default, counts `str.splitlines()` records including comments and blanks for its Python structural subset, and warns only above the declared value.
+- The default implementation path MUST be the smallest authority-correct design that preserves or strengthens behavior, using existing owner-owned contracts, registries, schemas, config, validators, and entrypoints when they cover the responsibility; Prohibited: repeated local conditionals, checker-specific patch logic.
 - MUST split inside the same folder first; promote to a child folder only when the behavior becomes independently owned.
-- Before adding logic to an entrypoint, MUST check boundary signals: distinct invariants or rules, distinct lifecycle or state handling, distinct I/O boundary or side effects, independent testability, separate owner update triggers or independent change cadence.
-- If any boundary signal is present, MUST create or extend private files or child folders under the same authority parent before adding entrypoint logic; with no signal, keep the logic in the entrypoint and record the rationale.
+- Before adding logic to an entrypoint, MUST check boundary signals: distinct invariants or rules, distinct lifecycle or state handling, distinct I/O boundary or side effects, independent testability, separate owner update triggers or independent change cadence; with any signal present, create or extend private files or child folders under the same authority parent first; with none, keep the logic in the entrypoint; record the decomposition decision and witness against this doc in the confirmed plan or role-bounded agent report.
 - Reusable mechanics MUST be promoted or extended only when boundary signals show the capability can be reused, tested, or changed independently while caller-feature policy stays in the feature owner; request-specific logic stays in its current authority with a recorded rationale.
-- Before adding logic to folder entrypoints, MUST record the decomposition decision and witness against this doc's sections in the confirmed plan or role-bounded agent report.
-- A file exceeding `code_decomposition_review_lines`, or that the current change would make exceed it, is a coding-principles trigger for the affected responsibility; this whole doc MUST be applied before closure as with any patch, bugfix, feature change, addition, removal, refactor, or wiring change.
-- The decision scope is the affected responsibility across all applicable owners, contracts, entrypoints, and call sites.
-- The decision MUST account for applicable current-module, parent or higher workflow, feature-folder, reusable-mechanics, `shared/`, script/checker, config/schema/data-owner, adapter, public-entrypoint, external-adapter, duplicate-pruning, deletion, and reroute boundaries.
-- LOC reduction is valid closure evidence only when correctness, validation, explicit outcomes, observability, witnesses, SSOT jurisdiction and routing, and public-contract clarity remain intact; numeric LOC targets are evidence pressure for authority-preserving decomposition.
-- Any remaining LOC increase MUST be justified by required behavior, stronger validation, stronger observability, or clearer authority boundaries.
+- A file exceeding `code_decomposition_review_lines`, or that the current change would make exceed it, is a coding-principles trigger for the affected responsibility across all applicable owners, contracts, entrypoints, call sites, and the current-module, workflow, feature-folder, reusable-mechanics, `shared/`, script/checker, config/schema/data-owner, adapter, public-entrypoint, duplicate-pruning, deletion, and reroute boundaries; this whole doc MUST be applied before closure as with any other change.
+- LOC reduction is valid closure evidence only when correctness, validation, explicit outcomes, observability, witnesses, SSOT jurisdiction and routing, and public-contract clarity remain intact; a remaining LOC increase MUST be justified by required behavior, stronger validation, stronger observability, or clearer authority boundaries.
 
 ## Contract change gate
 

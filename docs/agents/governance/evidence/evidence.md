@@ -85,7 +85,6 @@ Authority-application witness fields:
 - Preserve output-equivalence and failure-path witnesses when optimizing.
 - Report excluded or uninstrumented work as unverified, including model, platform, and network work.
 - A passing structural or reporting check does not establish performance attainment.
-- Workload bounds and instrumentation limits exempt no process from the performance target.
 
 ## Performance hotspot scaffold
 

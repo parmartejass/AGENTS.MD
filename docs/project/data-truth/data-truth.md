@@ -28,10 +28,6 @@ update_trigger: data-truth ownership, provenance, validation, or routing changes
 - Adding policy records here to satisfy a checker is Prohibited.
 - Fixed truth-kind taxonomies here are Prohibited.
 
-## Branch-local owner subdocs
-- None currently declared.
-- Create a data-truth subdoc when a stable cluster needs its own intent, boundary, invariant, change rule, verification, and references.
-
 ## Verification
 - `docs/project/data-truth/data-truth_index.md` routes this branch.
 - README Checks owns the deterministic project-doc and docs-router verification commands.

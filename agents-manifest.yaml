@@ -4,6 +4,12 @@ update_trigger: Governance Agent task signals or governance authority routes cha
 description: >-
   Deterministic Governance Agent task-signal-to-governance-authority routing manifest.
   Detection signals identify candidates, not closed capabilities.
+  Matching: detect.keywords are case-insensitive substrings of the user prompt and referenced file contents;
+  detect.code_patterns are substrings or regexes over code in scope; detect.file_globs match referenced or edited files;
+  detect.signals are explicit signals supplied by the user or execution environment; a profile matches when any signal matches.
+  Routing: union reads every matching profile's authorities de-duplicated in profile-declaration then list order;
+  first_match reads the earliest matching profile only; no match reads fallback_authorities.
+  semantic_queries.<profile> is optional and runs first only when semantic search is available.
 
 routing_mode: union # union | first_match
 
@@ -13,38 +19,24 @@ fallback_authorities:
   - "docs/agents/governance/ssot/hand-offs/hand-offs.md"
 
 semantic_queries:
-  # Pre-defined queries agents can use for embedding-based search when a profile matches.
   governance_improvement:
-    - "Where are governance policies and core principles defined?"
-    - "How is Governance Agent authority routing configured?"
+    - "Where are governance policies, core principles, and Governance Agent authority routing defined?"
   codex_session_log_review:
-    - "How should local Codex session logs be reviewed for bounded evidence?"
-    - "How are session-log findings handed off to governance-learning promotion review?"
+    - "How are local Codex session logs reviewed for bounded evidence and handed to governance-learning promotion?"
   excel_automation:
-    - "Where is Excel file processing handled in this repo?"
-    - "Where are workbook/sheet constants and validation rules defined?"
-    - "Where is OOXML-first Excel backend selection handled?"
-    - "How is Excel COM lifecycle managed in this repo?"
-    - "Where is Excel graceful quit verified and PID-scoped forced termination handled?"
+    - "Where are Excel processing, OOXML-first backend selection, workbook constants, and COM lifecycle handled?"
   gui_task:
-    - "How is GUI thread safety enforced?"
-    - "Where is the queue/drain pattern implemented?"
+    - "How are GUI thread safety and the queue/drain pattern implemented?"
   bugfix:
-    - "Where is the failing functionality implemented?"
-    - "What SSOT owns this behavior?"
+    - "Where is the failing functionality implemented and which SSOT owns this behavior?"
   io_batch:
-    - "Where is high-volume file I/O handled in this repo?"
-    - "What SSOT owns batching/chunking/caching for file processing?"
+    - "Where is high-volume file I/O handled and which SSOT owns batching, chunking, and caching?"
   pdf_task:
-    - "Where is PDF merging handled in this repo?"
-    - "How is merged PDF integrity validated (page count, IDs, size checks)?"
-    - "Which PDF backend is selected by the current SSOT and how are backend failures handled?"
+    - "Where is PDF merging handled, how is merged integrity validated, and which backend does the SSOT select?"
   runtime_path:
-    - "Where is runtime path or backend selection owned?"
-    - "How are fallback, legacy, substitute, or downgrade paths rejected or reported?"
+    - "Where is runtime path or backend selection owned and how are fallback or substitute paths rejected?"
   perf_hotspots:
-    - "Where are known performance hotspots handled in this repo?"
-    - "What SSOT owns caching/batching for the slow path?"
+    - "Where are known performance hotspots handled and which SSOT owns caching or batching for the slow path?"
   design_system:
     - "Where are design tokens, themes, and the accessibility floor declared?"
   packaging:
@@ -348,12 +340,10 @@ profiles:
         - "protected-behavior subdoc"
         - "project data truth"
         - "project data-truth"
-        - "docs/project/data-truth/data-truth.md"
         - "user prompt data truth"
         - "user-provided data truth"
         - "prompt-originated truth"
         - "project changelog"
-        - "docs/project/changelog/changelog.md"
         - "closure record"
         - "closure records"
         - "tracked closure"

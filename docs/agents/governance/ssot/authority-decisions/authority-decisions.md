@@ -62,11 +62,7 @@ Each active decision record MUST include:
 - Decision ID: SSOT-DEC-003
 - Status: active
 - Scope: packaged-folder public entrypoints for runtime code (the language-native package entry) and docs (the folder router), with docs-specific router and public-leaf behavior under `docs/`
-- Canonical owner: packaged-folder contract for code and docs -> `AGENTS.md` Jurisdictional Decomposition
-- Canonical owner: docs-family behavior policy -> `docs/agents/governance/documentation/documentation.md`
-- Canonical owner: coding-principles and native-package code mechanics -> `docs/agents/governance/coding/coding.md`
-- Canonical owner: docs router and public-leaf validation facts -> governance-core package public contract (`scripts/check_governance_core/`)
-- Canonical owner: Python packaged-folder enforcement -> governance-core package public contract (`scripts/check_governance_core/`)
+- Canonical owner: packaged-folder contract for code and docs -> `AGENTS.md` Jurisdictional Decomposition; docs mechanics, code mechanics, and validation facts -> the owners routed by `docs/agents/governance/ssot/ssot.md` Docs modularity and Coding principles
 - Allowed non-owner location: router-linked public leaf markdown docs inside the same docs folder authority
 - Allowed non-owner location: router-only docs folders that are artifact-first and catalog only payload children such as JSON, TOML, generated outputs, or dated evidence subfolders
 - Allowed non-owner location: deeper runtime identity contracts such as `SKILL.md` and `mcp.json`, owned by their existing authorities and out of scope for this naming contract
@@ -74,23 +70,12 @@ Each active decision record MUST include:
 - Forbidden duplicate: keeping `scripts/migrated_router_leaves.json` or any replacement leaf-name registry once filename derivation is handled by the governance-core public contract
 - Forbidden duplicate: hardcoding runtime or docs contract filenames independently in validators, README guidance, templates, or policy docs
 - Forbidden duplicate: competing public contract files inside one folder authority without an explicit contract-family exception
-- Forbidden duplicate: custom entry-file naming over a native package mechanism, including the `scripts/<feature>/<feature>_main.py` convention superseded by explicit user decision of 2026-10-03
-- Coordinated update set: `AGENTS.md`
-- Coordinated update set: `docs/agents/governance/documentation/documentation.md`
-- Coordinated update set: `docs/agents/governance/coding/coding.md`
-- Coordinated update set: `docs/agents/governance/documentation/project-docs-template/project-docs-template.md`
-- Coordinated update set: `docs/agents/governance/coding/workflow-registry/workflow-registry.md`
-- Coordinated update set: `docs/project/architecture/architecture.md`
-- Coordinated update set: `agents-manifest.yaml`
-- Coordinated update set: `README.md`
-- Coordinated update set: the governance-core package `scripts/check_governance_core/` (`__init__.py` public API, `__main__.py` launcher)
-- Coordinated update set: public-contract regression tests under `scripts/check_governance_core/`
-- Coordinated update set: governance-core public-API consumer `X-Bookmarks Import/skills/governance-autoresearch/scripts/governance_research.py`
-- Verification witness: `python3 -m unittest discover -s scripts/check_governance_core -p "test*.py" -v` passes, including negative docs-router, repository-structure, and Python-safety cases
-- Verification witness: the README Checks full governance-core command passes
+- Forbidden duplicate: custom entry-file naming over a native package mechanism, including the superseded `scripts/<feature>/<feature>_main.py` convention
+- Coordinated update set: the constitution, the owners routed by `docs/agents/governance/ssot/ssot.md` Docs modularity and Coding principles, the project architecture record, `agents-manifest.yaml`, `README.md`, the governance-core package with its regression tests, and its public-API consumers
+- Verification witness: the README Checks full governance-core command and core regression tests pass, including negative docs-router, repository-structure, and Python-safety cases
 - Review trigger: any proposal to change a docs router or public-leaf filename pattern without updating the governance-core public contract and its regression fixtures
 - Review trigger: any proposal to change Python packaged-folder enforcement without updating that public contract and the coding native-package table
-- Review trigger: any user decision revisiting the `<authority>_index.md` docs-router name, retained as a custom entry-file exception to the packaged-folder contract by explicit user decision of 2026-10-03 recorded in this governance source repository's `docs/project/goal/goal.md`
+- Review trigger: any user decision revisiting the `<authority>_index.md` docs-router name, the custom entry-file exception to the packaged-folder contract retained by the 2026-10-03 user decision in this governance source repository's `docs/project/goal/goal.md`
 - Review trigger: any proposal to reintroduce `index.md` as the universal docs router contract
 - Review trigger: any proposal to rename or repurpose `SKILL.md` or `mcp.json` under this contract family
 
@@ -115,28 +100,8 @@ Each active decision record MUST include:
 - Forbidden duplicate: closure records in per-change tracked changelog files by default, `docs/project/learning/changelog.md`, restored `docs/project/change-records/`, restored change-record schemas, or restored checker flags
 - Forbidden duplicate: raw prompts containing secrets, credentials, PII, customer data, or oversized pasted artifacts in tracked docs
 - Forbidden duplicate: treating non-owner working evidence as project truth
-- Coordinated update set: `AGENTS.md`
-- Coordinated update set: `README.md`
-- Coordinated update set: `agents-manifest.yaml`
-- Coordinated update set: `docs/agents/governance/ssot/ssot.md`
-- Coordinated update set: `docs/agents/governance/documentation/documentation.md`
-- Coordinated update set: `docs/agents/governance/release/release.md`
-- Coordinated update set: `docs/agents/governance/documentation/project-docs-template/project-docs-template.md`
-- Coordinated update set: `docs/project/project_index.md`
-- Coordinated update set: `docs/project/architecture/architecture.md`
-- Coordinated update set: `docs/project/changelog/changelog_index.md`
-- Coordinated update set: `docs/project/changelog/changelog.md`
-- Coordinated update set: `docs/project/goal/goal_index.md`
-- Coordinated update set: `docs/project/goal/goal.md`
-- Coordinated update set: `docs/project/learning/learning.md`
-- Coordinated update set: governance-core package (`scripts/check_governance_core/`) public project-doc validator contract and public-API regression tests
-- Verification witness: project-doc checks pass with durable truth routed through declared owner docs
-- Verification witness: tracked Changelog closure records reference owner-promotion targets or `N/A + reason`
-- Verification witness: active docs route material future-decision knowledge to declared owner docs
-- Verification witness: new project truth docs are accepted only through the docs SSOT declared-owner path
-- Verification witness: docs router validation has no active route to a non-owner project-truth surface
-- Verification witness: retired change-record files and directories remain absent, retired checker flags remain absent from public command surfaces, and no per-change tracked changelog-file tree exists
-- Verification witness: text audit confirms active project docs define no duplicate project-truth authority
+- Coordinated update set: the constitution, the owners routed by `docs/agents/governance/ssot/ssot.md` Bounded project authority memory, the release owner, `README.md`, `agents-manifest.yaml`, and the governance-core project-doc validator with its regression tests
+- Verification witness: the README Checks project-doc command passes; tracked Changelog records reference owner-promotion targets or `N/A + reason`; retired change-record files, checker flags, and per-change changelog trees remain absent; manual review confirms active project docs define no duplicate project-truth authority
 - Review trigger: any proposal to add a separate project truth owner outside the docs SSOT declared-owner path
 - Review trigger: any proposal to move durable project intent out of `goal.md`, weaken owner-doc promotion, or treat non-owner evidence as project-truth authority
 - Review trigger: any proposal to add Changelog storage outside the tracked owner and valid mirror surface set, copy the release-checklist field template into non-owner docs, or restore retired change-record contracts
