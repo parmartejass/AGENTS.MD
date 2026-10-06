@@ -73,7 +73,7 @@ Governance-root declarations resolve inside `.governance/`; project docs stay un
 
 ```powershell
 git -C .governance pull --ff-only origin main   # update the pack
-git add .governance; git commit -m "Update governance pack"  # commit the pointer
+git add .governance; if ($?) { git commit -m "Update governance pack" }  # commit the pointer
 git clone --recurse-submodules <repo-url>       # clone with the pack
 git submodule update --init --recursive         # initialize after a plain clone
 ```
