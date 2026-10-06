@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import json
 import re
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 from typing import Any
 
-from scripts.check_governance_core._documents import DocumentStore, resolve_declared_file
+from scripts.check_governance_core._declared_paths import canonical_relative, resolve_declared_file
+from scripts.check_governance_core._documents import DocumentStore
 from scripts.check_governance_core._inventory import RepositoryInventory
 
 
@@ -13,6 +14,7 @@ class ManifestSyntaxError(ValueError):
     pass
 
 
+MANIFEST_PATH = "agents-manifest.yaml"
 _KEY = re.compile(r"^[A-Za-z0-9_]+$")
 _TOP_LEVEL_KEYS = {
     "version",
@@ -168,18 +170,9 @@ def parse_manifest(text: str) -> dict[str, Any]:
     return parsed
 
 
-def _canonical_path(value: str) -> str | None:
-    path = PurePosixPath(value)
-    if (
-        not value
-        or "\\" in value
-        or ":" in value
-        or path.is_absolute()
-        or path.as_posix() != value
-        or any(part in {"", ".", ".."} or part != part.rstrip(" .") for part in path.parts)
-    ):
-        return None
-    return "/".join(part.casefold() for part in path.parts)
+def _canonical_key(value: str) -> str | None:
+    declared = canonical_relative(value)
+    return None if declared is None else "/".join(part.casefold() for part in declared.parts)
 
 
 def validate_manifest(
@@ -188,7 +181,7 @@ def validate_manifest(
     inventory: RepositoryInventory,
     mandatory_authorities: tuple[str, ...],
 ) -> tuple[dict[str, Any] | None, list[str]]:
-    path, validation_error = inventory.validate_file(governance_root / "agents-manifest.yaml")
+    path, validation_error = inventory.validate_file(governance_root / MANIFEST_PATH)
     if validation_error:
         return None, [validation_error]
     assert path is not None
@@ -210,8 +203,8 @@ def validate_manifest(
         errors.append(f"agents-manifest.yaml: unsupported top-level key: {key}")
     if data.get("version") != 3:
         errors.append("agents-manifest.yaml: version must be 3")
-    if data.get("ssot_owner") != "agents-manifest.yaml":
-        errors.append("agents-manifest.yaml: ssot_owner must be agents-manifest.yaml")
+    if data.get("ssot_owner") != MANIFEST_PATH:
+        errors.append(f"agents-manifest.yaml: ssot_owner must be {MANIFEST_PATH}")
     for field in ("update_trigger", "description"):
         value = data.get(field)
         if not isinstance(value, str) or not value.strip():
@@ -263,7 +256,7 @@ def validate_manifest(
         ):
             errors.append(f"agents-manifest.yaml: semantic_queries.{name} must be a non-empty string list")
 
-    mandatory_keys = {_canonical_path(value) for value in mandatory_authorities}
+    mandatory_keys = {_canonical_key(value) for value in mandatory_authorities}
     mandatory_targets = [resolve_declared_file(governance_root, value)[0] for value in mandatory_authorities]
     for label, values in authority_lists:
         if not isinstance(values, list) or not values:
@@ -275,7 +268,7 @@ def validate_manifest(
             if not isinstance(value, str):
                 errors.append(f"agents-manifest.yaml: {label} contains a non-string authority")
                 continue
-            key = _canonical_path(value)
+            key = _canonical_key(value)
             if key is None:
                 errors.append(f"agents-manifest.yaml: {label} contains an invalid authority path: {value!r}")
                 continue

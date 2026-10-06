@@ -55,3 +55,4 @@ Use multiple witnesses; size alone is a heuristic, and optimized formats legitim
 - A proven heuristic defect MUST be corrected at the validation or config owner under authorization, with preserved content requirements and regression evidence.
 - A heuristic correction MUST NOT convert the failed run to success.
 - Observed backend drift MUST change the selection owner's backend before the next execution.
+- Text extraction can return empty or wrong text for scanned, vector-only, or oddly encoded pages; a witness built on extracted text MUST record that limit and MUST NOT be the only content witness.

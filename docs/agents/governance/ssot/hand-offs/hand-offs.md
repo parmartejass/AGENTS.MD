@@ -46,7 +46,7 @@ Jurisdiction: cross-jurisdiction dependencies that owner docs express only by no
 | gui-toolkit | feedback vocabulary and outcome states | `docs/agents/playbooks/run-outcomes/run-outcomes.md` |
 | gui-guidelines | config live-sync mechanics | `docs/agents/playbooks/config/config.md` |
 | gui-guidelines | user-facing summary content and progress-for-long-work obligations | `docs/agents/playbooks/run-outcomes/run-outcomes.md` |
-| gui-guidelines | declared styles and token set (styles section handed off 2026-09-20) | `docs/agents/playbooks/design-system/design-system.md` |
+| gui-guidelines | declared styles and token set | `docs/agents/playbooks/design-system/design-system.md` |
 | design-system | UI-thread and scheduler mechanics for DPI setup ordering | `docs/agents/interfaces/gui-toolkit/gui-toolkit.md` |
 | design-system | feedback vocabulary presented on styled surfaces | `docs/agents/playbooks/gui-guidelines/gui-guidelines.md` |
 | config | UI mechanics for config-driven selection surfaces | `docs/agents/interfaces/gui-toolkit/gui-toolkit.md` |
@@ -54,7 +54,7 @@ Jurisdiction: cross-jurisdiction dependencies that owner docs express only by no
 | config | write safety and two-phase commit | `docs/agents/interfaces/filesystem/filesystem.md` |
 | logging | log schema, reason-code scaffold, and the user-facing feedback channel | `docs/agents/playbooks/run-outcomes/run-outcomes.md` |
 | logging | redaction list and payload summarization | `docs/agents/governance/security/security.md` |
-| logging | static witness for logging rules | `scripts/check_governance_core/check_governance_core_main.py` |
+| logging | static witness for logging rules | `scripts/check_governance_core/` |
 | run-outcomes | redaction list for reports and summaries | `docs/agents/governance/security/security.md` |
 | settings | MCP payload sources | `docs/agents/governance/mcp/mcp.md` |
 | settings | secret boundary for machine-local files | `docs/agents/governance/security/security.md` |
@@ -66,21 +66,7 @@ Jurisdiction: cross-jurisdiction dependencies that owner docs express only by no
 | skills | update-together set for bundle identity and platform behavior | `docs/agents/agents_index.md`; `README.md` |
 | prompt-authoring | bugfix evidence inputs | `docs/agents/governance/bugfix/bugfix.md` |
 | prompt-authoring | release evidence | `docs/agents/governance/release/release.md` |
-| release | SSOT, contracts, dependency direction, pruning | `docs/agents/governance/coding/coding.md` |
-| release | logging channels and error taxonomy | `docs/agents/governance/coding/logging/logging.md` |
-| release | explicit outcomes and work reconciliation | `docs/agents/playbooks/run-outcomes/run-outcomes.md` |
-| release | owned process ownership and cleanup | `docs/agents/interfaces/os-processes/os-processes.md` |
-| release | Excel COM lifecycle | `docs/agents/interfaces/excel/excel.md` |
-| release | write safety and destination validation | `docs/agents/interfaces/filesystem/filesystem.md` |
-| release | UI thread and cancellation | `docs/agents/interfaces/gui-toolkit/gui-toolkit.md` |
-| release | documentation placement and owner promotion | `docs/agents/governance/documentation/documentation.md` |
-| release | bugfix and regression evidence | `docs/agents/governance/bugfix/bugfix.md` |
-| release | behavior-change and new-feature evidence | `docs/agents/governance/evidence/evidence.md` |
-| release | real-file and fixture evidence | `docs/agents/governance/testing/testing.md` |
-| release | secret handling and redaction | `docs/agents/governance/security/security.md` |
-| release | closure-record owner and mirror surfaces (`SSOT-DEC-004`) | `docs/agents/governance/ssot/authority-decisions/authority-decisions.md` |
-| release | artifact build, version identity, signing, inventory | `docs/agents/playbooks/packaging/packaging.md` |
-| release | dependency lockfile state and vulnerability scan | `docs/agents/governance/dependencies/dependencies.md` |
+| release | the witness of every applicable jurisdiction (coding, logging, run-outcomes, os-processes, excel, filesystem, gui-toolkit, documentation, bugfix, evidence, testing, security, packaging, dependencies) and the closure-record owner (`SSOT-DEC-004`) | each jurisdiction's owner doc; `docs/agents/governance/ssot/authority-decisions/authority-decisions.md` |
 | packaging | locked dependency set and hashes | `docs/agents/governance/dependencies/dependencies.md` |
 | packaging | changelog closure record fields | `docs/agents/governance/release/release.md` |
 | dependencies | secret boundary and permission boundary for install tooling | `docs/agents/governance/security/security.md` |

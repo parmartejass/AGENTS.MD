@@ -40,7 +40,7 @@ Jurisdiction: docs admission and maintenance, safe supersession, concise owner r
 ## Concise owner records
 
 - MUST use the minimum structured authority statements, short notes, lists, or tables that expose jurisdiction, facts, rationale, uncertainty, and evidence.
-- Prohibited: essays, a universal record schema, or a new status/log system. Materiality selects knowledge; concision MUST preserve scope, force, ordering, exceptions, and witnesses.
+- Prohibited: essays, a universal record schema, or a new status/log system. Materiality selects knowledge; concision MUST preserve scope, force, ordering, exceptions, and witnesses. Information-preserving compression ranks first (explicit user decision 2026-10-05): the shorter of two wordings carrying the same information MUST replace the longer; useless or overburdening instructions, records, and process MUST be removed and fundamental ones kept.
 - Non-owner docs MUST NOT copy large mappings, defaults, headers, tables, config values, non-owner summaries, prose implementations of business rules, or hand-maintained code blocks mirroring production code unless clearly marked as examples.
 - Non-owner docs MAY describe intent and invariants, contracts and interfaces by SSOT symbol, runbooks by workflow entrypoint and config key identifier, decision records, and the provenance, validation expectations, interpretation, and change rules for data truths owned elsewhere.
 - Allowed fact owners include code, config files, constants modules, schemas, input artifacts, external systems, workbooks, sample data, and project docs explicitly marked as owner.
@@ -69,7 +69,6 @@ Jurisdiction: docs admission and maintenance, safe supersession, concise owner r
 - Governance-core derives each branch router and primary leaf through its public filename contract.
 - Root docs are jurisdiction/index surfaces; they MUST NOT absorb every branch truth when a stable cluster needs a smaller owner.
 - Branch-local owner subdocs MUST live under the project-doc branch that owns the truth and MUST follow the template scaffold contract.
-- `docs/project/goal/goal.md` MUST exist and owns durable project intent, objective, acceptance criteria, non-goals, and verification intent.
 - User-provided data assertions MUST retain validation expectations alongside the provenance, verification limits, supersession trigger, and source-owner routing required by Admission.
 - `docs/project/changelog/changelog.md` owns tracked `Changelog` closure records; mirror-surface validity is governed by `SSOT-DEC-004` and field template/order by the release owner.
 - Durable facts referenced by `Changelog` MUST resolve to their declared owner doc, code, config, data, or workflow authority before closure.
@@ -113,9 +112,10 @@ update_trigger: <what change requires updating this doc>
 
 ## Routers and public leaves
 
-- The executable filename contract is exposed by `scripts/check_governance_core/check_governance_core_main.py`; this doc owns the docs-family behavior that contract encodes and MUST NOT restate a second naming rule.
+- The executable filename contract is enforced through the governance-core package public contract (`scripts/check_governance_core/`); this doc owns the docs-family behavior that contract encodes and MUST NOT restate a second naming rule.
+- A docs folder is a packaged folder under the constitutional packaged-folder contract: its router is the public entrypoint, and the files and child folders it routes are its public members.
 - Every directory under `docs/` MUST contain the canonical router file resolved by that contract.
-- Docs routers follow the folder-owned pattern `<authority>_index.md` and MUST remain routing-only.
+- Docs routers follow the folder-owned pattern `<authority>_index.md` (the retained custom entry-file exception recorded in `SSOT-DEC-003`) and MUST remain routing-only.
 - Routers MUST catalog direct children only and MUST include a `Required when:` statement for each child.
 - A docs folder with narrative content MUST expose the route-owner-resolved primary public leaf, plus any additional router-exposed public leaves that do not compete with it.
 - Direct references MAY target a router-linked public leaf when the caller needs that leaf's facts; branch navigation MUST enter through the folder router.
@@ -133,12 +133,9 @@ update_trigger: <what change requires updating this doc>
 ## Size and cohesion
 documentation_line_limit: 300
 
-- The declaration above is the sole line-limit value; governance-core consumes it without a default, and a missing, malformed, duplicate, or nonpositive declaration is an explicit validation failure.
-- Counting MUST use physical LF delimiters plus one when nonempty content lacks a final LF; CRLF contributes one delimiter, an empty file has zero records, a final LF creates no phantom record, and a BOM creates no extra record.
-- Every repository Markdown document is subject to it, including root authorities, reports, routers, templates, ignored, untracked and vendored files, uppercase extensions, and operational assets.
+- The declaration above is the sole line-limit value; governance-core consumes it without a default (a missing, malformed, duplicate, or nonpositive declaration fails explicitly), counts physical line records (LF delimiters plus one when nonempty content lacks a final LF; CRLF counts once; BOM and a final LF add nothing), and applies it to every repository Markdown document, including root authorities, reports, routers, templates, ignored, untracked and vendored files, uppercase extensions, and operational assets.
 - Header-format exceptions are not size exceptions; no exemption, minification, or loss of meaning satisfies the limit.
-- MUST split by stable subject responsibility inside the existing authority parent, applying SRP and SSOT recursively to nested folders.
-- Each new jurisdiction MUST have one declared owner and a stable router/public boundary with direct routes and no competing authority.
+- MUST split by stable subject responsibility inside the existing packaged folder; a split that creates a new jurisdiction creates its child packaged folder with its router and primary public leaf.
 - Prohibited: god files and arbitrary flat fragments.
 - A split MUST move the whole coherent responsibility, migrate links and consumers, and remove superseded duplication in the same change.
 

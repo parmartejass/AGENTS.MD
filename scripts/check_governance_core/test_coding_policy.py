@@ -8,7 +8,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from scripts.check_governance_core._test_support import REPOSITORY_ROOT, install_foundations, write
-from scripts.check_governance_core.check_governance_core_main import resolve_documents, run_checks
+from scripts.check_governance_core import resolve_documents, run_checks
 
 
 def _policy(path: Path, declaration: str) -> None:
@@ -20,8 +20,8 @@ def _fixture(root: Path) -> tuple[dict[str, str], Path]:
     declared = install_foundations(root)
     write(root / "docs/project/architecture/architecture.md",
           "<!-- governance-core-python-root: scripts -->\n")
-    source = root / "scripts/example/example_main.py"
-    write(source, "VALUE = 1\n" * 7)
+    write(root / "scripts/example/__init__.py", "__all__ = []\n")
+    write(root / "scripts/example/_sized.py", "VALUE = 1\n" * 7)
     return declared, root / declared["coding_principles"]
 
 
@@ -46,7 +46,7 @@ class CodingPolicyTests(unittest.TestCase):
             self.assertEqual("PASSED", above_limit["status"], above_limit)
             self.assertEqual(
                 ["Python file exceeds the 6-line decomposition review trigger: "
-                 "scripts/example/example_main.py (7 lines)"],
+                 "scripts/example/_sized.py (7 lines)"],
                 above_limit["warnings"],
             )
 
@@ -62,7 +62,7 @@ class CodingPolicyTests(unittest.TestCase):
             root = Path(temp)
             _declared, policy = _fixture(root)
             _policy(policy, "code_decomposition_review_lines: 3")
-            source = root / "scripts/example/example_main.py"
+            source = root / "scripts/example/_sized.py"
             for body, count in cases:
                 with self.subTest(body=body):
                     write(source, body)

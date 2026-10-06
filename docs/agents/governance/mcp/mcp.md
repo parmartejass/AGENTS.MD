@@ -12,7 +12,7 @@ Jurisdiction: repo-owned MCP source placement, payload boundaries, and permissio
 ```yaml
 baseline:
   interface: "MCP Streamable HTTP for remote servers and stdio for local servers, at protocol revision 2026-07-28"
-  pattern: "one canonical committed payload per shared server declaring a pinned server version, credentials by environment reference, and an explicit per-server tool allowlist where the runtime supports one"
+  pattern: "one canonical committed payload per shared server declaring a pinned server version, no credentials, and an explicit per-server tool allowlist where the runtime supports one"
   reason: "Streamable HTTP is the only non-deprecated network transport and stdio is the only transport that confines a local server to its client; a pinned version is the only deterministic install"
   exception: "HTTP+SSE only against a server not yet migrated, Recorded with a removal date"
 ```

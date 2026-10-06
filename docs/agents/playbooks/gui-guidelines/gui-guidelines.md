@@ -28,10 +28,7 @@ baseline:
 ## UI requirements scaffold
 ```
 - controls:
-- input/scope confirmation:
-- progress/current-phase display:
-- terminal summary (success/partial/failure/skipped/cancelled):
-- output/report/log pointer:
+- where each run-outcomes user-facing summary element is shown:
 - empty state per view (what is missing, why, next action):
 - cancel behavior (as the user sees it):
 - acceptance: every run-outcomes user-facing summary element is visible:

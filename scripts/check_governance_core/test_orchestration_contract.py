@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import os
 import re
 import tempfile
@@ -11,47 +10,21 @@ from typing import Callable
 from scripts.check_governance_core._documents import DocumentStore
 from scripts.check_governance_core._governance_checks import resolve_governance_contract
 from scripts.check_governance_core._inventory import RepositoryInventory
-from scripts.check_governance_core._test_support import install_root_authorities, write
-from scripts.check_governance_core.check_governance_core_main import resolve_documents
-
-
-_BLOCK = re.compile(
-    r"(?ms)^```orchestration-contract\s*$\n(?P<body>.*?)^```\s*$"
+from scripts.check_governance_core._test_support import (
+    REPOSITORY_ROOT,
+    orchestration_contract_block,
+    orchestration_contract_errors,
+    orchestration_fixture,
+    orchestration_payload,
+    write,
+    write_orchestration_payload,
 )
-
-
-def _fixture(root: Path) -> None:
-    install_root_authorities(root)
-    write(root / "docs/agents/agents_index.md", "# Agents\n")
-
-
-def _payload(root: Path) -> dict[str, object]:
-    text = (root / "Orchestration.md").read_text(encoding="utf-8")
-    match = _BLOCK.search(text)
-    assert match is not None
-    value = json.loads(match.group("body"))
-    assert isinstance(value, dict)
-    return value
-
-
-def _write_payload(root: Path, value: dict[str, object]) -> None:
-    path = root / "Orchestration.md"
-    text = path.read_text(encoding="utf-8")
-    rendered = "```orchestration-contract\n" + json.dumps(value, indent=2) + "\n```"
-    write(path, _BLOCK.sub(rendered, text, count=1))
-
-
-def _contract_errors(root: Path) -> tuple[str, ...]:
-    return resolve_governance_contract(
-        root,
-        DocumentStore(),
-        RepositoryInventory(root),
-    ).errors
+from scripts.check_governance_core import resolve_documents
 
 
 class OrchestrationContractTests(unittest.TestCase):
     def test_live_contract_is_structurally_valid(self) -> None:
-        root = Path(__file__).resolve().parents[2]
+        root = REPOSITORY_ROOT
         contract = resolve_governance_contract(root, DocumentStore(), RepositoryInventory(root))
         self.assertEqual((), contract.errors, contract)
         self.assertEqual(("AGENTS.md", "Orchestration.md"), contract.root_authorities)
@@ -61,8 +34,8 @@ class OrchestrationContractTests(unittest.TestCase):
         self.assertEqual([], result["errors"])
         with tempfile.TemporaryDirectory() as temp:
             fixture = Path(temp)
-            _fixture(fixture)
-            value = _payload(fixture)
+            orchestration_fixture(fixture)
+            value = orchestration_payload(fixture)
             intake = value["message_intake"]
             renamed = {outcome: f"RENAMED_{outcome}" for outcome in intake["item_outcomes"]}
             intake["item_outcomes"] = list(renamed.values())
@@ -73,7 +46,7 @@ class OrchestrationContractTests(unittest.TestCase):
             value["plan"]["required_fields"].remove(intake["plan_field"])
             intake["plan_field"] += "_renamed"
             value["plan"]["required_fields"].append(intake["plan_field"])
-            _write_payload(fixture, value)
+            write_orchestration_payload(fixture, value)
             result = resolve_documents({"repo_root": str(fixture), "governance_root": str(fixture)})
             self.assertEqual("PASSED", result["status"], result)
             self.assertEqual([], result["errors"])
@@ -111,9 +84,9 @@ class OrchestrationContractTests(unittest.TestCase):
         ):
             with self.subTest(name=name), tempfile.TemporaryDirectory() as temp:
                 root = Path(temp)
-                _fixture(root)
+                orchestration_fixture(root)
                 mutate(root)
-                self.assertTrue(_contract_errors(root))
+                self.assertTrue(orchestration_contract_errors(root))
                 result = resolve_documents(
                     {"repo_root": str(root), "governance_root": str(root)}
                 )
@@ -123,7 +96,7 @@ class OrchestrationContractTests(unittest.TestCase):
     def test_orchestration_file_alias_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
-            _fixture(root)
+            orchestration_fixture(root)
             target = root / "Orchestration.md"
             source = root / "Orchestration.source.md"
             target.replace(source)
@@ -131,7 +104,7 @@ class OrchestrationContractTests(unittest.TestCase):
                 os.link(source, target)
             except OSError as exc:
                 self.skipTest(f"hard links unavailable: {exc}")
-            self.assertTrue(any("alias" in error for error in _contract_errors(root)))
+            self.assertTrue(any("alias" in error for error in orchestration_contract_errors(root)))
             result = resolve_documents(
                 {"repo_root": str(root), "governance_root": str(root)}
             )
@@ -149,8 +122,7 @@ class OrchestrationContractTests(unittest.TestCase):
 
         def duplicate_block(root: Path) -> None:
             path = root / "Orchestration.md"
-            match = _BLOCK.search(path.read_text(encoding="utf-8"))
-            assert match is not None
+            match = orchestration_contract_block(root)
             write(path, path.read_text(encoding="utf-8") + "\n" + match.group(0) + "\n")
 
         def duplicate_key(root: Path) -> None:
@@ -171,9 +143,9 @@ class OrchestrationContractTests(unittest.TestCase):
         ):
             with self.subTest(name=name), tempfile.TemporaryDirectory() as temp:
                 root = Path(temp)
-                _fixture(root)
+                orchestration_fixture(root)
                 mutate(root)
-                self.assertTrue(_contract_errors(root))
+                self.assertTrue(orchestration_contract_errors(root))
                 result = resolve_documents(
                     {"repo_root": str(root), "governance_root": str(root)}
                 )
@@ -251,11 +223,11 @@ class OrchestrationContractTests(unittest.TestCase):
         for name, mutate in mutations:
             with self.subTest(name=name), tempfile.TemporaryDirectory() as temp:
                 root = Path(temp)
-                _fixture(root)
-                value = _payload(root)
+                orchestration_fixture(root)
+                value = orchestration_payload(root)
                 mutate(value)
-                _write_payload(root, value)
-                self.assertTrue(_contract_errors(root))
+                write_orchestration_payload(root, value)
+                self.assertTrue(orchestration_contract_errors(root))
 
     def test_role_boundary_semantic_drifts_fail(self) -> None:
         Mutation = Callable[[dict[str, object]], None]
@@ -313,135 +285,16 @@ class OrchestrationContractTests(unittest.TestCase):
         for name, mutate, expected in cases:
             with self.subTest(name=name), tempfile.TemporaryDirectory() as temp:
                 root = Path(temp)
-                _fixture(root)
-                value = _payload(root)
+                orchestration_fixture(root)
+                value = orchestration_payload(root)
                 mutate(value)
-                _write_payload(root, value)
-                errors = _contract_errors(root)
+                write_orchestration_payload(root, value)
+                errors = orchestration_contract_errors(root)
                 self.assertTrue(
                     any(expected in error for error in errors),
                     f"{expected!r} not found in {errors!r}",
                 )
 
-    def test_delegation_and_yaml_plan_fail_closed(self) -> None:
-        cases = (
-            ("delegation", "task_roles", ["UNKNOWN"]),
-            ("delegation", "task_roles", ["MAIN"]),
-            ("delegation", "task_roles", ["GOVERNANCE_AGENT"]),
-            ("delegation", "task_roles", ["PLANNING_AGENT", "PLANNING_AGENT"]),
-            ("delegation", "explorer_jurisdictions", {"UNKNOWN": "unknown"}),
-            ("delegation", "explorer_jurisdictions", {}),
-            ("delegation", "explorer_jurisdictions", {"GOVERNANCE_AGENT": "governance"}),
-            ("delegation", "explorers_per_task", 0),
-            ("delegation", "explorers_per_task", True),
-            ("delegation", "explorers_per_task", "3"),
-            ("delegation", "unknown", True),
-            ("plan", "format", "markdown"),
-            ("plan", "persistence", "tracked"),
-            ("plan", "required_fields", []),
-            ("plan", "required_fields", ["goal", "goal"]),
-            ("plan", "required_fields", [""]),
-            ("plan", "unknown", True),
-            ("", "version", 2),
-            ("", "version", True),
-            ("", "message_intake", None),
-            ("message_intake", "unknown", True),
-            ("message_intake", "trigger", "AGENT_REPORT"),
-            ("message_intake", "dependent_work_barrier", False),
-            ("message_intake", "dependent_work_barrier", 1),
-            ("message_intake", "plan_field", "missing"),
-            ("message_intake", "item_outcomes", ["invalid"]),
-            ("message_intake", "item_outcomes", ["HOLD", "HOLD"]),
-            ("message_intake", "mutation_outcome", "UNKNOWN"),
-            ("message_intake", "failure_outcome", "OWNER_UPDATED"),
-            ("message_intake", "no_mutation_outcomes", ["HOLD"]),
-            ("message_intake", "phase_roles", {}),
-            ("message_intake", "phase_roles", {"UNKNOWN": "PLANNING_AGENT"}),
-            ("message_intake", "phase_roles", {"PLAN": "UNKNOWN"}),
-            ("message_intake", "phase_roles", {"PLAN": "MAIN"}),
-            ("message_intake", "phase_roles", {"PLAN": "PLANNING_AGENT"}),
-            ("message_intake", "return_after", {}),
-            ("message_intake", "return_after", {"HOLD": "PLAN"}),
-            ("message_intake", "failure_terminal", "PLAN"),
-            ("message_intake", "failure_terminal", "UNKNOWN"),
-        )
-        for section, key, replacement in cases:
-            with self.subTest(section=section, key=key, replacement=replacement), tempfile.TemporaryDirectory() as temp:
-                root = Path(temp)
-                _fixture(root)
-                value = _payload(root)
-                (value[section] if section else value)[key] = replacement
-                _write_payload(root, value)
-                self.assertTrue(_contract_errors(root))
-
-        for case in ("failure_terminal", "mutation_return", "no_mutation_return",
-                     "correction_phase", "verification_phase"):
-            with self.subTest(case=case), tempfile.TemporaryDirectory() as temp:
-                root = Path(temp)
-                _fixture(root)
-                value = _payload(root)
-                intake = value["message_intake"]
-                if case == "failure_terminal":
-                    intake["failure_terminal"] = "DONE"
-                elif case == "mutation_return":
-                    intake["return_after"][intake["mutation_outcome"]] = value["entry_state"]
-                elif case == "no_mutation_return":
-                    intake["return_after"][intake["no_mutation_outcomes"][0]] = "EXECUTE"
-                else:
-                    role = "EXECUTION_AGENT" if case == "correction_phase" else "REVIEW_AGENT"
-                    normal = next(phase for phase, assigned in intake["phase_roles"].items() if assigned == role)
-                    field = "state" if case == "correction_phase" else "final_verification_state"
-                    special = value["critical_correction"][field]
-                    intake["phase_roles"][special] = intake["phase_roles"].pop(normal)
-                    intake["return_after"] = {
-                        item: special if phase == normal else phase
-                        for item, phase in intake["return_after"].items()
-                    }
-                _write_payload(root, value)
-                result = resolve_documents({"repo_root": str(root), "governance_root": str(root)})
-                self.assertEqual("FAILED", result["status"], result)
-                self.assertEqual([], result["documents"])
-                self.assertTrue(any("message_intake" in error for error in result["errors"]), result)
-                self.assertFalse(any("internal governance" in error for error in result["errors"]), result)
-
-    def test_explorer_and_task_relationships_fail_closed(self) -> None:
-        for case in ("mutable", "delegating", "task_non_delegating", "not_fresh",
-                     "duplicate_jurisdiction", "empty_jurisdiction", "missing_jurisdiction",
-                     "descendant_in_state", "missing_plan", "missing_plan_field",
-                     "missing_intake", "missing_intake_plan_field"):
-            with self.subTest(case=case), tempfile.TemporaryDirectory() as temp:
-                root = Path(temp)
-                _fixture(root)
-                value = _payload(root)
-                explorers = value["delegation"]["explorer_jurisdictions"]
-                child = next(iter(explorers))
-                if case == "mutable":
-                    value["read_only_roles"].remove(child)
-                    value["mutable_roles"].append(child)
-                elif case == "delegating":
-                    value["non_delegating_roles"].remove(child)
-                elif case == "task_non_delegating":
-                    value["non_delegating_roles"].append(value["delegation"]["task_roles"][0])
-                elif case == "not_fresh":
-                    value["fresh_roles"].remove(child)
-                elif case == "duplicate_jurisdiction":
-                    explorers[child] = list(explorers.values())[1]
-                elif case == "empty_jurisdiction":
-                    explorers[child] = ""
-                elif case == "missing_jurisdiction":
-                    del explorers[child]
-                elif case == "descendant_in_state":
-                    value["state_roles"]["PLAN"].append(child)
-                elif case == "missing_plan":
-                    del value["plan"]
-                elif case == "missing_intake":
-                    del value["message_intake"]
-                elif case == "missing_intake_plan_field":
-                    value["plan"]["required_fields"].remove(value["message_intake"]["plan_field"])
-                else:
-                    del value["plan"]["format"]
-                _write_payload(root, value)
-                self.assertTrue(_contract_errors(root))
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import inspect
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
@@ -8,7 +7,7 @@ from typing import Callable
 from scripts.check_governance_core import _git_capture
 from scripts.check_governance_core._results import API_VERSION, _document_result
 from scripts.check_governance_core._docs_checks import check_docs, check_project_docs
-from scripts.check_governance_core._documents import DocumentStore, routed_markdown_corpus
+from scripts.check_governance_core._documents import AGENTS_DOCS_ROOT, DOCS_ROOT, DocumentStore, routed_markdown_corpus
 from scripts.check_governance_core._folder_architecture import check_folder_architecture
 from scripts.check_governance_core._governance_checks import (
     FoundationContract,
@@ -23,11 +22,14 @@ from scripts.check_governance_core._python_safety import check_python_safety
 from scripts.check_governance_core._repository_checks import check_repository
 
 
+# The package lives at <governance root>/<declared source root>/<package>; the import root is the governance root.
+DEFAULT_GOVERNANCE_ROOT = Path(__file__).resolve().parents[2]
+
+
 @dataclass(frozen=True)
 class CheckContext:
     repo_root: Path
     governance_root: Path
-    governance_rel: str
     store: DocumentStore
     inventory: RepositoryInventory
     contract: GovernanceContract | None
@@ -66,7 +68,6 @@ def _project_docs(context: CheckContext) -> tuple[list[str], list[str]]:
     return check_project_docs(
         context.repo_root,
         context.governance_root,
-        context.governance_rel,
         context.store,
         context.inventory,
     ), []
@@ -86,7 +87,7 @@ def _folder_architecture(context: CheckContext) -> tuple[list[str], list[str]]:
     if context.foundations.errors:
         return list(context.foundations.errors), []
     return check_folder_architecture(
-        context.governance_root, context.store, context.inventory,
+        context.repo_root, context.governance_root, context.store, context.inventory,
         coding_policy_path=context.governance_root / context.foundations.path_for("coding_principles"),
     )
 
@@ -95,10 +96,9 @@ def _python_safety(context: CheckContext) -> tuple[list[str], list[str]]:
     return check_python_safety(
         context.repo_root,
         context.inventory,
+        context.store,
         fail_on_warnings=context.strict_safety,
-        reviewed_popen_paths=frozenset(
-            {Path(inspect.getfile(_git_capture)).resolve()}
-        ),
+        reviewed_popen_paths=frozenset({Path(_git_capture.__file__).resolve()}),
     )
 
 
@@ -119,11 +119,10 @@ MODE_CHECKS = {
 }
 
 
-def _resolve_roots(request: dict[str, object]) -> tuple[Path, Path, str, RepositoryInventory]:
-    script_root = Path(__file__).resolve().parent
+def _resolve_roots(request: dict[str, object]) -> tuple[Path, Path, RepositoryInventory]:
     governance_value = request.get("governance_root")
     repo_value = request.get("repo_root")
-    governance_request = Path(str(governance_value)).expanduser() if governance_value else script_root.parent.parent
+    governance_request = Path(str(governance_value)).expanduser() if governance_value else DEFAULT_GOVERNANCE_ROOT
     repo_request = Path(str(repo_value)).expanduser() if repo_value else governance_request
     if repo_value is None and governance_request.name == ".governance":
         raise ValueError("repo_root is required for a vendored .governance checkout")
@@ -136,8 +135,7 @@ def _resolve_roots(request: dict[str, object]) -> tuple[Path, Path, str, Reposit
     if governance_error:
         raise ValueError(f"governance_root validation failed: {governance_error}")
     assert governance_root is not None
-    relative = governance_root.relative_to(repo_root).as_posix()
-    return repo_root, governance_root, "" if relative in {"", "."} else relative, inventory
+    return repo_root, governance_root, inventory
 
 
 def execute(request: dict[str, object]) -> dict[str, object]:
@@ -146,16 +144,15 @@ def execute(request: dict[str, object]) -> dict[str, object]:
         raise ValueError(f"mode must be one of {', '.join(MODE_CHECKS)}")
     if request.get("fail_on_safety_warnings") and mode != "full":
         raise ValueError("fail_on_safety_warnings is valid only in full mode")
-    repo_root, governance_root, governance_rel, inventory = _resolve_roots(request)
+    repo_root, governance_root, inventory = _resolve_roots(request)
     store = DocumentStore()
-    inventory.tree_entries(repo_root if "docs" in MODE_CHECKS[str(mode)] else repo_root / "docs")
+    inventory.tree_entries(repo_root if "docs" in MODE_CHECKS[str(mode)] else repo_root / DOCS_ROOT)
     selected = set(MODE_CHECKS[str(mode)])
     contract = resolve_governance_contract(governance_root, store, inventory) if "governance" in selected else None
     foundations = resolve_foundations(governance_root, store, inventory, contract) if contract else None
     context = CheckContext(
         repo_root=repo_root,
         governance_root=governance_root,
-        governance_rel=governance_rel,
         store=store,
         inventory=inventory,
         contract=contract,
@@ -205,13 +202,13 @@ def execute(request: dict[str, object]) -> dict[str, object]:
 def resolve_documents_request(request: dict[str, object]) -> dict[str, object]:
     """Resolve the complete canonical governance-document router topology."""
 
-    _repo_root, governance_root, _governance_rel, inventory = _resolve_roots(request)
+    _repo_root, governance_root, inventory = _resolve_roots(request)
     store = DocumentStore()
     contract = resolve_governance_contract(governance_root, store, inventory)
     if contract.errors:
         return _document_result("FAILED", [], list(contract.errors))
     root_paths = tuple(governance_root / value for value in contract.root_authorities)
-    markdown, markdown_error = inventory.markdown_files(governance_root / "docs/agents")
+    markdown, markdown_error = inventory.markdown_files(governance_root / AGENTS_DOCS_ROOT)
     if markdown_error:
         return _document_result("FAILED", [], [markdown_error])
     leaves, errors = routed_markdown_corpus(

@@ -8,7 +8,7 @@ from types import ModuleType
 from unittest.mock import Mock, patch
 
 
-SOURCE = Path(__file__).resolve().parents[2] / "X-Bookmarks Import/skills/x-research/scripts/x_search.py"
+SOURCE = Path(__file__).resolve().with_name("x_search.py")
 
 
 class UsageError(ValueError):

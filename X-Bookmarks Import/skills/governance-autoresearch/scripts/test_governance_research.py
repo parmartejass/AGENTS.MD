@@ -9,10 +9,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 
-SCRIPT = (
-    Path(__file__).resolve().parents[2]
-    / "X-Bookmarks Import/skills/governance-autoresearch/scripts/governance_research.py"
-)
+SCRIPT = Path(__file__).resolve().with_name("governance_research.py")
 
 
 def load_consumer():

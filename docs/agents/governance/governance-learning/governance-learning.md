@@ -55,11 +55,18 @@ Jurisdiction: session-evidenced governance-learning candidates, their promotion 
 
 ## Evidence output
 
-- Output MUST be a decision brief, candidate records with `GL-DDMMYYYY-###` identifiers, and a summary, in that order.
+- Output MUST be a decision brief, candidate records with `GL-DDMMYYYY-###` identifiers, and a summary, in that order, with the fields below in that order.
 - Unknown and inapplicable fields retain `Unknown` or `N/A + reason`.
-- Candidate count follows the supplied output limit; no minimum forces evidence creation.
+- Candidate count follows the supplied output limit; no minimum forces evidence creation; a truncated set is pending with reason and next action.
 - Priority ranks proposals, not obligation strength.
 - `P1` MUST have verified evidence plus a concrete command or deterministic manual witness.
+
+| Part | Fields |
+|---|---|
+| Decision brief | model and scope; SSOT map; authority uplift summary (verified failure classes, earliest defective boundary, prevention point, evidence); proof obligations and verification plan; blast radius; README Checks alignment; claim-level verification status; Change Contract owner reference and applicable evidence; authorization and lifecycle evidence reference |
+| Candidate record | ID (date from the review context; sequence from `001` in output order); gate status; coverage status `MISSING`, `PARTIAL`, `ALREADY_COVERED`, `DEFERRED`, or `REJECTED`; evidence (R/D); failure mode prevented; authority-first prevention point; target location; draft delta or coverage citation; Change Contract alignment; witness/verification; risk if not addressed; modularity/structure decision; priority `P1`-`P3` with `VERIFIED` or `UNVERIFIED`; remaining action |
+| Summary | verified proposals by priority and owner; already-covered candidates and citations; rejected/deferred counts by gate status; routing changes and duplicate removals proposed or verified; unknowns, incomplete evidence, and required actions |
+| Session recap (user-supplied source for an `UNVERIFIED` candidate) | work performed; failures/friction with exact redacted messages; workarounds and observed outcomes; decisions made and their sources; repeated confusion points; missing governance support and supporting evidence |
 
 ## Session-log evidence acquisition
 

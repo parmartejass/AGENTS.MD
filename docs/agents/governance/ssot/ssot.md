@@ -6,42 +6,17 @@ update_trigger: governance responsibilities change, a jurisdiction is added or d
 
 # SSOT
 
-Jurisdiction: concept -> owner -> path routing, file/folder SSOT co-location mechanics, and the jurisdiction hand-off table; no concept policy is defined here.
+Jurisdiction: concept -> owner -> path routing and the jurisdiction hand-off table; no concept policy is defined here.
 
-## File/folder structure rule
+## Relation routing rule
 
 - Every cross-jurisdiction dependency is recorded here; owner docs name a dependency only by its jurisdiction noun.
 - A concrete project owner resolves through the project architecture record and its declared public contract.
 - When this map is too abstract for a case, the cross-project decisions register is the next authority.
-- Related artifacts within one authority boundary MUST share the existing SSOT parent.
-- Scattered same-authority artifacts MUST be consolidated under that parent in the authorized change; affected consumers MUST be migrated and required behavior preserved.
 
 ## Resolve-once structural routing
 
-`AGENTS.md` section `Resolve once before fan-out` is the sole rule owner; this table routes its structural applications and defines no second rule.
-
-| Application under the constitutional rule | Existing owner and route |
-| --- | --- |
-| Documentation defines the business meaning once and routes to its owner. | documentation -> `docs/agents/governance/documentation/documentation.md` |
-| Configuration maps a semantic role to the owner; it does not duplicate formatting grammar. | config -> `docs/agents/playbooks/config/config.md` |
-| The domain package owns the resolver and canonical projection. | concrete project owner through project architecture; implementation boundary -> `docs/agents/governance/coding/coding.md` |
-| Stable callers provide raw evidence and context only. | coding -> `docs/agents/governance/coding/coding.md` |
-| Review, import, challenge, commit, receipt, and recovery all consume the same projection. | declared workflow owner; composition mechanics -> `docs/agents/governance/coding/coding.md` |
-| Validation independently replays the same public owner and requires exact equality. | declared rule owner; witnesses -> `docs/agents/governance/evidence/evidence.md` and `docs/agents/governance/testing/testing.md` |
-| Tests assert cross-surface parity, not just isolated component correctness. | testing -> `docs/agents/governance/testing/testing.md`; witness contract -> `docs/agents/governance/evidence/evidence.md` |
-| Raw evidence is preserved for audit but never becomes a second SSOT. | declared data/evidence owner; witness and permitted storage -> `docs/agents/governance/evidence/evidence.md` and `docs/agents/governance/security/security.md` |
-
-### Bilty illustration
-
-Illustrative only; this declares no project runtime owner or verified implementation fact:
-
-```text
-raw document = 2807
-received package total = 6
-PackageCountV2 canonical projection = 2807/6
-```
-
-Under the constitutional rule, the illustration requires the owner-issued `2807/6` to be identical in the matrix, Review XLSX, import XLSX, append challenge, workbook write, and receipt.
+`AGENTS.md` section `Resolve once before fan-out` is the sole rule owner; its applications route to existing owners: documentation defines the business meaning once (documentation); configuration maps a semantic role to the owner (config); the domain package owns the resolver and canonical projection, callers supply raw evidence only, and every surface consumes that projection (concrete project owner through project architecture; coding); validation replays the public owner and asserts exact equality, tests assert cross-surface parity (evidence, testing); raw evidence stays audit-only (evidence, security). Illustration (non-normative, declares no runtime owner): raw document `2807`, received total `6`, owner-issued projection `2807/6` identical in matrix, review workbook, import, challenge, write, and receipt.
 
 ## Constants
 
@@ -112,11 +87,11 @@ Under the constitutional rule, the illustration requires the owner-issued `2807/
 | Concept | Owner | Route |
 | --- | --- | --- |
 | Coding hard-gate trigger and precedence | constitution | `AGENTS.md` |
-| Coding-principles and runtime-code authority-design mechanics | coding | `docs/agents/governance/coding/coding.md` |
+| Coding-principles, runtime-code authority-design mechanics, and native-package code mechanics | coding | `docs/agents/governance/coding/coding.md` |
 | Logging channels, error taxonomy, catching policy, silent failures, static witness | logging | `docs/agents/governance/coding/logging/logging.md` |
-| Repository structure and Python entrypoint enforcement | governance-core public contract | `scripts/check_governance_core/check_governance_core_main.py` |
+| Repository structure and Python packaged-folder enforcement | governance-core public contract | `scripts/check_governance_core/` |
 | Authority boundaries recorded per project | project architecture | `docs/project/architecture/architecture.md` |
-| Module contracts | authority module entrypoint | the declared entrypoint |
+| Module contracts | packaged-folder public entrypoint | the declared entrypoint |
 
 ## Governance core
 
@@ -135,7 +110,7 @@ Under the constitutional rule, the illustration requires the owner-issued `2807/
 
 | Concept | Owner | Route |
 | --- | --- | --- |
-| Prompt decomposition into SSOT/SRP jurisdictions, entry-not-ceiling scope, no literal or hardcoded building (highest operating rule) | constitution | `AGENTS.md` Jurisdictional Decomposition |
+| Prompt decomposition into SSOT/SRP jurisdictions, entry-not-ceiling scope, no literal or hardcoded building, and the packaged-folder contract for code and documentation (highest operating rule) | constitution | `AGENTS.md` Jurisdictional Decomposition |
 | Implementation-code jurisdiction, drift ledgers, fix points, deletion and reroute plans, post-diff purification | coding | `docs/agents/governance/coding/coding.md` |
 | Docs placement and non-owner doc boundaries | documentation | `docs/agents/governance/documentation/documentation.md` |
 | Task-signal routing for jurisdiction work | manifest | `agents-manifest.yaml` |
@@ -145,10 +120,10 @@ Under the constitutional rule, the illustration requires the owner-issued `2807/
 
 | Concept | Owner | Route |
 | --- | --- | --- |
-| Docs-modularity hard gate | constitution | `AGENTS.md` |
-| Docs-family mechanics | documentation | `docs/agents/governance/documentation/documentation.md` |
+| Documentation hard gate | constitution | `AGENTS.md` Documentation SSOT Policy |
+| Docs-family mechanics, including docs-folder router and public-leaf packaging | documentation | `docs/agents/governance/documentation/documentation.md` |
 | Project-doc scaffold shape | documentation template | `docs/agents/governance/documentation/project-docs-template/project-docs-template.md` |
-| Docs router and public leaf validation facts | governance-core public contract | `scripts/check_governance_core/check_governance_core_main.py` |
+| Docs router and public leaf validation facts | governance-core public contract | `scripts/check_governance_core/` |
 
 ## Bounded project authority memory
 

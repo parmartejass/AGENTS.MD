@@ -1,20 +1,19 @@
 ---
 doc_type: policy
 ssot_owner: docs/agents/governance/coding/coding.md
-update_trigger: coding design authority, module boundary, structural minimality, or coding-principles review obligations change
+update_trigger: coding design authority, module boundary, native package mechanics, structural minimality, or coding-principles review obligations change
 ---
 
 # Coding
 
-Jurisdiction: implementation-code authority owner selection, SSOT jurisdiction mechanics, module and folder contracts, orchestration boundaries, dependency direction, structural minimality, adapters, runtime-path rules, comments, post-diff purification, and coding-design witnesses.
+Jurisdiction: implementation-code authority owner selection, SSOT jurisdiction mechanics, packaged-folder code mechanics, orchestration boundaries, dependency direction, structural minimality, adapters, runtime-path rules, comments, post-diff purification, and coding-design witnesses.
 
 ## Scope
 
 - MUST apply whenever implementation code is planned, added, reviewed, refactored, decomposed, purified, or wired across authority boundaries.
-- Applies to code owning runtime behavior, workflow logic, reusable runtime contracts, authority folders, public entrypoints, orchestration boundaries, or dependency direction.
-- Launch-only shell wrappers and Python shims such as `__main__.py` MAY exist as zero-logic delegates into the canonical folder contract.
-- A script with owner-declared runtime-selection or validation responsibility MUST expose that responsibility through its declared owner contract, not as a launcher shim.
-- Config payloads, fixtures, schemas, and generated artifacts MUST NOT become feature folders unless they start owning runtime behavior.
+- Applies to code owning runtime behavior, workflow logic, reusable runtime contracts, packaged folders, public entrypoints, orchestration boundaries, or dependency direction.
+- A script with owner-declared runtime-selection or validation responsibility MUST expose that responsibility through its declared owner contract, not as a launcher.
+- Config payloads, fixtures, schemas, and generated artifacts MUST NOT become separate packaged folders unless they start owning runtime behavior.
 
 ## SSOT jurisdiction mechanics
 
@@ -30,7 +29,7 @@ Rules:
 
 - Prohibited: preserving drift with wrappers, compatibility branches, local predicates, test-only allowances, checker-specific patches, duplicated constants, fallback paths, private config interpretations, or caller-owned copies of owner rules.
 - Code existing only to compensate for a missing, weak, stale, ambiguous, or bypassed owner contract MUST be deleted or replaced through the owner.
-- Capability modules MUST be designed around the owning contract, not the current patch example; they accept validated intent or plain-data instructions and report the full work universe: planned, eligible, applied, skipped, failed, and reasons.
+- Capability modules MUST be designed around the owning contract, not the current patch example; they accept validated intent or plain-data instructions and report the full work universe: planned, eligible, executed, skipped, failed, and reasons.
 - Adding, removing, or wiring behavior MUST update the owner-owned contract, registry, schema, config, scope file, validator, or public entrypoint first.
 - Callers, wrappers, sibling modules, tests, docs, and checkers MUST consume that owner and MUST NOT privately infer membership, routing, accepted alternatives, ordering, validation predicates, allowed or forbidden paths, or lifecycle semantics.
 - Feature requests MUST be decomposed into the feature authority and the reusable mechanics authority when mechanics, external resources, lifecycle handling, validation, operation evidence, or transformation behavior can be reused, tested, or changed independently of one caller.
@@ -53,17 +52,29 @@ Before implementation code changes, MUST identify:
 
 A missing or conflicting owner is an authority gap: work MUST stop there; Prohibited: patching around it with a wrapper, local conditional, compatibility branch, or helper that becomes a second owner.
 
-## Module and folder contracts
+## Packaged-folder code mechanics
 
-- One public interface or API is the module owner's declared contract surface, including all documented public operations.
-- Every distinct runtime capability MUST be an authority folder with exactly one owner-resolved public entrypoint file.
-- Direct Python feature folders under `scripts/` MUST expose `scripts/<feature>/<feature>_main.py`; the governance-core public contract enforces this.
-- Another language or artifact kind needing a public contract MUST record the adopted authority boundary in the architecture project doc and add a deterministic checker witness before consumers rely on it.
-- Internal files and child folders MUST stay behind the folder entrypoint unless separately declared authorities; Prohibited: deep imports, sibling imports, child-to-parent imports.
+- The constitutional packaged-folder contract owns the rule; this section owns its code mechanics and the private-visibility convention for code.
+
+```yaml
+baseline:
+  interface: the language's native package and module system
+  pattern: "per language, one row of the table below: the native package mechanism, its public-entry file and member declaration, its private-name convention, its launcher form, and the deterministic witness that enforces them"
+  reason: "interpreters, import systems, packaging tools, and test runners resolve the native mechanism directly; a custom entry-file convention is a wrapper that needs import-path manipulation and a private checker rule to hold"
+  exception: none
+```
+
+| Language | Packaged folder | Public entrypoint and members | Private internals | Launcher | Source | Witness |
+| --- | --- | --- | --- | --- | --- | --- |
+| Python | regular package: a directory with `__init__.py` | `__init__.py`; public members listed in `__all__` | `_`-prefixed modules and names; `test*` modules are test-runner internals | `__main__.py`, run from the import root as `python -m <package>` | Python Language Reference, The import system (regular packages); Python Library Reference, `__main__` | governance-core folder-architecture check: entry presence and source-root containment, `__all__` declared once, complete and bound, `_` or `test` module names, launcher limited to imports and one guarded delegation to its entry, cross-package deep imports; member-level privacy and child-to-parent import direction stay manual review |
+
+- A language absent from this table MUST record its packaged folder, public entrypoint and members, private-visibility mechanism, launcher, authoritative source, and deterministic witness in the project architecture record before code in that language relies on it; adopting it in the governance source adds a row here.
+- A declared source root is a code-free directory directly below its import base (the directory `python -m <root>.<package>` runs from) that only contains packaged folders; it exposes no public entrypoint and is declared by the project architecture record.
+- Imports between modules of one packaged folder are internal; Prohibited: a caller outside the folder importing its private modules (deep import), and a child package importing a sibling or parent package.
+- A package's own tests are package internals; every caller outside the package, including another package's tests, MUST use only its public members.
 - Public contracts MUST accept and return plain data; live handles and external resources stay behind the owning boundary.
-- Parent entrypoints are the only connectors across child authorities.
-- Folder entrypoints MUST stay thin, import-safe, and orchestration-only; private files hold detailed logic.
-- These authority-folder rules MUST apply recursively when a child folder gains independently owned behavior.
+- Parent public entrypoints are the only connectors across child authorities.
+- Public entrypoints and launchers MUST stay thin and import-safe; public entrypoints are orchestration-only and private modules hold detailed logic.
 - Documentation-only structure changes follow the documentation jurisdiction.
 
 ## Orchestration boundaries
@@ -89,21 +100,13 @@ A missing or conflicting owner is an authority gap: work MUST stop there; Prohib
 
 code_decomposition_review_lines: 400
 
-- That operative declaration is the sole code-size review value: one column-zero key, a colon and single space, and a positive decimal integer without sign or leading zero.
-- Fenced, indented-code, and quoted examples supply no value; missing, malformed, duplicate, nonpositive, or unsupported-sized integers fail explicitly without a default.
-- Governance-core counts `str.splitlines()` records including comments and blanks for its Python structural subset and warns only above the declared value.
-- The default implementation path MUST be the smallest authority-correct design that preserves or strengthens behavior.
-- Existing owner-owned contracts, registries, schemas, config, validators, and entrypoints MUST be used when they cover the responsibility; Prohibited: repeated local conditionals, checker-specific patch logic.
+- That operative declaration is the sole code-size review value (one positive decimal integer; examples in fences, indented code, or quotes supply no value); governance-core consumes it without a default, counts `str.splitlines()` records including comments and blanks for its Python structural subset, and warns only above the declared value.
+- The default implementation path MUST be the smallest authority-correct design that preserves or strengthens behavior, using existing owner-owned contracts, registries, schemas, config, validators, and entrypoints when they cover the responsibility; Prohibited: repeated local conditionals, checker-specific patch logic.
 - MUST split inside the same folder first; promote to a child folder only when the behavior becomes independently owned.
-- Before adding logic to an entrypoint, MUST check boundary signals: distinct invariants or rules, distinct lifecycle or state handling, distinct I/O boundary or side effects, independent testability, separate owner update triggers or independent change cadence.
-- If any boundary signal is present, MUST create or extend private files or child folders under the same authority parent before adding entrypoint logic; with no signal, keep the logic in the entrypoint and record the rationale.
+- Before adding logic to an entrypoint, MUST check boundary signals: distinct invariants or rules, distinct lifecycle or state handling, distinct I/O boundary or side effects, independent testability, separate owner update triggers or independent change cadence; with any signal present, create or extend private files or child folders under the same authority parent first; with none, keep the logic in the entrypoint; record the decomposition decision and witness against this doc in the confirmed plan or role-bounded agent report.
 - Reusable mechanics MUST be promoted or extended only when boundary signals show the capability can be reused, tested, or changed independently while caller-feature policy stays in the feature owner; request-specific logic stays in its current authority with a recorded rationale.
-- Before adding logic to folder entrypoints, MUST record the decomposition decision and witness against this doc's sections in the confirmed plan or role-bounded agent report.
-- A file exceeding `code_decomposition_review_lines`, or that the current change would make exceed it, is a coding-principles trigger for the affected responsibility; this whole doc MUST be applied before closure as with any patch, bugfix, feature change, addition, removal, refactor, or wiring change.
-- The decision scope is the affected responsibility across all applicable owners, contracts, entrypoints, and call sites.
-- The decision MUST account for applicable current-module, parent or higher workflow, feature-folder, reusable-mechanics, `shared/`, script/checker, config/schema/data-owner, adapter, public-entrypoint, external-adapter, duplicate-pruning, deletion, and reroute boundaries.
-- LOC reduction is valid closure evidence only when correctness, validation, explicit outcomes, observability, witnesses, SSOT jurisdiction and routing, and public-contract clarity remain intact; numeric LOC targets are evidence pressure for authority-preserving decomposition.
-- Any remaining LOC increase MUST be justified by required behavior, stronger validation, stronger observability, or clearer authority boundaries.
+- A file exceeding `code_decomposition_review_lines`, or that the current change would make exceed it, is a coding-principles trigger for the affected responsibility across all applicable owners, contracts, entrypoints, call sites, and the current-module, workflow, feature-folder, reusable-mechanics, `shared/`, script/checker, config/schema/data-owner, adapter, public-entrypoint, duplicate-pruning, deletion, and reroute boundaries; this whole doc MUST be applied before closure as with any other change.
+- LOC reduction is valid closure evidence only when correctness, validation, explicit outcomes, observability, witnesses, SSOT jurisdiction and routing, and public-contract clarity remain intact; a remaining LOC increase MUST be justified by required behavior, stronger validation, stronger observability, or clearer authority boundaries.
 
 ## Contract change gate
 
@@ -170,7 +173,7 @@ After implementation and before closure, MUST review the diff and prove it expre
 ## Authority Graph (Required for non-trivial systems)
 
 - Non-trivial means more than one workflow entrypoint, or more than one SSOT jurisdiction, or external resource dependencies such as COM, database, or network.
-- MUST apply SSOT jurisdiction mechanics and module and folder contracts to build the graph.
+- MUST apply SSOT jurisdiction mechanics and packaged-folder code mechanics to build the graph.
 - MUST record the authority graph and module boundaries in the architecture project doc, or in the workflow registry when that is the repo's SSOT for entrypoints.
 - A project adopting a cross-project governance authority decision MUST reference the governing decision ID from the SSOT authority-decisions owner.
 - Project-owner creation and required linkage follow the documentation jurisdiction.
@@ -186,5 +189,5 @@ MUST record or be able to report:
 - the feature/mechanics composition witness when reusable capability boundaries are in scope: feature owner, mechanics owner, mechanics-shaped instruction contract, operation evidence contract, forbidden caller-policy terms ruled out, and independent-update proof that feature settings can change without mechanics-owner edits while mechanics stay reusable by another caller;
 - duplicate, substitute, or fallback logic removed or ruled out;
 - valid adapters kept, with their boundary role;
-- the deletion-test result showing that deleting one feature folder breaks only its parent entrypoint, or a scoped rationale when the deletion test does not apply;
+- the deletion-test result showing that deleting one packaged folder breaks only its parent's public entrypoint, or a scoped rationale when the deletion test does not apply;
 - README-listed checks run and their outcomes.

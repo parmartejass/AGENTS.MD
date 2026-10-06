@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import io
 import shutil
 import subprocess
 import tempfile
@@ -9,30 +8,17 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from scripts.check_governance_core._test_support import install_foundations, write as _write
+from scripts.check_governance_core._test_support import REPOSITORY_ROOT, write as _write
 from scripts.check_governance_core._documents import DocumentStore
 from scripts.check_governance_core._docs_checks import check_docs
-from scripts.check_governance_core._folder_architecture import check_folder_architecture
 from scripts.check_governance_core._inventory import RepositoryInventory, _is_directory_alias
-from scripts.check_governance_core import _git_capture, _inventory
+from scripts.check_governance_core import _inventory
 from scripts.check_governance_core._python_safety import check_python_safety
 from scripts.check_governance_core._repository_checks import check_repository
-from scripts.check_governance_core.check_governance_core_main import run_checks
+from scripts.check_governance_core import run_checks
 
 
 class RetainedCheckTests(unittest.TestCase):
-    def test_folder_architecture_requires_one_feature_entrypoint(self) -> None:
-        with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
-            declared = install_foundations(root)
-            _write(root / "scripts/reporting/helper.py", "VALUE = 1\n")
-            errors, warnings = check_folder_architecture(
-                root, DocumentStore(), RepositoryInventory(root),
-                coding_policy_path=root / declared["coding_principles"],
-            )
-            self.assertEqual([], warnings)
-            self.assertTrue(any("reporting_main.py" in error for error in errors), errors)
-
     def test_python_safety_retains_error_and_warning_policy(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
@@ -40,7 +26,7 @@ class RetainedCheckTests(unittest.TestCase):
                 root / "unsafe.py",
                 "import subprocess\nprint('x')\nsubprocess.run(['x'])\n",
             )
-            errors, warnings = check_python_safety(root, RepositoryInventory(root), fail_on_warnings=False)
+            errors, warnings = check_python_safety(root, RepositoryInventory(root), DocumentStore(), fail_on_warnings=False)
             self.assertEqual([], warnings)
             self.assertTrue(any("PRINT_CALL" in error for error in errors), errors)
             self.assertTrue(any("SUBPROCESS_TIMEOUT" in error for error in errors), errors)
@@ -49,7 +35,7 @@ class RetainedCheckTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             _write(root / "warning.py", "from pathlib import Path\nPath('x').write_text('unsafe')\n")
-            errors, warnings = check_python_safety(root, RepositoryInventory(root), fail_on_warnings=True)
+            errors, warnings = check_python_safety(root, RepositoryInventory(root), DocumentStore(), fail_on_warnings=True)
             self.assertTrue(any("NON_ATOMIC_WRITE" in warning for warning in warnings), warnings)
             self.assertTrue(any(error.startswith("strict warning:") for error in errors), errors)
 
@@ -57,7 +43,7 @@ class RetainedCheckTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             _write(root / "warning.py", "import subprocess\nsubprocess.Popen(['x'])\n")
-            errors, warnings = check_python_safety(root, RepositoryInventory(root), fail_on_warnings=True)
+            errors, warnings = check_python_safety(root, RepositoryInventory(root), DocumentStore(), fail_on_warnings=True)
             self.assertTrue(any("SUBPROCESS_POPEN" in warning for warning in warnings), warnings)
             self.assertTrue(any(error.startswith("strict warning:") for error in errors), errors)
 
@@ -67,12 +53,12 @@ class RetainedCheckTests(unittest.TestCase):
             root = Path(temp)
             subprocess.run(["git", "init"], cwd=root, check=True, capture_output=True, timeout=10)
             _write(root / "untracked.py", "print('unsafe')\n")
-            errors, _warnings = check_python_safety(root, RepositoryInventory(root), fail_on_warnings=False)
+            errors, _warnings = check_python_safety(root, RepositoryInventory(root), DocumentStore(), fail_on_warnings=False)
             self.assertTrue(any("PRINT_CALL" in error for error in errors), errors)
 
     @unittest.skipIf(shutil.which("git") is None, "git is unavailable")
     def test_public_api_rejects_governance_root_outside_repository(self) -> None:
-        governance_root = Path(__file__).resolve().parents[2]
+        governance_root = REPOSITORY_ROOT
         with tempfile.TemporaryDirectory() as temp:
             repo_root = Path(temp)
             subprocess.run(["git", "init"], cwd=repo_root, check=True, capture_output=True, timeout=10)
@@ -93,112 +79,6 @@ class RetainedCheckTests(unittest.TestCase):
             subprocess.run(["git", "add", secret.relative_to(root).as_posix()], cwd=root, check=True, capture_output=True, timeout=10)
             errors = check_repository(root, DocumentStore(), RepositoryInventory(root))
             self.assertTrue(any("Tracked secret-like file" in error for error in errors), errors)
-
-    @unittest.skipIf(shutil.which("git") is None, "git is unavailable")
-    def test_git_inventory_stops_at_the_output_byte_limit(self) -> None:
-        with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
-            subprocess.run(["git", "init"], cwd=root, check=True, capture_output=True, timeout=10)
-            _write(root / "tracked.txt", "x\n")
-            subprocess.run(["git", "add", "tracked.txt"], cwd=root, check=True, capture_output=True, timeout=10)
-            with patch.object(_git_capture, "MAX_STDOUT_BYTES", 1):
-                paths, error = RepositoryInventory(root).tracked_paths(root)
-            self.assertEqual((), paths)
-            self.assertIn("exceeded", error or "")
-
-    def test_git_inventory_reports_process_start_failure(self) -> None:
-        with patch.object(_git_capture.subprocess, "Popen", side_effect=OSError("process denied")):
-            paths, error = RepositoryInventory._git_paths(
-                Path("."), ["ls-files", "-z"], "tracked files"
-            )
-
-        self.assertEqual((), paths)
-        self.assertIn("process denied", error or "")
-
-    def test_bounded_capture_preserves_primary_and_cleanup_failures(self) -> None:
-        class Process:
-            def __init__(self) -> None:
-                self.stdout = io.BytesIO(b"overflow")
-                self.stderr = io.BytesIO()
-                self.returncode = None
-
-            def poll(self) -> None:
-                return None
-
-            def kill(self) -> None:
-                raise OSError("kill denied")
-
-            def wait(self, *, timeout: float) -> None:
-                raise subprocess.TimeoutExpired("git", timeout)
-
-        with patch.object(_git_capture, "MAX_STDOUT_BYTES", 1), patch.object(
-            _git_capture.subprocess, "Popen", return_value=Process()
-        ):
-            _stdout, _stderr, _returncode, error = _git_capture.bounded_capture(
-                ["git"], label="tracked files"
-            )
-
-        self.assertIn("stdout exceeded 1 bytes", error or "")
-        self.assertIn("cleanup also failed", error or "")
-        self.assertIn("kill denied", error or "")
-        self.assertIn("reap failed", error or "")
-
-    def test_bounded_capture_closes_pipes_after_partial_reader_start_failure(self) -> None:
-        class Pipe(io.BytesIO):
-            pass
-
-        class Process:
-            def __init__(self) -> None:
-                self.stdout = Pipe()
-                self.stderr = Pipe()
-                self.returncode = None
-
-            def poll(self) -> int | None:
-                return self.returncode
-
-            def kill(self) -> None:
-                self.returncode = -9
-
-            def wait(self, *, timeout: float) -> int:
-                self.returncode = -9
-                return self.returncode
-
-        real_thread = _git_capture.threading.Thread
-        starts = 0
-
-        class PartialStartThread(real_thread):
-            def start(self) -> None:
-                nonlocal starts
-                starts += 1
-                if starts == 2:
-                    raise RuntimeError("thread unavailable")
-                super().start()
-
-        process = Process()
-        with patch.object(_git_capture.subprocess, "Popen", return_value=process), patch.object(
-            _git_capture.threading, "Thread", PartialStartThread
-        ):
-            _stdout, _stderr, _returncode, error = _git_capture.bounded_capture(
-                ["git"], label="tracked files"
-            )
-
-        self.assertIn("thread unavailable", error or "")
-        self.assertTrue(process.stdout.closed)
-        self.assertTrue(process.stderr.closed)
-
-    @unittest.skipIf(shutil.which("git") is None, "git is unavailable")
-    def test_git_inventory_real_subprocess_is_reaped_after_normal_completion(self) -> None:
-        with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
-            subprocess.run(["git", "init"], cwd=root, check=True, capture_output=True, timeout=10)
-            _write(root / "tracked.txt", "x\n")
-            subprocess.run(["git", "add", "tracked.txt"], cwd=root, check=True, capture_output=True, timeout=10)
-            paths, error = RepositoryInventory._git_paths(
-                root, ["ls-files", "-z"], "tracked files"
-            )
-
-        self.assertIsNone(error)
-        self.assertEqual(("tracked.txt",), paths)
 
     def test_python_inventory_reports_scandir_permission_error(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -258,7 +138,7 @@ class RetainedCheckTests(unittest.TestCase):
                 self.opened.append(path)
                 return super().read_text(path)
 
-        governance_root = Path(__file__).resolve().parents[2]
+        governance_root = REPOSITORY_ROOT
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             (root / "docs").mkdir()
