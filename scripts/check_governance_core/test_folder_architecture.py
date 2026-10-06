@@ -14,7 +14,8 @@ from scripts.check_governance_core import run_checks
 
 _write = write
 ARCHITECTURE = "docs/project/architecture/architecture.md"
-ENTRY = "__all__ = [\"main\", \"run\"]\n\nfrom scripts.pkg._impl import run\n\n\ndef main(argv):\n    return run(argv)\n"
+ENTRY = ("__all__ = [\"main\", \"run\", \"VERSION\"]\n\nfrom scripts.pkg._impl import run\n\nVERSION: str = \"1\"\n\n\n"
+         "def main(argv):\n    return run(argv)\n")
 LAUNCHER = "import sys\n\nfrom scripts.pkg import main\n\n\nif __name__ == \"__main__\":\n    raise SystemExit(main(sys.argv[1:]))\n"
 
 
@@ -280,6 +281,7 @@ class PackageInterfaceTests(unittest.TestCase):
             "non_string_all": ("scripts/pkg/__init__.py", "__all__ = [1]\n", "non-empty string literals"),
             "repeated_member": ("scripts/pkg/__init__.py", "__all__ = [\"run\", \"run\"]\nfrom scripts.pkg._impl import run\n", "must not repeat"),
             "unbound_member": ("scripts/pkg/__init__.py", "__all__ = [\"run\", \"ghost\"]\nfrom scripts.pkg._impl import run\n", "unbound member 'ghost'"),
+            "annotation_only_member": ("scripts/pkg/__init__.py", "__all__ = [\"run\", \"ghost\"]\nghost: int\nfrom scripts.pkg._impl import run\n", "unbound member 'ghost'"),
             "leaked_name": ("scripts/pkg/__init__.py", "__all__ = [\"run\"]\nimport sys\nfrom scripts.pkg._impl import run\n", "binds public name 'sys' outside `__all__`"),
             "launcher_logic": ("scripts/pkg/__main__.py", "from scripts.pkg import main\nimport sys\nVALUE = 1\nif __name__ == \"__main__\":\n    raise SystemExit(main(sys.argv[1:]))\n", "must only import and delegate"),
             "launcher_private": ("scripts/pkg/__main__.py", "import sys\nfrom scripts.pkg._impl import run\nif __name__ == \"__main__\":\n    raise SystemExit(run(sys.argv[1:]))\n", "must only import and delegate"),

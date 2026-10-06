@@ -49,6 +49,8 @@ def _bound_public_names(tree: ast.Module) -> set[str]:
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
             names.add(node.name)
         elif isinstance(node, (ast.Assign, ast.AnnAssign, ast.AugAssign)):
+            if isinstance(node, ast.AnnAssign) and node.value is None:
+                continue  # an annotation alone binds nothing, so `from pkg import *` would fail on it
             targets = node.targets if isinstance(node, ast.Assign) else [node.target]
             for target in targets:
                 for leaf in ast.walk(target):

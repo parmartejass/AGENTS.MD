@@ -6,7 +6,7 @@ update_trigger: archived evidence or canonical owner routes change
 
 # Changelog History
 
-Index of closure records before CH-20261002-001, kept under the canonical [Changelog](changelog.md) owner. Superseded roles, paths, commands, and permissions in those records are not active instructions; current authority resolves through `AGENTS.md`, `Orchestration.md`, and README Checks. Full entry text: this file at commit `4c7dc06` and earlier (<https://github.com/parmartejass/AGENTS.MD/blob/4c7dc06/docs/project/changelog/history.md>).
+Index of closure records before CH-20261002-001, kept under the canonical [Changelog](changelog.md) owner. Superseded roles, paths, commands, and permissions in those records are not active instructions; current authority resolves through `AGENTS.md`, `Orchestration.md`, and README Checks. Full entry text: this file at commit `ad38a4b` and earlier (<https://github.com/parmartejass/AGENTS.MD/blob/ad38a4b/docs/project/changelog/history.md>).
 
 | ID | Date | Title | Note |
 |---|---|---|---|
