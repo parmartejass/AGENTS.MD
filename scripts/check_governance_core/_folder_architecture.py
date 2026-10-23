@@ -2,7 +2,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from scripts.check_governance_core._declared_paths import canonical_relative, resolve_declared_directory
+from scripts.check_governance_core._declared_paths import (
+    canonical_relative,
+    resolve_declared_directory,
+    resolve_declared_file,
+)
 from scripts.check_governance_core._documents import PROJECT_DOCS_ROOT, DocumentStore, MarkdownDocument
 from scripts.check_governance_core._inventory import RepositoryInventory
 from scripts.check_governance_core._package_interface import PACKAGE_ENTRY, interface_errors
@@ -10,6 +14,7 @@ from scripts.check_governance_core._package_interface import PACKAGE_ENTRY, inte
 
 _ROOT_TOKEN = "governance-core-python-root:"
 _EXCEPTION_TOKEN = "governance-core-python-package-exception:"
+_LAUNCHER_TOKEN = "governance-core-root-launcher:"
 # Project-owned path: each project's own architecture record declares its own Python roots.
 _ROOT_OWNER = PROJECT_DOCS_ROOT / "architecture/architecture.md"
 
@@ -32,24 +37,48 @@ def _marker_values(document: MarkdownDocument, owner: Path, *, token: str, label
     return values, errors
 
 
+def _record_launchers(
+    record_root: Path, owner: Path, document: MarkdownDocument
+) -> tuple[list[Path], list[str]]:
+    """Resolve declared root launchers: existing ``.py`` files directly in the record root."""
+
+    values, errors = _marker_values(document, owner, token=_LAUNCHER_TOKEN, label="governance-core root launcher")
+    launchers: list[Path] = []
+    for value in values:
+        if "/" in value or not value.endswith(".py"):
+            errors.append(
+                f"Declared governance-core root launcher in {owner} must be a .py file directly in its root: {value}"
+            )
+            continue
+        candidate, error = resolve_declared_file(record_root, value)
+        if error:
+            errors.append(f"Declared governance-core root launcher {value!r} in {owner}: {error}")
+            continue
+        assert candidate is not None
+        launchers.append(candidate)
+    return launchers, errors
+
+
 def _record_roots(
     record_root: Path,
     store: DocumentStore,
     *,
     require_root: bool,
-) -> tuple[dict[str, Path], list[str], list[str]]:
-    """Resolve one architecture record's root and exception markers against its own root."""
+) -> tuple[dict[str, Path], list[str], list[Path], list[str]]:
+    """Resolve one architecture record's root, exception, and root-launcher markers against its own root."""
 
     owner = record_root / _ROOT_OWNER
     document, read_error = store.markdown(owner)
     if read_error:
-        return {}, [], [read_error]
+        return {}, [], [], [read_error]
     assert document is not None
     values, errors = _marker_values(document, owner, token=_ROOT_TOKEN, label="governance-core Python root")
     exceptions, exception_errors = _marker_values(
         document, owner, token=_EXCEPTION_TOKEN, label="governance-core packaged-folder exception"
     )
     errors.extend(exception_errors)
+    launchers, launcher_errors = _record_launchers(record_root, owner, document)
+    errors.extend(launcher_errors)
     roots: dict[str, Path] = {}
     for value in values:
         candidate, error = resolve_declared_directory(record_root, value)
@@ -65,27 +94,29 @@ def _record_roots(
             errors.append(
                 f"Declared governance-core packaged-folder exception in {owner} is not a declared Python root: {value}"
             )
-    return roots, [value for value in exceptions if value in roots], errors
+    return roots, [value for value in exceptions if value in roots], launchers, errors
 
 
 def _owner_declared_python_roots(
     repo_root: Path,
     governance_root: Path,
     store: DocumentStore,
-) -> tuple[tuple[Path, ...], frozenset[Path], list[str]]:
+) -> tuple[tuple[Path, ...], frozenset[Path], frozenset[Path], list[str]]:
     """Merge the pack record at the governance root with the host record at the repository root.
 
     One record is read once when the roots coincide. The pack record declares at least one
     root; a host record declares only the host's own roots, so a host root inside the
     governance root is rejected (one owner per root) and a Python-free host declares none.
+    Each record's root launchers are files directly in that record's own root.
     """
 
-    pack_roots, pack_exceptions, errors = _record_roots(governance_root, store, require_root=True)
+    pack_roots, pack_exceptions, launchers, errors = _record_roots(governance_root, store, require_root=True)
     roots = list(pack_roots.values())
     exception_roots = {pack_roots[value] for value in pack_exceptions}
     if repo_root != governance_root:
-        host_roots, host_exceptions, host_errors = _record_roots(repo_root, store, require_root=False)
+        host_roots, host_exceptions, host_launchers, host_errors = _record_roots(repo_root, store, require_root=False)
         errors.extend(host_errors)
+        launchers.extend(host_launchers)
         for value, candidate in host_roots.items():
             if candidate == governance_root or governance_root in candidate.parents:
                 errors.append(
@@ -102,7 +133,7 @@ def _owner_declared_python_roots(
                     "Declared governance-core Python roots must not nest: "
                     f"{inner.relative_to(repo_root).as_posix()!r} is inside {outer.relative_to(repo_root).as_posix()!r}"
                 )
-    return tuple(roots), frozenset(exception_roots), errors
+    return tuple(roots), frozenset(exception_roots), frozenset(launchers), errors
 
 
 def _package_structure_errors(
@@ -162,12 +193,17 @@ def check_folder_architecture(
     files, inventory_error = inventory.python_files(repo_root)
     if inventory_error:
         return [inventory_error], warnings
-    roots, exception_roots, root_errors = _owner_declared_python_roots(repo_root, governance_root, store)
+    roots, exception_roots, launchers, root_errors = _owner_declared_python_roots(repo_root, governance_root, store)
     errors.extend(root_errors)
     warnings.extend(
         "Python source root is a declared packaged-folder exception; re-evaluate it through its owner record: "
         f"{root.relative_to(repo_root).as_posix()}"
         for root in sorted(exception_roots)
+    )
+    warnings.extend(
+        "Python root launcher is a declared packaged-folder exception; re-evaluate it through its owner record: "
+        f"{launcher.relative_to(repo_root).as_posix()}"
+        for launcher in sorted(launchers)
     )
     import_bases = tuple(sorted({root.parent for root in roots}))
     entry_dirs = frozenset(path.parent for path in files if path.name == PACKAGE_ENTRY)
@@ -176,7 +212,7 @@ def check_folder_architecture(
     for path in files:
         relative = path.relative_to(repo_root).as_posix()
         root = next((candidate for candidate in roots if candidate in path.parents), None)
-        if roots and root is None:
+        if roots and root is None and path not in launchers:
             record = governance_root if governance_root in path.parents else repo_root
             errors.append(
                 f"Python file is outside the Python source roots declared in {record / _ROOT_OWNER}: {relative}"

@@ -25,6 +25,16 @@ update_trigger: non-trivial work closes OR closure-record field contract changes
 
 ## Entries
 
+### CH-20261024-001 - Declare repository-root launchers as owner-recorded exceptions
+
+- Change ID/date/status: CH-20261024-001 / 2026-10-24 / execution evidence verified at this checkpoint.
+- Closure statement: Origin: the 2026-10-24 root-launcher decision in `docs/project/goal/goal.md`. A project architecture record may declare a repository-root launcher with `<!-- governance-core-root-launcher: <file> -->`; the folder-architecture check resolves each value against its own record root (an existing `.py` file directly in that root; nested, non-Python, missing, duplicate, and malformed values fail), accepts exactly the declared files, keeps rejecting undeclared root Python files, and reports each declared launcher as a re-evaluation warning.
+- Owner promotion references for durable facts or `N/A + reason`: coding owner Packaged-folder code mechanics (the exception rule, stated once); `docs/project/architecture/architecture.md` Modularity witness boundary; `docs/project/goal/goal.md`; README target-repo line; the governance-core package public contract (unchanged).
+- Changed surfaces grouped by owner: coding owner; goal, architecture, and this changelog; README; governance-core private `_folder_architecture` module and `test_folder_architecture`.
+- Verification command/manual witness and result: README Checks run in a standalone clone of this change: docs, project-docs, full and strict PASSED (full-mode warnings exactly the `X-Bookmarks Import` declared-exception warning); discovery OK; three new folder-architecture tests cover the declared, undeclared, invalid-marker, and vendored-host cases; a vendored host declaring `main.py` passes full and strict. Re-verify when the root-launcher marker, the coding table, or README Checks change.
+- Residual risks/follow-up: a root launcher's body and delegation target have no structural witness and stay manual review against the coding owner.
+- Commit/PR reference or `N/A + reason`: this change: the commit that adds this record.
+
 ### CH-20261005-002 - Restore lost fundamentals and consolidate instruction records
 
 - Change ID/date/status: CH-20261005-002 / 2026-10-05 / execution evidence verified at this checkpoint.

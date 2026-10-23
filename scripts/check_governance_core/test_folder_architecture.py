@@ -262,6 +262,60 @@ class OwnerDeclaredRootTests(unittest.TestCase):
             self.assertEqual(1, len(warnings), warnings)
             self.assertEqual(1, reads.count(root / ARCHITECTURE), reads)
 
+    def test_declared_root_launchers_are_the_only_accepted_root_python_files(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            _fixture(root, "<!-- governance-core-python-root: scripts -->\n"
+                           "<!-- governance-core-root-launcher: main.py -->\n")
+            write(root / "main.py", "import sys\n")
+            write(root / "other.py", "VALUE = 1\n")
+            result = _folder_result(root)
+            self.assertEqual("FAILED", result["status"], result)
+            self.assertEqual(1, sum("outside the Python source roots" in error and error.endswith(": other.py")
+                                    for error in result["errors"]), result)
+            self.assertFalse(any(error.endswith(": main.py") for error in result["errors"]), result)
+            self.assertEqual(1, sum("root launcher is a declared packaged-folder exception" in warning
+                                    and warning.endswith(": main.py") for warning in result["warnings"]), result)
+            (root / "other.py").unlink()
+            self.assertEqual("PASSED", _folder_result(root)["status"])
+
+    def test_invalid_root_launcher_markers_fail_explicitly(self) -> None:
+        cases = {
+            "nested": ("scripts/run.py", "must be a .py file directly in its root"),
+            "not_python": ("run.bat", "must be a .py file directly in its root"),
+            "missing": ("ghost.py", "declared path is missing"),
+            "duplicate": ("main.py -->\n<!-- governance-core-root-launcher: main.py",
+                          "Duplicate governance-core root launcher"),
+            "malformed": ("", "malformed governance-core-root-launcher marker"),
+        }
+        for name, (value, expected) in cases.items():
+            with self.subTest(name=name), tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                _fixture(root, "<!-- governance-core-python-root: scripts -->\n"
+                               f"<!-- governance-core-root-launcher: {value} -->\n")
+                write(root / "main.py", "import sys\n")
+                write(root / "run.bat", "@echo off\n")
+                result = _folder_result(root)
+                self.assertEqual("FAILED", result["status"], result)
+                self.assertEqual(1, sum(expected in error for error in result["errors"]), (expected, result["errors"]))
+
+    def test_vendored_host_root_launcher_resolves_against_the_host_record(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            repo = Path(temp)
+            governance = repo / ".governance"
+            install_foundations(governance)
+            write(governance / ARCHITECTURE, "<!-- governance-core-python-root: scripts -->\n")
+            write(governance / "scripts/pack/__init__.py", "__all__ = []\n")
+            write(repo / ARCHITECTURE, "<!-- governance-core-python-root: app -->\n"
+                                       "<!-- governance-core-root-launcher: main.py -->\n")
+            write(repo / "app/feature/__init__.py", "__all__ = []\n")
+            write(repo / "main.py", "import sys\n")
+            result = run_checks({"repo_root": repo, "governance_root": governance})
+            record = next(item for item in result["checks"] if item["id"] == "folder_architecture")
+            self.assertEqual("PASSED", record["status"], record)
+            self.assertEqual(1, len(record["warnings"]), record)
+            self.assertTrue(record["warnings"][0].endswith(": main.py"), record)
+
 
 class PackageInterfaceTests(unittest.TestCase):
     def test_conformant_package_passes_every_interface_witness(self) -> None:

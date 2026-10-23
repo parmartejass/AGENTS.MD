@@ -103,7 +103,7 @@ Target repo (submodule under `.governance/`; run from the `.governance/` directo
 - Project docs checks: `python3 -B -m scripts.check_governance_core --repo-root .. --only-project-docs`
 - Cross-platform governance checks: `python3 -B -m scripts.check_governance_core --repo-root ..`
   - Strict safety mode: `python3 -B -m scripts.check_governance_core --repo-root .. --fail-on-safety-warnings`
-- Packaged-folder enforcement reads the pack's root markers from `.governance/docs/project/architecture/architecture.md` and the target repo's own roots and exceptions from its `docs/project/architecture/architecture.md` (none when the target keeps no Python outside `.governance/`); the enforced and unclaimed witnesses are recorded in the pack's architecture record, Modularity witness boundary.
+- Packaged-folder enforcement reads the pack's root markers from `.governance/docs/project/architecture/architecture.md` and the target repo's own roots, root launchers, and exceptions from its `docs/project/architecture/architecture.md` (none when the target keeps no Python outside `.governance/`); the enforced and unclaimed witnesses are recorded in the pack's architecture record, Modularity witness boundary.
 
 When a repository `SKILL.md` changes, resolve the installed `skill-creator` bundle and run its format validator: `python3 -B "<resolved-skill-creator>/scripts/quick_validate.py" "<changed-skill-folder>"`; the paths are explicit workflow inputs, a format pass is not owner/semantic review, and the skill's operational workflow is not executed.
 
