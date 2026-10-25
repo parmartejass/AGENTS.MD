@@ -6,7 +6,7 @@ update_trigger: governance responsibilities change, a jurisdiction is added or d
 
 # SSOT
 
-Jurisdiction: concept -> owner -> path routing and the jurisdiction hand-off table; no concept policy is defined here.
+Jurisdiction: concept -> owner -> path routing, the jurisdiction hand-off table, and the Lexicon of rule-bearing terms. No concept policy is defined here.
 
 ## Relation routing rule
 
@@ -16,7 +16,17 @@ Jurisdiction: concept -> owner -> path routing and the jurisdiction hand-off tab
 
 ## Resolve-once structural routing
 
-`AGENTS.md` section `Resolve once before fan-out` is the sole rule owner; its applications route to existing owners: documentation defines the business meaning once (documentation); configuration maps a semantic role to the owner (config); the domain package owns the resolver and canonical projection, callers supply raw evidence only, and every surface consumes that projection (concrete project owner through project architecture; coding); validation replays the public owner and asserts exact equality, tests assert cross-surface parity (evidence, testing); raw evidence stays audit-only (evidence, security). Illustration (non-normative, declares no runtime owner): raw document `2807`, received total `6`, owner-issued projection `2807/6` identical in matrix, review workbook, import, challenge, write, and receipt.
+`AGENTS.md` section `Resolve once before fan-out` is the sole rule owner. Its applications route to existing owners:
+
+- Documentation defines the business meaning once (documentation).
+- Configuration maps a semantic role to the owner (config).
+- The domain package owns the resolver and canonical projection (concrete project owner through project architecture; coding).
+- Callers supply raw evidence only, and every surface consumes that projection (concrete project owner through project architecture; coding).
+- Validation replays the public owner and asserts exact equality (evidence, testing).
+- Tests assert cross-surface parity (evidence, testing).
+- Raw evidence stays audit-only (evidence, security).
+
+Illustration (non-normative, declares no runtime owner): raw document `2807`, received total `6`, owner-issued projection `2807/6` identical in matrix, review workbook, import, challenge, write, and receipt.
 
 ## Constants
 
@@ -137,7 +147,8 @@ Jurisdiction: concept -> owner -> path routing and the jurisdiction hand-off tab
 | Authority pointers, verified behavior, rationale, tradeoffs, protected invariants | project architecture | `docs/project/architecture/architecture.md` |
 | Data-truth ownership, provenance, validation, source routing | project data-truth | `docs/project/data-truth/data-truth.md` |
 | Tracked closure records for completed non-trivial work | project changelog | `docs/project/changelog/changelog.md` |
-| Reusable operational learnings only; change-specific what/how/why and supersession truth stay at the highest owner doc | project learning | `docs/project/learning/learning.md` |
+| Reusable operational learnings only; change-specific facts stay at their highest owner doc | project learning | `docs/project/learning/learning.md` |
+| Supersession history | project changelog | `docs/project/changelog/changelog.md` |
 | Branch routing entrypoint | project router | `docs/project/project_index.md` |
 
 ## Cross-project authority decisions
@@ -155,14 +166,14 @@ Jurisdiction: concept -> owner -> path routing and the jurisdiction hand-off tab
 | Shared non-secret settings payloads | settings | `docs/agents/governance/settings/settings.md` |
 | Shared non-secret MCP payloads | mcp | `docs/agents/governance/mcp/mcp.md` |
 | Deterministic hard-gate enforcement through runtime hooks | hooks | `docs/agents/governance/hooks/hooks.md` |
-| Runtime installation; tracked root runtime copies and projection mappings are retired | consumer | the consuming environment |
+| Runtime installation | consumer | the consuming environment |
 
 ## Runtime config and secret boundary
 
 | Concept | Owner | Route |
 | --- | --- | --- |
 | Non-secret repo-owned settings examples and parseability by owning format | settings | `docs/agents/governance/settings/settings.md` |
-| Secrets never hardcoded; OS user-scoped credential store, CI managed injection as the only exception; machine-local secret files untracked | security | `docs/agents/governance/security/security.md` |
+| Secret storage: hardcoding, OS user-scoped credential store, CI managed injection exception, machine-local secret files | security | `docs/agents/governance/security/security.md` |
 | Redaction list for logs, reports, evidence, handoffs | security | `docs/agents/governance/security/security.md` |
 | Injection avoidance and TLS or security-weakening risk acceptance | security | `docs/agents/governance/security/security.md` |
 
@@ -173,8 +184,8 @@ Jurisdiction: concept -> owner -> path routing and the jurisdiction hand-off tab
 | Excel backend selection, OOXML-first rule, Excel-specific COM lifecycle, Excel data rules | exactly one implementation (excel jurisdiction) | `docs/agents/interfaces/excel/excel.md` |
 | PDF invariants, witnesses, procedure | pdf | `docs/agents/interfaces/pdf/pdf.md` |
 | Path and destination validation, write state machine, two-phase commit | filesystem | `docs/agents/interfaces/filesystem/filesystem.md` |
-| Subprocess bounds, OS containment at creation, PID plus start time identity, bounded containment-scoped termination, cleanup in finally, terminal cleanup outcome | os-processes | `docs/agents/interfaces/os-processes/os-processes.md` |
-| Worker posts to queue; UI drains via `after(...)`; shutdown and cancel event enforcement | exactly one implementation (gui-toolkit jurisdiction) | `docs/agents/interfaces/gui-toolkit/gui-toolkit.md` |
+| Subprocess bounds, OS containment, process identity, containment-scoped termination, process cleanup and its terminal outcome | os-processes | `docs/agents/interfaces/os-processes/os-processes.md` |
+| Worker-to-UI queue handoff, UI drain through `after(...)`, shutdown and cancel events | exactly one implementation (gui-toolkit jurisdiction) | `docs/agents/interfaces/gui-toolkit/gui-toolkit.md` |
 
 ## Playbooks
 
@@ -203,3 +214,39 @@ Jurisdiction: concept -> owner -> path routing and the jurisdiction hand-off tab
 | Known-work reconciliation: `planned`, `eligible`, `executed`, `skipped`, `failed` | run-outcomes | `docs/agents/playbooks/run-outcomes/run-outcomes.md` |
 | Changelog closure-record owner and valid mirror surfaces | `SSOT-DEC-004` | `docs/agents/governance/ssot/authority-decisions/authority-decisions.md` |
 | Changelog field template and order | release | `docs/agents/governance/release/release.md` |
+
+## Lexicon
+
+This section defines each rule-bearing term once. Owners link here as "the Lexicon (ssot)".
+
+- `symptom`: where the defect is observed (its manifestation).
+- `root cause`: the earliest defect or condition that makes the symptom inevitable.
+- `workaround`: a change that avoids the symptom without removing the cause.
+- `patch`: a code change, at the root cause or at the symptom level.
+- `regression`: a new failure introduced by the fix.
+- `blast radius`: the scope of impacted modules, workflows and users.
+- `runtime truth (R)`: what happens at runtime: processes, files, memory, handles.
+- `semantic truth (S)`: what the system must do: invariants, contracts, rules.
+- `recorded truth (D)`: what artifacts claim: configs, logs, reports, docs.
+- `non-trivial`: more than one workflow entrypoint, more than one SSOT jurisdiction, or external resource dependencies such as COM, database or network.
+- `declared source root`: a code-free directory directly below its import base (the directory `python -m <root>.<package>` runs from) that only contains packaged folders.
+- `root launcher`: a code file directly in a repository root, outside every declared source root.
+- `explicit contract`: a sentinel whose meaning is documented in a docstring or type and that callers handle explicitly.
+- `owning authority`: the owning docs, code, config, data or workflow owner.
+- `learning`: an evidenced recurring pitfall, missing invariant or witness, missing owner, or routing or template defect, with a concrete prevention point.
+- `governance-level learning`: a learning that changes reusable governance behavior across tasks or repositories.
+- `evidence handoff`: summarized observations that support classification; it carries no governance or execution authority.
+- `noise`: a task-local or temporary preference, weak evidence, or unrelated material.
+- `all-available history`: the inventory inside authorized roots only.
+- `native-capability gap`: required Excel engine, UI, refresh, rendering, calculation or macro-execution behavior, or other native Excel-interface behavior, that direct package operations cannot provide.
+- `declared data authority`: the input artifact, external system, project data-truth owner, declared config or constants owner, or another declared data authority.
+- `ConfigManager`: the role name for the owner-facing config boundary.
+- `reason-code owner`: the application's declared runtime enum owner.
+
+Terms defined at a higher-ranked owner keep their definition there; this list links them:
+
+- `AGENTS.md` Instruction Derivation Gate defines authority gap.
+- `AGENTS.md` User Prompt Intake and Durable Project Truth defines the intake dispositions `OWNER_UPDATED`, `OWNER_CURRENT`, `EXCLUDED` and `HOLD`.
+- `AGENTS.md` Jurisdictional Decomposition defines packaged folder, public entrypoint and launcher.
+- `AGENTS.md` First-Principles Protocol defines the Baseline Interface Rule, the `baseline` block and the `supersession` record; `docs/agents/governance/principles/principles.md` Stable baseline interface holds their schema.
+- `Orchestration.md` defines Main, task agents, explorers, council, `DONE` and `STOP`.

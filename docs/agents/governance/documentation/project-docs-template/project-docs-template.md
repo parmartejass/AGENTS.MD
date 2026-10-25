@@ -9,22 +9,24 @@ update_trigger: project-doc scaffold shape or subdoc scaffold fields change
 Jurisdiction: initial shape of project-doc root docs, branch routers, and branch-local owner subdocs.
 
 ## Root-doc shape
-- Each root doc MUST carry the documentation header and a `## Boundary` stating what the branch owns and excludes; the table below declares each branch's stable cluster, exclusion, and subdoc trigger, so root docs do not restate them.
-- Generated text MUST be adapted to verified owners; placeholders MUST NOT ship as truth.
+- Each root doc MUST carry the documentation header and a `## Boundary` that states what the branch owns and excludes.
+- The table below declares each branch's stable cluster, exclusion, and subdoc trigger; root docs cite it rather than restate it.
+- Generated text MUST be adapted to verified owners.
+- Every placeholder MUST be replaced with verified content before it ships as truth.
 - Verification sections MUST cite the README Checks command or deterministic manual steps.
 
 | Branch | Root sections after Boundary | Stable cluster and exclusion |
 |---|---|---|
 | Goal | Objective, Acceptance criteria, Durable intent, Non-goals, Verification | Durable intent cluster; no per-prompt/task/commit records. |
-| Rules | Do, Don't | Project-specific rule cluster; reusable governance stays with its governance owner. |
-| Architecture | Entrypoints, SSOT pointers (concept -> owner), Authority graph (owner -> dependents), Current Summary | Stable behavior, boundary, workflow, integration, or module-authority cluster; no task logs or history. |
-| Data truth | Purpose, Current Summary, Change Rule, Verification | Data/config/constant/default/source-artifact cluster; no truth taxonomy, no copied source-owned values. |
-| Changelog | Invariant, Field Contract (routes to the release owner), Entries | Closure records in the release field order; no owner truth. |
-| Learning | Common pitfalls, Verification tips | Recurring operational lesson; no chronology or work-status records. |
+| Rules | Do, Don't | Project-specific rule cluster. Reusable governance stays with its governance owner. |
+| Architecture | Entrypoints, SSOT pointers (concept -> owner), Authority graph (owner -> dependents), Current Summary | Stable behavior, boundary, workflow, integration, or module-authority cluster. No task logs or history. |
+| Data truth | Purpose, Current Summary, Change Rule, Verification | Data/config/constant/default/source-artifact cluster. No truth taxonomy and no copied source-owned values. |
+| Changelog | Invariant, Field Contract (routes to the release owner), Entries | Closure records in the release field order. No owner truth. |
+| Learning | Common pitfalls, Verification tips | Recurring operational lesson. No chronology or work-status records. |
 
 ## Branch-local subdoc rule
-- Create one subdoc per stable truth cluster that would blur the root jurisdiction; Prohibited: one subdoc per prompt, task, commit, or fixed truth category.
-- Each subdoc MUST own one responsibility, stay under its existing branch, and land with its branch router route in the same change; orphan subdocs are Prohibited.
+- Create one subdoc per stable truth cluster that would blur the root jurisdiction, never one per prompt, task, commit, or fixed truth category.
+- Each subdoc MUST own one responsibility, stay under its existing branch, and land with its branch router route in the same change, so no subdoc is orphaned.
 
 ## Template - branch router
 ```md

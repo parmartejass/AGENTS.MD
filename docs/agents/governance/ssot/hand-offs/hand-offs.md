@@ -12,6 +12,7 @@ Jurisdiction: cross-jurisdiction dependencies that owner docs express only by no
 
 | From jurisdiction | Depends on | Owner path |
 | --- | --- | --- |
+| every owner | definitions of rule-bearing terms | `docs/agents/governance/ssot/ssot.md` (Lexicon) |
 | all interfaces and playbooks owners, and any governance owner that selects a tool interface | baseline block schema, supersession record, reserved-jurisdiction declaration | `docs/agents/governance/principles/principles.md` |
 | principles | performance measurement rules and verification floors | `docs/agents/governance/evidence/evidence.md` |
 | principles | defect vocabulary | `docs/agents/governance/bugfix/bugfix.md` |
@@ -28,6 +29,7 @@ Jurisdiction: cross-jurisdiction dependencies that owner docs express only by no
 | testing | baseline block schema | `docs/agents/governance/principles/principles.md` |
 | testing | runner version pin | `docs/agents/governance/dependencies/dependencies.md` |
 | discovery | Governance Agent authority routing and detection lists | `agents-manifest.yaml` |
+| discovery | manifest read boundary (Governance Agent only) | `Orchestration.md` |
 | workflow-registry | composition contract and dependency-direction rules | `docs/agents/governance/coding/coding.md` |
 | workflow-registry | silent-failure rules and failure reporting | `docs/agents/governance/coding/logging/logging.md` |
 | workflow-registry | outcome contract and run reporting | `docs/agents/playbooks/run-outcomes/run-outcomes.md` |
@@ -52,6 +54,7 @@ Jurisdiction: cross-jurisdiction dependencies that owner docs express only by no
 | config | UI mechanics for config-driven selection surfaces | `docs/agents/interfaces/gui-toolkit/gui-toolkit.md` |
 | config | secret boundary and redaction for repo-owned config JSON and its mutation records | `docs/agents/governance/security/security.md` |
 | config | write safety and two-phase commit | `docs/agents/interfaces/filesystem/filesystem.md` |
+| config | cleanup-failure outcome | `docs/agents/governance/coding/coding.md` |
 | logging | log schema, reason-code scaffold, and the user-facing feedback channel | `docs/agents/playbooks/run-outcomes/run-outcomes.md` |
 | logging | redaction list and payload summarization | `docs/agents/governance/security/security.md` |
 | logging | static witness for logging rules | `scripts/check_governance_core/` |
