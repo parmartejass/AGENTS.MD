@@ -12,8 +12,7 @@ update_trigger: non-trivial work closes OR closure-record field contract changes
 
 ## Invariant
 - Each closure record references the owning docs/code/config/data/workflow authority for durable facts, or records `N/A + reason`.
-- A closure record must not substitute for owner-doc promotion.
-- Raw secrets, credentials, PII, customer data, and oversized pasted artifacts must not be stored here.
+- This changelog owns supersession history. A closure record never replaces owner-doc promotion.
 
 ## Field Contract
 - Closure-record field template/order is owned by `docs/agents/governance/release/release.md`.
@@ -24,6 +23,29 @@ update_trigger: non-trivial work closes OR closure-record field contract changes
 - [Changelog History](history.md) indexes closure records before CH-20261002-001.
 
 ## Entries
+
+### CH-20261025-001 - Rewrite governance to one owner per rule
+
+- Change ID/date/status: CH-20261025-001 / 2026-10-25 / execution evidence verified at this checkpoint.
+- Closure statement: Origin: the 2026-10-25 governing-rule request and the Phase-3 delegation in `docs/project/goal/goal.md`. Every normative statement in the root authorities, `agents-manifest.yaml`, `docs/agents/**`, `docs/project/**`, every `SKILL.md`, and the checker rule text was inventoried (3,049 ledger ids), grouped by intent, and written once at its owner in plain, positive words. Every other copy became a link or was retired. The governing rule is `AGENTS.md` FP-13. The docs check now warns on normative sentences and declarations that repeat across tracked Markdown files; the folder-architecture check warns on module-level constant names bound in more than one tracked module. Both read their settings from the documentation owner and never fail a run.
+- Owner promotion references for durable facts or `N/A + reason` (supersession history, one line per intent group; "Ledger part N" is the PR comment "Ledger part N of 13"):
+  - FP-13 governing rule (G01, G03): the user's governing rule replaces the old FP-13 wording at `AGENTS.md` FP-13. FP-12 and FP-15 keep only the condition each adds, as extensions of FP-13. Ledger parts 1-5, 7, 8, 11.
+  - Creation clauses (GR-4 a): superseded by FP-13 are the `AGENTS.md` Jurisdictional Decomposition clause that created a new packaged folder for an uncovered jurisdiction, the documentation owner's "create only the minimum routed owner" clause, and the FP-27 creation exception. A missing owner now halts and escalates; the user decides any new owner. Ledger parts 1, 3-5, 9.
+  - GR-3 a reading: recorded once in `docs/project/goal/goal.md` as an agent decision. Ledger parts 1, 2.
+  - FP-01 to FP-35 in plain words (K5 b): `AGENTS.md` Fundamental Principles keep their numbers, order, `MUST ` lead and meaning. The `AGENTS.md` structural contract, `docs/project/goal/goal.md` and the FP-03 pin in `test_docs_timing.py` now pin the new text. Ledger parts 1, 13.
+  - Repeat report (K4 a): documentation owner Validation boundary (three declarations, warning-only); governance-core `_docs_checks` and `_folder_architecture`. Ledger parts 2, 4, 10.
+  - Supersession history (K9 b): this changelog alone owns it. The documentation owner Safe supersession and Placement decision, the ssot Bounded project authority memory, `SSOT-DEC-004` and this file's Invariant now say so; owner docs carry no old-to-new notes. Ledger parts 4, 7, 8, 10, 11.
+  - Lexicon (U1 b): rule-bearing terms are defined once in the ssot Lexicon. Terms defined in `AGENTS.md` or `Orchestration.md` stay there and the Lexicon links them. Rule-free terms became plain words. Ledger parts 1-11.
+  - O1, O3 (with the `SSOT-DEC-004` witness and trigger clauses) and O5: superseded by FP-13. Ledger parts 1, 4, 7, 8, 11.
+  - O4 and O6, retired as obsolete under the user's delegation: the 2026-09-20 applied record (moved from goal.md): S-3 packaging baseline declared (agent decision); P-3 governance-learning permits `subagent` packaging. S-1 and S-2 stay in `history.md` CH-20260920-002. The 2026-09-27 pending dual-model verification record is retired. Ledger part 11.
+  - Old-to-new notes moved out of owner docs: in `docs/project/goal/goal.md`, the 2026-10-04 root-source record superseded the M5 record in part, Jurisdictional Decomposition absorbed the former "SSOT Jurisdiction and Purification" gate, and the module-boundary consolidation superseded earlier FP-13/FP-15 wording; in `docs/project/architecture/architecture.md`, the superseded custom entry file was removed without a compatibility shim. Ledger parts 10, 11.
+  - Consolidations M01, M02, M04, M05, M06, M07, M09, M10, M11, M12 and D16: each copy retired to its group's owner statement. Ledger parts 1-8, 10, 11.
+  - `AGENTS.md` hard gates: one route table under Non-Negotiables (Hard Gates). Ledger part 1.
+  - `docs/agents/governance/principles/principles.md` Patch section consolidated. Ledger part 5.
+- Changed surfaces grouped by owner: constitution and lifecycle prose (`AGENTS.md`, `Orchestration.md`; the orchestration-contract block is unchanged); `agents-manifest.yaml` (the ssot Lexicon routed to 14 profiles, principles to `os_processes` and `excel_automation`, one description line); governance, interfaces and playbooks owner docs; the skill bundles; project goal, architecture, rules, data-truth, learning and this changelog; README; the ssot, bugfix, documentation, governance, changelog and project routers; governance-core private modules `_docs_checks`, `_folder_architecture`, `_documents` and `_inventory`, and the tests `test_docs_policy`, `test_coding_policy` and `test_docs_timing`.
+- Verification command/manual witness and result: README Checks: docs, project-docs, full and strict PASSED (full-mode warnings exactly the `X-Bookmarks Import` declared-exception warning; zero repeat warnings). Discovery Ran 150, OK (141 before; nine repeat-report and pin tests added, none weakened or removed). X workspace suites 6 OK (skipped=1) and 3 OK. Ledger coverage RESULT PASS over 3,049 ids with all six executor maps; meaning-token check PASS (0 unexplained); link check 0 errors and no new warning. The witness repeat scan and the checker agree on the branch head (zero statement, declaration and constant repeats), on main's tree with the three declarations added (the same three statement pairs), and on a tree with injected repeats (the same three findings). End-to-end medians before -> after (ms): docs 150 -> 217, project-docs 153 -> 158, full 438 -> 525, strict 461 -> 499; every end-to-end value is UNMET against the 100 ms target (interpreter start included). In-process docs mode takes 77 ms and the repeat report 23-54 ms (MET). Re-verify when the repeat-report declarations, the docs or folder-architecture checks, or README Checks change.
+- Residual risks/follow-up: The repeat report is warning-only at the exit-code level; `test_docs_timing` keeps the live tree at zero docs warnings. It compares wording, not meaning, so semantic duplicates stay a review decision. A root that is not a Git worktree has no tracked files, so the report finds nothing there. FP-03 is UNMET for every end-to-end mode. Ledger row L02442 shows its two model identifiers redacted in the PR comment; the original text is in `main` at `docs/project/goal/goal.md:43`. The FP-01 to FP-35 texts are agent-drafted under the user's delegation; merging the pull request is the user's authorization.
+- Commit/PR reference or `N/A + reason`: this change: the commits on branch `claude/governance-single-owner-rewrite` and its pull request, whose comments hold the full ledger.
 
 ### CH-20261024-001 - Declare repository-root launchers as owner-recorded exceptions
 

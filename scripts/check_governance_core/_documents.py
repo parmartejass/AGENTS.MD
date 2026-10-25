@@ -21,6 +21,8 @@ ORCHESTRATION_PATH = "Orchestration.md"
 DOCS_ROOT = Path("docs")
 AGENTS_DOCS_ROOT = DOCS_ROOT / "agents"
 PROJECT_DOCS_ROOT = DOCS_ROOT / "project"
+# The changelog owns supersession history, so the repeat report leaves it out.
+CHANGELOG_DOCS_ROOT = PROJECT_DOCS_ROOT / "changelog"
 SKILL_FILENAME = "SKILL.md"
 
 
@@ -77,19 +79,24 @@ class MarkdownDocument:
                 values.append(match.group(1))
         return tuple(values), tuple(errors)
 
-    def positive_integer_declaration(self, key: str, owner_label: str) -> tuple[int | None, list[str]]:
+    def declaration_value(self, key: str) -> str | None:
+        """Return the value of the one operative ``key: value`` line, or None when absent, repeated or malformed."""
+
         declarations = [
             line for _number, line in self.operative_lines
             if line.strip().startswith(key)
         ]
-        match = re.fullmatch(rf"{re.escape(key)}: ([1-9][0-9]*)", declarations[0]) if len(declarations) == 1 else None
-        if match is None:
+        match = re.fullmatch(rf"{re.escape(key)}: (\S+)", declarations[0]) if len(declarations) == 1 else None
+        return match.group(1) if match else None
+
+    def positive_integer_declaration(self, key: str, owner_label: str) -> tuple[int | None, list[str]]:
+        value = self.declaration_value(key)
+        if value is None or re.fullmatch(r"[1-9][0-9]*", value) is None:
             return None, [f"{owner_label} must declare exactly one positive {key}"]
         try:
-            return int(match.group(1)), []
+            return int(value), []
         except ValueError:
             return None, [f"{owner_label} {key} is not a supported integer"]
-
 
 
 class DocumentStore:

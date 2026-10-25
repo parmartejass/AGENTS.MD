@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import shutil
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -29,6 +30,20 @@ def _folder_result(root: Path, *, strict: bool = False) -> dict:
     result = run_checks({"repo_root": root, "governance_root": root,
                          "fail_on_safety_warnings": strict})
     return next(record for record in result["checks"] if record["id"] == "folder_architecture")
+
+
+def _tracked_modules(root: Path, modules: dict[str, str]) -> list[str]:
+    """Track the fixture plus ``modules`` in Git and return the folder check's repeat warnings."""
+
+    _declared, policy = _fixture(root)
+    _policy(policy, "code_decomposition_review_lines: 400")
+    for relative, text in modules.items():
+        write(root / relative, text)
+    for command in (["git", "init"], ["git", "add", "-A"]):
+        subprocess.run(command, cwd=root, check=True, capture_output=True, timeout=10)
+    result = _folder_result(root)
+    assert result["status"] == "PASSED", result
+    return [warning for warning in result["warnings"] if warning.startswith("repeat:")]
 
 
 class CodingPolicyTests(unittest.TestCase):
@@ -201,6 +216,32 @@ class CodingPolicyTests(unittest.TestCase):
                 self.assertEqual(result, run_checks({**request, "mode": mode}))
             self.assertEqual(corpus, resolve_documents(request))
             self.assertEqual("FAILED", _folder_result(root)["status"])
+
+    @unittest.skipIf(shutil.which("git") is None, "git is unavailable")
+    def test_constant_name_bound_in_two_modules_warns(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            warnings = _tracked_modules(Path(temp), {"scripts/example/_first.py": "LIMIT = 1\n",
+                                                     "scripts/example/_second.py": '"""Doc."""\n_LIMIT = 2\nLIMIT = 2\n'})
+            self.assertEqual(["repeat: constant LIMIT bound in scripts/example/_first.py:1 and "
+                              "scripts/example/_second.py:3 (coding owner, No Duplicates)"], warnings)
+
+    @unittest.skipIf(shutil.which("git") is None, "git is unavailable")
+    def test_distinct_names_and_non_literal_bindings_do_not_warn(self) -> None:
+        body = "FIRST_LIMIT = 1\nENABLED = True\nITEMS = [1]\nlimit = 1\n"
+        with tempfile.TemporaryDirectory() as temp:
+            warnings = _tracked_modules(Path(temp), {"scripts/example/_first.py": body,
+                                                     "scripts/example/_second.py": body.replace("FIRST", "SECOND")})
+            self.assertEqual([], warnings)
+
+    @unittest.skipIf(shutil.which("git") is None, "git is unavailable")
+    def test_declared_packaged_folder_exception_is_skipped(self) -> None:
+        record = ("<!-- governance-core-python-root: scripts -->\n<!-- governance-core-python-root: vendor -->\n"
+                  "<!-- governance-core-python-package-exception: vendor -->\n")
+        with tempfile.TemporaryDirectory() as temp:
+            warnings = _tracked_modules(Path(temp), {"docs/project/architecture/architecture.md": record,
+                                                     "scripts/example/_first.py": "LIMIT = 1\n",
+                                                     "vendor/tool.py": "LIMIT = 3\n"})
+            self.assertEqual([], warnings)
 
     def test_policy_value_is_not_a_new_public_request_override(self) -> None:
         request = {"code_decomposition_review_lines": 6}

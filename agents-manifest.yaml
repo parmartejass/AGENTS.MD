@@ -8,7 +8,7 @@ description: >-
   detect.code_patterns are substrings or regexes over code in scope; detect.file_globs match referenced or edited files;
   detect.signals are explicit signals supplied by the user or execution environment; a profile matches when any signal matches.
   Routing: union reads every matching profile's authorities de-duplicated in profile-declaration then list order;
-  first_match reads the earliest matching profile only; no match reads fallback_authorities.
+  first_match reads only the earliest matching profile. With no match, routing reads fallback_authorities.
   semantic_queries.<profile> is optional and runs first only when semantic search is available.
 
 routing_mode: union # union | first_match
@@ -101,6 +101,8 @@ profiles:
       - "docs/agents/interfaces/excel/excel.md"
       - "docs/agents/interfaces/os-processes/os-processes.md"
       - "docs/agents/interfaces/filesystem/filesystem.md"
+      - "docs/agents/governance/ssot/ssot.md"
+      - "docs/agents/governance/principles/principles.md"
 
   gui_task:
     detect:
@@ -134,6 +136,7 @@ profiles:
       - "docs/agents/playbooks/config/config.md"
       - "docs/agents/playbooks/run-outcomes/run-outcomes.md"
       - "docs/agents/playbooks/design-system/design-system.md"
+      - "docs/agents/governance/ssot/ssot.md"
 
   io_batch:
     detect:
@@ -203,6 +206,7 @@ profiles:
       - "docs/agents/interfaces/filesystem/filesystem.md"
       - "docs/agents/playbooks/run-outcomes/run-outcomes.md"
       - "docs/agents/playbooks/config/config.md"
+      - "docs/agents/governance/ssot/ssot.md"
 
   pdf_task:
     detect:
@@ -232,6 +236,7 @@ profiles:
       - "docs/agents/playbooks/run-outcomes/run-outcomes.md"
       - "docs/agents/playbooks/config/config.md"
       - "docs/agents/interfaces/pdf/pdf.md"
+      - "docs/agents/governance/ssot/ssot.md"
 
   perf_hotspots:
     detect:
@@ -261,6 +266,7 @@ profiles:
       file_globs: []
     authorities:
       - "docs/agents/governance/evidence/evidence.md"
+      - "docs/agents/governance/ssot/ssot.md"
 
   runtime_path:
     detect:
@@ -285,6 +291,7 @@ profiles:
       - "docs/agents/playbooks/config/config.md"
       - "docs/agents/governance/coding/logging/logging.md"
       - "docs/agents/governance/coding/workflow-registry/workflow-registry.md"
+      - "docs/agents/governance/ssot/ssot.md"
 
   bugfix:
     detect:
@@ -304,6 +311,7 @@ profiles:
       - "docs/agents/governance/bugfix/bugfix.md"
       - "docs/agents/governance/coding/logging/logging.md"
       - "docs/agents/governance/testing/testing.md"
+      - "docs/agents/governance/ssot/ssot.md"
 
   ai_prompt_authoring:
     detect:
@@ -362,6 +370,7 @@ profiles:
     authorities:
       - "docs/agents/governance/documentation/project-docs-template/project-docs-template.md"
       - "docs/agents/governance/release/release.md"
+      - "docs/agents/governance/ssot/ssot.md"
 
   governance_improvement:
     detect:
@@ -413,6 +422,7 @@ profiles:
     authorities:
       - "docs/agents/governance/governance-learning/governance-learning.md"
       - "docs/agents/governance/coding/logging/logging.md"
+      - "docs/agents/governance/ssot/ssot.md"
 
   skills_task:
     detect:
@@ -449,6 +459,7 @@ profiles:
     authorities:
       - "docs/agents/governance/testing/testing.md"
       - "docs/agents/governance/evidence/evidence.md"
+      - "docs/agents/governance/ssot/ssot.md"
 
   security:
     detect:
@@ -500,6 +511,7 @@ profiles:
       - "docs/agents/governance/testing/testing.md"
       - "docs/agents/playbooks/packaging/packaging.md"
       - "docs/agents/governance/dependencies/dependencies.md"
+      - "docs/agents/governance/ssot/ssot.md"
 
   settings_task:
     detect:
@@ -546,6 +558,7 @@ profiles:
       file_globs: []
     authorities:
       - "docs/agents/interfaces/os-processes/os-processes.md"
+      - "docs/agents/governance/principles/principles.md"
 
   run_outcomes:
     detect:
@@ -559,6 +572,7 @@ profiles:
       file_globs: []
     authorities:
       - "docs/agents/playbooks/run-outcomes/run-outcomes.md"
+      - "docs/agents/governance/ssot/ssot.md"
 
   config_task:
     detect:
@@ -573,6 +587,7 @@ profiles:
       file_globs: []
     authorities:
       - "docs/agents/playbooks/config/config.md"
+      - "docs/agents/governance/ssot/ssot.md"
 
   design_system:
     detect:
@@ -657,6 +672,7 @@ profiles:
       - "docs/agents/playbooks/packaging/packaging.md"
       - "docs/agents/governance/dependencies/dependencies.md"
       - "docs/agents/governance/release/release.md"
+      - "docs/agents/governance/ssot/ssot.md"
 
   dependencies:
     detect:

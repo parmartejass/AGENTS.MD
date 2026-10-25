@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import ast
+from collections import defaultdict
 from pathlib import Path
 
 from scripts.check_governance_core._declared_paths import (
@@ -7,7 +9,9 @@ from scripts.check_governance_core._declared_paths import (
     resolve_declared_directory,
     resolve_declared_file,
 )
-from scripts.check_governance_core._documents import PROJECT_DOCS_ROOT, DocumentStore, MarkdownDocument
+from scripts.check_governance_core._documents import (
+    CHANGELOG_DOCS_ROOT, PROJECT_DOCS_ROOT, DocumentStore, MarkdownDocument,
+)
 from scripts.check_governance_core._inventory import RepositoryInventory
 from scripts.check_governance_core._package_interface import PACKAGE_ENTRY, interface_errors
 
@@ -158,6 +162,44 @@ def _package_structure_errors(
     return []
 
 
+def _constant_repeats(
+    repo_root: Path, store: DocumentStore, inventory: RepositoryInventory, exception_roots: frozenset[Path],
+) -> list[str]:
+    """Warn on module-level literal constant names bound in more than one tracked module (coding owner, No Duplicates)."""
+
+    if not inventory.has_git_worktree(repo_root):
+        return []
+    tracked, error = inventory.tracked_paths(repo_root)
+    if error:
+        return [f"repeat: report not run: {error} (coding owner, No Duplicates)"]
+    warnings: list[str] = []
+    bindings: dict[str, list[tuple[str, int]]] = defaultdict(list)
+    excluded = CHANGELOG_DOCS_ROOT.as_posix() + "/"
+    for relative in sorted(tracked):
+        path = repo_root / relative
+        if not relative.endswith(".py") or relative.startswith(excluded) or any(
+            root == path or root in path.parents for root in exception_roots
+        ):
+            continue
+        text, read_error = store.read_text(path)
+        if read_error:
+            warnings.append(f"repeat: report skipped {relative}: {read_error} (coding owner, No Duplicates)")
+            continue
+        assert text is not None
+        module, _syntax_error = store.python_module(path, text)
+        for node in module.tree.body if module else ():
+            if (isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
+                    and node.targets[0].id.lstrip("_").isupper() and isinstance(node.value, ast.Constant)
+                    and not isinstance(node.value.value, bool)):
+                bindings[node.targets[0].id].append((relative, node.lineno))
+    warnings.extend(
+        f"repeat: constant {name} bound in " + " and ".join(f"{file}:{line}" for file, line in sites)
+        + " (coding owner, No Duplicates)"
+        for name, sites in sorted(bindings.items()) if len({file for file, _line in sites}) > 1
+    )
+    return warnings
+
+
 def check_folder_architecture(
     repo_root: Path,
     governance_root: Path,
@@ -238,4 +280,5 @@ def check_folder_architecture(
         f"{(directory / PACKAGE_ENTRY).relative_to(repo_root).as_posix()}"
         for directory in sorted(python_dirs - package_dirs)
     )
+    warnings.extend(_constant_repeats(repo_root, store, inventory, exception_roots))
     return list(dict.fromkeys(errors)), warnings

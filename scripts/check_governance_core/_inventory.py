@@ -48,12 +48,18 @@ class RepositoryInventory:
         assert root is not None
         if root in self._tracked:
             return self._tracked[root]
-        if not (root / ".git").exists():
+        if not self.has_git_worktree(root):
             result = ((), f"Repository checks require a Git worktree: {root}")
         else:
             result = self._git_paths(root, ["ls-files", "-z"], "tracked files")
         self._tracked[root] = result
         return result
+
+    def has_git_worktree(self, root: Path) -> bool:
+        """Only a Git worktree has tracked paths; any other root tracks none."""
+
+        resolved, root_error = self.resolve_scan_root(root)
+        return root_error is None and resolved is not None and (resolved / ".git").exists()
 
     def tracked_ignored_paths(self, root: Path) -> tuple[tuple[str, ...], str | None]:
         root, root_error = self.resolve_scan_root(root)
