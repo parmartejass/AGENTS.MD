@@ -17,15 +17,20 @@ baseline:
 ```
 
 ## Admission
-- A dependency MUST NOT be added for functionality the standard library provides; a new direct dependency MUST Record the baseline it supersedes, the capability gap, its license class, and the owner that consumes it.
+- MUST use the standard library, not a new dependency, for functionality it provides.
+- A new direct dependency MUST record the baseline it supersedes, the capability gap, its license class and the owner that consumes it.
 - A new direct dependency MUST be checked for name confusion against the intended project before first install.
-- A runtime import of a package absent from the lockfile is Prohibited.
+- Every runtime import MUST resolve to a package in the lockfile.
 
 ## Lockfile
 - Every runtime and development dependency MUST appear in the committed lockfile with per-artifact hashes.
-- Installs in checks, builds, and releases MUST be frozen against the lockfile; resolving at install time is Prohibited.
-- The lockfile MUST be regenerated in the same change as any dependency edit, including removal; a drifted lockfile MUST fail a repository check.
+- Installs in checks, builds and releases MUST be frozen against the lockfile.
+- Prohibited: resolving at install time.
+- The lockfile MUST be regenerated in the same change as any dependency edit, including removal.
+- A drifted lockfile MUST fail a repository check.
 
 ## Upgrade and scan
-- A dependency upgrade MUST observe the declared cooldown window; a fix for a known vulnerability bypasses it with the advisory identifier Recorded.
-- Prohibited: relying on a vulnerability scanner as the malicious-package control; Record the separate provenance check.
+- A dependency upgrade MUST observe the declared cooldown window.
+- A fix for a known vulnerability bypasses the window, with its advisory identifier recorded.
+- The malicious-package control MUST be a separate provenance check, not the vulnerability scanner.
+- Record that provenance check.

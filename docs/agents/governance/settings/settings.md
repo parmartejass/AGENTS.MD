@@ -23,11 +23,11 @@ baseline:
 
 ## Invariants
 - Shared settings payloads are source assets only.
-- Instruction-bearing settings MUST route policy to its owner and MUST NOT copy or redefine it.
-- Compaction or summary instructions MUST preserve controlling user intent.
+- Compaction or summary instructions MUST preserve controlling user intent (`AGENTS.md` User Prompt Intake and Durable Project Truth).
 - Shared settings content MUST stay machine-parseable when the format supports deterministic parsing.
 - Every key in a committed platform payload MUST exist at that scope in the platform's current published configuration reference.
-- A control that must apply before the consumer trusts the folder MUST be expressed as `deny` or `ask`; `allow` entries apply only after trust.
+- A control that must apply before the consumer trusts the folder MUST be expressed as `deny` or `ask`.
+- `allow` entries apply only after trust.
 
 ## Current shared source routes
 - Cursor project CLI permissions: `docs/agents/governance/settings/cursor/cli.json`
@@ -35,10 +35,11 @@ baseline:
 - Codex shared project config: `docs/agents/governance/settings/codex/config.toml`
 
 ## Local-only boundary
-- `.claude/settings.local.json` is machine-local; repo-linking or tracking it is Prohibited.
+- `.claude/settings.local.json` is machine-local.
+- It MUST stay untracked and unlinked from the repo.
 - User-home config files stay outside repo ownership absent a future verified adopting contract.
 
 ## Editing rule
 - Edit canonical settings under `docs/agents/governance/settings/**`.
-- Consumer runtime settings files MUST NOT be treated as repo-owned authorities.
+- Consumer runtime settings files MUST be treated as non-authoritative for the repo.
 - A platform settings source contract change MUST update this owner and the affected payload branch together.
