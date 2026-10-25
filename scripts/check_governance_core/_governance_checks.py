@@ -6,7 +6,8 @@ from pathlib import Path
 
 from scripts.check_governance_core._declared_paths import resolve_declared_file
 from scripts.check_governance_core._documents import (
-    AGENTS_DOCS_ROOT, CONSTITUTION_PATH, ORCHESTRATION_PATH, DocumentStore, MarkdownDocument, router_filename,
+    AGENTS_DOCS_ROOT, CONSTITUTION_PATH, ORCHESTRATION_PATH, DocumentStore, MarkdownDocument, is_quoted, paragraphs,
+    router_filename,
 )
 from scripts.check_governance_core._inventory import RepositoryInventory
 from scripts.check_governance_core._manifest import MANIFEST_PATH
@@ -90,7 +91,7 @@ _FOUNDATION_DECLARATION = re.compile(r"([a-z_]+)=([^<>]+)")
 
 
 def _foundation_lines(document: MarkdownDocument) -> tuple[list[str], tuple[tuple[str, ...], tuple[str, ...]]]:
-    lines = [line for _number, line in document.operative_lines if not line.lstrip().startswith(">")]
+    lines = [line for _number, line in document.operative_lines if not is_quoted(line)]
     return (
         [line for line in lines if line.lstrip().startswith("foundation_contract_version")],
         document.markers(_FOUNDATION_TOKEN),
@@ -202,12 +203,8 @@ def _validate_principles(document: MarkdownDocument) -> list[str]:
     operative = {number for number, _line in document.operative_lines}
     if any(number not in operative and lines[number - 1].strip() for number in range(start + 1, end)):
         return [prefix + "restore operative headings and paragraphs; code examples cannot define principles"]
-    body_start, body_end = start, end - 1
-    while body_start < body_end and not lines[body_start].strip():
-        body_start += 1
-    while body_end > body_start and not lines[body_end - 1].strip():
-        body_end -= 1
-    parts = re.split(r"\n(?:[ \t]*\n)+", "\n".join(lines[body_start:body_end]))
+    parts = ["\n".join(line for _number, line in run)
+             for run in paragraphs((number, line) for number, line in document.operative_lines if start < number < end)]
     expected = list(range(first, last + 1))
     if len(parts) != len(expected) * 2:
         return [prefix + "restore every declared identifier with exactly one blank-line-delimited MUST paragraph"]

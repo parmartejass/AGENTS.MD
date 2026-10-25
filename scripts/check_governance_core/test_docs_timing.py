@@ -7,8 +7,10 @@ from time import perf_counter
 from unittest.mock import patch
 
 from scripts.check_governance_core._docs_checks import (
-    DOCS_POLICY_PATH, _documentation_line_limit, _physical_lines, _required_project_paths, check_docs,
+    DOCS_POLICY_PATH, _documentation_line_limit, _physical_lines, _repeat_excluded_paths, _required_project_paths,
+    check_docs,
 )
+from scripts.check_governance_core._repeat_report import repeat_parameters, statement_repeats
 from scripts.check_governance_core._documents import DocumentStore
 from scripts.check_governance_core._inventory import RepositoryInventory
 from scripts.check_governance_core._test_support import REPOSITORY_ROOT, live_principles_section
@@ -18,7 +20,8 @@ logger = logging.getLogger(__name__)
 
 
 def _performance_target_ms() -> int:
-    return int(re.search(r"### FP-03\n\n.*?within ([0-9]+) milliseconds", live_principles_section(), re.S).group(1))
+    return int(re.search(r"### FP-03\n\nMUST design every process and operation for near-instant completion, "
+                         r"targeting completion within ([0-9]+) milliseconds end to end\.", live_principles_section()).group(1))
 
 
 class DocsPolicyTimingTests(unittest.TestCase):
@@ -85,6 +88,28 @@ class DocsPolicyTimingTests(unittest.TestCase):
                        "uninstrumented here; no workbook persistence occurs. Reporting success is not target attainment.")
         for name, values in samples.items():
             self.assertLess(max(values), target_ms, (name, values))
+
+    def test_repeat_report_component_timing(self) -> None:
+        target_ms = _performance_target_ms()
+        samples: dict[str, list[float]] = {"repeat_report_cold_ms": [], "repeat_report_warm_ms": []}
+        warm_store, warm_inventory = DocumentStore(), RepositoryInventory(REPOSITORY_ROOT)
+        for name, values in samples.items():
+            for _sample in range(5):
+                store, inventory = (DocumentStore(), RepositoryInventory(REPOSITORY_ROOT)) if name.endswith("cold_ms") else (
+                    warm_store, warm_inventory)
+                started = perf_counter()
+                policy, error = store.markdown(REPOSITORY_ROOT / DOCS_POLICY_PATH)
+                self.assertIsNone(error)
+                parameters, errors = repeat_parameters(policy)
+                excluded, exclusion_errors = _repeat_excluded_paths(policy)
+                result = statement_repeats(REPOSITORY_ROOT, store, inventory, parameters, excluded)
+                values.append((perf_counter() - started) * 1000)
+                self.assertEqual(([], [], []), (errors, exclusion_errors, result))
+        for name, values in samples.items():
+            logger.warning("FP-03 operation=%s target_ms=%s samples_ms=%s outcome=%s", name, target_ms,
+                           [round(value, 3) for value in values], "UNMET" if max(values) > target_ms else "MET")
+        logger.warning("FP-03 boundaries: cold includes the Git tracked-path listing and Markdown reads; warm reuses "
+                       "the run's inventory and document cache as in engine dispatch.")
 
     def test_timing_reports_slow_filesystem_operations_as_unmet(self) -> None:
         elapsed = 0.0

@@ -20,21 +20,21 @@ baseline:
 - Transformation: source-owner-declared normalization and duplicate handling, merge through the selected backend contract, then witness validation.
 - Transformation MUST record preservation evidence for every change.
 - Outputs: merged PDF plus log and run-report entries.
-- Side effects: file writes and temp files; temp artifacts MUST be cleaned up.
+- Side effects: file writes and temp files. Temp artifacts MUST be cleaned up.
 - Selection owner: Record the workflow coordinator entrypoint or config SSOT path before execution.
 
 ## Invariants
 - INV-PDF-D1: Every source PDF MUST contribute its full page set to the merged output.
 - INV-PDF-D2: The merged output MUST be structurally readable by the chosen reader(s).
-- INV-PDF-O1: Merge order MUST be deterministic; nondeterministic directory iteration is prohibited.
-- INV-PDF-I1: Re-merging identical inputs MUST NOT drift on page count, identifier coverage, or size ratio within tolerance; drift is a failed integrity witness that no backend selection waives.
+- INV-PDF-O1: Merge order MUST be deterministic, independent of directory iteration order.
+- INV-PDF-I1: Re-merging identical inputs MUST reproduce the same page count, identifier coverage, and size ratio within tolerance. Drift is a failed integrity witness, and no backend selection waives it.
 - INV-PDF-OBS1: Logs MUST record backend used, page counts, validation outcomes, and retry attempt number.
-- INV-PDF-I2: The document `/ID` and document dates MUST derive from declared inputs, never from wall-clock time or randomness, when INV-PDF-I1 is asserted; a fixed `/ID` is permitted in fixtures only.
-- INV-PDF-D3: Outlines, named destinations, link annotations, and form fields MUST be counted before and after merge; colliding form-field names across sources MUST Return `FAILED` or be namespaced under a recorded grouping.
-- INV-PDF-D4: The merged output MUST declare the maximum PDF version across its sources, and the object-stream mode MUST be recorded by the selection owner before execution.
+- INV-PDF-I2: When INV-PDF-I1 is asserted, the document `/ID` and document dates MUST derive only from declared inputs, not from wall-clock time or randomness. A fixed `/ID` is permitted in fixtures only.
+- INV-PDF-D3: Outlines, named destinations, link annotations, and form fields MUST be counted before and after merge. Form-field names that collide across sources MUST return `FAILED` or be namespaced under a recorded grouping.
+- INV-PDF-D4: The merged output MUST declare the maximum PDF version across its sources. The selection owner MUST record the object-stream mode before execution.
 
 ## Witnesses
-Use multiple witnesses; size alone is a heuristic, and optimized formats legitimately shrink.
+Use multiple witnesses. Size alone is a heuristic, because optimized formats legitimately shrink.
 
 | Invariant | Witness signal | Where recorded | Pass criteria |
 |---|---|---|---|
@@ -47,12 +47,12 @@ Use multiple witnesses; size alone is a heuristic, and optimized formats legitim
 ## Merge decisions
 - Duplicate handling MUST come from the upstream SSOT before ordering.
 - Merge ordering MUST be deterministic.
-- Expected witnesses (expected_pages, expected_sum_bytes, expected_ids, backend, attempt number) MUST be captured before merge, never from the merged output.
-- A page-count mismatch MUST Return `FAILED`; passing on size is prohibited.
-- Missing or duplicate inputs MUST keep their identity and Return the input owner's `FAILED` or `SKIPPED + reason`; silent coverage reduction is prohibited.
+- Expected witnesses (expected_pages, expected_sum_bytes, expected_ids, backend, attempt number) MUST be captured before merge, independent of the merged output.
+- A page-count mismatch MUST return `FAILED`, whatever the size witness shows.
+- Missing or duplicate inputs MUST keep their identity and return the input owner's `FAILED` or `SKIPPED + reason`, so merge coverage never shrinks silently (extends FP-29).
 - A missing asserted identifier MUST Return `FAILED`.
 - Record terminal failure.
 - A proven heuristic defect MUST be corrected at the validation or config owner under authorization, with preserved content requirements and regression evidence.
-- A heuristic correction MUST NOT convert the failed run to success.
+- The failed run MUST stay failed after a heuristic correction.
 - Observed backend drift MUST change the selection owner's backend before the next execution.
-- Text extraction can return empty or wrong text for scanned, vector-only, or oddly encoded pages; a witness built on extracted text MUST record that limit and MUST NOT be the only content witness.
+- Text extraction can return empty or wrong text for scanned, vector-only, or oddly encoded pages. A witness built on extracted text MUST record that limit and MUST be paired with another content witness.

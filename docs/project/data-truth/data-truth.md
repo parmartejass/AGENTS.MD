@@ -9,7 +9,6 @@ update_trigger: data-truth ownership, provenance, validation, or routing changes
 ## Purpose
 - Record declared project data-truth owners and route consumers to them.
 - Docs or doc-owned artifacts own facts only when explicitly declared here or in the referenced owner.
-- Duplicate or non-owner copies of values, mappings, defaults, headers, thresholds, paths, or business/source data are Prohibited.
 
 ## Boundary
 - This branch owns project-local data-truth routing and provenance notes when a project doc is the declared owner.
@@ -24,10 +23,9 @@ update_trigger: data-truth ownership, provenance, validation, or routing changes
 - Add a branch-local owner subdoc only when a concrete project data/config/constant/default/source-artifact truth must affect future behavior and no more specific owner holds it.
 - A qualifying assertion MUST record declared owner and fact identifier, redacted provenance, verification status and evidence, validation expectation, and supersession trigger.
 - An unverified assertion stays labeled unverified until its declared witness passes.
-- Values owned by source artifacts, code, config, schemas, or external systems stay in those owners.
-- Adding policy records here to satisfy a checker is Prohibited.
-- Fixed truth-kind taxonomies here are Prohibited.
+- A checker is never a reason to add policy records here.
+- This branch MUST stay free of fixed truth-kind taxonomies.
 
 ## Verification
 - `docs/project/data-truth/data-truth_index.md` routes this branch.
-- README Checks owns the deterministic project-doc and docs-router verification commands.
+- Run the project-doc and docs-router checks listed in `README.md` Checks.

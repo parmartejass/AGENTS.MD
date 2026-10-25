@@ -12,7 +12,8 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from scripts.check_governance_core import _inventory
-from scripts.check_governance_core._test_support import docs_fixture, write as _write
+from scripts.check_governance_core._repeat_report import DOCS_OWNER
+from scripts.check_governance_core._test_support import docs_fixture, repeat_skipped, write as _write
 from scripts.check_governance_core._docs_checks import check_docs
 from scripts.check_governance_core._documents import DocumentStore
 from scripts.check_governance_core._inventory import RepositoryInventory
@@ -168,7 +169,7 @@ class CachedFamilyRevalidationTests(unittest.TestCase):
                 if cached:
                     self.assertIsNone(inventory.tree_entries(root)[1])
                     self.assertEqual(((source,), None), inventory.markdown_files(scan_root))
-                    self.assertEqual(([], []), check_docs(root, root, store, inventory))
+                    self.assertEqual(([], repeat_skipped(root, DOCS_OWNER)), check_docs(root, root, store, inventory))
                 real_stat = Path.stat
                 leaf_metadata, leaf_resolution = source.stat(), source.resolve(strict=True)
 
@@ -189,7 +190,7 @@ class CachedFamilyRevalidationTests(unittest.TestCase):
                     self.assertEqual(leaf_metadata, source.stat())
                     self.assertEqual(leaf_resolution, source.resolve(strict=True))
                     errors, warnings = check_docs(root, root, store, inventory)
-                    self.assertEqual([], warnings)
+                    self.assertEqual(repeat_skipped(root, DOCS_OWNER) if kind == "valid" else [], warnings)
                     if kind == "valid":
                         self.assertEqual([], errors)
                         self.assertTrue(read.called)
@@ -214,7 +215,7 @@ class CachedFamilyRevalidationTests(unittest.TestCase):
                 source = root / "cached.md"
                 _write(source, "cached original\n")
                 inventory, store = RepositoryInventory(root), DocumentStore()
-                self.assertEqual(([], []), check_docs(root, root, store, inventory))
+                self.assertEqual(([], repeat_skipped(root, DOCS_OWNER)), check_docs(root, root, store, inventory))
                 real_stat, real_resolve = Path.stat, Path.resolve
                 if kind in {"hardlink", "directory", "identity"}:
                     previous = root / "previous.txt"

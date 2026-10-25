@@ -19,6 +19,7 @@ from scripts.check_governance_core._documents import (
     router_targets,
 )
 from scripts.check_governance_core._inventory import RepositoryInventory
+from scripts.check_governance_core._repeat_report import repeat_parameters, statement_repeats
 
 
 # README guidance must name this package's runnable module launcher; deriving the name
@@ -41,6 +42,7 @@ def _policy_document(
 
 def _documentation_line_limit(document: MarkdownDocument) -> tuple[int | None, list[str]]:
     return document.positive_integer_declaration("documentation_line_limit", "Docs policy")
+
 
 def _physical_lines(text: str) -> int:
     return text.count("\n") + int(bool(text) and not text.endswith("\n"))
@@ -147,13 +149,20 @@ def check_docs(
                 errors.append(f"{path}: missing non-empty frontmatter field {field}")
         if header.get("doc_type") and header["doc_type"] not in allowed_doc_types:
             errors.append(f"{path}: unsupported doc_type {header['doc_type']!r}")
-    return errors, []
+    if policy is None:
+        return errors, []
+    parameters, repeat_errors = repeat_parameters(policy)
+    excluded, exclusion_errors = _repeat_excluded_paths(policy)
+    errors.extend(repeat_errors + exclusion_errors)
+    if parameters is None or exclusion_errors:
+        return errors, []
+    return errors, statement_repeats(repo_root, store, inventory, parameters, excluded)
 
 
-def _required_project_paths(policy: MarkdownDocument) -> tuple[tuple[str, ...], list[str]]:
+def _required_project_branches(policy: MarkdownDocument) -> tuple[list[str], list[str]]:
     section = policy.section("Required project-doc branches", level=2)
     if section is None:
-        return (), ["Docs policy must declare exactly one Required project-doc branches section"]
+        return [], ["Docs policy must declare exactly one Required project-doc branches section"]
     branches: list[str] = []
     seen: set[str] = set()
     errors: list[str] = []
@@ -172,6 +181,23 @@ def _required_project_paths(policy: MarkdownDocument) -> tuple[tuple[str, ...], 
             seen.add(value.casefold())
     if not branches:
         errors.append("Docs policy must declare at least one required project branch")
+    return branches, errors
+
+
+def _repeat_excluded_paths(policy: MarkdownDocument) -> tuple[tuple[str, ...], list[str]]:
+    """Resolve the repeat-report exclusions: declared project branches, named by the docs-policy owner."""
+
+    branches, errors = _required_project_branches(policy)
+    names = (policy.declaration_value("normative_repeat_excluded_branches") or "").split("|")
+    unknown = [name for name in names if name.casefold() not in {branch.casefold() for branch in branches}]
+    if errors or unknown or len({name.casefold() for name in names}) != len(names):
+        return (), errors or ["Docs policy must declare exactly one normative_repeat_excluded_branches list of unique, "
+                              "pipe-separated required project branches"]
+    return tuple((PROJECT_DOCS_ROOT / name).as_posix() + "/" for name in names), []
+
+
+def _required_project_paths(policy: MarkdownDocument) -> tuple[tuple[str, ...], list[str]]:
+    branches, errors = _required_project_branches(policy)
     project = PROJECT_DOCS_ROOT
     paths = [(project / router_filename(project.name)).as_posix()]
     for branch in branches:

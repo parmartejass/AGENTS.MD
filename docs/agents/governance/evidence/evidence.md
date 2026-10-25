@@ -10,9 +10,7 @@ Jurisdiction: truth layers, invariant witnesses, authority-application evidence,
 
 ## Truth layers
 
-- Runtime truth (R): what happens at runtime - processes, files, memory, handles.
-- Semantic truth (S): what the system must do - invariants, contracts, rules.
-- Recorded truth (D): what artifacts claim - configs, logs, reports, docs.
+- The truth layers are runtime truth (R), semantic truth (S), and recorded truth (D), as the Lexicon (ssot) defines them.
 - First principles define S; SSOT governs authority in D.
 - Instrumentation binds R to S and D.
 - An invariant without a measurable witness recorded in D is invalid.
@@ -29,7 +27,7 @@ Jurisdiction: truth layers, invariant witnesses, authority-application evidence,
 
 - Treat authority inputs as binding minimum constraints for every decision-critical claim.
 - A stronger task-specific design is permitted only when authority-preserving.
-- Prohibited: changing future allowed behavior without an owner update.
+- Future allowed behavior MUST change only through an owner update.
 - Required for every non-trivial plan, implementation, review, remediation, or final decision: an authority-application witness.
 
 Authority-application witness fields:
@@ -44,30 +42,36 @@ Authority-application witness fields:
 - Classify each decision-critical move, recommendation, finding, or go/no-go basis as `authority_required`, `authority_preserving`, `owner_update_required`, `authority_conflict`, or `unsupported`.
 - Return `hold` for missing relevant authority inputs or obligations.
 - Return `hold` for decision-critical `unsupported`, `authority_conflict`, or unresolved `owner_update_required`.
-- Prohibited: acknowledgment, including "read and followed docs", as a witness.
+- A witness MUST be evidence; acknowledgment, including "read and followed docs", never counts as one.
 
 ## Scannable output shape
 
 - Non-trivial plans, reviews, implementation records, prompt scaffolds, and reports MUST use task-derived scannable structure.
-- Prohibited: undifferentiated prose for those outputs.
+- Those outputs MUST NOT fall back to undifferentiated prose.
 - Make inputs, SSOT owners, decisions, evidence, risks, status, and gaps visually detectable.
 - Tiny conversational responses stay prose-only when none of those are in scope.
 
 ## Verification floors
 
 - The repo-root `README.md` Checks section is the single command SSOT.
-- Prohibited: inventing verification commands.
-- Add a repeatable command to README before running it; otherwise record deterministic manual steps.
-- Docs-only or formatting: run doc checks if present; otherwise record a deterministic manual check.
-- Behavior-neutral code change: baseline checks for the touched area plus one targeted smoke test; otherwise a deterministic manual check.
+- Run only verification commands listed there; never invent one.
+- Add a repeatable command to README before running it. For anything else, record deterministic manual steps.
+- Docs-only or formatting: run doc checks if present, else record a deterministic manual check.
+- Behavior-neutral code change: baseline checks for the touched area plus one targeted smoke test, else a deterministic manual check.
 - Behavior change or new feature: baseline checks, targeted tests for the new behavior, and one failure-path check.
-- Record durable bug and regression truth in the highest owning project doc; keep executable evidence in tests, fixtures, and output.
-- Shift-left baseline for new features and behavior changes: tests before merge, test-first where feasible, pre-mortem or failure-mode review, static checks, boundary contract tests, observability by design.
+- Record durable bug and regression truth in the highest owning project doc.
+- Keep executable evidence in tests, fixtures, and output.
+- Shift-left baseline for new features and behavior changes:
+  - tests before merge, test-first where feasible;
+  - pre-mortem or failure-mode review;
+  - static checks;
+  - boundary contract tests;
+  - observability by design.
 - I/O or file-processing changes MUST meet the testing jurisdiction's real-file verification minimums.
 
 ## Rewrite risk policy
 
-- A large rewrite amplifies risk by discarding proven invariants and is Prohibited unless all four witnesses hold.
+- A large rewrite amplifies risk by discarding proven invariants. It is allowed only when all four witnesses hold:
 - Pre-existing invariants enumerated and preserved.
 - Old and new outputs comparable on frozen fixtures.
 - Staged rollout and rollback exist.
@@ -89,7 +93,8 @@ Authority-application witness fields:
 ## Performance hotspot scaffold
 
 - Trigger: manifest profile `perf_hotspots`.
-- Required when the task targets a known hotspot such as per-row loops or per-cell external calls; measure and locate the hotspot first, then record only the minimal lever set.
+- Required when the task targets a known hotspot, such as per-row loops or per-cell external calls.
+- Measure and locate the hotspot first, then record only the minimal lever set.
 
 ```
 - goal: required outcome and timing witness
@@ -116,7 +121,7 @@ Authority-application witness fields:
 
 ## Change contract scaffold
 
-- Required for behavior changes and bugfixes; each filled field cites its owner and records scoped non-applicability.
+- Required for behavior changes and bugfixes. Each filled field cites its owner and records scoped non-applicability.
 
 ```
 - A_observed: observed behavior
@@ -142,7 +147,7 @@ Example witness rows (non-normative):
 
 | Invariant ID | Witness signal | Where recorded | Pass criteria |
 |---|---|---|---|
-| INV-L1 | Owned external PID exit and unrelated PID preservation | lifecycle-owner record | owned PID exited; unrelated processes preserved |
+| INV-L1 | Owned external PID exit and unrelated PID preservation | lifecycle-owner record | owned PID exited, unrelated processes preserved |
 | INV-A1 | No writes before validation complete | log.phase sequence | no write events before VALIDATED |
 
 - Closure: every listed invariant has a passing witness and the applicable verification floor is met.

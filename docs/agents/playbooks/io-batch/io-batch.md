@@ -26,15 +26,15 @@ baseline:
 ## Bounded processing rules
 - Read and cache only validated required data ranges and lookups.
 - Record bounds, counts, cache scope, and invalidation trigger when caching affects correctness.
-- Batch, chunk, and queue processing MUST declare memory bounds, concurrency limits, deterministic output ordering, timeout/cancellation behavior, and cleanup behavior; a queue bound reached MUST block or Record an explicit drop.
-- Prohibited: optimizing by dropping validation, skipping real-data or domain checks, or hardcoding ranges owned by input/schema/config authorities.
+- Batch, chunk, and queue processing MUST declare memory bounds, concurrency limits, deterministic output ordering, timeout and cancellation behavior, and cleanup behavior. A queue that reaches its bound MUST block or record an explicit drop.
+- Optimization MUST keep validation and real-data and domain checks, and MUST read ranges from the input/schema/config authorities that own them.
 
 ## Aggregation and merge integrity
-- Each unit of work MUST carry a deterministic idempotency key derived from its input identity, never from wall-clock time, iteration index, or randomness; a retry re-applies by that key.
+- Each unit of work MUST carry a deterministic idempotency key derived from its input identity, not from wall-clock time, iteration index, or randomness. A retry re-applies by that key.
 - A resume MUST revalidate the input identity against the checkpoint and Return `FAILED_VALIDATION` when the input changed.
 - Witness drift across attempts MUST be treated as corruption.
 - One most-deterministic backend MUST be selected from the current SSOT before execution.
-- An explicit error or integrity failure MUST Return a terminal failed or skipped outcome, never a backend switch.
+- An explicit error or integrity failure MUST return a terminal failed or skipped outcome and keep the selected backend (extends the coding owner's No Fallback or Legacy Runtime Paths rule).
 - Size checks on optimized formats MUST allow a repo-configurable tolerance ratio.
 - Size checks MUST be paired with content-based witnesses (counts, IDs) where feasible.
 

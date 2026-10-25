@@ -14,16 +14,16 @@ Jurisdiction: release evidence routing, rollback readiness, and the changelog cl
 
 ## Rollback readiness
 
-- MUST exercise the rollback path once against the release artifact; an asserted-only path is unverified.
+- MUST exercise the rollback path once against the release artifact.
+- A rollback path that is only asserted stays unverified.
 - Rollback path examples: prior known-good commit, feature flag, deploy revert command.
 - Behavior changes MUST verify rollback leaves no inconsistent data state.
 
 ## Changelog closure record
 
 - Use after completed non-trivial work promotes durable facts to their owning authority.
-- Owning authority means the owning docs, code, config, data, or workflow owner.
+- The Lexicon (ssot) defines owning authority.
 - Tracked project owner and valid mirror-surface authority: `SSOT-DEC-004`.
-- Tracked project path when project docs are available: the project changelog owner.
 - Field template and order:
 
 ```

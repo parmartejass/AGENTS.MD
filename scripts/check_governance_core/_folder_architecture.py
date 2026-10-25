@@ -7,9 +7,12 @@ from scripts.check_governance_core._declared_paths import (
     resolve_declared_directory,
     resolve_declared_file,
 )
-from scripts.check_governance_core._documents import PROJECT_DOCS_ROOT, DocumentStore, MarkdownDocument
+from scripts.check_governance_core._documents import (
+    PROJECT_DOCS_ROOT, DocumentStore, MarkdownDocument,
+)
 from scripts.check_governance_core._inventory import RepositoryInventory
 from scripts.check_governance_core._package_interface import PACKAGE_ENTRY, interface_errors
+from scripts.check_governance_core._repeat_report import constant_repeats
 
 
 _ROOT_TOKEN = "governance-core-python-root:"
@@ -238,4 +241,5 @@ def check_folder_architecture(
         f"{(directory / PACKAGE_ENTRY).relative_to(repo_root).as_posix()}"
         for directory in sorted(python_dirs - package_dirs)
     )
+    warnings.extend(constant_repeats(repo_root, store, inventory, exception_roots))
     return list(dict.fromkeys(errors)), warnings

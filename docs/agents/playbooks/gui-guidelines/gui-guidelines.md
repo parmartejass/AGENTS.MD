@@ -16,14 +16,14 @@ baseline:
   exception: "a theme layer over the same native widgets is permitted; substituting a canvas-drawn widget set requires a recorded supersession"
 ```
 
-- An operator-facing capability MUST expose a non-terminal surface (GUI or workbook template) bound to the same config snapshot; a terminal-only operator path MUST NOT be delivered as complete.
+- An operator-facing capability MUST expose a non-terminal surface (GUI or workbook template) bound to the same config snapshot. It MUST count as complete only with that surface.
 
 ## Feedback
 - Status, progress, and result feedback MUST stay current.
-- The UI MUST NOT reinterpret workflow outcomes; it presents the workflow result as recorded.
+- The UI MUST present the workflow result exactly as recorded.
 - The visible terminal summary MUST use the run-outcomes vocabulary and counts verbatim.
-- A determinate progress indicator MUST be driven by a known denominator; unknown-duration work MUST use the indeterminate form and MUST NOT fabricate a percentage.
-- Error text MUST name what failed and the corrective action; generic text such as "invalid input" is Prohibited.
+- A determinate progress indicator MUST be driven by a known denominator. Unknown-duration work MUST use the indeterminate form and MUST show no percentage.
+- Error text MUST name what failed and the corrective action. Generic text such as "invalid input" fails this rule.
 
 ## UI requirements scaffold
 ```

@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import os
 import shutil
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from scripts.check_governance_core._test_support import REPOSITORY_ROOT, install_foundations, write
+from scripts.check_governance_core._repeat_report import CODING_OWNER
+from scripts.check_governance_core._test_support import REPOSITORY_ROOT, install_foundations, repeat_skipped, write
 from scripts.check_governance_core import resolve_documents, run_checks
 
 
@@ -31,6 +33,20 @@ def _folder_result(root: Path, *, strict: bool = False) -> dict:
     return next(record for record in result["checks"] if record["id"] == "folder_architecture")
 
 
+def _tracked_modules(root: Path, modules: dict[str, str]) -> list[str]:
+    """Track the fixture plus ``modules`` in Git and return the folder check's repeat warnings."""
+
+    _declared, policy = _fixture(root)
+    _policy(policy, "code_decomposition_review_lines: 400")
+    for relative, text in modules.items():
+        write(root / relative, text)
+    for command in (["git", "init"], ["git", "add", "-A"]):
+        subprocess.run(command, cwd=root, check=True, capture_output=True, timeout=10)
+    result = _folder_result(root)
+    assert result["status"] == "PASSED", result
+    return [warning for warning in result["warnings"] if warning.startswith("repeat:")]
+
+
 class CodingPolicyTests(unittest.TestCase):
     def test_owner_change_controls_warning_without_a_checker_default(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -39,14 +55,14 @@ class CodingPolicyTests(unittest.TestCase):
             _policy(policy, "code_decomposition_review_lines: 7")
             at_limit = _folder_result(root)
             self.assertEqual("PASSED", at_limit["status"], at_limit)
-            self.assertEqual([], at_limit["warnings"])
+            self.assertEqual(repeat_skipped(root, CODING_OWNER), at_limit["warnings"])
             write(policy, policy.read_text(encoding="utf-8").replace(
                 "code_decomposition_review_lines: 7", "code_decomposition_review_lines: 6"))
             above_limit = _folder_result(root, strict=True)
             self.assertEqual("PASSED", above_limit["status"], above_limit)
             self.assertEqual(
                 ["Python file exceeds the 6-line decomposition review trigger: "
-                 "scripts/example/_sized.py (7 lines)"],
+                 "scripts/example/_sized.py (7 lines)", *repeat_skipped(root, CODING_OWNER)],
                 above_limit["warnings"],
             )
 
@@ -68,7 +84,8 @@ class CodingPolicyTests(unittest.TestCase):
                     write(source, body)
                     result = _folder_result(root)
                     self.assertEqual("PASSED", result["status"], result)
-                    self.assertEqual(count > 3, bool(result["warnings"]), result)
+                    self.assertEqual(int(count > 3) + 1, len(result["warnings"]), result)
+                    self.assertEqual(repeat_skipped(root, CODING_OWNER), result["warnings"][-1:])
                     if count > 3:
                         self.assertIn(f"({count} lines)", result["warnings"][0])
 
@@ -124,7 +141,7 @@ class CodingPolicyTests(unittest.TestCase):
                         _policy(policy, ("code_decomposition_review_lines: 7\n" if retain else "") + example)
                         result = _folder_result(root)
                         self.assertEqual("PASSED" if retain else "FAILED", result["status"], result)
-                        self.assertEqual([], result["warnings"])
+                        self.assertEqual(repeat_skipped(root, CODING_OWNER) if retain else [], result["warnings"])
 
     def test_declared_coding_role_path_controls_the_warning(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -139,8 +156,9 @@ class CodingPolicyTests(unittest.TestCase):
                 "coding_principles=" + replacement.relative_to(root).as_posix()))
             result = _folder_result(root)
             self.assertEqual("PASSED", result["status"], result)
-            self.assertEqual(1, len(result["warnings"]), result)
+            self.assertEqual(2, len(result["warnings"]), result)
             self.assertIn("6-line decomposition review trigger", result["warnings"][0])
+            self.assertEqual(repeat_skipped(root, CODING_OWNER), result["warnings"][1:])
             self.assertIn("code_decomposition_review_lines: 7", policy.read_text(encoding="utf-8"))
 
     def test_foundation_path_and_read_failures_reach_the_folder_check(self) -> None:
@@ -201,6 +219,74 @@ class CodingPolicyTests(unittest.TestCase):
                 self.assertEqual(result, run_checks({**request, "mode": mode}))
             self.assertEqual(corpus, resolve_documents(request))
             self.assertEqual("FAILED", _folder_result(root)["status"])
+
+    @unittest.skipIf(shutil.which("git") is None, "git is unavailable")
+    def test_constant_name_bound_in_two_modules_warns(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            warnings = _tracked_modules(Path(temp), {"scripts/example/_first.py": "LIMIT = 1\n",
+                                                     "scripts/example/_second.py": '"""Doc."""\n_LIMIT = 2\nLIMIT = 2\n'})
+            self.assertEqual(["repeat: constant LIMIT bound in scripts/example/_first.py:1 and "
+                              "scripts/example/_second.py:3 (coding owner, No Duplicates)"], warnings)
+
+    @unittest.skipIf(shutil.which("git") is None, "git is unavailable")
+    def test_distinct_names_and_non_literal_bindings_do_not_warn(self) -> None:
+        body = "FIRST_LIMIT = 1\nENABLED = True\nITEMS = [1]\nlimit = 1\n"
+        with tempfile.TemporaryDirectory() as temp:
+            warnings = _tracked_modules(Path(temp), {"scripts/example/_first.py": body,
+                                                     "scripts/example/_second.py": body.replace("FIRST", "SECOND")})
+            self.assertEqual([], warnings)
+
+    @unittest.skipIf(shutil.which("git") is None, "git is unavailable")
+    def test_annotated_and_chained_literal_constants_are_bindings(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            warnings = _tracked_modules(Path(temp), {"scripts/example/_first.py": "LIMIT: int = 1\nFIRST = OTHER = 2\n",
+                                                     "scripts/example/_second.py": "LIMIT = 2\nOTHER = 3\n"})
+            self.assertEqual(["repeat: constant LIMIT bound in scripts/example/_first.py:1 and "
+                              "scripts/example/_second.py:1 (coding owner, No Duplicates)",
+                              "repeat: constant OTHER bound in scripts/example/_first.py:2 and "
+                              "scripts/example/_second.py:2 (coding owner, No Duplicates)"], warnings)
+
+    @unittest.skipIf(shutil.which("git") is None, "git is unavailable")
+    def test_unpacked_annotation_only_and_augmented_names_are_not_literal_constants(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            warnings = _tracked_modules(Path(temp), {"scripts/example/_first.py": "A, LIMIT = 1, 2\nOTHER: int\nCOUNT = []\n",
+                                                     "scripts/example/_second.py": "LIMIT = 2\nOTHER = 3\nCOUNT += 1\n"})
+            self.assertEqual([], warnings)
+
+    @unittest.skipIf(shutil.which("git") is None, "git is unavailable")
+    def test_constant_scan_reports_an_unparsable_module_as_skipped(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            _declared, policy = _fixture(root)
+            _policy(policy, "code_decomposition_review_lines: 400")
+            write(root / "scripts/example/_broken.py", "LIMIT = (\n")
+            for command in (["git", "init"], ["git", "add", "-A"]):
+                subprocess.run(command, cwd=root, check=True, capture_output=True, timeout=10)
+            result = _folder_result(root)
+            self.assertEqual("FAILED", result["status"], result)
+            self.assertIn("repeat: SKIPPED scripts/example/_broken.py: syntax error at line 1 (coding owner, No Duplicates)",
+                          result["warnings"])
+
+    def test_constant_scan_skips_with_reason_outside_a_git_worktree(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            _declared, policy = _fixture(root)
+            _policy(policy, "code_decomposition_review_lines: 400")
+            write(root / "scripts/example/_first.py", "LIMIT = 1\n")
+            write(root / "scripts/example/_second.py", "LIMIT = 2\n")
+            result = _folder_result(root)
+            self.assertEqual("PASSED", result["status"], result)
+            self.assertEqual(repeat_skipped(root, CODING_OWNER), result["warnings"])
+
+    @unittest.skipIf(shutil.which("git") is None, "git is unavailable")
+    def test_declared_packaged_folder_exception_is_skipped(self) -> None:
+        record = ("<!-- governance-core-python-root: scripts -->\n<!-- governance-core-python-root: vendor -->\n"
+                  "<!-- governance-core-python-package-exception: vendor -->\n")
+        with tempfile.TemporaryDirectory() as temp:
+            warnings = _tracked_modules(Path(temp), {"docs/project/architecture/architecture.md": record,
+                                                     "scripts/example/_first.py": "LIMIT = 1\n",
+                                                     "vendor/tool.py": "LIMIT = 3\n"})
+            self.assertEqual([], warnings)
 
     def test_policy_value_is_not_a_new_public_request_override(self) -> None:
         request = {"code_decomposition_review_lines": 6}

@@ -2,11 +2,11 @@
 
 - [principles/principles_index.md](principles/principles_index.md) - First-principles application and the baseline schema. Required when: modeling non-trivial work or declaring or superseding a baseline.
 - [evidence/evidence_index.md](evidence/evidence_index.md) - Truth layers, witnesses, verification floors, performance evidence, change contract. Required when: proving, measuring, or scaffolding a change.
-- [bugfix/bugfix_index.md](bugfix/bugfix_index.md) - Defect vocabulary, RCA workflow and methods, bugfix scaffold. Required when: fixing a bug, error, or regression.
+- [bugfix/bugfix_index.md](bugfix/bugfix_index.md) - Defect-term use, RCA workflow and methods, bugfix scaffold. Required when: fixing a bug, error, or regression.
 - [discovery/discovery_index.md](discovery/discovery_index.md) - Role-bounded retrieval and repo discovery signals. Required when: choosing what to read and locating owners before writing.
-- [ssot/ssot_index.md](ssot/ssot_index.md) - Concept-to-owner map, jurisdiction hand-offs, and cross-project authority decisions. Required when: identifying which jurisdiction owns a concept or resolving an ownership dispute.
+- [ssot/ssot_index.md](ssot/ssot_index.md) - Concept-to-owner map, the Lexicon of rule-bearing terms, jurisdiction hand-offs, and cross-project authority decisions. Required when: identifying which jurisdiction owns a concept, using a rule-bearing term, or resolving an ownership dispute.
 - [coding/coding_index.md](coding/coding_index.md) - Coding foundation with logging and workflow-registry sub-docs. Required when: loading the AGENTS-declared foundations or changing implementation code.
-- [documentation/documentation_index.md](documentation/documentation_index.md) - Docs foundation with the project-docs scaffold. Required when: loading the AGENTS-declared foundations or changing documentation.
+- [documentation/documentation_index.md](documentation/documentation_index.md) - Docs foundation with the project-docs scaffold and the repeat report. Required when: loading the AGENTS-declared foundations or changing documentation.
 - [testing/testing_index.md](testing/testing_index.md) - Real-file verification, fixtures, failure-path and guard checks. Required when: verifying I/O changes or any behavior change.
 - [security/security_index.md](security/security_index.md) - Secrets, redaction, injection, transport, permissions. Required when: handling secrets, logs with sensitive data, or security-relevant configuration.
 - [release/release_index.md](release/release_index.md) - Release evidence, rollback, changelog closure fields. Required when: doing the last verification pass or closing non-trivial work.

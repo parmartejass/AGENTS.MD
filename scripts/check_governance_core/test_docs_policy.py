@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import re
+import shutil
 import subprocess
 import tempfile
 import unittest
@@ -11,7 +12,23 @@ from unittest.mock import patch
 from scripts.check_governance_core._docs_checks import _physical_lines, _required_project_paths, check_docs
 from scripts.check_governance_core._documents import DocumentStore, declared_doc_types, parse_markdown, router_targets
 from scripts.check_governance_core._inventory import RepositoryInventory
-from scripts.check_governance_core._test_support import REPOSITORY_ROOT, docs_fixture, docs_result, write
+from scripts.check_governance_core._repeat_report import DOCS_OWNER
+from scripts.check_governance_core._test_support import REPOSITORY_ROOT, docs_fixture, docs_result, repeat_skipped, write
+
+
+_RULE = "Every agent must keep each plan in the scratchpad folder."
+_OWNER = "(documentation owner, Validation boundary)"
+
+
+def _tracked_docs(root: Path, files: dict[str, str]) -> dict:
+    """Install the docs fixture plus ``files``, track everything in Git, and run docs mode."""
+
+    docs_fixture(root)
+    for relative, text in files.items():
+        write(root / relative, text)
+    for command in (["git", "init"], ["git", "add", "-A"]):
+        subprocess.run(command, cwd=root, check=True, capture_output=True, timeout=10)
+    return docs_result(root)
 
 
 class DocsPolicyTests(unittest.TestCase):
@@ -199,6 +216,127 @@ class DocsPolicyTests(unittest.TestCase):
             errors, _warnings = check_docs(root, root, DocumentStore(), RepositoryInventory(root))
             self.assertTrue(any("ghost.md" in error for error in errors), errors)
             self.assertTrue(any("unsupported doc_type" in error for error in errors), errors)
+
+    @unittest.skipIf(shutil.which("git") is None, "git is unavailable")
+    def test_repeat_report_warns_on_a_normative_sentence_in_two_files(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            result = _tracked_docs(Path(temp), {"one.md": f"# One\n\n{_RULE}\n", "two.md": f"Intro text. {_RULE}\n"})
+            self.assertEqual("PASSED", result["status"], result)
+            self.assertEqual([f"repeat: one.md:3 and two.md:1 share 100% of their 5-word phrases {_OWNER}"],
+                             result["warnings"])
+
+    @unittest.skipIf(shutil.which("git") is None, "git is unavailable")
+    def test_repeat_report_skips_distinct_short_and_excluded_sentences(self) -> None:
+        route = f"- [rules.md](rules.md) - {_RULE} Required when: testing.\n"
+        files = {
+            "one.md": f"{_RULE}\nAgents must stop.\nThe plan stays in the scratchpad folder today.\n",
+            "two.md": "Agents must never delete the shared archive folder.\nAgents must stop.\n"
+                      "The plan stays in the scratchpad folder today.\n",
+            "three.md": f"---\nnote: {_RULE}\n---\n```\n{_RULE}\n```\n> {_RULE}\n",
+            "docs/project/changelog/changelog.md": "---\ndoc_type: reference\nssot_owner: fixture\nupdate_trigger: fixture "
+                                                   f"changes\n---\n\n# Changelog\n\n{_RULE}\n",
+            "docs/project/rules/rules_index.md": "# Rules\n\n" + route,
+        }
+        with tempfile.TemporaryDirectory() as temp:
+            result = _tracked_docs(Path(temp), files)
+            self.assertEqual("PASSED", result["status"], result)
+            self.assertEqual([], result["warnings"])
+
+    @unittest.skipIf(shutil.which("git") is None, "git is unavailable")
+    def test_repeat_report_warns_on_a_declaration_in_two_files(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            files = {"one.md": "sample_key: 1\n  indented_key: 1\n", "two.md": "# Two\nsample_key: 2\n  indented_key: 2\n"}
+            result = _tracked_docs(Path(temp), files)
+            self.assertEqual("PASSED", result["status"], result)
+            self.assertEqual([f"repeat: declaration sample_key in one.md:1 and two.md:2 {_OWNER}"], result["warnings"])
+
+    @unittest.skipIf(shutil.which("git") is None, "git is unavailable")
+    def test_repeat_report_orders_findings_by_file_then_line(self) -> None:
+        files = {"c.md": f"{_RULE}\n", "b.md": f"# B\n\n{_RULE}\n", "a.md": f"# A\n{_RULE}\n"}
+        expected = [f"repeat: {first} and {second} share 100% of their 5-word phrases {_OWNER}"
+                    for first, second in (("a.md:2", "b.md:3"), ("a.md:2", "c.md:1"), ("b.md:3", "c.md:1"))]
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self.assertEqual(expected, _tracked_docs(root, files)["warnings"])
+            self.assertEqual(expected, docs_result(root)["warnings"])
+
+    @unittest.skipIf(shutil.which("git") is None, "git is unavailable")
+    def test_repeat_report_reads_fences_through_the_markdown_owner(self) -> None:
+        hit = f"repeat: one.md:{{}} and two.md:1 share 100% of their 5-word phrases {_OWNER}"
+        cases = {
+            "nested shorter fence stays inside": (f"````md\n```\n{_RULE}\n````\n\n{_RULE}\n", [hit.format(6)]),
+            "longer closing fence closes": (f"```\n{_RULE}\n`````\n\n{_RULE}\n", [hit.format(5)]),
+            "shorter fence inside a longer one stays inside": (f"`````\n````\n{_RULE}\n`````\n", []),
+            "backticks do not close a tilde fence": (f"~~~\n```\n{_RULE}\n~~~\n", []),
+            "tildes do not close a backtick fence": (f"```\n~~~\n{_RULE}\n```\n", []),
+            "a fence line with an info string does not close": (f"```\n```python\n{_RULE}\n```\n", []),
+            "indented code is not operative": (f"Intro.\n\n    {_RULE}\n", []),
+        }
+        for name, (text, expected) in cases.items():
+            with self.subTest(name=name), tempfile.TemporaryDirectory() as temp:
+                result = _tracked_docs(Path(temp), {"one.md": text, "two.md": f"{_RULE}\n"})
+                self.assertEqual("PASSED", result["status"], result)
+                self.assertEqual(expected, result["warnings"])
+
+    @unittest.skipIf(shutil.which("git") is None, "git is unavailable")
+    def test_repeat_report_joins_wrapped_sentences_and_keeps_their_first_line(self) -> None:
+        cases = {
+            "Every agent must\nkeep each plan in the scratchpad folder.\n": 1,
+            "Intro text here. Every agent must keep\neach plan in the scratchpad folder.\n": 1,
+            "Intro text here.\nEvery agent must keep each\nplan in the scratchpad folder.\n": 2,
+            "- First item.\n- Every agent must keep each plan\n  in the scratchpad folder.\n": 2,
+        }
+        for text, line in cases.items():
+            with self.subTest(text=text), tempfile.TemporaryDirectory() as temp:
+                result = _tracked_docs(Path(temp), {"one.md": text, "two.md": f"{_RULE}\n"})
+                self.assertEqual([f"repeat: one.md:{line} and two.md:1 share 100% of their 5-word phrases {_OWNER}"],
+                                 result["warnings"])
+
+    @unittest.skipIf(shutil.which("git") is None, "git is unavailable")
+    def test_list_items_and_headings_stay_separate_statements(self) -> None:
+        text = "# Every agent must keep\n- each plan in the\n- scratchpad folder.\n"
+        with tempfile.TemporaryDirectory() as temp:
+            result = _tracked_docs(Path(temp), {"one.md": text, "two.md": f"{_RULE}\n"})
+            self.assertEqual([], result["warnings"])
+
+    def test_repeat_report_skips_with_reason_outside_a_git_worktree(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            docs_fixture(root)
+            write(root / "one.md", f"{_RULE}\n")
+            write(root / "two.md", f"{_RULE}\n")
+            result = docs_result(root)
+            self.assertEqual("PASSED", result["status"], result)
+            self.assertEqual(repeat_skipped(root, DOCS_OWNER), result["warnings"])
+
+    def test_missing_or_malformed_repeat_parameters_fail_explicitly(self) -> None:
+        terms = "exactly one normative_repeat_terms list"
+        cases = {
+            "normative_repeat_terms": (("", terms), ("normative_repeat_terms: must||never", terms),
+                                       ("normative_repeat_terms: must|Must", terms), ("normative_repeat_terms:", terms),
+                                       ("normative_repeat_terms: must\nnormative_repeat_terms: never", terms)),
+            "normative_repeat_shingle_words": tuple(
+                (value, "exactly one positive normative_repeat_shingle_words")
+                for value in ("", "normative_repeat_shingle_words: 0", "normative_repeat_shingle_words: five")),
+            "normative_repeat_min_percent": tuple(
+                (value, "exactly one positive normative_repeat_min_percent")
+                for value in ("", "normative_repeat_min_percent: -1", "normative_repeat_min_percent: 6 0")),
+            "normative_repeat_excluded_branches": tuple(
+                (value, "exactly one normative_repeat_excluded_branches list")
+                for value in ("", "normative_repeat_excluded_branches:", "normative_repeat_excluded_branches: history",
+                              "normative_repeat_excluded_branches: changelog|changelog",
+                              "normative_repeat_excluded_branches: changelog||goal")),
+        }
+        for key, replacements in cases.items():
+            for replacement, expected in replacements:
+                with self.subTest(key=key, replacement=replacement), tempfile.TemporaryDirectory() as temp:
+                    root = Path(temp)
+                    policy, _limit = docs_fixture(root)
+                    write(policy, re.sub(rf"(?m)^{key}: .+$", replacement, policy.read_text(encoding="utf-8")))
+                    result = docs_result(root)
+                    self.assertEqual("FAILED", result["status"], result)
+                    self.assertTrue(any(expected in error for error in result["errors"]), result)
+                    self.assertFalse(any("unexpectedly" in error for error in result["errors"]), result)
 
 
 if __name__ == "__main__":

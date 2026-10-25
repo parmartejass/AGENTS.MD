@@ -27,5 +27,3 @@ The declared registry MUST expose:
 ## Contract-field routing
 
 - Contract fields MUST resolve through their declared contract owners.
-- Registry entries MUST NOT restate defaults, predicates, business rules, or control semantics.
-- Registry entries MUST reference those authorities instead.

@@ -8,7 +8,8 @@ from unittest.mock import patch
 from scripts.check_governance_core._documents import DocumentStore
 from scripts.check_governance_core._folder_architecture import check_folder_architecture
 from scripts.check_governance_core._inventory import RepositoryInventory
-from scripts.check_governance_core._test_support import install_foundations, write
+from scripts.check_governance_core._repeat_report import CODING_OWNER
+from scripts.check_governance_core._test_support import install_foundations, repeat_skipped, write
 from scripts.check_governance_core import run_checks
 
 
@@ -74,7 +75,7 @@ class PackageStructureTests(unittest.TestCase):
                 write(root / relative, body)
             result = _folder_result(root)
             self.assertEqual("PASSED", result["status"], result)
-            self.assertEqual([], result["warnings"])
+            self.assertEqual(repeat_skipped(root, CODING_OWNER), result["warnings"])
 
 
 class OwnerDeclaredRootTests(unittest.TestCase):
@@ -231,7 +232,7 @@ class OwnerDeclaredRootTests(unittest.TestCase):
                 record = next(item for item in result["checks"] if item["id"] == "folder_architecture")
                 if expected is None:
                     self.assertEqual("PASSED", record["status"], record)
-                    self.assertEqual([], record["warnings"])
+                    self.assertEqual(repeat_skipped(repo, CODING_OWNER), record["warnings"])
                     continue
                 message = expected.format(host=repo / ARCHITECTURE, pack=governance / ARCHITECTURE)
                 self.assertEqual("FAILED", record["status"], record)
@@ -259,7 +260,8 @@ class OwnerDeclaredRootTests(unittest.TestCase):
                     coding_policy_path=root / declared["coding_principles"],
                 )
             self.assertEqual([], errors)
-            self.assertEqual(1, len(warnings), warnings)
+            self.assertEqual(2, len(warnings), warnings)
+            self.assertEqual(repeat_skipped(root, CODING_OWNER), warnings[1:])
             self.assertEqual(1, reads.count(root / ARCHITECTURE), reads)
 
     def test_declared_root_launchers_are_the_only_accepted_root_python_files(self) -> None:
@@ -313,8 +315,9 @@ class OwnerDeclaredRootTests(unittest.TestCase):
             result = run_checks({"repo_root": repo, "governance_root": governance})
             record = next(item for item in result["checks"] if item["id"] == "folder_architecture")
             self.assertEqual("PASSED", record["status"], record)
-            self.assertEqual(1, len(record["warnings"]), record)
+            self.assertEqual(2, len(record["warnings"]), record)
             self.assertTrue(record["warnings"][0].endswith(": main.py"), record)
+            self.assertEqual(repeat_skipped(repo, CODING_OWNER), record["warnings"][1:])
 
 
 class PackageInterfaceTests(unittest.TestCase):
@@ -325,7 +328,7 @@ class PackageInterfaceTests(unittest.TestCase):
             _conformant_package(root)
             result = _folder_result(root)
             self.assertEqual("PASSED", result["status"], result)
-            self.assertEqual([], result["warnings"])
+            self.assertEqual(repeat_skipped(root, CODING_OWNER), result["warnings"])
 
     def test_interface_defects_fail_with_one_explicit_error_each(self) -> None:
         cases = {
@@ -388,7 +391,8 @@ class PackageInterfaceTests(unittest.TestCase):
             write(root / "lab/tool.py", "from scripts.example import _nothing\n")
             result = _folder_result(root)
             self.assertEqual("PASSED", result["status"], result)
-            self.assertEqual(1, len(result["warnings"]), result)
+            self.assertEqual(2, len(result["warnings"]), result)
+            self.assertEqual(repeat_skipped(root, CODING_OWNER), result["warnings"][1:])
 
 
 if __name__ == "__main__":

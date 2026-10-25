@@ -10,32 +10,27 @@ Jurisdiction: defect vocabulary, bias-resistant diagnosis workflow, RCA methods,
 
 ## Defect vocabulary
 
-- symptom/manifestation: where the defect is observed.
-- root cause: earliest defect or condition making the symptom inevitable.
-- workaround: avoids the symptom without removing the cause.
-- patch: code change, root-cause or symptom-level.
-- regression: new failure introduced by the fix.
-- blast radius: scope of impacted modules, workflows, and users.
-- Required: use these terms without redefinition in reports and reviews.
+- The Lexicon (ssot) defines the defect terms: symptom (manifestation), root cause, workaround, patch, regression, blast radius.
+- Reports and reviews MUST use the Lexicon defect terms without redefinition.
 
 ## Biases guarded (hard gate)
 
-- Premature closure: Prohibited to close before a disconfirming experiment runs.
+- Premature closure: a disconfirming experiment MUST run before closure.
 - Confirmation bias: Required to seek evidence that breaks the hypothesis.
-- Anchoring: Prohibited to fix on the first plausible cause.
-- Novelty and recency bias: Prohibited to blame the newest change without evidence.
+- Anchoring: fixing on the first plausible cause is Prohibited.
+- Novelty and recency bias: blaming the newest change MUST rest on evidence.
 
 ## Mandatory RCA workflow
 
 - Step 0 - Define failure: expected vs actual, inputs, environment, version, commit, impact.
-- Step 1 - Reproduce reliably; capture triggering conditions when intermittent.
+- Step 1 - Reproduce reliably. When the failure is intermittent, capture its triggering conditions.
 - Step 2 - Build MRE: minimal deterministic fixture, command, and expected failure signal.
 - Step 3 - Observe facts: stack trace, logs, metrics, traces, targeted instrumentation.
 - Step 4 - Localize first wrong state, not only the crash site.
 - Step 5 - Form a falsifiable hypothesis: if X then Y, therefore symptom Z.
-- Step 6 - Run a disconfirming experiment; change one variable at a time.
+- Step 6 - Run a disconfirming experiment that changes one variable at a time.
 - Step 7 - Declare a root-cause statement: specific, upstream, actionable.
-- Step 8 - Fix at the authority; a symptom-level patch follows the root-cause uplift gate.
+- Step 8 - Fix at the authority. A symptom-level patch follows the root-cause uplift gate.
 - Step 9 - Lock with a regression test collected by the guard command, failing pre-fix and passing post-fix, plus edge cases.
 - Step 10 - Validate system-wide: applicable suites plus runtime signals after rollout.
 - Required order: execute Step 0 through Step 10 and record evidence at each step.
@@ -50,7 +45,7 @@ Jurisdiction: defect vocabulary, bias-resistant diagnosis workflow, RCA methods,
 ## Confidence rule
 
 - Confidence is evidence-weighted.
-- Prohibited: treating a single passing run as evidence.
+- Confidence MUST rest on more than a single passing run.
 
 ## Verification floor for bugfix
 
@@ -65,9 +60,11 @@ Jurisdiction: defect vocabulary, bias-resistant diagnosis workflow, RCA methods,
 ### 5 Whys (upstream trace to authority)
 
 - Start from the observed symptom only.
-- Ask why the previous answer happened; Prohibited: topic jumps.
+- Ask why the previous answer happened. Stay on that chain: topic jumps are Prohibited.
 - Each answer MUST carry concrete evidence - log, trace, test signal, metric.
-- Record why/because/evidence rows until an authority boundary is reached or an evidence gap is recorded; five is neither required nor sufficient, and the chain MUST branch when an answer has more than one sufficient cause.
+- Record why/because/evidence rows until an authority boundary is reached or an evidence gap is recorded.
+- Five rows are neither required nor sufficient.
+- The chain MUST branch when an answer has more than one sufficient cause.
 - Record: authority boundary reached (Y/N), authority owner, broken contract or invariant, authority fix point, class of errors prevented.
 - Record the unresolved evidence gap when no authority boundary is reached.
 
@@ -89,14 +86,17 @@ Jurisdiction: defect vocabulary, bias-resistant diagnosis workflow, RCA methods,
 ### FMEA (recurrence prevention)
 
 - List adjacent failure modes around the identified root cause.
-- Rate severity, occurrence, and detection and prioritize by the Action Priority table; ranking by a multiplied risk priority number is Prohibited.
+- Rate severity, occurrence and detection.
+- MUST prioritize by the Action Priority table, not by a multiplied risk priority number.
 - Add prevention controls at authority boundaries.
 - Re-evaluate residual risk after controls.
 - Record: adjacent failure modes, scoring notes, controls added, residual risk.
 
 ## Bugfix scaffold
 
-- Required for every bug, error, or regression task; fill once per task; it records evidence and defines no plan or approval process.
+- Required for every bug, error or regression task.
+- Fill it once per task.
+- It records evidence and defines no plan or approval process.
 
 ```
 - feature_workflow: affected feature or workflow
@@ -117,7 +117,7 @@ Jurisdiction: defect vocabulary, bias-resistant diagnosis workflow, RCA methods,
 - authority_symptom_location: where the error manifested
 - authority_fix_point: earliest defective owner
 - authority_errors_prevented: class of errors prevented at that owner
-- authority_unknown_or_conflicting: Y/N; stop and report the authority gap before fixing
+- authority_unknown_or_conflicting: Y/N (on Y, apply FP-13 before fixing)
 - authority_symptom_patch_justification: required when not fixing upstream
 - hypothesis: falsifiable statement
 - disconfirming_experiment: edge/adversarial experiment run
