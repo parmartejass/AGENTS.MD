@@ -22,21 +22,21 @@ baseline:
 - Spacing MUST come from one declared base-unit scale and typography from one declared type ramp with a semantic role per step.
 
 ## Contrast and color
-- Text MUST meet 4.5:1 contrast against its background (3:1 at or above 18.66 px bold or 24 px); control boundaries, focus indicators, and meaning-bearing non-text elements MUST meet 3:1.
-- Information MUST NOT be conveyed by color alone; every color-coded state MUST carry a text or shape witness.
+- Text MUST meet 4.5:1 contrast against its background, or 3:1 at or above 18.66 px bold or 24 px. Control boundaries, focus indicators, and meaning-bearing non-text elements MUST meet 3:1.
+- Every piece of color-coded information MUST also appear as text or shape. Every color-coded state MUST carry a text or shape witness.
 - Each theme MUST satisfy every contrast obligation independently.
 
 ## States and input
 - Every interactive component MUST define rest, hover, focus, pressed, selected, disabled, and error states.
-- Every interactive element MUST be reachable and operable by keyboard; Tab order MUST follow reading order; focus MUST NOT be trapped, and every modal MUST define its Escape and return-focus target.
+- Every interactive element MUST be reachable and operable by keyboard. Tab order MUST follow reading order. Focus MUST be free to leave every element. Every modal MUST define its Escape and return-focus target.
 - A focused element MUST show a visible focus indicator at 3:1 that the theme does not suppress and author content does not obscure.
-- Every pointer target MUST be at least 24 by 24 device-independent pixels; primary actions MUST be 44 by 44.
+- Every pointer target MUST be at least 24 by 24 device-independent pixels. Primary actions MUST be 44 by 44.
 
 ## Layout and scale
-- Process-level DPI awareness MUST be set before the root window exists; token pixel values are device-independent pixels, and layout MUST remain usable at 200 percent text scale within a declared minimum window size.
+- Process-level DPI awareness MUST be set before the root window exists. Token pixel values are device-independent pixels. Layout MUST remain usable at 200 percent text scale within a declared minimum window size.
 
 ## Conformance floor
-- Operator surfaces MUST meet WCAG 2.2 AA; contrast, focus visibility, target size, and keyboard operability are the checked criteria.
+- Operator surfaces MUST meet WCAG 2.2 AA. The checked criteria are contrast, focus visibility, target size, and keyboard operability.
 - A criterion recorded as not met MUST name the blocking platform limitation.
 
 ## Design scaffold

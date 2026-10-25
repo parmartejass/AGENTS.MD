@@ -18,12 +18,12 @@ baseline:
 ```
 
 ## Invariants
-1. The UI thread MUST NOT block on long work, including thread joins.
+1. Long work, including thread joins, MUST run off the UI thread.
 2. UI updates MUST occur only on the main thread.
 3. Workers MUST communicate through queue messages.
 4. Workers MUST observe a shutdown/cancel event.
-5. Cancellation waits MUST be interruptible; the cancellation owner MUST use `Event.wait(timeout)` or its declared equivalent and witness interruption on cancellation.
-6. Status, progress, and result feedback MUST be posted through the queue and MUST NOT block.
+5. Cancellation waits MUST be interruptible. The cancellation owner MUST wait with `Event.wait(timeout)` or its declared equivalent and witness the interruption on cancellation.
+6. Every status, progress, or result feedback message MUST travel through the queue as a non-blocking post.
 
 ## Required pattern
 - The UI thread starts the worker and schedules `after(...)` to drain the queue.
@@ -31,7 +31,7 @@ baseline:
 - The drain callback MUST reschedule itself, store the returned `after()` identifier, and cancel that identifier in the window destroy handler.
 - Worker joins MUST run off the UI thread on the shutdown path with a bounded timeout and a recorded result.
 - The UI thread updates widgets only from drained messages.
-- Stop and close handlers set the cancel event and return immediately; the UI polls completion via `after(...)`.
+- Stop and close handlers set the cancel event and return immediately. The UI polls for completion through `after(...)`.
 
 ## Forbidden patterns
 - Updating UI from a worker thread.
