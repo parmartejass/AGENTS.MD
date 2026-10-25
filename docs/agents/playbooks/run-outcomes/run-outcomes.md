@@ -19,19 +19,19 @@ baseline:
 ## Outcome vocabulary
 - Per-item outcome: `EXECUTED`, `SKIPPED`, or `FAILED`, always paired with a reason.
 - Every item MUST reach exactly one terminal outcome, recorded once at terminal state with its identifier.
-- Silent skips are prohibited; record `SKIPPED + reason` in the log or run report.
-- Run result: `SUCCESS`, `PARTIAL_SUCCESS`, `FAILURE`, `CANCELLED`, or `TIMEOUT`; user cancellation and a declared deadline MUST NOT be reported as `FAILURE`.
-- reason-code owner: the application's declared runtime enum owner.
+- Every skip MUST be recorded as `SKIPPED + reason` in the log or run report.
+- Run result: `SUCCESS`, `PARTIAL_SUCCESS`, `FAILURE`, `CANCELLED`, or `TIMEOUT`. User cancellation and a declared deadline MUST NOT be reported as `FAILURE`.
+- The Lexicon (ssot) defines the term reason-code owner.
 
 ## Work reconciliation
 - Success and partial success MUST reconcile `planned`, `eligible`, `executed`, `skipped`, `failed`.
-- The reconciliation identity MUST be asserted in code at `run_end`; a mismatch is itself a recorded `FAILURE`.
+- Code MUST assert the reconciliation identity at `run_end`. A mismatch is itself a recorded `FAILURE`.
 - A workflow with an unknowable work universe MUST fail validation.
 - An unknowable item universe MUST return `FAILED_VALIDATION` with `UNKNOWN_ITEM_UNIVERSE` or equivalent.
 - Continuing with an unknown universe is allowed only when the workflow contract declares the uncertainty.
 - Zero eligible work MUST return `SKIPPED + reason` or `FAILED` unless a valid no-op is declared.
 - A valid no-op MUST be visible as a terminal outcome with reason, for example `SKIPPED + VALID_NOOP`.
-- All-zero work MUST NOT be reported as `SUCCESS`.
+- All-zero work MUST report an outcome other than `SUCCESS`.
 - Best-effort loops MUST record a terminal per-item outcome and reason.
 - Best-effort loops MUST reflect partial failure at the run level.
 - Record produced artifacts and paths per item.
@@ -44,8 +44,8 @@ baseline:
 - User-facing surfaces MUST show the skip or failure reason.
 - User-facing surfaces MUST show the required user action.
 - User-facing surfaces MUST show the run/report/log pointer when applicable.
-- User feedback MUST stay concise and actionable; deep diagnostics stay in structured logs.
-- User feedback MUST NOT carry stack traces, raw payload dumps, or per-item floods.
+- User feedback MUST stay concise and actionable. Deep diagnostics stay in structured logs.
+- User feedback MUST exclude stack traces, raw payload dumps, and per-item floods.
 - A degraded or unavailable log/report sink MUST be stated in user feedback.
 - Degraded-sink feedback MUST preserve the workflow outcome separately.
 
@@ -95,7 +95,7 @@ Item-level record (`row_event` or `file_event`), emitted once per item at termin
 - duration_ms
 ```
 
-Reason-code owner resolution; this scaffold MUST NOT create an enum owner:
+Reason-code owner resolution (this scaffold MUST point to an existing enum owner and creates none):
 ```
 - Runtime enum/config owner reference and public contract:
 - Existing code identifier and meaning, or proposed extension:
