@@ -12,30 +12,29 @@ Jurisdiction: session-evidenced governance-learning candidates, their promotion 
 
 - Use only when explicitly invoked for a session-evidenced reusable governance gap.
 - A missing required observation MUST return `UNVERIFIED` plus the named missing source.
-- Missing evidence MUST NOT justify inventing a policy.
+- Prohibited: inventing a policy to cover missing evidence.
 - Candidate wording MUST separate existing obligation, proposal, and illustrative text.
 - A draft using MUST remains proposed text until adopted through its owner.
-- Priority labels rank proposals; they MUST NOT imply authority.
-- Prohibited: policy from popularity, replacing the lifecycle, self-authorizing edits.
+- Priority labels MUST only rank proposals, never signal authority.
+- Policy MUST come from evidence, not from popularity.
+- This workflow MUST NOT replace the lifecycle or self-authorize edits.
 - Raw transcripts MUST NOT enter repository artifacts.
 
 ## Candidate definitions
 
-- Learning: evidenced recurring pitfall, missing invariant/witness, missing owner, or routing or template defect with a concrete prevention point.
-- Governance-level learning: a learning that changes reusable governance behavior across tasks or repositories.
-- Evidence handoff: summarized observations supporting classification; no governance or execution authority.
-- Noise: task-local or temporary preference, weak evidence, or unrelated material.
+- The Lexicon (ssot) defines learning, governance-level learning, evidence handoff and noise.
 
 ## Promotion / Noise gate
 
 - Apply this gate before de-duplication or delta drafting.
 - Promotion Required evidence: reusable gap in constitution/lifecycle, SSOT ownership, invariants/witnesses, deterministic checks, authority/docs routing, reusable scaffolds, safety, or explicit outcomes.
-- Repetition alone is insufficient; one verified critical governance failure qualifies when it shows that gap.
+- Repetition alone is insufficient.
+- One verified critical governance failure qualifies when it shows that gap.
 - Each candidate receives exactly one status.
 
 | Gate status | Evidence disposition |
 |---|---|
-| `PROMOTE_FOR_DEDUP` | Verified governance-level gap; resolve existing coverage and owning location. |
+| `PROMOTE_FOR_DEDUP` | Verified governance-level gap. Resolve existing coverage and the owning location. |
 | `DEFER_EVIDENCE_GAP` | Plausible concern with a named missing or inaccessible source. |
 | `REJECT_TASK_LOCAL` | Applies to one task, repository, file, or temporary goal. |
 | `REJECT_TOOL_BUDGET` | Temporary token/time/thread/tool budget without a durable gap. |
@@ -44,48 +43,53 @@ Jurisdiction: session-evidenced governance-learning candidates, their promotion 
 | `REJECT_CONFLICTS_WITH_SSOT` | Conflicting owner semantics without an authorized owner update. |
 | `REJECT_NON_GOVERNANCE` | No governance-level implication. |
 
-- Rejected candidates Record evidence and reason with target and draft delta `N/A + rejected`; no backlog proposal.
+- Rejected candidates record evidence and reason, with target and draft delta `N/A + rejected`.
+- Rejected candidates get no backlog proposal.
 - Deferred candidates Record the missing evidence and next action without a draft delta.
 
 ## Coverage and placement evidence
 
 - Resolve the highest owning jurisdiction before drafting any delta.
-- Search the supplied bounded scope and Record terms, ordering, files/bytes, elapsed cost, termination, and coverage; expanded scope MUST have an explicit contract.
+- Search the supplied bounded scope.
+- Record terms, ordering, files/bytes, elapsed cost, termination and coverage.
+- An expanded scope MUST have an explicit contract.
 - Record `ALREADY_COVERED`, `PARTIAL`, or `MISSING` with owner citation, exact gap, and the matching duplicate removal.
 
 ## Evidence output
 
 - Output MUST be a decision brief, candidate records with `GL-DDMMYYYY-###` identifiers, and a summary, in that order, with the fields below in that order.
 - Unknown and inapplicable fields retain `Unknown` or `N/A + reason`.
-- Candidate count follows the supplied output limit; no minimum forces evidence creation; a truncated set is pending with reason and next action.
+- Candidate count follows the supplied output limit.
+- No minimum count forces evidence creation.
+- A truncated set is pending, with reason and next action.
 - Priority ranks proposals, not obligation strength.
 - `P1` MUST have verified evidence plus a concrete command or deterministic manual witness.
 
 | Part | Fields |
 |---|---|
-| Decision brief | model and scope; SSOT map; authority uplift summary (verified failure classes, earliest defective boundary, prevention point, evidence); proof obligations and verification plan; blast radius; README Checks alignment; claim-level verification status; Change Contract owner reference and applicable evidence; authorization and lifecycle evidence reference |
-| Candidate record | ID (date from the review context; sequence from `001` in output order); gate status; coverage status `MISSING`, `PARTIAL`, `ALREADY_COVERED`, `DEFERRED`, or `REJECTED`; evidence (R/D); failure mode prevented; authority-first prevention point; target location; draft delta or coverage citation; Change Contract alignment; witness/verification; risk if not addressed; modularity/structure decision; priority `P1`-`P3` with `VERIFIED` or `UNVERIFIED`; remaining action |
-| Summary | verified proposals by priority and owner; already-covered candidates and citations; rejected/deferred counts by gate status; routing changes and duplicate removals proposed or verified; unknowns, incomplete evidence, and required actions |
-| Session recap (user-supplied source for an `UNVERIFIED` candidate) | work performed; failures/friction with exact redacted messages; workarounds and observed outcomes; decisions made and their sources; repeated confusion points; missing governance support and supporting evidence |
+| Decision brief | model and scope; SSOT map; authority uplift summary (verified failure classes, earliest defective boundary, prevention point, evidence); proof obligations and verification plan; blast radius; README Checks alignment; verification status per claim; Change Contract owner reference and applicable evidence; authorization and lifecycle evidence reference |
+| Candidate record | ID (date from the review context, sequence from `001` in output order); gate status; coverage status `MISSING`, `PARTIAL`, `ALREADY_COVERED`, `DEFERRED`, or `REJECTED`; evidence (R/D); failure mode prevented; authority-first prevention point; target location; draft delta or coverage citation; Change Contract alignment; witness or verification; risk if not addressed; modularity or structure decision; priority `P1`-`P3` with `VERIFIED` or `UNVERIFIED`; remaining action |
+| Summary | verified proposals by priority and owner; already-covered candidates and citations; rejected and deferred counts by gate status; routing changes and duplicate removals proposed or verified; unknowns, incomplete evidence, and required actions |
+| Session recap (user-supplied source for an `UNVERIFIED` candidate) | work performed; failures and friction with exact redacted messages; workarounds and observed outcomes; decisions made and their sources; repeated confusion points; missing governance support and supporting evidence |
 
 ## Session-log evidence acquisition
 
 - Purpose: collect bounded deterministic evidence from authorized session logs for a timeframe and concept.
-- Boundary: evidence acquisition only; promotion, rejection, backlog, and edits stay outside it.
-- Prohibited: concept-specific search terms stored here; the run supplies the concept query.
+- Boundary: evidence acquisition only. Promotion, rejection, backlog and edits stay outside it.
+- Concept-specific search terms MUST come only from the run's concept query.
 
 ### Timeframe rule
 
 - Relative timeframes MUST normalize to absolute timestamps in the requested timezone before scanning.
 - The end timestamp is exclusive unless the user requests otherwise.
-- All-available-history means the inventory inside authorized roots only; broad `{HOME}` or unapproved sources are Prohibited.
+- For all-available history (Lexicon (ssot)), broad `{HOME}` or unapproved sources are Prohibited.
 - Non-deterministic normalization MUST stop with `AMBIGUOUS_TIMEFRAME`.
 
 ### Source status
 
 - Record one status per source: `available_authorized`, `unavailable`, `skipped_unauthorized`, or `partial`.
 - Authorized sources not fully searched MUST feed `PARTIAL_SEARCH` or an explicit `unknowns` entry.
-- Discovery-only evidence MUST NOT reach high confidence before source-system confirmation.
+- Discovery-only evidence MUST stay below high confidence until the source system confirms it.
 
 ### Packaging form
 
@@ -98,14 +102,15 @@ Jurisdiction: session-evidenced governance-learning candidates, their promotion 
 
 ### Root authorization
 
-- Use only user-provided or user-approved log roots; resolve each to an absolute path before scanning.
+- Use only user-provided or user-approved log roots.
+- Resolve each root to an absolute path before scanning.
 - Reject traversal outside selected roots.
-- Authorized roots need no duplicate approval.
-- Persisting raw logs or full transcripts into the repo is Prohibited.
+- Authorized roots need no duplicate approval (FP-30).
+- Raw logs and full transcripts MUST stay out of the repo.
 
 ### Acquisition result states
 
-- Return exactly one in `terminal_state`.
+- Return exactly one state in `terminal_state` (FP-29).
 - `FOUND`: complete search found relevant evidence.
 - `NOT_FOUND_AFTER_COMPLETE_SEARCH`: complete search found no relevant evidence.
 - `PARTIAL_SEARCH`: limits, inaccessible roots, parse failures, or timeouts prevented completion.
@@ -116,10 +121,11 @@ Jurisdiction: session-evidenced governance-learning candidates, their promotion 
 ### Privacy rules
 
 - Apply redaction to every snippet, path, and handoff value.
-- Quote only short snippets that prove the finding; emitting full transcripts is Prohibited.
+- Quote only short snippets that prove the finding, never a full transcript.
 - Repo-tracked evidence files MUST have an explicit user request and redacted content.
-- Storing raw memories, rollout summaries, discovery-only records, personal administration details, or broad path inventories is Prohibited.
+- MUST store none of these: raw memories, rollout summaries, discovery-only records, personal administration details, broad path inventories.
 
 ### Handoff rule
 
-- Acquisition ends at handoff; the receiving review MUST run the promotion gate before de-duplication, backlog, or edits.
+- Acquisition ends at handoff.
+- The receiving review MUST run the promotion gate before de-duplication, backlog or edits.

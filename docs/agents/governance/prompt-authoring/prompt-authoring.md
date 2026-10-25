@@ -12,7 +12,7 @@ Jurisdiction: the task-intent scaffold supplied to an AI coding workflow.
 
 ```text
 Required owners:
-- If a required owner is inaccessible or conflicts with the request, report the conflict through Main; do not invent a substitute rule.
+- If a required owner is inaccessible or conflicts with the request, follow the AGENTS.md Instruction Derivation Gate.
 
 Task type: <feature|bugfix|refactor|review>
 
@@ -74,12 +74,13 @@ Requested user-facing output:
 ## Use rules
 
 - Mutable facts MUST be supplied through their declared source or config owner.
-- Replies to the user MUST use few words per line and one item per line; narrative MUST NOT replace a jurisdiction-named finding.
-- A question to the user MUST be a jurisdiction-level choice with a named default; open technical follow-ups are prohibited.
-- The scaffold MUST NOT require the user to identify owner files.
-- The scaffold MUST NOT require the user to separately request documentation updates.
+- Replies to the user MUST use few words per line and one item per line.
+- Findings MUST stay jurisdiction-named items, not narrative.
+- A question to the user MUST be a jurisdiction-level choice with a named default, never an open technical follow-up.
+- The scaffold MUST work without the user identifying owner files.
+- The scaffold MUST work without a separate user request for documentation updates.
 - Unverified repository hints MUST be marked `Unknown`.
-- Presenting an unverified hint as authority is Prohibited.
+- An unverified hint MUST be presented as a hint, not as authority.
 - Carry-forward evidence preserves failures, failed attempts, known-bad assumptions, and open unknowns.
 - Carry-forward evidence is non-authoritative task input for a later user-started workflow.
 - Carry-forward evidence grants no execution or continuation authority.

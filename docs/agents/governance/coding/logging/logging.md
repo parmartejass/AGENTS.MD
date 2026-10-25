@@ -11,10 +11,13 @@ Jurisdiction: logging channels, error taxonomy, explicit failure outcomes, and t
 ## Logging required
 - MUST log workflow boundaries and failure points with context.
 - Context MUST include paths, sheet, and row identifiers when applicable.
-- `print()` is prohibited.
+- MUST log through the logger instead of `print()`.
 - MUST use a module-level logger (`logger = logging.getLogger(__name__)`).
-- Logging MUST be configured exactly once at the process entrypoint through `dictConfig`; handler attachment or level setting anywhere else is prohibited.
-- Redaction MUST be a logging filter attached in the configuration, applying the security redaction rules to every record; call-site redaction is prohibited.
+- Logging MUST be configured exactly once, at the process entrypoint, through `dictConfig`.
+- Handler attachment and level setting MUST happen only in that configuration.
+- Redaction MUST be a logging filter attached in the configuration.
+- That filter MUST apply the security owner's redaction rules to every record.
+- Redaction MUST happen only in that filter, never at call sites.
 - A file sink MUST declare a rotation trigger and a bounded backup count.
 - MUST catch specific exceptions, log context, and raise meaningful domain errors.
 
@@ -37,18 +40,18 @@ baseline:
 - Example names only, non-normative: `ConfigError`, `ValidationError`, `ExcelComError`, `FileIOError`, `WorkflowError`.
 
 ## Catching policy
-- Bare `except` and cause-hiding catch-all patterns are prohibited.
+- Prohibited: bare `except`, and catch-all patterns that hide the cause.
 - MUST catch specific exception categories (file, JSON, subprocess, library-specific).
 
 ## Silent failures
-- Broad exception handlers MUST NOT hide failures.
-- `except Exception: pass` is prohibited.
-- `except Exception: return None/False/...` is prohibited unless the sentinel is an explicit contract.
-- explicit contract: sentinel meaning documented in docstring or type, and handled explicitly by callers.
+- Broad exception handlers MUST keep failures visible.
+- Prohibited: `except Exception: pass`.
+- Prohibited: `except Exception: return None/False/...`, unless the sentinel is an explicit contract.
+- The Lexicon (ssot) defines an explicit contract for a sentinel.
 - Otherwise MUST record context and outcome, or raise a domain error.
 - A branch with unresolvable config/rule/intent authority MUST stop with `FAILED` or `SKIPPED + reason`.
-- Orchestration code MUST NOT infer, duplicate, or silently default that business rule.
+- Prohibited: orchestration code inferring, duplicating or silently defaulting that business rule.
 
 ## Witnesses
 - Static: the Python-safety check behind the governance-core package public contract (`scripts/check_governance_core/`) flags `BARE_EXCEPT`, `SILENT_EXCEPT` and warns `EXCEPT_RETURN_LITERAL`.
-- Runtime: one dictConfig call recorded; listener started and stopped in finally; redaction filter present on every handler.
+- Runtime: one recorded dictConfig call, a listener started and then stopped in `finally`, and a redaction filter on every handler.
