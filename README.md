@@ -1,6 +1,6 @@
 # AGENTS.MD (Repo) - Canonical Governance Pack
 
-This repository maintains a reusable, repo-agnostic governance pack for autonomous coding agents.
+Project purpose: `docs/project/goal/goal.md` Objective.
 
 ## Canonical SSOT
 
@@ -16,12 +16,15 @@ Start with `AGENTS.md` Mandatory Foundations and follow `Orchestration.md` for l
 
 ## Project docs (this repo)
 
-- Entry point: `docs/project/project_index.md` (goal, rules, architecture, data-truth, changelog, learning); durable intent: `docs/project/goal/goal.md`.
+- Entry point: `docs/project/project_index.md` (goal, rules, architecture, data-truth, changelog, learning).
+- Durable intent: `docs/project/goal/goal.md`.
 - Material knowledge, uncertain observations, attributed agent decisions, and prompt-originated records resolve through `docs/agents/governance/documentation/documentation.md` Admission to their declared owners.
 
 ## Repo-owned agent assets
 
-- Skills: `docs/agents/governance/skills/`; settings: `docs/agents/governance/settings/`; MCP configs: `docs/agents/governance/mcp/`.
+- Skills: `docs/agents/governance/skills/`
+- Settings: `docs/agents/governance/settings/`
+- MCP configs: `docs/agents/governance/mcp/`
 
 ## Tool loaders and root owner
 
@@ -58,7 +61,7 @@ Add the pack, then create loader stubs at the project root so every coding assis
 git submodule add -b main https://github.com/parmartejass/AGENTS.MD.git .governance
 ```
 
-Loader body for both `AGENTS.md` (required) and `CLAUDE.md` (required for Claude Code; the `@` lines are Claude Code imports and plain text for other tools):
+Loader body for both `AGENTS.md` (required) and `CLAUDE.md` (required for Claude Code). The `@` lines are Claude Code imports and plain text for other tools:
 
 ```md
 # <loader title>
@@ -82,10 +85,10 @@ Setup commands are examples; repository mutations stay within the authorization 
 
 ## Checks
 
-Python 3.11+. Commands use `python3`; use `python` when that is the verified executable name (command normalization, not a retry through another runtime). Run with `-B` and process-local `PYTHONDONTWRITEBYTECODE=1` so child Python processes preserve existing bytecode.
+Python 3.11+. Commands use `python3`. Use `python` instead when that is the verified executable name (command normalization, not a retry through another runtime). Run with `-B` and process-local `PYTHONDONTWRITEBYTECODE=1` so child Python processes preserve existing bytecode.
 
 This repo (run from the repository root, which is the governance root and the package import root):
-- Docs SSOT checks (all repository Markdown line counts; scoped docs headers/routers): `python3 -B -m scripts.check_governance_core --only-docs-ssot --repo-root . --governance-root .`
+- Docs SSOT checks (all repository Markdown line counts, scoped docs headers and routers, and the repeat report: warnings for repeated normative sentences and declared constants): `python3 -B -m scripts.check_governance_core --only-docs-ssot --repo-root . --governance-root .`
   - Docs-policy regression tests: `python3 -B -m unittest scripts.check_governance_core.test_docs_policy -v`
   - Docs-policy timing witness: `python3 -B -m unittest scripts.check_governance_core.test_docs_timing -v`
 - Project docs checks (required files + README linkage): `python3 -B -m scripts.check_governance_core --only-project-docs --repo-root . --governance-root .`
@@ -96,7 +99,9 @@ This repo (run from the repository root, which is the governance root and the pa
   - Core governance regression tests: `python3 -B -m unittest discover -s scripts/check_governance_core -p "test*.py" -v`
   - Strict safety mode: `python3 -B -m scripts.check_governance_core --fail-on-safety-warnings`
   - Docs handler profiling: `python3 -B -m cProfile -s cumulative -m scripts.check_governance_core --only-docs-ssot --repo-root . --governance-root .` (profiling overhead is separate from runtime timing).
-- X workspace regression tests (non-owner workspace, `SSOT-DEC-001`): `python3 -B -m unittest discover -s "X-Bookmarks Import/skills/governance-autoresearch/scripts" -p "test*.py" -v` and `python3 -B -m unittest discover -s "X-Bookmarks Import/skills/x-research/scripts" -p "test*.py" -v`
+- X workspace regression tests (non-owner workspace, `SSOT-DEC-001`):
+  - `python3 -B -m unittest discover -s "X-Bookmarks Import/skills/governance-autoresearch/scripts" -p "test*.py" -v`
+  - `python3 -B -m unittest discover -s "X-Bookmarks Import/skills/x-research/scripts" -p "test*.py" -v`
 
 Target repo (submodule under `.governance/`; run from the `.governance/` directory so the governance root is the package import root):
 - Docs SSOT header checks: `python3 -B -m scripts.check_governance_core --repo-root .. --only-docs-ssot`
@@ -105,8 +110,12 @@ Target repo (submodule under `.governance/`; run from the `.governance/` directo
   - Strict safety mode: `python3 -B -m scripts.check_governance_core --repo-root .. --fail-on-safety-warnings`
 - Packaged-folder enforcement reads the pack's root markers from `.governance/docs/project/architecture/architecture.md` and the target repo's own roots, root launchers, and exceptions from its `docs/project/architecture/architecture.md` (none when the target keeps no Python outside `.governance/`); the enforced and unclaimed witnesses are recorded in the pack's architecture record, Modularity witness boundary.
 
-When a repository `SKILL.md` changes, resolve the installed `skill-creator` bundle and run its format validator: `python3 -B "<resolved-skill-creator>/scripts/quick_validate.py" "<changed-skill-folder>"`; the paths are explicit workflow inputs, a format pass is not owner/semantic review, and the skill's operational workflow is not executed.
+When a repository `SKILL.md` changes, resolve the installed `skill-creator` bundle and run its format validator: `python3 -B "<resolved-skill-creator>/scripts/quick_validate.py" "<changed-skill-folder>"`. Both paths are explicit workflow inputs. A format pass is not owner or semantic review. The validator run does not execute the skill's operational workflow.
 
 ## Governance-core programmatic API
 
-`scripts.check_governance_core` is the only supported programmatic boundary (`__all__`: `run_checks`, `resolve_documents`, `main`; private modules are not consumer contracts). `run_checks(request)` accepts optional `repo_root`, `governance_root`, `mode` (`full`, `docs`, `project_docs`), and `fail_on_safety_warnings`; it returns a plain mapping with `api_version`, terminal `status` (`PASSED`, `FAILED`, or `FAILED_VALIDATION` for invalid input), ordered per-check records, reconciled `planned`/`eligible`/`executed`/`skipped`/`failed` check IDs, `errors`, and `warnings`. `resolve_documents(request)` accepts explicit contained, non-aliased roots and returns `AGENTS.md`, `Orchestration.md`, then the deterministic depth-first terminal Markdown leaves reachable from `docs/agents/agents_index.md`; invalid, escaped, aliased, missing, cyclic, or duplicate topology fails explicitly with an empty document list. The API is read-only, creates no temporary files, reads through one cached bounded inventory, and uses bounded `git ls-files -z` only for tracked-state rules; new request fields, modes, check IDs, or output fields are an intentional public-contract change with regression coverage.
+- `scripts.check_governance_core` is the only supported programmatic boundary (`__all__`: `run_checks`, `resolve_documents`, `main`). Private modules are not consumer contracts.
+- `run_checks(request)` accepts optional `repo_root`, `governance_root`, `mode` (`full`, `docs`, `project_docs`), and `fail_on_safety_warnings`. It returns a plain mapping with `api_version`, terminal `status` (`PASSED`, `FAILED`, or `FAILED_VALIDATION` for invalid input), ordered per-check records, reconciled `planned`/`eligible`/`executed`/`skipped`/`failed` check IDs, `errors`, and `warnings`.
+- `resolve_documents(request)` accepts explicit contained, non-aliased roots. It returns `AGENTS.md`, `Orchestration.md`, then the deterministic depth-first terminal Markdown leaves reachable from `docs/agents/agents_index.md`. Invalid, escaped, aliased, missing, cyclic, or duplicate topology fails explicitly with an empty document list.
+- The API is read-only, creates no temporary files, reads through one cached bounded inventory, and uses bounded `git ls-files -z` only for tracked-state rules.
+- New request fields, modes, check IDs, or output fields are an intentional public-contract change with regression coverage.
