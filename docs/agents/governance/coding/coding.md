@@ -11,7 +11,7 @@ Jurisdiction: implementation-code authority owner selection, SSOT jurisdiction m
 ## Scope
 
 - MUST apply whenever implementation code is planned, added, reviewed, refactored, decomposed, purified, or wired across authority boundaries.
-- Applies to code that owns runtime behavior, workflow logic, reusable runtime contracts, packaged folders, public entrypoints, orchestration boundaries or dependency direction (the FP-13 code scope).
+- Applies to code that owns runtime behavior, workflow logic, reusable runtime contracts, packaged folders, public entrypoints, orchestration boundaries or dependency direction.
 - A script with owner-declared runtime-selection or validation responsibility MUST expose that responsibility through its declared owner contract, not as a launcher.
 - Config payloads, fixtures, schemas and generated artifacts MUST stay out of separate packaged folders until they own runtime behavior.
 

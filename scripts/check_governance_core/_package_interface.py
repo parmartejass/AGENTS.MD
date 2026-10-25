@@ -43,31 +43,11 @@ def parse_module(path: Path, relative: str, store: DocumentStore) -> tuple[Pytho
     return module, []
 
 
-def _bound_public_names(tree: ast.Module) -> set[str]:
-    names: set[str] = set()
-    for node in tree.body:
-        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
-            names.add(node.name)
-        elif isinstance(node, (ast.Assign, ast.AnnAssign, ast.AugAssign)):
-            if isinstance(node, ast.AnnAssign) and node.value is None:
-                continue  # an annotation alone binds nothing, so `from pkg import *` would fail on it
-            targets = node.targets if isinstance(node, ast.Assign) else [node.target]
-            for target in targets:
-                for leaf in ast.walk(target):
-                    if isinstance(leaf, ast.Name):
-                        names.add(leaf.id)
-        elif isinstance(node, ast.Import):
-            names.update(alias.asname or alias.name.split(".", 1)[0] for alias in node.names)
-        elif isinstance(node, ast.ImportFrom) and node.module != "__future__":
-            names.update(alias.asname or alias.name for alias in node.names)
-    return {name for name in names if not name.startswith("_")}
-
-
-def entry_errors(tree: ast.Module, relative: str) -> list[str]:
+def entry_errors(module: PythonModule, relative: str) -> list[str]:
     """``__init__.py`` declares ``__all__`` once; every public binding is listed; every entry is bound."""
 
     declarations = [
-        node for node in tree.body
+        node for node in module.tree.body
         if isinstance(node, ast.Assign) and len(node.targets) == 1
         and isinstance(node.targets[0], ast.Name) and node.targets[0].id == "__all__"
     ]
@@ -82,7 +62,7 @@ def entry_errors(tree: ast.Module, relative: str) -> list[str]:
     errors: list[str] = []
     if len(set(declared)) != len(declared):
         errors.append(f"Package entry `__all__` must not repeat a member: {relative}")
-    bound = _bound_public_names(tree)
+    bound = {binding.name for binding in module.bindings if not binding.name.startswith("_")}
     for name in sorted(set(declared) - bound):
         errors.append(f"Package entry `__all__` names an unbound member {name!r}: {relative}")
     for name in sorted(bound - set(declared)):
@@ -201,7 +181,7 @@ def interface_errors(
     if module is None:
         return errors + parse_errors
     if path.name == PACKAGE_ENTRY:
-        errors.extend(entry_errors(module.tree, relative))
+        errors.extend(entry_errors(module, relative))
     elif path.name == _LAUNCHER:
         errors.extend(launcher_errors(module.tree, relative, ".".join(path.relative_to(root.parent).parent.parts)))
     errors.extend(deep_import_errors(module, path, import_bases, relative, package_dirs))

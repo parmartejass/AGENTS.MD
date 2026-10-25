@@ -93,6 +93,15 @@ class OrchestrationContractTests(unittest.TestCase):
                 self.assertEqual("FAILED", result["status"], result)
                 self.assertEqual([], result["documents"])
 
+    def test_a_fence_line_with_an_info_string_does_not_close_the_contract(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            orchestration_fixture(root)
+            path, block = root / "Orchestration.md", orchestration_contract_block(root).group(0)
+            write(path, path.read_text(encoding="utf-8").replace(block, block[:-3] + "```json\n```", 1))
+            errors = orchestration_contract_errors(root)
+            self.assertTrue(any("malformed JSON" in error for error in errors), errors)
+
     def test_orchestration_file_alias_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

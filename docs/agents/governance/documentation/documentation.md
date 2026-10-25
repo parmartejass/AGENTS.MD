@@ -102,7 +102,7 @@ Jurisdiction: docs admission and maintenance, safe supersession, concise owner r
 ## Triggered leaves
 
 - MUST create `docs/project/architecture/protected-behavior.md` when behavior is user-protected, regression-sensitive, intentionally preserved, or replaceable only under an equivalence rule.
-- An absent optional leaf means only that no record is declared there. It proves nothing about runtime behavior, active work, or changes elsewhere.
+- An absent optional leaf MUST be read only as no record declared there, never as proof about runtime behavior, active work, or changes elsewhere.
 - Active protected-behavior records constrain changes.
 - A conflict with one requires an explicit owner supersession and, where applicable, a preservation or equivalence witness.
 
@@ -173,12 +173,12 @@ documentation_line_limit: 300
 - Governance-core's public contract owns structural validation of inventoried Markdown physical-line counts, required baseline branches, branch routers, routed branch-local subdocs, headers and update triggers, route links, local reference shape, and orphan-subdoc absence.
 - Structural validation MUST remain separate from operational validation.
 - Scripts MUST enforce no closed truth-kind lists, exact subdoc names, semantic categories, brittle text scans, or immediate subdocs in every branch. One exception: the repeat report.
-- The repeat report flags normative sentences and declared constants that repeat across files. It only warns; it never fails a run.
-- The repeat report reads these three operative declarations:
+- The repeat report flags normative sentences and declared constants that repeat across files. It only warns; it never fails a run. It skips frontmatter, routers, blockquotes, fences, indented code and the project branches that `normative_repeat_excluded_branches` names. It reads these four operative declarations:
 
 normative_repeat_terms: must|never|always|only|shall|required|banned|prohibited
 normative_repeat_shingle_words: 5
 normative_repeat_min_percent: 60
+normative_repeat_excluded_branches: changelog
 
 - Whether a doc duplicates a non-owner fact, whether an owner is correct, whether a record is durable, and whether protected-behavior equivalence holds stay review decisions, made by source-separated principle review or deterministic manual review. The repeat report is a witness for them.
 - Under-routing is a defect. Every task class MUST route to the owners it needs, so no authority is silently missed.

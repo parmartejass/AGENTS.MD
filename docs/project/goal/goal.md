@@ -11,7 +11,7 @@ update_trigger: project objective, accepted intent, or verification requirements
 
 ## Acceptance criteria
 - Every repository Markdown file meets the line limit with its meaning intact: `docs/agents/governance/documentation/documentation.md` Size and cohesion.
-- The Fundamental Principles keep the wording, order and `MUST ` lead adopted on 2026-10-25 under the user's delegation (agent-drafted): `AGENTS.md` Fundamental Principles (Highest Repository Authority), Structural contract.
+- The Fundamental Principles keep the wording, order and `MUST ` lead that `AGENTS.md` Fundamental Principles (Highest Repository Authority), Structural contract pins.
 - Owner-local identifiers supply stable routes without a second principles document or policy registry.
 - Every lower document MUST be fully audited for owner derivation, necessity, duplication, and weakened obligations.
 - Each declared lower owner retains its jurisdiction-specific rules, contracts, safeguards, mechanics, examples, and verification requirements.
@@ -33,7 +33,7 @@ Each record below is an explicit user decision unless marked `agent`; it is requ
 - 2026-10-25 (`agent`): GR-3 a: Agent decision: Main reads 'never pick a winner' as banning a choice by judgment; applying a declared precedence rule is not picking a winner. It adds no obligation and does not soften FP-13.
 - 2026-10-25 (`agent`): GR-4 a: a missing owner halts and escalates; the user decides any new owner (`AGENTS.md` FP-13, FP-27, Jurisdictional Decomposition).
 - 2026-10-25 (`agent`): K4 a: a warning-only repeat report in the existing checker (`docs/agents/governance/documentation/documentation.md` Validation boundary).
-- 2026-10-25 (`agent`): K5 b: FP-01 to FP-35 rewritten in plain words, adopted on 2026-10-25 under the user's delegation (agent-drafted); FP-13 is the user's own wording.
+- 2026-10-25 (`agent`): K5 b: FP-01 to FP-35 rewritten in plain words; adoption and provenance: `AGENTS.md` Fundamental Principles (Highest Repository Authority), Structural contract.
 - 2026-10-25 (`agent`): K9 b: the changelog owns supersession history (`docs/project/changelog/changelog.md`).
 - 2026-10-25 (`agent`): U1 b: one Lexicon in `docs/agents/governance/ssot/ssot.md`; terms defined in `AGENTS.md` or `Orchestration.md` stay there by declared precedence and the Lexicon links them, so each term has one definition.
 - 2026-10-25 (`agent`): O1, O3 and O5 retired as superseded by FP-13; O4 and O6 retired under the user's delegation.

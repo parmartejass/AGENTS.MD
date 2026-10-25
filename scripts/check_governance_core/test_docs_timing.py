@@ -7,8 +7,10 @@ from time import perf_counter
 from unittest.mock import patch
 
 from scripts.check_governance_core._docs_checks import (
-    DOCS_POLICY_PATH, _documentation_line_limit, _physical_lines, _repeat_report, _required_project_paths, check_docs,
+    DOCS_POLICY_PATH, _documentation_line_limit, _physical_lines, _repeat_excluded_paths, _required_project_paths,
+    check_docs,
 )
+from scripts.check_governance_core._repeat_report import repeat_parameters, statement_repeats
 from scripts.check_governance_core._documents import DocumentStore
 from scripts.check_governance_core._inventory import RepositoryInventory
 from scripts.check_governance_core._test_support import REPOSITORY_ROOT, live_principles_section
@@ -98,9 +100,11 @@ class DocsPolicyTimingTests(unittest.TestCase):
                 started = perf_counter()
                 policy, error = store.markdown(REPOSITORY_ROOT / DOCS_POLICY_PATH)
                 self.assertIsNone(error)
-                result = _repeat_report(REPOSITORY_ROOT, store, inventory, policy)
+                parameters, errors = repeat_parameters(policy)
+                excluded, exclusion_errors = _repeat_excluded_paths(policy)
+                result = statement_repeats(REPOSITORY_ROOT, store, inventory, parameters, excluded)
                 values.append((perf_counter() - started) * 1000)
-                self.assertEqual(([], []), result)
+                self.assertEqual(([], [], []), (errors, exclusion_errors, result))
         for name, values in samples.items():
             logger.warning("FP-03 operation=%s target_ms=%s samples_ms=%s outcome=%s", name, target_ms,
                            [round(value, 3) for value in values], "UNMET" if max(values) > target_ms else "MET")

@@ -4,10 +4,10 @@ import json
 import re
 from typing import Any
 
+from scripts.check_governance_core._documents import parse_markdown
 from scripts.check_governance_core._orchestration_delegation import validate_delegation_and_plan
 
 
-_CONTRACT_FENCE = re.compile(r"^[ ]{0,3}(`{3,}|~{3,})([^`]*)$")
 _IDENTIFIER = re.compile(r"^[A-Z][A-Z0-9_]*$")
 _TOP_LEVEL_FIELDS = {
     "version",
@@ -50,38 +50,6 @@ def _unique_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
     return result
 
 
-def _contract_blocks(text: str) -> list[str]:
-    blocks: list[str] = []
-    active_marker: str | None = None
-    active_length = 0
-    active_is_contract = False
-    active_lines: list[str] = []
-    for line in text.splitlines():
-        fence = _CONTRACT_FENCE.match(line)
-        if active_marker is None:
-            if fence is None:
-                continue
-            marker = fence.group(1)
-            active_marker = marker[0]
-            active_length = len(marker)
-            active_is_contract = fence.group(2).strip() == "orchestration-contract"
-            active_lines = []
-            continue
-        if fence is not None:
-            marker = fence.group(1)
-            if marker[0] == active_marker and len(marker) >= active_length:
-                if active_is_contract:
-                    blocks.append("\n".join(active_lines))
-                active_marker = None
-                active_length = 0
-                active_is_contract = False
-                active_lines = []
-                continue
-        if active_is_contract:
-            active_lines.append(line)
-    return blocks
-
-
 def _string_list(value: object, label: str, errors: list[str]) -> list[str]:
     if not isinstance(value, list) or any(not isinstance(item, str) or not item for item in value):
         errors.append(f"Orchestration.md contract {label} must be a list of non-empty strings")
@@ -98,7 +66,8 @@ def _references(values: list[str], allowed: set[str], label: str, errors: list[s
 
 
 def validate_orchestration_contract(text: str) -> list[str]:
-    blocks = _contract_blocks(text)
+    blocks = ["\n".join(fence.lines) for fence in parse_markdown(text).fences
+              if fence.closed and fence.info == "orchestration-contract"]
     if len(blocks) != 1:
         return [
             "Orchestration.md must contain exactly one closed orchestration-contract fenced block"

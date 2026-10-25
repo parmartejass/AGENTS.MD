@@ -7,7 +7,8 @@ from typing import Callable
 from scripts.check_governance_core import _git_capture
 from scripts.check_governance_core._results import API_VERSION, _document_result
 from scripts.check_governance_core._docs_checks import check_docs, check_project_docs
-from scripts.check_governance_core._documents import AGENTS_DOCS_ROOT, DOCS_ROOT, DocumentStore, routed_markdown_corpus
+from scripts.check_governance_core._corpus import routed_markdown_corpus
+from scripts.check_governance_core._documents import AGENTS_DOCS_ROOT, DOCS_ROOT, DocumentStore
 from scripts.check_governance_core._folder_architecture import check_folder_architecture
 from scripts.check_governance_core._governance_checks import (
     FoundationContract,

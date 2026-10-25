@@ -31,7 +31,7 @@ Each active decision record MUST include:
 - Reusable governance assets MUST keep canonical SSOT parents outside secret-bearing roots.
 - Reusable governance assets MUST keep canonical SSOT parents outside generated-data and machine-local roots.
 - A mixed domain MAY hold a non-owner workspace root only when this register records its canonical owner, allowed non-owner paths, and forbidden duplicates. Witness: the recorded decision entry.
-- That permission is hierarchical: this register stays the single parent authority, with no parallel authority beside it.
+- That permission is hierarchical: this register MUST stay the single parent authority, with no parallel authority beside it.
 - A canonical-owner change MUST update its coordinated set in one change.
 - Docs and tooling MUST migrate together in that one change.
 

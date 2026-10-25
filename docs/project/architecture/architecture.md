@@ -44,9 +44,9 @@ update_trigger: repo layout, authority-routing profiles, or validation scripts c
 - Python and project docs hold no copy of principle text and no expected hash.
 - `Orchestration.md` -> agent lifecycle; its checker-readable contract (delegation, plan fields, message intake) is structurally validated behind the public API; live context isolation, report integration, and YAML instance semantics require agent evidence and independent review.
 - `agents-manifest.yaml` -> Governance Agent profile and fallback routing, within the source boundary of `Orchestration.md` Task agents and focused exploration.
-- `docs/agents/governance/documentation/documentation.md` -> the sole operative declarations of the documentation line limit, the required project branches, and the three repeat-report settings (`normative_repeat_terms`, `normative_repeat_shingle_words`, `normative_repeat_min_percent`), consumed by the docs and project-doc checks.
+- `docs/agents/governance/documentation/documentation.md` -> the sole operative declarations of the documentation line limit, the required project branches, and the repeat-report settings (its Validation boundary), consumed by the docs and project-doc checks.
 - The docs check reads every Markdown member of the bounded repository inventory; header and router scope stays `docs/`.
-- The docs check reports normative sentences and declared constants that repeat across files as warnings; the folder-architecture check also reports repeated module-level constant names as warnings.
+- Repeat report: one private `_repeat_report` module serves the docs and folder-architecture checks; owners: `docs/agents/governance/documentation/documentation.md` Validation boundary and `docs/agents/governance/coding/coding.md` No Duplicates.
 - `docs/agents/governance/coding/coding.md` -> coding-principles authority. Its `code_decomposition_review_lines` declaration supplies the full-mode Python size warning through the declared coding foundation role. A missing or invalid declaration fails explicitly, with no fallback value.
 - `scripts/check_governance_core/` -> the one public plain-data API: `__init__.py` re-exports the `__all__` members, and `__main__.py` only delegates to `main`.
 - One private registry and engine composes cached document parsing, strict manifest parsing, docs and project checks, governance checks, bounded repository inventory, repository hygiene, folder architecture, and Python safety. Private module names are not consumer contracts.
@@ -84,9 +84,9 @@ update_trigger: repo layout, authority-routing profiles, or validation scripts c
   - The public boundary (request validation, dispatch, failure envelopes) is the private `_api` module.
   - The command line (argument parsing, one `dictConfig` logging setup, rendering) is the private `_cli` adapter.
   - The declared-path contract (`canonical_relative`, which rejects `.`, `resolve_declared_file`, `resolve_declared_directory`) is `_declared_paths`, consumed by the manifest, foundation, folder-architecture, and project-branch validators.
-  - `MarkdownDocument.markers(token)` is the single owner-marker parser (exact `<!-- token value -->` grammar; blockquoted lines are non-operative).
+  - `_documents` is the single Markdown owner: `parse_markdown` parses CommonMark fences, operative lines and headings, and `paragraphs` and `blocks` segment those lines. `MarkdownDocument.markers(token)` is the single owner-marker parser (exact `<!-- token value -->` grammar; blockquoted lines are non-operative). `_corpus` resolves the routed governance corpus.
   - The native-package interface witnesses are `_package_interface` behind the folder-architecture check.
-  - `_python_modules` parses each Python source once per run and indexes imports, shared by the folder-architecture and safety checks through `DocumentStore.python_module`.
+  - `_python_modules` parses each Python source once per run and indexes imports and module-level bindings, shared by the folder-architecture, package-interface, repeat-report and safety checks through `DocumentStore.python_module`.
   - Each layout literal (root authority names, `docs`, `docs/agents`, `docs/project`, `SKILL.md`, the manifest path, `__init__.py`) lives in one private module, and consumers import it.
   - The default governance root and the docs-policy owner path are each one private constant reused by test support, so every mode yields the same docs result.
 - `scripts/` is a declared source root that only contains packages.
@@ -98,7 +98,7 @@ update_trigger: repo layout, authority-routing profiles, or validation scripts c
   - The merged roots share one nesting rejection.
   - Python is scanned under the repository root.
   - A file outside every declared root is reported against the record that owns its location.
-- Test modules mirror private-module jurisdictions: `test_docs_policy` (docs-policy declarations and routers), `test_docs_timing` (the FP-03 docs witness), `test_inventory` (enumeration plus cached-family revalidation), `test_git_capture` (bounded Git capture lifecycle), `test_folder_architecture` (structure, root markers, interface witnesses), `test_orchestration_contract` (authority route and contract graph), `test_orchestration_delegation` (delegation, plan, and message-intake projections).
+- Test modules mirror private-module jurisdictions: `test_docs_policy` (docs-policy declarations, routers and the Markdown repeat report), `test_coding_policy` (the coding declaration and the constant repeat report), `test_docs_timing` (the FP-03 docs witness), `test_inventory` (enumeration plus cached-family revalidation), `test_git_capture` (bounded Git capture lifecycle), `test_folder_architecture` (structure, root markers, interface witnesses), `test_orchestration_contract` (authority route and contract graph), `test_orchestration_delegation` (delegation, plan, and message-intake projections).
 - Shared orchestration fixtures live in `_test_support`. It validates the unchanged live repository once per process and reuses the memo only while the constitution and every declared foundation file keep their validated file state. Other files the validation reads, such as the manifest, are outside the key. No test writes the live tree.
 - `X-Bookmarks Import/` is the `SSOT-DEC-001` non-owner workspace and the deferred packaged-folder exception declared below.
 - Its two regression tests live beside the scripts they load and run through README Checks, so deleting the workspace breaks only its own tests.

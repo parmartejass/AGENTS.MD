@@ -56,6 +56,12 @@ def install_root_authorities(root: Path) -> None:
     write(root / ORCHESTRATION_PATH, live_orchestration_text())
 
 
+def repeat_skipped(root: Path, *owners: str) -> list[str]:
+    """The explicit repeat-report outcome, per owner, on a fixture root that is not a Git worktree."""
+
+    return [f"repeat: SKIPPED: Repository checks require a Git worktree: {root.resolve()} {owner}" for owner in owners]
+
+
 def install_docs_policy(root: Path) -> Path:
     write(root / DOCS_POLICY_PATH, (REPOSITORY_ROOT / DOCS_POLICY_PATH).read_bytes())
     return root / DOCS_POLICY_PATH

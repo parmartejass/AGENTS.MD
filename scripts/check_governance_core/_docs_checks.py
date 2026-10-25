@@ -1,13 +1,11 @@
 from __future__ import annotations
 
 import re
-from collections import Counter, defaultdict
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 
 from scripts.check_governance_core._declared_paths import canonical_relative
 from scripts.check_governance_core._documents import (
     AGENTS_DOCS_ROOT,
-    CHANGELOG_DOCS_ROOT,
     CONSTITUTION_PATH,
     DOCS_ROOT,
     PROJECT_DOCS_ROOT,
@@ -21,6 +19,7 @@ from scripts.check_governance_core._documents import (
     router_targets,
 )
 from scripts.check_governance_core._inventory import RepositoryInventory
+from scripts.check_governance_core._repeat_report import repeat_parameters, statement_repeats
 
 
 # README guidance must name this package's runnable module launcher; deriving the name
@@ -44,101 +43,6 @@ def _policy_document(
 def _documentation_line_limit(document: MarkdownDocument) -> tuple[int | None, list[str]]:
     return document.positive_integer_declaration("documentation_line_limit", "Docs policy")
 
-
-# Repeat report (documentation owner, Validation boundary): the predicates stay equal to the
-# Phase-6 witness scan, so the warning-only report and its witness give the same result.
-_REPEAT_FENCE = re.compile(r"^\s{0,3}(`{3,}|~{3,})")
-_REPEAT_DECLARATION = re.compile(r"^([a-z][a-z0-9_]*): \S.*$")
-_REPEAT_SENTENCE_BREAK = re.compile(r"(?<=[.;!?])\s+")
-_REPEAT_WORD = re.compile(r"[a-z0-9][a-z0-9_'-]*")
-_REPEAT_OWNER = "(documentation owner, Validation boundary)"
-
-
-def _repeat_parameters(policy: MarkdownDocument) -> tuple[tuple[re.Pattern[str], int, int] | None, list[str]]:
-    """Read the three repeat-report declarations from the docs-policy owner, with no defaults."""
-
-    terms = (policy.declaration_value("normative_repeat_terms") or "").split("|")
-    errors = [] if all(terms) and len({term.casefold() for term in terms}) == len(terms) else [
-        "Docs policy must declare exactly one normative_repeat_terms list of unique, non-empty, pipe-separated terms"
-    ]
-    words, word_errors = policy.positive_integer_declaration("normative_repeat_shingle_words", "Docs policy")
-    percent, percent_errors = policy.positive_integer_declaration("normative_repeat_min_percent", "Docs policy")
-    errors.extend(word_errors + percent_errors)
-    if errors or words is None or percent is None:
-        return None, errors
-    return (re.compile(r"\b(" + "|".join(map(re.escape, terms)) + r")\b", re.IGNORECASE), words, percent), []
-
-
-def _repeat_lines(text: str):
-    """Yield numbered lines outside frontmatter, fences and blockquotes."""
-
-    lines = text.splitlines()
-    start = 0
-    if lines and lines[0].strip() == "---":
-        start = next((index + 1 for index in range(1, len(lines)) if lines[index].strip() == "---"), 0)
-    in_fence = False
-    for number, line in enumerate(lines[start:], start + 1):
-        if _REPEAT_FENCE.match(line):
-            in_fence = not in_fence
-        elif not in_fence and not line.lstrip().startswith(">"):
-            yield number, line
-
-
-def _repeat_report(
-    repo_root: Path, store: DocumentStore, inventory: RepositoryInventory, policy: MarkdownDocument,
-) -> tuple[list[str], list[str]]:
-    """Warn on normative sentences and declarations that repeat across tracked Markdown files."""
-
-    parameters, errors = _repeat_parameters(policy)
-    if parameters is None or not inventory.has_git_worktree(repo_root):
-        return errors, []
-    terms, size, percent = parameters
-    tracked, error = inventory.tracked_paths(repo_root)
-    if error:
-        return [], [f"repeat: report not run: {error} {_REPEAT_OWNER}"]
-    warnings: list[str] = []
-    sentences: list[tuple[str, int, set[str]]] = []
-    declarations: dict[str, list[tuple[str, int]]] = defaultdict(list)
-    excluded = CHANGELOG_DOCS_ROOT.as_posix() + "/"
-    for relative in sorted(tracked):
-        path = PurePosixPath(relative)
-        if (not relative.lower().endswith(".md") or relative.startswith(excluded)
-                or path.name in {f"{path.parent.name}_index.md", router_filename(DOCS_ROOT.name)}):
-            continue
-        text, read_error = store.read_text(repo_root / relative)
-        if read_error:
-            warnings.append(f"repeat: report skipped {relative}: {read_error} {_REPEAT_OWNER}")
-            continue
-        assert text is not None
-        for number, line in _repeat_lines(text):
-            declaration = _REPEAT_DECLARATION.match(line.strip())
-            if declaration and line == line.lstrip():
-                declarations[declaration.group(1)].append((relative, number))
-            for sentence in _REPEAT_SENTENCE_BREAK.split(line.strip()):
-                words = _REPEAT_WORD.findall(sentence.lower().replace("`", "")) if terms.search(sentence) else []
-                if len(words) >= size:
-                    sentences.append((relative, number, {" ".join(words[i:i + size]) for i in range(len(words) - size + 1)}))
-    index: dict[str, list[int]] = defaultdict(list)
-    for number, (_relative, _line, shingles) in enumerate(sentences):
-        for shingle in shingles:
-            index[shingle].append(number)
-    shared: Counter[tuple[int, int]] = Counter()
-    for members in (members for members in index.values() if len(members) > 1):
-        for position, first in enumerate(members):
-            for second in members[position + 1:]:
-                if sentences[first][0] != sentences[second][0]:
-                    shared[(first, second)] += 1
-    for (first, second), count in sorted(shared.items()):
-        (file_a, line_a, set_a), (file_b, line_b, set_b) = sentences[first], sentences[second]
-        share = count * 100 // min(len(set_a), len(set_b))
-        if share >= percent:
-            warnings.append(f"repeat: {file_a}:{line_a} and {file_b}:{line_b} share {share}% of their "
-                            f"{size}-word phrases {_REPEAT_OWNER}")
-    warnings.extend(
-        f"repeat: declaration {key} in " + " and ".join(f"{file}:{line}" for file, line in sites) + f" {_REPEAT_OWNER}"
-        for key, sites in sorted(declarations.items()) if len({file for file, _line in sites}) > 1
-    )
-    return [], warnings
 
 def _physical_lines(text: str) -> int:
     return text.count("\n") + int(bool(text) and not text.endswith("\n"))
@@ -247,14 +151,18 @@ def check_docs(
             errors.append(f"{path}: unsupported doc_type {header['doc_type']!r}")
     if policy is None:
         return errors, []
-    repeat_errors, warnings = _repeat_report(repo_root, store, inventory, policy)
-    return errors + repeat_errors, warnings
+    parameters, repeat_errors = repeat_parameters(policy)
+    excluded, exclusion_errors = _repeat_excluded_paths(policy)
+    errors.extend(repeat_errors + exclusion_errors)
+    if parameters is None or exclusion_errors:
+        return errors, []
+    return errors, statement_repeats(repo_root, store, inventory, parameters, excluded)
 
 
-def _required_project_paths(policy: MarkdownDocument) -> tuple[tuple[str, ...], list[str]]:
+def _required_project_branches(policy: MarkdownDocument) -> tuple[list[str], list[str]]:
     section = policy.section("Required project-doc branches", level=2)
     if section is None:
-        return (), ["Docs policy must declare exactly one Required project-doc branches section"]
+        return [], ["Docs policy must declare exactly one Required project-doc branches section"]
     branches: list[str] = []
     seen: set[str] = set()
     errors: list[str] = []
@@ -273,6 +181,23 @@ def _required_project_paths(policy: MarkdownDocument) -> tuple[tuple[str, ...], 
             seen.add(value.casefold())
     if not branches:
         errors.append("Docs policy must declare at least one required project branch")
+    return branches, errors
+
+
+def _repeat_excluded_paths(policy: MarkdownDocument) -> tuple[tuple[str, ...], list[str]]:
+    """Resolve the repeat-report exclusions: declared project branches, named by the docs-policy owner."""
+
+    branches, errors = _required_project_branches(policy)
+    names = (policy.declaration_value("normative_repeat_excluded_branches") or "").split("|")
+    unknown = [name for name in names if name.casefold() not in {branch.casefold() for branch in branches}]
+    if errors or unknown or len({name.casefold() for name in names}) != len(names):
+        return (), errors or ["Docs policy must declare exactly one normative_repeat_excluded_branches list of unique, "
+                              "pipe-separated required project branches"]
+    return tuple((PROJECT_DOCS_ROOT / name).as_posix() + "/" for name in names), []
+
+
+def _required_project_paths(policy: MarkdownDocument) -> tuple[tuple[str, ...], list[str]]:
+    branches, errors = _required_project_branches(policy)
     project = PROJECT_DOCS_ROOT
     paths = [(project / router_filename(project.name)).as_posix()]
     for branch in branches:
