@@ -25,6 +25,16 @@ update_trigger: non-trivial work closes OR closure-record field contract changes
 
 ## Entries
 
+### CH-20261030-001 - Commit description records the project decisions behind each commit
+
+- Change ID/date/status: CH-20261030-001 / 2026-10-30 / execution evidence verified at this checkpoint.
+- Closure statement: Origin: user messages of 2026-10-30. Each commit description now carries the verbatim user messages, the evidence, conclusions, decisions, plan, implementation, before → after, and cited files behind the commit, so repo docs stay limited to what the repo maintains.
+- Owner promotion references for durable facts or `N/A + reason`: `AGENTS.md` User Prompt Intake and Durable Project Truth (the rule, stated once).
+- Changed surfaces grouped by owner: `AGENTS.md`; this changelog.
+- Verification command/manual witness and result: README Checks docs, project-docs, and full governance checks; result in the commit description. Re-verify when the commit-record rule changes.
+- Residual risks/follow-up: no structural witness checks commit descriptions; compliance stays manual review.
+- Commit/PR reference or `N/A + reason`: this change: the commit that adds this record.
+
 ### CH-20261024-001 - Declare repository-root launchers as owner-recorded exceptions
 
 - Change ID/date/status: CH-20261024-001 / 2026-10-24 / execution evidence verified at this checkpoint.
