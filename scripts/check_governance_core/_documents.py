@@ -97,7 +97,7 @@ class DocumentStore:
         self._resolved: dict[Path, Path] = {}
         self._text: dict[Path, tuple[str | None, str | None]] = {}
         self._markdown: dict[Path, tuple[MarkdownDocument | None, str | None]] = {}
-        self._python: dict[tuple[Path, str], tuple[PythonModule | None, SyntaxError | None]] = {}
+        self._python: dict[Path, tuple[PythonModule | None, SyntaxError | OSError | None]] = {}
 
     def read_text(self, path: Path) -> tuple[str | None, str | None]:
         resolved = self._resolve(path)
@@ -125,13 +125,21 @@ class DocumentStore:
         self._markdown[resolved] = result
         return result
 
-    def python_module(self, path: Path, text: str) -> tuple[PythonModule | None, SyntaxError | None]:
-        """Parse one decoded Python source once per run; consumers share the tree and its import index."""
+    def python_module(self, path: Path) -> tuple[PythonModule | None, SyntaxError | OSError | None]:
+        """Read and parse one Python source file once per run; consumers share the tree and its import index.
 
-        key = (self._resolve(path), text)
-        if key not in self._python:
-            self._python[key] = parse_python(text, str(path))
-        return self._python[key]
+        The raw bytes are the only source value, so line endings or encoding never split the cache.
+        """
+
+        resolved = self._resolve(path)
+        if resolved not in self._python:
+            try:
+                source = resolved.read_bytes()
+            except OSError as exc:
+                self._python[resolved] = (None, exc)
+            else:
+                self._python[resolved] = parse_python(source, str(path))
+        return self._python[resolved]
 
     def _resolve(self, path: Path) -> Path:
         if path not in self._resolved:

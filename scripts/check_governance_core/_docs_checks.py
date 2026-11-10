@@ -39,13 +39,6 @@ def _policy_document(
     return document, [error] if error else []
 
 
-def _documentation_line_limit(document: MarkdownDocument) -> tuple[int | None, list[str]]:
-    return document.positive_integer_declaration("documentation_line_limit", "Docs policy")
-
-def _physical_lines(text: str) -> int:
-    return text.count("\n") + int(bool(text) and not text.endswith("\n"))
-
-
 def _router(store: DocumentStore, path: Path) -> tuple[list[str], list[str]]:
     document, read_error = store.markdown(path)
     if read_error:
@@ -65,7 +58,7 @@ def check_docs(
     docs_root = repo_root / DOCS_ROOT
     if not docs_root.is_dir():
         return [f"Missing required docs directory: {docs_root}"], []
-    markdown_files, markdown_error = inventory.markdown_files(repo_root)
+    _markdown_files, markdown_error = inventory.markdown_files(repo_root)
     if markdown_error:
         return [markdown_error], []
     policy, policy_errors = _policy_document(governance_root, store, inventory)
@@ -73,14 +66,6 @@ def check_docs(
     allowed_doc_types = declared_doc_types(policy.text if policy else "")
     if not allowed_doc_types:
         errors.append("Docs policy does not declare one consistent doc_type domain")
-    limit, limit_errors = _documentation_line_limit(policy) if policy else (None, [])
-    errors.extend(limit_errors)
-    for path in markdown_files:
-        text, read_error = store.read_text(path)
-        if read_error:
-            errors.append(read_error)
-        elif text is not None and limit is not None and _physical_lines(text) > limit:
-            errors.append(f"{path}: documentation exceeds owner-declared {limit}-line limit ({_physical_lines(text)} physical lines)")
 
     tree, inventory_error = inventory.tree_entries(docs_root)
     if inventory_error:

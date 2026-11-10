@@ -1,165 +1,103 @@
 # Orchestration - Agent Lifecycle and Finite Workflow
 
-## Authority and precedence
+## Authority
 
-This file is the single source of truth for agent roles, delegation, planning, council separation, execution, review, correction, and terminal decisions in repositories governed by `AGENTS.md`.
+- This file is the single owner of agent roles, delegation, planning, council separation, execution, review, correction, and terminal decisions in repositories governed by `AGENTS.md`. Support docs, manifests, prompts, and project docs route to it and never redefine it; no role may create a parallel workflow, role taxonomy, plan authority, review loop, or terminal state.
+- `AGENTS.md` owns the Fundamental Principles and wins any conflict; when a task cannot satisfy both files, Main decides `STOP`.
+- Every dispatch carries the complete controlling user intent, the bounded role, and the assignment.
 
-- `AGENTS.md` owns the Fundamental Principles, constitution, hard gates, and conflict precedence. This lifecycle operates within that authority.
-- This file owns the complete agent lifecycle and workflow. Support docs, manifests, prompts, and project docs may route to it but must not redefine it.
-- Foundation membership resolves only through `AGENTS.md` Mandatory Foundations. This file owns its role-specific loading and application contract below; every dispatch preserves complete controlling user intent and the bounded role and assignment.
-- If this file conflicts with `AGENTS.md`, `AGENTS.md` wins. If a task cannot satisfy both, Main decides `STOP`.
+## Foundations
 
-## Foundation loading and application
+- Before role work or dispatch, Main and every task parent MUST fully read the foundations declared in `AGENTS.md` Mandatory Foundations, in declaration order, and apply their relevant obligations. A profile match, fallback, summary, or read acknowledgment never replaces a read or proves application.
+- Each parent keeps the resolved source identities and full-read evidence, and uses the authority-application witness owned by `docs/agents/governance/evidence/evidence.md` for decision-critical work and acceptance; a non-applicability claim names its scoped basis. Main stays accountable across phases, and each task parent for its assignment and explorer integration.
+- A parent passes owner-derived obligations to its source-isolated leaves without forbidden source payloads; applying a foundation never widens a leaf's read permission. Missing domain authority is retrieved through the explorer that owns that source jurisdiction and reconciled by the parent before dependent work or acceptance.
+- After context loss, an owner change, or a change to this loading contract, the affected parent re-establishes complete current foundation evidence before resuming, accepting results, or dispatching; a full read is reused only while its complete evidence is still available, a summary never replaces a missing read, and a re-read after a contract change is prospective evidence only.
+- A missing, invalid, conflicting, or inaccessible required foundation blocks dependent work: name the exact source and the correction needed, ask the user for text only when repository access cannot supply it, and return `HOLD`.
 
-Before role work or dispatch, Main and every task parent must fully read the current AGENTS-declared foundations in declaration order and apply their relevant obligations. Main remains accountable across phases; task parents remain accountable for their assigned work and explorer integration. A profile match, fallback, summary, or read acknowledgment cannot replace these reads or prove application.
+## Main
 
-Each parent must retain current resolved source identities and full-read evidence, and use the authority-application witness owned by `docs/agents/governance/evidence/evidence.md` for decision-critical work and acceptance. Evidence must connect the applicable owner to the decision and verification; any non-applicability claim must identify its scoped basis. Main assesses these concise witnesses through its existing first-principles challenge before accepting a phase result.
-
-Task parents must supply relevant owner-derived obligations to source-isolated leaves without sending forbidden source payloads. Missing applicable domain authority must be retrieved through the explorer that owns its source jurisdiction and reconciled by the parent before dependent work or acceptance. Governance explorers read governance only; Code and Remaining Sources explorers keep their declared boundaries. Mandatory foundation application does not expand a leaf's read permissions.
-
-After context loss or an owner change, affected parents must re-establish complete current foundation-source evidence before resuming, accepting results, or dispatching. Current same-identity full reads may be reused only while their complete evidence remains available; summaries cannot replace missing source reads. When this loading contract changes during execution, Main must complete the updated foundation reads before accepting execution or dispatching final review; that transition provides prospective evidence only.
-
-Missing, invalid, conflicting, or inaccessible required foundation sources block dependent work. Identify the exact source and correction needed; request inaccessible text from the user only when repository access cannot supply it. Task agents return `HOLD` and Main decides `STOP` through the existing terminal contract.
-
-## Main boundary
-
-Main is the user's single communication and decision hub. It:
+Main is the user's single communication and decision hub and represents the user in every phase. It:
 
 - preserves the complete controlling user intent without dropping binding details;
 - challenges scope drift, unsupported conclusions, incomplete evidence, and role-boundary violations;
-- dispatches top-level task agents and bounded clarification helpers; task agents own their explorer children under the delegation contract below;
+- questions every task response from first principles before accepting it: whether it meets the user's actual objective, which assumptions and evidence support it, what omissions, conflicts, or dependencies remain, and whether completion is demonstrated. It asks for concise evidence-based rationale, never hidden reasoning or source dumps, and an unresolved decision-critical gap is never acceptance;
+- dispatches top-level task agents and bounded clarification helpers;
 - tracks the active phase, plan version, agent identity, assignment, status, findings, correction use, and terminal evidence;
-- reads only the AGENTS-declared mandatory foundations, user messages, and concise agent reports;
-- never reads code, task-specific project docs, raw diffs, or hidden reasoning; and
+- reads only the AGENTS-declared foundations, user messages, and concise agent reports, never code, task-specific project docs, raw diffs, or hidden reasoning;
+- never discovers the repository, creates or edits the plan, implements, mutates, or reviews, and never reuses a used or completed agent for new work, though it may ask one a bounded clarification about its existing result;
 - alone decides and communicates `DONE` or `STOP`.
 
-Main does not discover the repository, create or edit the plan, implement, mutate, or perform review. It may ask a completed agent a bounded clarification about that agent's existing result, but it must not reuse a used or completed agent for new work.
+## Task agents and explorers
 
-Main acts as the user's representative throughout every phase. Before accepting every task response, it must question the response from first principles: whether it preserves the user's actual objective, which assumptions and evidence support it, what omissions or conflicts remain, how dependencies affect the conclusion, and whether completion is demonstrated. It must request concise evidence-based rationale, not hidden reasoning or underlying source dumps. Unresolved decision-critical gaps cannot be treated as acceptance.
+- The contract declares the task roles. Every task assignment, including critical correction and final verification, spawns exactly one fresh explorer per declared explorer jurisdiction. The task parent owns the children's identities, bounded source assignments, status, findings, and integration, and reports that lineage and sufficient evidence to Main without raw contexts; Main never dispatches or relays explorer assignments.
+- Explorers are fresh, read-only, non-delegating leaves that report only to their task parent and never coordinate with siblings or Main:
+  - Governance Agent: governance sources only, including `agents-manifest.yaml` and routed authorities; no repository code, task-specific project sources, or raw diffs.
+  - Code Explorer: relevant main implementation code and code dependencies; no governance documents or remaining-sources material.
+  - Remaining Sources Explorer: the explicitly bounded relevant sources outside governance and main code, including applicable project documentation, configuration, source artifacts, and verification records.
+- Each child receives the complete binding user intent and constraints (a summary never replaces binding details), its jurisdiction, the question to resolve, and relevant context, never unrelated source payloads or sibling transcripts. The parent partitions source assignments with no overlap and no unassigned relevant source, and keeps the broader task picture.
+- The parent questions and reconciles child findings before concluding: evidence, constraints, dependencies, conflicts, uncertainty, and missing coverage survive integration. Dissent stays attributed to its child with an explicit disposition and evidence, never presented as consensus, and cross-jurisdiction questions pass through the parent.
+- An empty jurisdiction still gets its explorer, which returns `SKIPPED + reason` with evidence of the empty scope and never switches jurisdiction. A missing required source or an unresolved material conflict returns explicit findings or `HOLD`, never a guess.
+- Task agents read only the sources their task requires. The explorers of a planning or execution parent cannot approve that parent's work; independent review uses fresh task agents with fresh explorers.
+- Self-performed exploration (`AGENTS.md` FP-07): only when no authorized interface can spawn child agents that report back to it, the accountable task agent performs each explorer jurisdiction itself as a separate read-only pass within that jurisdiction's source boundary and disjoint source assignment, keeps each pass's sources, findings, and dissent attributed to that jurisdiction, and reports the unavailability evidence and the reduced context isolation; explorer duties apply to those passes.
+- A Clarification Agent is read-only and non-delegating. Main uses one only for a bounded question about already supplied evidence or an existing agent result; it never begins source investigation, bypasses a task agent's explorers, expands scope, revises the plan, authorizes a mutation, reassigns a completed agent, or continues a stopped workflow.
 
-Main applies `AGENTS.md` User Prompt Intake and Durable Project Truth through the serial intake contract below; its role boundary and constitutional precedence remain controlling.
+## Workflow
 
-## Task agents and focused exploration
-
-The checker-readable contract declares the task roles. Every task assignment, including critical correction and final verification, must spawn exactly one fresh explorer for each declared explorer jurisdiction. The task parent owns child identities, bounded source assignments, status, findings, and integration; it reports that lineage and sufficient evidence to Main for oversight without raw contexts. Main must not dispatch or relay explorer assignments for a parent.
-
-Self-performed exploration (`AGENTS.md` FP-21): only when no authorized interface can spawn child agents that report back to it, the accountable task agent performs each explorer jurisdiction itself as a separate read-only pass within that jurisdiction's source boundary and disjoint source assignment, keeps each pass's sources, findings, and dissent attributed to that jurisdiction, and reports the unavailability evidence and reduced context isolation; explorer duties then apply to those passes.
-
-Context separation protects each explorer's understanding and decisions from unrelated material. Each child receives the complete binding user intent and constraints (summaries must not replace binding user details), its jurisdiction, the question to resolve, and relevant context; unrelated source payloads and sibling transcripts must not be included. The parent partitions source assignments without overlap or unassigned relevant sources and retains the broader task picture.
-
-The parent must question and reconcile child findings before returning its accountable conclusion: evidence, applicable constraints, dependencies, conflicts, uncertainty, and missing coverage must survive integration. Dissent must remain attributed to its child with an explicit disposition and supporting evidence; unresolved dissent must not be presented as consensus. Cross-jurisdiction questions pass through the parent. An empty jurisdiction still receives its explorer, which returns `SKIPPED + reason` with evidence of the empty scope; it must not switch jurisdictions. Missing required sources or unresolved material conflicts return explicit findings or `HOLD`, never guessed conclusions.
-
-Explorers are fresh, read-only, and non-delegating leaves. They report only to their immediate task parent and cannot coordinate directly with siblings or Main. Their scope is:
-
-- Governance Agent: governance sources only, including `agents-manifest.yaml` and routed authorities; no repository code, task-specific project sources, or raw diffs.
-- Code Explorer: relevant main implementation code and code dependencies; no governance documents or sources assigned to the remaining-sources jurisdiction.
-- Remaining Sources Explorer: the explicitly bounded relevant source set outside governance and main code, including applicable project documentation, configuration, source artifacts, and verification records.
-
-Task agents integrate these reports and read only the sources their task requires. Exploration reports support task decisions; planning or execution explorers cannot approve their own parent's work. Independent review uses fresh task agents and fresh explorer children.
-
-## Role contracts
-
-### Planning Agent
-
-The Planning Agent is read-only and uses the focused-exploration contract. It receives the complete controlling intent and produces one stable ephemeral YAML plan per lifecycle instance. It must not mutate the repository or create a tracked plan artifact.
-
-The plan must be one YAML mapping in the planning report, with all fields declared once in `plan.required_fields` in the checker-readable contract. Its values must preserve complete intent, objective acceptance, explicit side effects, disjoint execution assignments, dependencies and risks, deterministic verification, terminal evidence, and the constitutional authority-application witness. Required fields must carry meaningful task-specific values; an empty applicable obligation is a plan failure.
-
-If a plan file is requested or needed, serialize that same mapping as a `.yaml` file at an explicitly chosen temporary location outside the repository. The plan remains ephemeral and untracked; do not create a tracked plan or a parallel Markdown plan. The owner remains this document; the YAML instance is a task control artifact, not another policy authority.
-
-For substantive plans, `prompt_intake` must reference the completed intake dispositions, owner locations, and review witnesses; it must not treat the generated plan as a new user message.
-
-The plan must be specific enough that conforming execution requires no per-file approval. Missing authority, material ambiguity, overlapping mutation ownership, or unverifiable completion is a plan failure, not permission to guess.
-
-### Plan Review Agent
-
-Main dispatches exactly one separate Plan Review Agent after the plan is produced and before confirmation. This agent is read-only and independent, and owns its three focused explorers as the independent council. It checks the candidate plan against the complete controlling intent, internal consistency, authorized scope, assignment disjointness, failure conditions, verification, and terminal criteria, and for silent-failure paths, unhandled edge cases, and resource, security, and performance risks (the review intents). It integrates the source-separated council dispositions and reports findings to Main; it cannot edit the plan or invent scope.
-
-### Clarification Agent
-
-A Clarification Agent is read-only and non-delegating. Main may use one only for a bounded question about already supplied evidence or an existing agent result. It cannot begin source investigation, bypass a task agent's explorer trio, expand scope, revise the plan, authorize a mutation, reassign completed agents, or continue a stopped workflow.
-
-### Execution Agents
-
-Execution Agents are the only agents permitted to mutate. Each Execution Agent must be fresh, explicitly dispatched after the Main and user confirmation gate is satisfied, assigned a disjoint portion of the confirmed plan, and use the focused-exploration contract. An Execution Agent:
-
-- reads only what its confirmed assignment and governing constraints require;
-- performs only the authorized mutations and side effects in that assignment;
-- preserves unrelated and concurrent work;
-- runs the assignment's confirmed verification; and
-- returns a concise result with changed surfaces, side effects, evidence, residual risks, and any `HOLD`.
-
-Conforming work within the confirmed assignment needs no per-file approval. If the assignment is impossible, unsafe, conflicting, or cannot meet its acceptance evidence, or the same failure recurs with the same root cause after one correction, or verification contradicts a claimed result, the agent returns exactly one concise terminal `HOLD` with the reason and required action. It must not negotiate, loop, broaden scope, or attempt substitute execution.
-
-### Review Agents
-
-Review Agents are fresh, independent, read-only task agents with their own fresh explorer trio. After execution freezes, they compare the resulting changes and evidence only against the confirmed plan and preserved user intent, under the same review intents. They cannot edit, invent new scope, impose new preferences, or convert optional improvement into a blocker.
-
-A Review Agent classifies a finding as either plan conformance, a critical finding within the allowed correction classes, or non-blocking/out of scope. It reports to Main only.
-
-## Finite workflow
-
-The normal path is plan, principle review, Main/user confirmation, execution, final review, then Main's terminal decision. Each bounded intake instance uses these existing phases serially before the affected parent continuation.
+The path is intake, plan, principle review, confirmation, execution, final review, and Main's terminal decision. Each intake instance uses the same phases serially before the affected parent continues.
 
 ### User-message intake
 
-On receipt of an actual user message affecting authorized repository work, Main must suspend affected work and open one fresh intake instance under `AGENTS.md` User Prompt Intake and Durable Project Truth. Generated agent plans, reports, summaries, and artifacts do not trigger intake. A further user message is processed serially before affected work resumes; no concurrent intake or parent mutation is permitted.
-
-Before dispatch, Main must retain the message identity, intake-instance identity, and parent continuation: phase, plan identity/version, authorization witness, completed evidence, and exact resume target. For an initial request, absent parent values must be explicitly marked initial and the resume target is substantive PLAN. This record is ephemeral task control evidence, not project truth.
-
-The fresh Planning Agent and its explorer trio retrieve only intake-relevant authorities and records, classify each prompt item, and produce an intake-only plan whose `prompt_intake` field identifies message and instance, item-to-owner routes, proposed dispositions, admission/supersession basis, required doc changes, existing-content or exclusion witnesses, and the parent continuation. Independent Plan Review and its fresh trio verify this evidence before Main accepts any disposition or authorizes a write; all affected substantive work stays suspended until intake resolution.
-
-`OWNER_UPDATED` additionally requires the confirmation gate, a fresh Execution Agent with its trio that persists only admitted owner changes, verifies them, and returns owner locations and evidence, and a frozen-result Review Agent with its trio; the disposition is final only after that review. `OWNER_CURRENT` and `EXCLUDED` end at Plan Review with no write. An intake finishes only when every item has its required evidence; missing authorization or evidence is HOLD.
-
-Successful intake returns its item dispositions and witnesses to the saved continuation: initial requests start substantive work, and compatible steering resumes the same parent phase with its plan and evidence preserved. Intake completion is not completion of the user task; the root task reaches DONE only after substantive acceptance and final review. A HOLD or failed intake blocks dependent work and uses Main's STOP handling; incompatible replacement or invalidated confirmed scope uses the existing terminal/new-workflow path.
-
-After context loss, Main and affected parents must re-establish the current foundations, controlling messages, verified owner locations, item dispositions, and parent continuation before dependent work resumes. Missing continuation or intake evidence is HOLD; summaries or assumed prior capture cannot release the barrier.
+- A user message that affects authorized repository work makes Main suspend the affected work and open one fresh intake instance under `AGENTS.md` User Prompt Intake and Durable Project Truth. Agent-generated plans, reports, summaries, and artifacts never trigger intake. Messages are processed serially: no concurrent intake and no parent mutation meanwhile.
+- Before dispatch, Main records the message identity, the intake-instance identity, and the parent continuation: phase, plan identity and version, authorization witness, completed evidence, and exact resume target. An initial request marks absent parent values as initial and resumes at substantive PLAN. This record is ephemeral task control evidence, not project truth.
+- A fresh Planning Agent retrieves only intake-relevant authorities and records, classifies each prompt item, and returns an intake-only plan whose `prompt_intake` field names the message and instance, item-to-owner routes, proposed dispositions, admission or supersession basis, required doc changes, existing-content or exclusion witnesses, and the parent continuation. An independent Plan Review Agent verifies that evidence before Main accepts any disposition or authorizes a write; affected substantive work stays suspended until intake resolves.
+- `OWNER_UPDATED` also needs the confirmation gate, a fresh Execution Agent that persists only the admitted owner changes, verifies them, and returns owner locations and evidence, and a frozen-result Review Agent; it is final only after that review. `OWNER_CURRENT` and `EXCLUDED` end at plan review with no write. An intake finishes only when every item has its required evidence; missing authorization or evidence is `HOLD`.
+- Successful intake returns its dispositions and witnesses to the saved continuation: an initial request starts substantive work, and compatible steering resumes the same parent phase with its plan and evidence preserved. Intake completion is not task completion; the root task reaches `DONE` only after substantive acceptance and final review. A `HOLD` or failed intake blocks dependent work and goes to Main's `STOP` handling; an incompatible replacement or invalidated confirmed scope ends the parent, and a new workflow starts.
+- After context loss, Main and the affected parents re-establish the current foundations, controlling messages, verified owner locations, item dispositions, and parent continuation before dependent work resumes. Missing continuation or intake evidence is `HOLD`; a summary or assumed prior capture never releases the barrier.
 
 ### Plan
 
-Main dispatches one Planning Agent, which coordinates its explorer trio and returns the YAML plan. The plan remains untracked and ephemeral. A plan that cannot resolve scope, authority, assignments, verification, or terminal criteria leads to `STOP`.
+- Main dispatches one read-only Planning Agent, which receives the complete controlling intent and returns one stable plan per lifecycle instance: one YAML mapping in its report carrying every field in `plan.required_fields` of the contract.
+- The plan preserves complete intent, objective acceptance, explicit side effects, disjoint execution assignments, dependencies and risks, deterministic verification, terminal evidence, and the constitutional authority-application witness. Every required field carries a meaningful task-specific value, and the plan is specific enough that conforming execution needs no per-file approval. For a substantive plan, `prompt_intake` references the completed intake dispositions, owner locations, and review witnesses; a generated plan is never a new user message.
+- The plan stays ephemeral and untracked: the Planning Agent never mutates the repository, and never creates a tracked plan or a parallel Markdown plan. When a file is needed, the same mapping is saved as a `.yaml` file at a chosen temporary location outside the repository. It is a task control artifact, not a policy authority.
+- Missing authority, material ambiguity, overlapping mutation ownership, an empty applicable field, or unverifiable completion is a plan failure, never permission to guess. A plan that cannot resolve scope, authority, assignments, verification, or terminal criteria leads to `STOP`.
 
 ### Principle review
 
-Main dispatches exactly one separate Plan Review Agent, which owns its source-separated explorer council and integrates their independent dispositions. Main questions that consolidated response without inspecting underlying sources.
+- Main dispatches exactly one separate, read-only, independent Plan Review Agent after the plan and before confirmation; its three explorers are the independent council.
+- It checks the candidate plan against the complete controlling intent, internal consistency, authorized scope, assignment disjointness, failure conditions, verification, and terminal criteria, and for silent-failure paths, unhandled edge cases, and resource, security, and performance risks (the review intents). It integrates the source-separated council dispositions and reports findings to Main; it cannot edit the plan or invent scope.
+- Main questions that consolidated response without inspecting underlying sources and may obtain a bounded clarification of an existing report. A material unresolved objection leads to `STOP`; there is no review and replan loop.
 
-Material unresolved objections lead to `STOP`. Review agents do not revise the plan. Main may obtain bounded clarification of an existing report, but there is no review/replan loop.
+### Confirmation
 
-### Main and user confirmation
-
-Main presents the stable plan and material review dispositions to the user and records the authorization witness under `AGENTS.md` FP-30. Existing explicit authorization in the active workflow satisfies this gate when the reviewed scope and side effects remain within it; duplicate confirmation is prohibited. If the reviewed plan requires an action outside that authorization, Main must obtain explicit confirmation before that action. User silence is never authorization. Rejection or missing required authorization ends this instance as `STOP`; message changes follow User-message intake, with incompatible replacement or invalidated confirmed scope ending the parent before a separate workflow.
+- Main presents the stable plan and the material review dispositions to the user and records the authorization witness under `AGENTS.md` FP-12. Explicit authorization already given in the active workflow satisfies this gate while the reviewed scope and side effects stay within it, and duplicate confirmation is prohibited. An action outside that authorization needs explicit confirmation first; user silence is never authorization.
+- Rejection or missing required authorization ends the instance as `STOP`. Message changes follow user-message intake.
 
 ### Execute
 
-Main dispatches only fresh Execution Agents with disjoint confirmed assignments. Main tracks results without reading raw diffs. An Execution Agent `HOLD`, assignment overlap, unauthorized mutation, or failed required evidence leads to `STOP`.
+- Only Execution Agents mutate. Each is fresh, dispatched only after confirmation, and assigned a disjoint portion of the confirmed plan.
+- An Execution Agent reads only what its assignment and governing constraints require, performs only the authorized mutations and side effects, preserves unrelated and concurrent work, runs the assignment's confirmed verification, and returns a concise result: changed surfaces, side effects, evidence, residual risks, and any `HOLD`. Conforming work needs no per-file approval.
+- When the assignment is impossible, unsafe, conflicting, or cannot meet its acceptance evidence, when the same failure recurs with the same root cause after one correction, or when verification contradicts a claimed result, the agent returns exactly one concise terminal `HOLD` with the reason and required action. It never negotiates, loops, broadens scope, or attempts substitute execution.
+- Main tracks results without reading raw diffs. An Execution Agent `HOLD`, assignment overlap, unauthorized mutation, or failed required evidence leads to `STOP`.
 
 ### Final review
 
-After all execution assignments finish, mutations freeze. Main dispatches fresh independent Review Agent(s) to compare the frozen result only with the confirmed plan and intent. A conforming result proceeds to `DONE`. A noncritical discrepancy or any change that would broaden scope proceeds to `STOP`.
+- After all execution assignments finish, mutations freeze and Main dispatches fresh, independent, read-only Review Agents.
+- They compare the frozen changes and evidence only against the confirmed plan and preserved user intent, under the review intents, and report to Main only. They cannot edit, invent scope, impose preferences, or turn an optional improvement into a blocker.
+- Each finding is classed as plan conformance, a critical finding within the allowed correction classes, or non-blocking or out of scope. A conforming result proceeds to `DONE`; a noncritical discrepancy or any change that would broaden scope proceeds to `STOP`.
 
 ### Critical correction and final verification
 
-Main may authorize this branch exactly once, only for a Review Agent finding in one of the five contract-declared critical classes. The correction must be narrow, preserve the confirmed intent and authorized side effects, and use a fresh Execution Agent with an explicit correction assignment.
-
-After that correction, Main dispatches one fresh Review Agent for one final verification limited to the correction and confirmed plan. That verification leads directly to `DONE` or `STOP`. A second correction is prohibited. Any additional defect, failed verification, missing authority, or need to expand scope leads to `STOP`.
+- Main may authorize this branch exactly once, only for a Review Agent finding in one of the contract-declared critical classes. The correction is narrow, preserves the confirmed intent and authorized side effects, and uses a fresh Execution Agent with an explicit correction assignment.
+- One fresh Review Agent then verifies only the correction against the confirmed plan, leading directly to `DONE` or `STOP`. A second correction is prohibited; any further defect, failed verification, missing authority, or need to expand scope leads to `STOP`.
 
 ### Terminal decisions
 
-`DONE` means Main has confirmed that the plan's acceptance criteria, authorized mutations, required verification, and final review evidence are complete.
-
-`STOP` means the workflow ended without completion. It is terminal and never triggers retry, repair, replan, correction beyond the single allowed branch, or new agents. A later user request after STOP begins a new workflow; compatible steering of an active parent follows User-message intake.
-
-## Durable truth and simplicity
-
-- Durable capture and ephemeral-record boundaries follow `AGENTS.md` User Prompt Intake and Durable Project Truth and the documentation jurisdiction.
-- Every assignment must use the simplest complete owner-aligned change. Patch the highest owning authority and prune duplicate, shadow, obsolete, fallback, or wrong-owner surfaces in scope.
-- No role may create a parallel workflow, role taxonomy, plan authority, review loop, or terminal-state mechanism.
+- `DONE`: Main has confirmed that the plan's acceptance criteria, authorized mutations, required verification, and final review evidence are complete.
+- `STOP`: the workflow ended without completion. It is terminal and never triggers retry, repair, replan, correction beyond the single allowed branch, or new agents. A later user request starts a new workflow; compatible steering of an active parent follows user-message intake.
 
 ## Checker-readable contract
 
-The following block is the sole machine-readable projection of this file's narrative contract.
-
-`state_roles` lists Main-dispatched phase participants only; explorer descendants derive from `delegation`. Structural validation checks declaration shape, outcome partitions, and role/state/plan-field links only. Contract changes apply prospectively: an accepted in-flight plan retains its originating contract, authorization, and evidence, and future plans use the current contract. The transition graph governs substantive instances; `message_intake.return_after` returns successful intake items after their required phase and `failure_terminal` routes intake failure to Main; neither declares root DONE.
+The block below is the sole machine-readable projection of this file. `state_roles` lists Main-dispatched phase participants only; explorer descendants derive from `delegation`. Structural validation checks declaration shape, outcome partitions, and role, state, and plan-field links only. Contract changes apply prospectively: an accepted in-flight plan keeps its originating contract, authorization, and evidence. The transition graph governs substantive instances; `message_intake.return_after` returns successful intake items after their required phase and `failure_terminal` routes intake failure to Main; neither declares root `DONE`.
 
 ```orchestration-contract
 {

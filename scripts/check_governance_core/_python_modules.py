@@ -31,11 +31,15 @@ def _import_statements(tree: ast.Module) -> tuple[ast.Import | ast.ImportFrom, .
     return tuple(found)
 
 
-def parse_python(text: str, filename: str) -> tuple[PythonModule | None, SyntaxError | None]:
-    """Parse one decoded Python source and index its import statements, or return the syntax error."""
+def parse_python(source: bytes, filename: str) -> tuple[PythonModule | None, SyntaxError | None]:
+    """Parse one raw Python source and index its import statements, or return the syntax error.
+
+    The interpreter's own decoding applies (PEP 263 cookie, BOM, universal newlines), so an
+    undecodable source or invalid cookie is a syntax error, as when the module is imported.
+    """
 
     try:
-        tree = ast.parse(text, filename=filename)
+        tree = ast.parse(source, filename=filename)
     except SyntaxError as exc:
         return None, exc
     return PythonModule(tree, _import_statements(tree)), None

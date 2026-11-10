@@ -1,3 +1,3 @@
 # Logging Branch Index
 
-- [logging.md](logging.md) - Logging channels, error taxonomy, catching policy, silent-failure rules. Required when: changing logging or error handling.
+- [logging.md](logging.md) - Logging outcomes, print prohibition, silent-failure rule. Required when: changing logging or error handling.

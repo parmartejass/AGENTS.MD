@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import ast
 import tempfile
+from collections import Counter
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -113,16 +114,21 @@ class SharedPythonParseTests(unittest.TestCase):
         )
         files, inventory_error = RepositoryInventory(REPOSITORY_ROOT).python_files(REPOSITORY_ROOT)
         self.assertIsNone(inventory_error)
-        sources = {"nested": nested, **{
-            path.relative_to(REPOSITORY_ROOT).as_posix(): path.read_text(encoding="utf-8") for path in files
-        }}
+        self.assertEqual(len(files), len({path.resolve() for path in files}), files)
         store = DocumentStore()
-        for name, text in sources.items():
-            with self.subTest(source=name):
-                module, error = store.python_module(REPOSITORY_ROOT / name, text)
-                self.assertIsNone(error)
-                expected = [node for node in ast.walk(module.tree) if isinstance(node, (ast.Import, ast.ImportFrom))]
-                self.assertEqual(expected, list(module.imports))
+        with tempfile.TemporaryDirectory() as temp:
+            nested_path = Path(temp) / "nested.py"
+            _write(nested_path, nested)
+            sources = [("nested", nested_path), *((path.relative_to(REPOSITORY_ROOT).as_posix(), path) for path in files)]
+            self.assertEqual(len(files) + 1, len(sources))
+            labels = [label for label, _path in sources]
+            self.assertEqual(len(labels), len(set(labels)), labels)
+            for label, path in sources:
+                with self.subTest(source=label):
+                    module, error = store.python_module(path)
+                    self.assertIsNone(error)
+                    expected = [node for node in ast.walk(module.tree) if isinstance(node, (ast.Import, ast.ImportFrom))]
+                    self.assertEqual(expected, list(module.imports))
 
     def test_full_run_parses_each_python_source_once(self) -> None:
         parsed: list[str] = []
@@ -137,8 +143,12 @@ class SharedPythonParseTests(unittest.TestCase):
         # Both parse consumers must run; their pass/fail status belongs to other tests (deletion-safe).
         ran = {record["id"] for record in result.get("checks", [])}
         self.assertLessEqual({"folder_architecture", "python_safety"}, ran, result)
-        self.assertTrue(parsed)
-        self.assertEqual(len(parsed), len(set(parsed)), sorted(parsed))
+        files, inventory_error = RepositoryInventory(REPOSITORY_ROOT).python_files(REPOSITORY_ROOT)
+        self.assertIsNone(inventory_error)
+        counts = Counter(Path(name).resolve() for name in parsed)
+        self.assertTrue(counts)
+        self.assertEqual({1}, set(counts.values()), counts)
+        self.assertLessEqual(set(counts), {path.resolve() for path in files})
 
 
 if __name__ == "__main__":

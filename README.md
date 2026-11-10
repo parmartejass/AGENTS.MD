@@ -17,7 +17,6 @@ Start with `AGENTS.md` Mandatory Foundations and follow `Orchestration.md` for l
 ## Project docs (this repo)
 
 - Entry point: `docs/project/project_index.md` (goal, rules, architecture, data-truth, changelog, learning); durable intent: `docs/project/goal/goal.md`.
-- Material knowledge, uncertain observations, attributed agent decisions, and prompt-originated records resolve through `docs/agents/governance/documentation/documentation.md` Admission to their declared owners.
 
 ## Repo-owned agent assets
 
@@ -69,7 +68,7 @@ Loader body for both `AGENTS.md` (required) and `CLAUDE.md` (required for Claude
 If `.governance/` is missing or empty, run `git submodule update --init --recursive`.
 ```
 
-Governance-root declarations resolve inside `.governance/`; project docs stay under `docs/project/` at the project root (do not copy `docs/agents` there). Edits to `.governance/` are committed in the pack repo (`AGENTS.md` Submodule Workflow Rules); the parent then updates only the pointer:
+Governance-root declarations resolve inside `.governance/`; project docs stay under `docs/project/` at the project root (do not copy `docs/agents` there). Edits to `.governance/` are committed in the pack repo (`AGENTS.md` Vendored use); the parent then updates only the pointer:
 
 ```powershell
 git -C .governance pull --ff-only origin main   # update the pack
@@ -78,14 +77,12 @@ git clone --recurse-submodules <repo-url>       # clone with the pack
 git submodule update --init --recursive         # initialize after a plain clone
 ```
 
-Setup commands are examples; repository mutations stay within the authorization resolved through `AGENTS.md` and `Orchestration.md`.
-
 ## Checks
 
-Python 3.11+. Commands use `python3`; use `python` when that is the verified executable name (command normalization, not a retry through another runtime). Run with `-B` and process-local `PYTHONDONTWRITEBYTECODE=1` so child Python processes preserve existing bytecode.
+Python 3.11+. Checks MUST leave no bytecode or other files in the tree.
 
 This repo (run from the repository root, which is the governance root and the package import root):
-- Docs SSOT checks (all repository Markdown line counts; scoped docs headers/routers): `python3 -B -m scripts.check_governance_core --only-docs-ssot --repo-root . --governance-root .`
+- Docs SSOT checks (repository Markdown inventory and aliases; scoped docs headers/routers): `python3 -B -m scripts.check_governance_core --only-docs-ssot --repo-root . --governance-root .`
   - Docs-policy regression tests: `python3 -B -m unittest scripts.check_governance_core.test_docs_policy -v`
   - Docs-policy timing witness: `python3 -B -m unittest scripts.check_governance_core.test_docs_timing -v`
 - Project docs checks (required files + README linkage): `python3 -B -m scripts.check_governance_core --only-project-docs --repo-root . --governance-root .`
@@ -95,7 +92,6 @@ This repo (run from the repository root, which is the governance root and the pa
   - Launcher and README-reference regression tests: `python3 -B -m unittest scripts.check_governance_core.test_main -v`
   - Core governance regression tests: `python3 -B -m unittest discover -s scripts/check_governance_core -p "test*.py" -v`
   - Strict safety mode: `python3 -B -m scripts.check_governance_core --fail-on-safety-warnings`
-  - Docs handler profiling: `python3 -B -m cProfile -s cumulative -m scripts.check_governance_core --only-docs-ssot --repo-root . --governance-root .` (profiling overhead is separate from runtime timing).
 - X workspace regression tests (non-owner workspace, `SSOT-DEC-001`): `python3 -B -m unittest discover -s "X-Bookmarks Import/skills/governance-autoresearch/scripts" -p "test*.py" -v` and `python3 -B -m unittest discover -s "X-Bookmarks Import/skills/x-research/scripts" -p "test*.py" -v`
 
 Target repo (submodule under `.governance/`; run from the `.governance/` directory so the governance root is the package import root):
@@ -105,7 +101,7 @@ Target repo (submodule under `.governance/`; run from the `.governance/` directo
   - Strict safety mode: `python3 -B -m scripts.check_governance_core --repo-root .. --fail-on-safety-warnings`
 - Packaged-folder enforcement reads the pack's root markers from `.governance/docs/project/architecture/architecture.md` and the target repo's own roots, root launchers, and exceptions from its `docs/project/architecture/architecture.md` (none when the target keeps no Python outside `.governance/`); the enforced and unclaimed witnesses are recorded in the pack's architecture record, Modularity witness boundary.
 
-When a repository `SKILL.md` changes, resolve the installed `skill-creator` bundle and run its format validator: `python3 -B "<resolved-skill-creator>/scripts/quick_validate.py" "<changed-skill-folder>"`; the paths are explicit workflow inputs, a format pass is not owner/semantic review, and the skill's operational workflow is not executed.
+A changed `SKILL.md` MUST pass its platform's format validation; a format pass is not owner review.
 
 ## Governance-core programmatic API
 

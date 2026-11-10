@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import ast
-import tokenize
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -170,18 +169,12 @@ def _file_open(node: ast.Call) -> bool:
 
 
 def _scan(path: Path, reviewed_popen_paths: frozenset[Path], store: DocumentStore) -> list[SafetyIssue]:
-    # tokenize.open keeps the source-encoding contract (PEP 263 cookie, BOM); the run store
-    # shares the parsed tree with the folder-architecture witnesses when the decoded text matches.
-    try:
-        with tokenize.open(path) as handle:
-            text = handle.read()
-        module, syntax_error = store.python_module(path, text)
-    except (OSError, UnicodeDecodeError) as exc:
-        return [SafetyIssue(path, 1, 1, "ERROR", "READ_FAILED", str(exc))]
-    except SyntaxError as exc:  # an invalid encoding cookie fails while opening
-        syntax_error = exc
-    if syntax_error is not None:
-        return [SafetyIssue(path, syntax_error.lineno or 1, syntax_error.offset or 1, "ERROR", "SYNTAX_ERROR", syntax_error.msg)]
+    # The run store shares one parsed tree per file with the folder-architecture witnesses.
+    module, error = store.python_module(path)
+    if isinstance(error, SyntaxError):
+        return [SafetyIssue(path, error.lineno or 1, error.offset or 1, "ERROR", "SYNTAX_ERROR", error.msg)]
+    if error is not None:
+        return [SafetyIssue(path, 1, 1, "ERROR", "READ_FAILED", str(error))]
     assert module is not None
     modules, functions = _subprocess_aliases(module.imports)
     visitor = _Visitor(path, modules, functions, reviewed_popen_paths)
