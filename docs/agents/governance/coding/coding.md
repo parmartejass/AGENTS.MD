@@ -27,7 +27,7 @@ baseline:
 
 - A language absent from this table MUST declare its native packaged-folder mechanism and witness in the project architecture record before use; adopting it in the governance source adds a row here.
 - A declared source root is a code-free directory directly below its import base (the directory `python -m <root>.<package>` runs from) that only contains packaged folders; it exposes no public entrypoint and is declared by the project architecture record.
-- A root launcher, a code file directly in a repository root outside every declared source root, is a custom entry-file exception: it MUST only delegate to one packaged folder's public entry, launch adaptation stays an FP-21 adapter, and it is permitted only when the project architecture record declares it with `<!-- governance-core-root-launcher: <file> -->` beside the user decision and its re-evaluation trigger; the folder-architecture check accepts exactly the declared Python files and reports each one as a re-evaluation warning.
+- A root launcher, a code file directly in a repository root outside every declared source root, is a custom entry-file exception: it MUST only delegate to one packaged folder's public entry, launch adaptation stays an FP-07 adapter, and it is permitted only when the project architecture record declares it with `<!-- governance-core-root-launcher: <file> -->` beside the user decision and its re-evaluation trigger; the folder-architecture check accepts exactly the declared Python files and reports each one as a re-evaluation warning.
 
 ## Code-size review
 

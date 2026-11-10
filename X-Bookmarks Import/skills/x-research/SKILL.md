@@ -35,7 +35,7 @@ Illustrative command with explicit lookback, language, output and result choices
 python3 "X-Bookmarks Import/skills/x-research/scripts/x_search.py" "AI agents" --days=3 --lang=en --no-retweets --emit=json --limit=50
 ```
 
-The topic is an X query. Operators and availability MUST be verified against the canonical X API authority under `AGENTS.md` FP-18 and FP-27; this skill maintains no operator-capability table.
+The topic is an X query. Operators and availability MUST be verified against the canonical X API authority under `AGENTS.md` FP-08 and FP-11; this skill maintains no operator-capability table.
 
 ## Outputs and evidence
 
@@ -47,4 +47,4 @@ Preserve query scope, source URLs, and retrieval time when reporting findings. R
 
 ## Verification
 
-Use root README Checks and its skill-format validation route when this file changes. Verify command guidance against `scripts/x_search.py`; external API availability requires separate operational evidence under `AGENTS.md` FP-23 and FP-33.
+Use root README Checks and its skill-format validation route when this file changes. Verify command guidance against `scripts/x_search.py`; external API availability requires separate operational evidence under `AGENTS.md` FP-11 and FP-13.

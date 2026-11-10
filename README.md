@@ -68,7 +68,7 @@ Loader body for both `AGENTS.md` (required) and `CLAUDE.md` (required for Claude
 If `.governance/` is missing or empty, run `git submodule update --init --recursive`.
 ```
 
-Governance-root declarations resolve inside `.governance/`; project docs stay under `docs/project/` at the project root (do not copy `docs/agents` there). Edits to `.governance/` are committed in the pack repo (`AGENTS.md` Submodule Workflow Rules); the parent then updates only the pointer:
+Governance-root declarations resolve inside `.governance/`; project docs stay under `docs/project/` at the project root (do not copy `docs/agents` there). Edits to `.governance/` are committed in the pack repo (`AGENTS.md` Vendored use); the parent then updates only the pointer:
 
 ```powershell
 git -C .governance pull --ff-only origin main   # update the pack

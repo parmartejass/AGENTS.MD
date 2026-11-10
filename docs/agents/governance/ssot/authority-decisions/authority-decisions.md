@@ -30,7 +30,7 @@ Jurisdiction: cross-repo governance authority decisions and their migration cont
 
 - Status: active
 - Scope: packaged-folder public entrypoints for runtime code (the language-native package entry) and docs (the folder router), with docs router and public-leaf behavior under `docs/`
-- Canonical owner: packaged-folder contract -> `AGENTS.md` Jurisdictional Decomposition; docs mechanics, code mechanics, and validation -> the owners routed by `docs/agents/governance/ssot/ssot.md`
+- Canonical owner: packaged-folder contract -> `AGENTS.md` Packaged-folder contract; docs mechanics, code mechanics, and validation -> the owners routed by `docs/agents/governance/ssot/ssot.md`
 - Allowed non-owner location: router-linked public leaf docs inside the same docs folder
 - Allowed non-owner location: router-only artifact-first docs folders cataloging only payload children such as JSON, TOML, generated outputs, or dated evidence subfolders
 - Allowed non-owner location: runtime identity contracts such as `SKILL.md` and `mcp.json`, owned by their existing authorities
