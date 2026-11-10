@@ -4,9 +4,7 @@ import json
 import re
 from pathlib import Path
 
-from scripts.check_governance_core._docs_checks import (
-    DOCS_POLICY_PATH, _documentation_line_limit, _required_project_paths,
-)
+from scripts.check_governance_core._docs_checks import DOCS_POLICY_PATH, _required_project_paths
 from scripts.check_governance_core._documents import (
     AGENTS_DOCS_ROOT, CONSTITUTION_PATH, ORCHESTRATION_PATH, DocumentStore, parse_markdown, router_filename,
 )
@@ -61,16 +59,15 @@ def install_docs_policy(root: Path) -> Path:
     return root / DOCS_POLICY_PATH
 
 
-def docs_fixture(root: Path, governance_root: Path | None = None) -> tuple[Path, int]:
+def docs_fixture(root: Path, governance_root: Path | None = None) -> Path:
     """Install a minimal valid docs tree and README for docs and project-doc mode fixtures."""
 
     governance = governance_root or root
     install_root_authorities(governance)
     policy_path = install_docs_policy(governance)
     document = parse_markdown(policy_path.read_text(encoding="utf-8"))
-    limit, errors = _documentation_line_limit(document)
     required, branch_errors = _required_project_paths(document)
-    assert limit is not None and not errors and not branch_errors
+    assert not branch_errors
     for relative in required:
         path = root / relative
         write(path, "# Router\n" if path.name.endswith("_index.md") else
@@ -84,7 +81,7 @@ def docs_fixture(root: Path, governance_root: Path | None = None) -> tuple[Path,
             write(router, "# Router\n\n" + "".join(f"- [{link}]({link}) - fixture. Required when: testing.\n" for link in links))
     write(root / "README.md", "# Fixture\n\nAGENTS.md docs/project/project_index.md\n\n## Checks\n"
           "python3 -B -m scripts.check_governance_core\n")
-    return policy_path, limit
+    return policy_path
 
 
 def docs_result(root: Path, governance: Path | None = None, mode: str = "docs"):

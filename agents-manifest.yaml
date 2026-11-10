@@ -37,10 +37,6 @@ semantic_queries:
     - "Where is runtime path or backend selection owned and how are fallback or substitute paths rejected?"
   perf_hotspots:
     - "Where are known performance hotspots handled and which SSOT owns caching or batching for the slow path?"
-  design_system:
-    - "Where are design tokens, themes, and the accessibility floor declared?"
-  packaging:
-    - "How is the release artifact built, versioned, and signed?"
 
 profiles:
   excel_automation:
@@ -133,7 +129,6 @@ profiles:
       - "docs/agents/playbooks/gui-guidelines/gui-guidelines.md"
       - "docs/agents/playbooks/config/config.md"
       - "docs/agents/playbooks/run-outcomes/run-outcomes.md"
-      - "docs/agents/playbooks/design-system/design-system.md"
 
   io_batch:
     detect:
@@ -261,6 +256,7 @@ profiles:
       file_globs: []
     authorities:
       - "docs/agents/governance/evidence/evidence.md"
+      - "docs/agents/playbooks/io-batch/io-batch.md"
 
   runtime_path:
     detect:
@@ -284,7 +280,6 @@ profiles:
       - "docs/agents/playbooks/run-outcomes/run-outcomes.md"
       - "docs/agents/playbooks/config/config.md"
       - "docs/agents/governance/coding/logging/logging.md"
-      - "docs/agents/governance/coding/workflow-registry/workflow-registry.md"
 
   bugfix:
     detect:
@@ -299,9 +294,7 @@ profiles:
       code_patterns: []
       file_globs: []
     authorities:
-      - "docs/agents/governance/discovery/discovery.md"
       - "docs/agents/playbooks/run-outcomes/run-outcomes.md"
-      - "docs/agents/governance/bugfix/bugfix.md"
       - "docs/agents/governance/coding/logging/logging.md"
       - "docs/agents/governance/testing/testing.md"
 
@@ -360,7 +353,6 @@ profiles:
         - "README.md"
         - "docs/project/**/*.md"
     authorities:
-      - "docs/agents/governance/documentation/project-docs-template/project-docs-template.md"
       - "docs/agents/governance/release/release.md"
 
   governance_improvement:
@@ -388,13 +380,11 @@ profiles:
         - "docs/agents/**/*.md"
     authorities:
       - "docs/agents/agents_index.md"
-      - "docs/agents/governance/discovery/discovery.md"
       - "docs/agents/governance/ssot/ssot.md"
       - "docs/agents/governance/ssot/authority-decisions/authority-decisions.md"
       - "docs/agents/governance/release/release.md"
       - "docs/agents/governance/settings/settings.md"
       - "docs/agents/governance/governance-learning/governance-learning.md"
-      - "docs/agents/governance/bugfix/bugfix.md"
 
   codex_session_log_review:
     detect:
@@ -498,7 +488,6 @@ profiles:
     authorities:
       - "docs/agents/governance/release/release.md"
       - "docs/agents/governance/testing/testing.md"
-      - "docs/agents/playbooks/packaging/packaging.md"
       - "docs/agents/governance/dependencies/dependencies.md"
 
   settings_task:
@@ -608,7 +597,6 @@ profiles:
         - "*.tokens.json"
         - "**/tokens/**"
     authorities:
-      - "docs/agents/playbooks/design-system/design-system.md"
       - "docs/agents/playbooks/gui-guidelines/gui-guidelines.md"
       - "docs/agents/interfaces/gui-toolkit/gui-toolkit.md"
 
@@ -654,7 +642,6 @@ profiles:
         - "*.appinstaller"
         - "*.iss"
     authorities:
-      - "docs/agents/playbooks/packaging/packaging.md"
       - "docs/agents/governance/dependencies/dependencies.md"
       - "docs/agents/governance/release/release.md"
 

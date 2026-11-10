@@ -1,3 +1,3 @@
 # Testing Branch Index
 
-- [testing.md](testing.md) - Real-file verification, fixtures and coverage, failure-path and guard checks. Required when: verifying I/O changes or any behavior change.
+- [testing.md](testing.md) - Shipped-behavior verification, fixed-defect witnesses, fixture provenance. Required when: verifying any change.

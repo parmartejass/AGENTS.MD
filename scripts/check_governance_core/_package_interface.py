@@ -30,16 +30,14 @@ def module_name_errors(path: Path, relative: str) -> list[str]:
 
 
 def parse_module(path: Path, relative: str, store: DocumentStore) -> tuple[PythonModule | None, list[str]]:
-    text, read_error = store.read_text(path)
-    if read_error:
-        return None, [read_error]
-    assert text is not None
-    module, syntax_error = store.python_module(path, text)
-    if syntax_error is not None:
+    module, error = store.python_module(path)
+    if isinstance(error, SyntaxError):
         return None, [
             f"Python module cannot be parsed for packaged-folder witnesses: "
-            f"{relative}:{syntax_error.lineno or 1}: {syntax_error.msg}"
+            f"{relative}:{error.lineno or 1}: {error.msg}"
         ]
+    if error is not None:
+        return None, [f"Unable to read {path}: {error}"]
     return module, []
 
 

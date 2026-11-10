@@ -33,7 +33,7 @@ def corpus_fixture(root: Path) -> None:
 
 
 class DocumentResolutionTests(unittest.TestCase):
-    def test_live_corpus_contains_mcp_and_workflow_registry_leaves(self) -> None:
+    def test_live_corpus_contains_routed_nested_leaves(self) -> None:
         root = REPOSITORY_ROOT
         result = resolve_documents({"repo_root": str(root), "governance_root": str(root)})
         self.assertEqual("PASSED", result["status"], result)
@@ -42,7 +42,7 @@ class DocumentResolutionTests(unittest.TestCase):
             result["documents"],
         )
         self.assertIn(
-            "docs/agents/governance/coding/workflow-registry/workflow-registry.md",
+            "docs/agents/governance/coding/logging/logging.md",
             result["documents"],
         )
 

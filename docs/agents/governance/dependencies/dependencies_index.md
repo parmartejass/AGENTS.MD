@@ -1,3 +1,3 @@
 # Dependencies Branch Index
 
-- [dependencies.md](dependencies.md) - Dependency pinning, hashed lockfile, audit, and addition rules. Required when: adding, upgrading, or auditing a dependency.
+- [dependencies.md](dependencies.md) - Hashed lockfile and frozen install. Required when: adding, upgrading, or installing a dependency.

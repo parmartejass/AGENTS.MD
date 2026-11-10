@@ -6,9 +6,7 @@ import unittest
 from time import perf_counter
 from unittest.mock import patch
 
-from scripts.check_governance_core._docs_checks import (
-    DOCS_POLICY_PATH, _documentation_line_limit, _physical_lines, _required_project_paths, check_docs,
-)
+from scripts.check_governance_core._docs_checks import DOCS_POLICY_PATH, _required_project_paths, check_docs
 from scripts.check_governance_core._documents import DocumentStore
 from scripts.check_governance_core._inventory import RepositoryInventory
 from scripts.check_governance_core._test_support import REPOSITORY_ROOT, live_principles_section
@@ -44,25 +42,17 @@ class DocsPolicyTimingTests(unittest.TestCase):
             populations.append((perf_counter() - started) * 1000)
             self.assertIsNone(error)
             self.assertEqual(files, fresh_files)
-        texts = [store.read_text(path)[0] for path in files]
-        self.assertTrue(all(text is not None for text in texts))
         preparation_ms = (perf_counter() - preparation_started) * 1000
-        samples = {"policy_resolution_ms": [], "cached_lookup_ms": [], "line_validation_ms": []}
+        samples = {"policy_resolution_ms": [], "cached_lookup_ms": []}
         for _sample in range(5):
             started = perf_counter()
-            limit, errors = _documentation_line_limit(document)
             required, branch_errors = _required_project_paths(document)
             samples["policy_resolution_ms"].append((perf_counter() - started) * 1000)
-            self.assertIsNotNone(limit)
             self.assertTrue(required)
-            self.assertEqual([], errors + branch_errors)
+            self.assertEqual([], branch_errors)
             started = perf_counter()
             self.assertIsNotNone(store.read_text(policy_path)[0])
             samples["cached_lookup_ms"].append((perf_counter() - started) * 1000)
-            started = perf_counter()
-            over_limit = [index for index, text in enumerate(texts) if _physical_lines(text) > limit]
-            samples["line_validation_ms"].append((perf_counter() - started) * 1000)
-            self.assertEqual([], over_limit)
         handlers = {"cold_document_cache": [], "warm_document_cache": []}
         for cache, timings in handlers.items():
             for _sample in range(5):
@@ -78,7 +68,7 @@ class DocsPolicyTimingTests(unittest.TestCase):
             logger.warning("FP-03 operation=%s target_ms=%s samples_ms=%s outcome=%s", name, target_ms,
                            [round(value, 3) for value in values],
                            "UNMET" if max(values) > target_ms else "MET")
-        logger.warning("FP-03 boundaries: corpus preparation includes fresh inventory probes and text loading; "
+        logger.warning("FP-03 boundaries: corpus preparation includes fresh inventory probes; "
                        "handlers include validation with warm inventory as in engine dispatch; scenario includes "
                        "target lookup, setup, samples, and correctness assertions through measurement. "
                        "Reporting, test-runner setup/teardown and model/platform/network/status timing are "
@@ -110,7 +100,7 @@ class DocsPolicyTimingTests(unittest.TestCase):
     def test_timing_rejects_slow_policy_decisions(self) -> None:
         elapsed = 0.0
         delay = _performance_target_ms() * 2 / 1000
-        original = _documentation_line_limit
+        original = _required_project_paths
 
         def delayed_policy(document):
             nonlocal elapsed
@@ -119,7 +109,7 @@ class DocsPolicyTimingTests(unittest.TestCase):
             return result
 
         with patch(f"{__name__}.perf_counter", side_effect=lambda: elapsed), patch(
-            f"{__name__}._documentation_line_limit", new=delayed_policy
+            f"{__name__}._required_project_paths", new=delayed_policy
         ), self.assertRaisesRegex(AssertionError, "policy_resolution_ms"):
             self.test_actual_corpus_policy_lookup_and_validation_timing()
 

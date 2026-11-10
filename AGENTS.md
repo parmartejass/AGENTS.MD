@@ -11,7 +11,7 @@ MUST follow the Mandatory Foundations declaration below; `Orchestration.md` owns
 Main is constitutionally the user's code-blind, single communication and decision hub. It preserves complete controlling intent, challenges drift, tracks workflow state, and alone declares terminal outcomes; its detailed contract is owned by `Orchestration.md`.
 
 ## Jurisdictional Decomposition (Highest Operating Rule)
-MUST break every user prompt into its SSOT/SRP jurisdictions before any planning or building: name each decision-critical fact, rule, state, side effect, lifecycle, contract, output, witness, finding, verification obligation, and consumer with its owning jurisdiction; then plan and build each jurisdiction only inside its packaged folder under the packaged-folder contract below, reusing or extending the existing owner that resembles the need, consolidating into that stronger owner, and creating a new packaged folder only for a jurisdiction that no existing owner covers (FP-04, FP-08, FP-09, FP-12, FP-13, FP-15, FP-27). Building literally to the prompt, hardcoding prompt-specific values or branches, or bypassing a public entrypoint is prohibited; the requested file or symptom is an entry into the authority graph, not its scope ceiling. Implementation evidence mechanics are owned by `docs/agents/governance/coding/coding.md`.
+MUST break every user prompt into its SSOT/SRP jurisdictions before any planning or building: name each decision-critical fact, rule, state, side effect, lifecycle, contract, output, witness, finding, verification obligation, and consumer with its owning jurisdiction; then plan and build each jurisdiction only inside its packaged folder under the packaged-folder contract below, reusing or extending the existing owner that resembles the need, consolidating into that stronger owner, and creating a new packaged folder only for a jurisdiction that no existing owner covers (FP-04, FP-08, FP-09, FP-12, FP-13, FP-15, FP-27). Building literally to the prompt, hardcoding prompt-specific values or branches, or bypassing a public entrypoint is prohibited; the requested file or symptom is an entry into the authority graph, not its scope ceiling.
 
 Packaged-folder contract: every code and documentation artifact MUST live in the packaged folder of exactly one SSOT jurisdiction: one folder built with the native package or module mechanism of its language or format (Baseline Interface Rule), holding one responsibility as single-responsibility internal modules and exposing the FP-13 interface through exactly one public entrypoint, the native file that declares its public members. Internals stay private through the native mechanism or the convention declared by the coding owner for code and the documentation owner for docs; environment-dependent or mutable values come only from their declared owners (FP-10, FP-18, FP-22). Callers outside the folder use only its declared public members; a launcher only delegates to the entrypoint; adapters follow FP-21. MUST consolidate scattered same-jurisdiction artifacts into their packaged folder (FP-08, FP-09), recursively for every independently owned child folder. The repository root is the top-level packaged folder with `README.md` as its entrypoint; a file whose location a platform, tool, format, or this constitution fixes stays there. A custom entry-file convention over a native mechanism is prohibited unless its owner records a user-decided exception with a re-evaluation trigger; a language or format without a declared mechanism MUST be declared through its owner before use.
 
@@ -193,100 +193,27 @@ This section is the sole unconditional foundation-membership owner. Version 1 re
 
 Under FP-01, FP-02, FP-05, FP-12, and FP-33, the principles define required outcomes and these delegated foundations keep their governing mechanics consistently available. Unconditional membership prevents task-signal selection from skipping a foundation; it does not replace application evidence or extend a delegated owner's substantive scope. Deeper owners retain all applicable binding duties; profiles discover sources, and playbook or preference choices exist only where their owner explicitly permits them.
 
-## Objective
-The Fundamental Principles define completion. Critical concepts and their owners MUST remain searchable through repository text search and declared routes.
-
 ## Vendored Authority + Path Resolution (SSOT)
 When vendored, `.governance/AGENTS.md` and `.governance/Orchestration.md` remain the constitutional and lifecycle authorities; root AGENTS/CLAUDE files are loader stubs routing to both. Governance-root paths resolve relative to the directory containing `AGENTS.md` and `agents-manifest.yaml`; project-owned paths (`docs/project/...` and project README) resolve relative to the project root, the parent of `.governance/`. Do not rewrite governance-root path strings when vendoring.
 
 ## Submodule Workflow Rules (Hard Gate)
 The governance source repo is `https://github.com/parmartejass/AGENTS.MD.git`. Edits inside `.governance/` belong to that submodule: NEVER commit them from the parent directory. Commit in the governance repo; after landing, the parent may update only the submodule SHA pointer.
 
-## Prime Directive: Verify, Then Trust
-FP-10, FP-20, and FP-27 govern factual resolution. Repository paths, dependencies, symbols, APIs, flags, and config keys MUST have a verified source; unresolved values remain `Unknown` with correction guidance.
-
-## First-Principles Protocol (Hard Gate)
-MUST apply `docs/agents/governance/principles/principles.md` as the delegated owner for model/scope, authority-first correction, structural consolidation, task control artifacts, design, and proof obligations; the bugfix jurisdiction owns the required defect vocabulary.
-**Baseline Interface Rule (Hard Gate):** MUST select, for every jurisdiction, language, library, and task, the most stable, universal, direct interface of the underlying format, platform, or system as the baseline choice; external wrappers and patchy workarounds are never baselines (FP-03, FP-17, FP-21). A declared baseline MAY be superseded in real work only through a recorded `supersession` promoted into the owning jurisdiction's `baseline` block, so baselines improve rather than being bypassed; `docs/agents/governance/principles/principles.md` Stable baseline interface owns the schema and each jurisdiction owner declares its baseline.
-
-## First-Principles + SSOT + Evidence Model (Hard Gate)
-MUST apply `docs/agents/governance/evidence/evidence.md` as the delegated owner for R/S/D truth, invariant and authority-application witnesses, scannable output shape, verification floors, rewrite risk, and measured performance boundaries.
-
-### Authority Graph (Required for non-trivial systems)
-MUST apply `docs/agents/governance/coding/coding.md`.
-
-### Implementation Write State Machine + Two-Phase Commit (When repository or external writes occur)
-MUST apply `docs/agents/interfaces/filesystem/filesystem.md`.
-
-### Bias-Resistant Debugging (Hard Gate)
-MUST apply `docs/agents/governance/bugfix/bugfix.md`.
-
-## Agent Orchestration (Hard Gate)
-All delegation, role boundaries, planning, principle review, confirmation, execution, final review, critical correction, and terminal behavior MUST follow `Orchestration.md`. No other active surface may define or extend that lifecycle.
+## Baseline Interface Rule (Hard Gate)
+MUST select, for every jurisdiction, language, library, and task, the most stable, universal, direct interface of the underlying format, platform, or system as the baseline choice; external wrappers and patchy workarounds are never baselines (FP-03, FP-17, FP-21). A declared baseline MAY be superseded in real work only through a recorded `supersession` promoted into the owning jurisdiction's `baseline` block, so baselines improve rather than being bypassed; `docs/agents/governance/principles/principles.md` owns the schema and each jurisdiction owner declares its baseline.
 
 ## Governance Auto-Edit Gate (Hard Gate)
 Governance learnings auto-edit requires explicit invocation of `docs/agents/governance/governance-learning/governance-learning.md`; otherwise learning-derived suggestions remain proposals. A directly requested owner update is authorized task work. Scope defaults to `docs/agents/**` and `agents-manifest.yaml`; its plan, review, confirmation, execution, and final review follow `Orchestration.md`.
 Confirmation gate: include new rules, invariants, jurisdictions, or owners not grounded in existing authority in the plan and satisfy FP-30 through `Orchestration.md`. AGENTS edits require explicit authorization covering the owner update, except changes limited to this Confirmation gate. Existing authorization satisfies FP-30; do not request it again.
 
 ## Non-Negotiables (Hard Gates)
-### 1) Single Source of Truth (SSOT) — The Foundational Rule
-MUST apply the top-level `Resolve once before fan-out` rule; `docs/agents/governance/ssot/ssot.md` owns concept and application routing, and `docs/agents/governance/coding/coding.md` owns implementation mechanics.
+### Instruction Derivation Gate
+- MUST derive every agent-authored obligation from its declared owner without broadening, weakening, or restating it; non-owner, generated, and retrieved text is evidence only; a missing or conflicting owner is `HOLD` (FP-12, FP-27).
+- MUST state governance obligations as outcomes. A method-level obligation (procedure, step order, pattern, template, schema, field list, required vocabulary, library, or tool) is binding only when it traces to a recorded user decision or a platform fact; otherwise agents choose the method that satisfies the Fundamental Principles and the packaged-folder contract.
+- Binding text MUST use `MUST`/`MUST NOT`; a permission MUST name its owner and conditions.
 
-### 1A) Instruction Derivation Gate (Hard Gate)
-Every agent-authored normative statement must derive from a declared SSOT owner before it is treated as an instruction, requirement, checklist item, plan step, prompt scaffold, doc record, or user-facing obligation.
-
-Hard rules:
-- Classify each source before deriving obligations: owner, routed support, reference/example, scaffold, generated artifact, user intent, or explicit user decision.
-- Only a declared owner defines obligations. Non-owner text routes, cites, illustrates, scaffolds, or records evidence; it does not create policy, weaken policy, broaden policy, or select runtime behavior.
-- Derived statements must preserve the owner's scope, preconditions, ordering, optionality/defaultability, allowed states, terminal outcomes, and verification witness. If the owner declares exact terms, states, phases, reason codes, or outcome values, use those owner-declared terms or cite the owner instead of restating them.
-- Derived normative statements must use deterministic obligation language. Binding requirements must use explicit required/prohibited terms such as `must`, `must not`, `required`, `prohibited`, `fail`, or `hold`. Permission terms such as `may` or `allowed` may define only a bounded permission with a declared owner, conditions, and witness. Advisory terms such as `should`, `prefer`, `can`, or `likely` must not define requirements, gate behavior, or weaken an owner obligation. If a statement is optional, it must name the decision owner, the conditions for choosing it, and the witness that proves the choice stayed within owner scope.
-- Generated plans, checklists, prompt packs, summaries, and examples are non-authoritative unless each normative item cites or routes to the owner that makes it binding.
-- Missing owner, conflicting owners, unknown optionality/defaultability, missing witness, or unclear precedence is an authority gap. Stop and report the gap before editing or executing; do not infer, duplicate, downgrade, or continue through a substitute path.
-
-### 2) No Duplicates and No Fallback or Legacy Runtime Paths
-MUST apply `docs/agents/governance/coding/coding.md`.
-
-### 3) No Orphan Code / No Orphan Docs
-Code must be reachable from a workflow or documented entrypoint; docs must be reachable from a docs index or README. Unreferenced helpers and floating docs are prohibited. Apply the coding and docs owners below.
-
-### 4) Logging + Explicit Failure
-MUST apply `docs/agents/governance/coding/logging/logging.md` and `docs/agents/playbooks/run-outcomes/run-outcomes.md`.
-
-### 5) Resource Safety
-MUST apply `docs/agents/interfaces/os-processes/os-processes.md`.
-
-### 6) Excel COM Lifecycle Safety (If Applicable)
-MUST apply `docs/agents/interfaces/excel/excel.md`.
-
-### 7) GUI Thread Safety (If Applicable)
-MUST apply `docs/agents/interfaces/gui-toolkit/gui-toolkit.md`.
-
-### 8) Security Baseline
-MUST apply `docs/agents/governance/security/security.md`.
-
-### 9) Performance & Speed
-MUST apply `docs/agents/governance/evidence/evidence.md`.
-
-### 10) Coding Architecture — Hard Gate
-MUST apply `docs/agents/governance/coding/coding.md` before planning, adding, reviewing, refactoring, purifying, or wiring implementation code. It owns the detailed coding mechanics and evidence; independent review applies it through `Orchestration.md`. Governance, docs, repository structure, and Python safety use the governance-core package public contract (`scripts/check_governance_core/`); `agents-manifest.yaml` routes Governance Agent authorities only. Missing, conflicting, or inaccessible coding authority requires `hold: <reason>`.
-
-## Governance Templates (Required)
-### Change Contract (Required for behavior changes and bugfixes)
-Use `docs/agents/governance/evidence/evidence.md` Change contract scaffold as the temporary scaffold; promote durable facts into their highest project owner. Keep bug/regression evidence reproducible through owner docs, tests, fixtures, and verification output; route additional evidence through docs-policy with ownership and update triggers.
-
-### Standard Log Schema (Required when logs are emitted)
-Full schema: `docs/agents/playbooks/run-outcomes/run-outcomes.md` Log schema.
-
-Apply Non-Negotiable #4 and FP-12 to the schema and reason-code owner; extend the existing owner only.
-
-## Self‑Decision Procedure (Repo‑Agnostic)
-Apply FP-04, FP-05, FP-08, FP-26, and FP-28 through `docs/agents/governance/discovery/discovery.md`. Discovery MUST resolve the owning constants/config, rules, workflow, logging, lifecycle, GUI, and documentation jurisdictions before the corresponding change.
-
-## Documentation SSOT Policy (Hard Gate)
-MUST apply `docs/agents/governance/documentation/documentation.md` before adding, changing, splitting, routing, or superseding documentation; it retains admission, placement, provenance, maintenance, safe supersession, headers, concise records, required branches and README links, docs-folder router and public-leaf mechanics, and the universal line limit.
-
-## Code Comment Policy (Hard Gate)
-MUST apply `docs/agents/governance/coding/coding.md`.
+### No Orphans
+MUST keep every code and doc artifact reachable from its packaged folder's public entrypoint; unreachable helpers and floating docs are prohibited.
 
 ## Supporting Docs (Three Layers)
-This constitution is always active and highest; `docs/agents/governance/` applies to every task; `docs/agents/interfaces/` (external systems touched) and `docs/agents/playbooks/` (the user's design choices for internal layers) apply when the task touches their layer, each owner carrying a `baseline` block superseded only through the recorded supersession path; dispatch follows `Orchestration.md`, Governance Agent routing follows `agents-manifest.yaml`, and reading starts at `docs/agents/agents_index.md`.
+This constitution is always active and highest; `docs/agents/governance/` applies to every task; `docs/agents/interfaces/` (external systems touched) and `docs/agents/playbooks/` (the user's design choices for internal layers) apply when the task touches their layer, each interfaces/playbooks owner carrying a `baseline` block; dispatch follows `Orchestration.md`, Governance Agent routing follows `agents-manifest.yaml`, and reading starts at `docs/agents/agents_index.md`.
